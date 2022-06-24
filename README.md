@@ -1,4 +1,10 @@
-![alt](assets/KronOS-Logo.png)
+<center>
+<img
+    style="display: block; margin-left: none; margin-right: none; width: 75%"
+    src="assets/KronOS-Logo.png"
+img/>
+</center>
+
 
 # Kronos
 

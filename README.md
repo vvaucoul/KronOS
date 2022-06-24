@@ -1,7 +1,13 @@
-![alt](assets/KronOS-Template.png)
+![alt](assets/KronOS-Logo.png)
 
-<center> <h2>Kronos</h2> </center>
+# Kronos
 
 --------------------------------
 
-Lightweight Unix-like kernel writen in C and ASM.
+Kronos is a lightweight Unix-like kernel writen in C and ASM.
+
+### Prerequisites
+
+* [GCC] (https://gcc.gnu.org/)
+* [QEMU] (https://qemu.org/)
+* []

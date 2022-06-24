@@ -1,6 +1,6 @@
 ![alt](assets/KronOS-Template.png)
 
-<center> <h1>Kronos</h1> </center>
+<center> <h2>Kronos</h2> </center>
 
 --------------------------------
 

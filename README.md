@@ -15,4 +15,15 @@ Kronos is a lightweight Unix-like kernel writen in C and ASM.
 
 * [GCC] (https://gcc.gnu.org/)
 * [QEMU] (https://qemu.org/)
-* []
+  
+### Compilation
+
+```bash
+$ make
+```
+
+### Running
+
+```bash
+$ make run
+```

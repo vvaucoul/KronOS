@@ -6,14 +6,14 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/25 12:26:49 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/06/25 13:18:08 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libkfs.a
 CC = gcc
 ASM = nasm
-CFLAGS = -Wall -Wextra \
+CFLAGS = -Wall -Wextra -Werror \
 				-fno-builtin -fno-exceptions -fno-stack-protector \
 				-nostdlib -nodefaultlibs \
 				-std=gnu99 -ffreestanding -O2 $(INCLUDE)

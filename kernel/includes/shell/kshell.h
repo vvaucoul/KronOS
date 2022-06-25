@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 18:09:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:35:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,13 @@
 #define DISPLAY_PROMPT() kprintf(__PROMPT__)
 
 extern void kronos_shell(void);
+
+extern uint16_t *kshell_buffer;
+
+extern size_t kshell_max_line;          // Max line of the shell
+extern size_t kshell_current_max_line;  // Current max line of the shell
+extern size_t kshell_min_line;          // Min line of the shell
+extern size_t kshell_current_line;      // Current line of the shell
 
 /*******************************************************************************
  *                                    UTILS                                    *

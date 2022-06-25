@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:20:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 12:31:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:29:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,23 +16,41 @@
 #include "kshell.h"
 
 /*******************************************************************************
+ *                              BUFFER MANAGEMENT                              *
+ ******************************************************************************/
+
+static inline void kshell_move_offset_buffer_up(size_t offset)
+{
+}
+
+static inline void kshell_move_offset_buffer_down(size_t offset)
+{
+}
+
+/*******************************************************************************
  *                               CURSOR MOVEMENT                               *
  ******************************************************************************/
 
 static inline void kshell_move_cursor_up(void)
 {
+    if (kshell_current_line <= kshell_min_line)
+        return;
     terminal_row--;
     if (terminal_row < __HEADER_HEIGHT__)
         terminal_row = __HEADER_HEIGHT__;
     terminal_column = __PROMPT_ASCII_LEN__;
+    kshell_current_line--;
 }
 
 static inline void kshell_move_cursor_down(void)
 {
+    if (kshell_current_line >= kshell_current_max_line)
+        return;
     terminal_row++;
     if (terminal_row >= VGA_HEIGHT)
         terminal_row = VGA_HEIGHT - 1;
     terminal_column = __PROMPT_ASCII_LEN__;
+    kshell_current_line++;
 }
 
 static inline void kshell_move_cursor_left(void)
@@ -66,7 +84,16 @@ static inline void kshell_del_one(void)
 static inline void kshell_new_line(void)
 {
     terminal_column = 0;
+    if (terminal_row >= VGA_HEIGHT - 1)
+    {
+        terminal_column = __PROMPT_ASCII_LEN__;
+        UPDATE_CURSOR();
+        return;
+    }
     terminal_row++;
+    if (kshell_current_line == kshell_current_max_line)
+        kshell_current_max_line++;
+    kshell_current_line++;
     DISPLAY_PROMPT();
     terminal_column = __PROMPT_ASCII_LEN__;
     UPDATE_CURSOR();

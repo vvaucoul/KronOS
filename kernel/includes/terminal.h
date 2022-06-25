@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 15:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 13:59:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,10 @@ enum vga_color
 #define VGA_ENTRY(uc, color) (((unsigned char)uc) | ((uint8_t)color) << 8)
 #define VGA_ENTRY_COLOR(fg, bg) (((enum vga_color)fg) | ((enum vga_color)bg) << 4)
 
+#define __MAX_SCREEN_SUPPORTED__ (size_t)3
+
 extern void terminal_initialize(void);
+extern void terminal_update_screen(void);
 extern void terminal_putchar(char c);
 extern void terminal_writestring(const char *data);
 extern void terminal_setcolor(uint8_t color);
@@ -60,13 +63,20 @@ static const size_t VGA_HEIGHT = 25;
 
 extern size_t terminal_row;
 extern size_t terminal_column;
+extern size_t terminal_screen;
 extern uint8_t terminal_color;
-extern uint16_t *terminal_buffer;
+extern uint16_t *terminal_buffer[__MAX_SCREEN_SUPPORTED__];
 
 #define UPDATE_CURSOR(void) update_cursor(terminal_column, terminal_row)
 #define IS_CHAR(void) __terminal_cursor_is_char__()
+
 #define TERMINAL_CURSOR_AT_LOCATION(x, y) get_terminal_index((size_t)y, (size_t)x)
+#define TERMINAL_CHAR(x, y) *get_terminal_char((size_t)x, (size_t)y)
+#define TERMINAL_SCREEN_CHAR(x, y, screen) *get_terminal_screen_char((size_t)x, (size_t)y, (size_t)screen)
+#define TERMINAL_CHANGE_SCREEN(screen) terminal_change_screen(screen)
+
 #define __TERMINAL_CURSOR_LOCATION__ get_terminal_index(terminal_row, terminal_column)
+#define __TERMINAL_SCREEN__ terminal_screen
 
 static inline int get_terminal_index(size_t row, size_t column)
 {
@@ -76,21 +86,24 @@ static inline int get_terminal_index(size_t row, size_t column)
 static inline bool __terminal_cursor_is_char__(void)
 {
     const size_t index = terminal_row * VGA_WIDTH + terminal_column;
-    return ((bool)(terminal_buffer[index] == ' ' ? false : true));
+    return ((bool)(terminal_buffer[__TERMINAL_SCREEN__][index] == ' ' ? false : true));
 }
 
-static inline void terminal_cursor_up(void)
+static inline uint16_t *get_terminal_char(size_t column, size_t row)
 {
-    ++terminal_row;
-    terminal_column = 0;
-    UPDATE_CURSOR();
+    return &(terminal_buffer[__TERMINAL_SCREEN__][get_terminal_index(row, column)]);
 }
 
-static inline void terminal_cursor_down(void)
+static inline uint16_t *get_terminal_screen_char(size_t column, size_t row, size_t screen)
 {
-    --terminal_row;
-    terminal_column = 0;
-    UPDATE_CURSOR();
+    return &(terminal_buffer[screen][get_terminal_index(row, column)]);
+}
+
+static inline void terminal_change_screen(size_t screen)
+{
+    return ;
+    terminal_screen = screen;
+    terminal_update_screen();
 }
 
 #endif

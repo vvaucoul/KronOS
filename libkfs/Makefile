@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/23 19:59:19 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/06/25 12:26:49 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ ASM_FLAGS	=	-f elf32
 INCLUDE = -I./include
 MK_INCLUDE_DIR	=	mk-files
 
-SRCS =	$(shell find srcs -name '*.c')
+SRCS =	$(shell find srcs -name '*.c') \
+		$(shell find libs -name '*.c')
 OBJS = $(SRCS:.c=.o)
 
 SRCS_ASM	=	$(shell find srcs -name '*.s')

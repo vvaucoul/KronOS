@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/23 20:29:46 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/06/24 15:15:31 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -104,19 +104,19 @@ check:
 
 run:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
-	@qemu-system-i386 -kernel isodir/boot/$(BIN)
-
+	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display sdl -vga std -full-screen 
+ 
 run-iso:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
-	@qemu-system-i386 -cdrom $(NAME).iso
+	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display sdl -boot d -vga std -full-screen
 
 run-curses:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
-	@qemu-system-i386 -cdrom $(NAME).iso -curses
+	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -curses -vga std -full-screen
 
 debug:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
-	@qemu-system-i386 -kernel isodir/boot/$(BIN) -s -S
+	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -s -S -display sdl -vga std -full-screen
 
 $(ISO):
 	@mkdir -p isodir/boot/grub

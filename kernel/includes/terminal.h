@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 12:24:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/24 15:56:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ extern void terminal_writestring_location(const char *data, size_t x, size_t y);
 extern void terminal_back_once(void);
 extern void update_cursor(int x, int y);
 extern void terminal_insert_char(char c);
+extern void terminal_write_n_char(char c, size_t count);
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
@@ -64,8 +65,8 @@ extern uint16_t *terminal_buffer;
 
 #define UPDATE_CURSOR(void) update_cursor(terminal_column, terminal_row)
 #define IS_CHAR(void) __terminal_cursor_is_char__()
+#define TERMINAL_CURSOR_AT_LOCATION(x, y) get_terminal_index((size_t)y, (size_t)x)
 #define __TERMINAL_CURSOR_LOCATION__ get_terminal_index(terminal_row, terminal_column)
-#define __TERMINAL_CURSOR_AT_LOCATION__(x, y) get_terminal_index((size_t)y, (size_t)x)
 
 static inline int get_terminal_index(size_t row, size_t column)
 {

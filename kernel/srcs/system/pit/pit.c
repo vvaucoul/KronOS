@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/23 00:08:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 11:21:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,9 @@ void timer_phase(int hz)
     outportb(0x40, divisor >> 8);   /* Set high byte of divisor */
 }
 
-/* This will keep track of how many ticks that the system
- *  has been running for */
 int timer_ticks = 0;
+int timer_seconds = 0;
 
-/* Handles the timer. In this case, it's very simple: We
- *  increment the 'timer_ticks' variable every time the
- *  timer fires. By default, the timer fires 18.222 times
- *  per second. Why 18.222Hz? Some engineer at IBM must've
- *  been smoking something funky */
 void timer_handler(struct regs *r)
 {
     /* Increment our 'tick count' */
@@ -37,31 +31,33 @@ void timer_handler(struct regs *r)
 
     /* Every 18 clocks (approximately 1 second), we will
      *  display a message on the screen */
+    // if (timer_ticks % (int)((double)100 * (__TIMER_HZ__ / 2)) == 0)
+    // if (timer_ticks % 1000 == 0)
     if (timer_ticks % 18 == 0)
     {
-        // kputs("One second has passed\n");
+        timer_seconds++;
+        // kputs("One second has passed");
     }
     char buffer[__KITOA_BUFFER_LENGTH__];
 
-    terminal_writestring_location("Timer: ", VGA_WIDTH - kstrlen("Timer: ") - 5, 0);
-    terminal_writestring_location("Phase: ", VGA_WIDTH - kstrlen("Phase: ") - 5, 1);
+    terminal_writestring_location("Phase: ", VGA_WIDTH - kstrlen("Phase: ") - 7, 1);
+    terminal_writestring_location("Sec: ", VGA_WIDTH - kstrlen("Sec: ") - 7, 2);
 
-    kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
-    kitoa(timer_ticks / 18, buffer);
-    terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 0);
-    
     kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
     kitoa(timer_ticks, buffer);
     terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 1);
+
+    kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
+    kitoa(timer_seconds, buffer);
+    terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 2);
 }
 
 void timer_install()
 {
+    // timer_phase(__TIMER_HZ__);
     irq_install_handler(0, timer_handler);
 }
 
-/* This will continuously loop until the given time has
- *  been reached */
 void timer_wait(int ticks)
 {
     int eticks;
@@ -69,10 +65,21 @@ void timer_wait(int ticks)
     eticks = timer_ticks + ticks;
     while (timer_ticks < eticks)
     {
+        kprintf("");
     }
 }
 
 void ksleep(int seconds)
 {
-    timer_wait(seconds);
+    int eseconds;
+
+    eseconds = timer_seconds + seconds;
+    while (timer_seconds < eseconds)
+    {
+        // char buffer[__KITOA_BUFFER_LENGTH__];
+        // kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
+        // kitoa(eseconds - timer_seconds, buffer);
+        // terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 4);
+        kprintf("");
+    }
 }

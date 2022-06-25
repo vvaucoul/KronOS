@@ -6,11 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 01:15:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 11:31:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/drivers/keyboard.h"
+
+#include "../../includes/shell/kshell.h"
+#include "../../includes/shell/kshell_termcaps.h"
 
 unsigned char kbdus[128] =
     {
@@ -57,20 +60,49 @@ static bool scancode_handler(unsigned char scancode)
     // kprintf("Key: %c\n", scancode);
     switch (scancode)
     {
+        /* TERMINAL MODE */
+        // case KEYBOARD_KEY_ESCAPE:
+        //     reboot();
+        //     return (true);
+        // case KEYBOARD_KEY_BACK:
+        //     terminal_back_once();
+        //     return (true);
+        // case KEYBOARD_KEY_ARROW_LEFT:
+        // case KEYBOARD_KEY_ARROW_RIGHT:
+        //     return (true);
+        // case KEYBOARD_KEY_ARROW_DOWN:
+        //     terminal_cursor_up();
+        //     return (true);
+        // case KEYBOARD_KEY_ARROW_TOP:
+        //     terminal_cursor_down();
+        //     return (true);
+
+    /* KSHELL MODE */
     case KEYBOARD_KEY_ESCAPE:
-        reboot();
+        // outw(0x604, 0x2000);
+        poweroff();
+        // reboot();
         return (true);
     case KEYBOARD_KEY_BACK:
-        terminal_back_once();
+        kshell_del_one();
         return (true);
     case KEYBOARD_KEY_ARROW_LEFT:
+        kshell_move_cursor_left();
+        return (true);
     case KEYBOARD_KEY_ARROW_RIGHT:
+        kshell_move_cursor_right();
         return (true);
     case KEYBOARD_KEY_ARROW_DOWN:
-        terminal_cursor_up();
+        kshell_move_cursor_down();
         return (true);
     case KEYBOARD_KEY_ARROW_TOP:
-        terminal_cursor_down();
+        kshell_move_cursor_up();
+        return (true);
+    case KEYBOARD_KEY_ENTER:
+        kshell_new_line();
+        return (true);
+    case KEYBOARD_KEY_SUPPR:
+        kshell_suppr_char();
         return (true);
     default:
         break;
@@ -112,7 +144,9 @@ void keyboard_handler(struct regs *r)
             // if (IS_CHAR() == true)
             //     terminal_insert_char(kbdus[scancode]);
             // else
-            terminal_putchar(kbdus[scancode]);
+
+            kshell_write_char(kbdus[scancode]);
+            // terminal_putchar(kbdus[scancode]);
         }
     }
 }

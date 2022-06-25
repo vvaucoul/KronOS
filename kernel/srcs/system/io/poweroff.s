@@ -1,22 +1,18 @@
 global poweroff
+extern outw
 
 poweroff:
-    mov ah, 42h
-    mov bx, 1
-    mov cx, 3
-    xor bx, bx
-    int 15h
+    push ebp
 
-    ; mov ax, 5301h
-    ; xor bx, bx
-    ; int 15h
+    mov ebx, 0x2000 ; Push last parameter first
+    push ebx
+
+    mov edi, 0x604 ; Push first parameter Last
+    push edi
     
-    ; mov ax, 530Fh
-    ; mov bx, 1
-    ; mov cx, 1
-    ; int 15h
-    
-    ; mov ax, 5307h
-    ; mov bx, 1
-    ; mov cx, 3
-    ; int 15h
+    call outw ; Call the function
+
+    pop ebx
+    pop edi
+    pop ebp
+    ret

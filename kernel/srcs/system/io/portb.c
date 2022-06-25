@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:31:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 00:43:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:33:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,13 @@ void outportb(unsigned short _port, unsigned char _data)
 void outb(uint16_t port, uint8_t val)
 {
     asm volatile("outb %0, %1"
+                 :
+                 : "a"(val), "Nd"(port));
+}
+
+void outw(uint16_t port, uint16_t val)
+{
+    asm volatile("outw %0, %1"
                  :
                  : "a"(val), "Nd"(port));
 }

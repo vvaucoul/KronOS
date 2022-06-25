@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:32:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 00:43:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 11:27:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ extern void poweroff(void);
 extern void halt();
 extern void reboot();
 extern void outb(uint16_t port, uint8_t val);
+extern void outw(uint16_t port, uint16_t val);
 
 // static inline void poweroff(void)
 // {

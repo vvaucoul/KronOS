@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 12:16:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:00:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <limits.h>
 
 #include "kprintf.h"
+#include "../libs/ctypes/ctypes.h"
 
 extern size_t kstrlen(const char *str);
 extern size_t knbrlen(const int nbr);

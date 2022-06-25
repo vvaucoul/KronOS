@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 12:22:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/24 15:56:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void terminal_initialize(void)
     {
         for (size_t x = 0; x < VGA_WIDTH; x++)
         {
-            terminal_buffer[__TERMINAL_CURSOR_AT_LOCATION__(x, y)] = VGA_ENTRY(' ', terminal_color);
+            terminal_buffer[TERMINAL_CURSOR_AT_LOCATION(x, y)] = VGA_ENTRY(' ', terminal_color);
         }
     }
 }
@@ -39,7 +39,7 @@ void terminal_setcolor(uint8_t color)
 
 void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
 {
-    terminal_buffer[__TERMINAL_CURSOR_AT_LOCATION__(x, y)] = VGA_ENTRY(c, color);
+    terminal_buffer[TERMINAL_CURSOR_AT_LOCATION(x, y)] = VGA_ENTRY(c, color);
     UPDATE_CURSOR();
 }
 
@@ -110,6 +110,7 @@ void terminal_clear_screen(void)
     }
     terminal_column = 0;
     terminal_row = 0;
+    UPDATE_CURSOR();
 }
 
 void terminal_back_once(void)
@@ -140,4 +141,10 @@ void terminal_insert_char(char c)
         terminal_buffer[i] = terminal_buffer[i - 1];
     terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
     UPDATE_CURSOR();
+}
+
+void terminal_write_n_char(char c, size_t count)
+{
+    for (size_t i = 0; i < count; i++)
+        terminal_putchar(c);
 }

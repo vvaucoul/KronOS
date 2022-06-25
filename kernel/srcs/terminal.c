@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 13:59:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 16:19:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ size_t terminal_row;
 size_t terminal_column;
 size_t terminal_screen;
 uint8_t terminal_color;
-uint16_t *terminal_buffer[__MAX_SCREEN_SUPPORTED__];
+uint16_t *terminal_buffer;
 
 void terminal_initialize(void)
 {
@@ -24,22 +24,14 @@ void terminal_initialize(void)
     terminal_column = 0;
     terminal_screen = 0;
     terminal_color = VGA_ENTRY_COLOR(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    for (size_t s = 0; s < __MAX_SCREEN_SUPPORTED__; s++)
+    terminal_buffer = __VGA_MEMORY__;
+    for (size_t y = 0; y < VGA_HEIGHT; y++)
     {
-        terminal_buffer[s] = (uint16_t *)0xB8000;
-        for (size_t y = 0; y < VGA_HEIGHT; y++)
+        for (size_t x = 0; x < VGA_WIDTH; x++)
         {
-            for (size_t x = 0; x < VGA_WIDTH; x++)
-            {
-                TERMINAL_SCREEN_CHAR(x, y, s) = VGA_ENTRY(' ', terminal_color);
-            }
+            TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', terminal_color);
         }
     }
-}
-
-void terminal_update_screen(void)
-{
-    // terminal_clear_screen();
 }
 
 void terminal_setcolor(uint8_t color)

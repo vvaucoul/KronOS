@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:20:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 15:29:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 15:49:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,12 @@
 
 static inline void kshell_move_offset_buffer_up(size_t offset)
 {
+    (void)offset;
 }
 
 static inline void kshell_move_offset_buffer_down(size_t offset)
 {
+    (void)offset;
 }
 
 /*******************************************************************************

@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Jun 25 15:38:09 2022
+# Make data base, printed on Sat Jun 25 15:45:16 2022
 
 # Variables
 
@@ -276,7 +276,6 @@ _PURPLE = $'\033[35m
 GIO_LAUNCHED_DESKTOP_FILE_PID = 3459
 # makefile (from 'mk-files/Colors.mk', line 45)
 _LRED = $'\033[91m
- 
 # environment
 PAGER = less
 # environment
@@ -288,6 +287,7 @@ BIN = kernel.bin
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # makefile (from 'Makefile', line 22)
+ 
 CFLAGS = -Wall -Wextra -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2
 # environment
 COLORTERM = truecolor
@@ -362,9 +362,9 @@ LC_IDENTIFICATION = fr_FR.UTF-8
 
 # Directories
 
-# . (device 2053, inode 3165682): 17 files, no impossibilities.
+# . (device 2053, inode 3165682): 19 files, no impossibilities.
 
-# 17 files, no impossibilities in 1 directories.
+# 19 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -415,7 +415,7 @@ run-curses:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -curses -vga std -full-screen
 
-srcs/kernel: kernel/srcs/kshell.o kernel/srcs/terminal.o kernel/srcs/shell/kshell_utils.o kernel/srcs/shell/kshell.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o
+srcs/kernel: kernel/srcs/terminal.o kernel/srcs/shell/kshell_utils.o kernel/srcs/shell/kshell.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -446,7 +446,7 @@ debug:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-25 15:37:57.355901433
+#  Last modified 2022-06-25 15:45:08.450572643
 #  File has been updated.
 #  Successfully updated.
 
@@ -515,12 +515,6 @@ kernel/srcs/system/isr/isr.o:
 #  Modification time never checked.
 #  File has not been updated.
 
-# Not a target:
-kernel/srcs/kshell.o:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-
 kfs.iso:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -554,7 +548,6 @@ kernel/srcs/system/idt/idt.o:
 # Not a target:
 .DEFAULT:
 #  Implicit rule search has not been done.
- 
 #  Modification time never checked.
 #  File has not been updated.
 
@@ -593,6 +586,7 @@ run:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display sdl -vga std -full-screen 
 
+ 
 # Not a target:
 kernel/srcs/shell/kshell.o:
 #  Implicit rule search has not been done.
@@ -640,7 +634,7 @@ kernel.bin:
 	@mkdir -p bin
 	@$(CC) $(LDFLAGS) -T $(LINKER) -o bin/$(BIN) $(CFLAGS) \
 	$(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) \
-	> /dev/null 2>&1
+	> /dev/null #2>&1
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "KERNEL / LINKER / BOOT" 
 	@printf "$(_LWHITE)- KERNEL BIN $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)$(_DIM) -> ISO CREATION $(_END) \n"
 	@make -s -C . check
@@ -648,7 +642,7 @@ kernel.bin:
 # Not a target:
 mk-files/Colors.mk:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-25 15:37:57.35990148
+#  Last modified 2022-06-25 15:40:20.465220276
 #  File has been updated.
 #  Successfully updated.
 
@@ -711,19 +705,19 @@ run-iso:
 	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display sdl -boot d -vga std -full-screen
 
 # files hash-table stats:
-# Load=41/1024=4%, Rehash=0, Collisions=0/102=0%
+# Load=40/1024=4%, Rehash=0, Collisions=0/100=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 62 / storage = 880 B / avg = 14 B
-# current buf: size = 8162 B / used = 880 B / count = 62 / avg = 14 B
+# strcache buffers: 1 (0) / strings = 62 / storage = 863 B / avg = 13 B
+# current buf: size = 8162 B / used = 863 B / count = 62 / avg = 13 B
 
-# strcache performance: lookups = 110 / hit rate = 43%
+# strcache performance: lookups = 111 / hit rate = 44%
 # hash-table stats:
-# Load=62/8192=1%, Rehash=0, Collisions=1/110=1%
-# Finished Make data base on Sat Jun 25 15:38:09 2022
+# Load=62/8192=1%, Rehash=0, Collisions=1/111=1%
+# Finished Make data base on Sat Jun 25 15:45:16 2022
 
  

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 13:24:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 16:20:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,14 +101,8 @@ static bool scancode_handler(unsigned char scancode)
     case KEYBOARD_KEY_SUPPR:
         kshell_suppr_char();
         return (true);
-    case KEYBOARD_SCREEN_00:
-        TERMINAL_CHANGE_SCREEN(0);
-        return (true);
-    case KEYBOARD_SCREEN_01:
-        TERMINAL_CHANGE_SCREEN(1);
-        return (true);
-    case KEYBOARD_SCREEN_02:
-        TERMINAL_CHANGE_SCREEN(2);
+    case KEYBOARD_SCREEN_F1:
+        reboot();
         return (true);
     default:
         break;

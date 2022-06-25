@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri Jun 24 12:42:21 2022
+# Make data base, printed on Sat Jun 25 15:38:09 2022
 
 # Variables
 
@@ -23,7 +23,7 @@ TERMINATOR_DBUS_NAME = net.tenshu.Terminator25ef4b219e3b005583550f2b0f9f990c3
 # makefile (from 'mk-files/Colors.mk', line 18)
 _END = $'\033[0m
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-07723891-8dab-4835-a18b-5c2458372411.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-8c7a0f3c-b9ff-4eef-90d5-3439b4a1e6a3.sock
 # environment
 LC_NAME = fr_FR.UTF-8
 # makefile (from 'mk-files/Colors.mk', line 21)
@@ -67,7 +67,7 @@ _CLEAR_LINE = $'\033[K
 # environment
 XDG_DATA_DIRS = /usr/local/share/:/usr/share/:/var/lib/snapd/desktop
 # environment
-OLDPWD = /home/vintz/Documents/Github_Vintz/KFS
+OLDPWD = /home/vintz/Delivery/PostCommonCore/KFS/kfs-1
 # automatic
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
@@ -129,7 +129,7 @@ ZSH = /home/vintz/.oh-my-zsh
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 77960
+VSCODE_PID = 209665
 # makefile (from 'Makefile', line 60)
 KSRCS_ASM = $(shell find kernel/srcs -name '*.s')
 # makefile (from 'Makefile', line 18)
@@ -362,9 +362,9 @@ LC_IDENTIFICATION = fr_FR.UTF-8
 
 # Directories
 
-# . (device 2053, inode 3165682): 15 files, no impossibilities.
+# . (device 2053, inode 3165682): 17 files, no impossibilities.
 
-# 15 files, no impossibilities in 1 directories.
+# 17 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -413,14 +413,20 @@ run-curses:
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 114):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
-	@qemu-system-i386 -cdrom $(NAME).iso -curses
+	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -curses -vga std -full-screen
 
-srcs/kernel: kernel/srcs/kshell.o kernel/srcs/terminal.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o
+srcs/kernel: kernel/srcs/kshell.o kernel/srcs/terminal.o kernel/srcs/shell/kshell_utils.o kernel/srcs/shell/kshell.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 84):
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+
+# Not a target:
+kernel/srcs/shell/kshell_utils.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 # Not a target:
 kernel/srcs/terminal.o:
@@ -435,12 +441,12 @@ debug:
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 118):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
-	@qemu-system-i386 -kernel isodir/boot/$(BIN) -s -S
+	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -s -S -display sdl -vga std -full-screen
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-24 12:41:39.319323315
+#  Last modified 2022-06-25 15:37:57.355901433
 #  File has been updated.
 #  Successfully updated.
 
@@ -548,6 +554,7 @@ kernel/srcs/system/idt/idt.o:
 # Not a target:
 .DEFAULT:
 #  Implicit rule search has not been done.
+ 
 #  Modification time never checked.
 #  File has not been updated.
 
@@ -584,7 +591,13 @@ run:
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 106):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
-	@qemu-system-i386 -kernel isodir/boot/$(BIN)
+	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display sdl -vga std -full-screen 
+
+# Not a target:
+kernel/srcs/shell/kshell.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
 
 ascii:
 #  Phony target (prerequisite of .PHONY).
@@ -628,7 +641,6 @@ kernel.bin:
 	@$(CC) $(LDFLAGS) -T $(LINKER) -o bin/$(BIN) $(CFLAGS) \
 	$(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) \
 	> /dev/null 2>&1
- 
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "KERNEL / LINKER / BOOT" 
 	@printf "$(_LWHITE)- KERNEL BIN $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)$(_DIM) -> ISO CREATION $(_END) \n"
 	@make -s -C . check
@@ -636,7 +648,7 @@ kernel.bin:
 # Not a target:
 mk-files/Colors.mk:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-24 12:41:39.319323315
+#  Last modified 2022-06-25 15:37:57.35990148
 #  File has been updated.
 #  Successfully updated.
 
@@ -696,22 +708,22 @@ run-iso:
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 110):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
-	@qemu-system-i386 -cdrom $(NAME).iso
+	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display sdl -boot d -vga std -full-screen
 
 # files hash-table stats:
-# Load=39/1024=4%, Rehash=0, Collisions=0/98=0%
+# Load=41/1024=4%, Rehash=0, Collisions=0/102=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 58 / storage = 805 B / avg = 13 B
-# current buf: size = 8162 B / used = 805 B / count = 58 / avg = 13 B
+# strcache buffers: 1 (0) / strings = 62 / storage = 880 B / avg = 14 B
+# current buf: size = 8162 B / used = 880 B / count = 62 / avg = 14 B
 
-# strcache performance: lookups = 106 / hit rate = 45%
+# strcache performance: lookups = 110 / hit rate = 43%
 # hash-table stats:
-# Load=58/8192=1%, Rehash=0, Collisions=0/106=0%
-# Finished Make data base on Fri Jun 24 12:42:21 2022
+# Load=62/8192=1%, Rehash=0, Collisions=1/110=1%
+# Finished Make data base on Sat Jun 25 15:38:09 2022
 
  

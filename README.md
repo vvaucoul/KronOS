@@ -27,3 +27,17 @@ $ make
 ```bash
 $ make run
 ```
+
+### Features
+
+- [x] Basic Kernel System
+- [x] Boot via Grub
+- [x] ASM Bootable base
+- [x] Kernel Library with basics functions and types 
+- [x] Keyboard Support
+- [x] VGA Support
+- [x] Scroll and Cursor support
+- [x] Colors support
+
+- [ ] A complete GDT system
+- [ ] A complete Shell system

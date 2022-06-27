@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 19:59:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 19:41:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ enum vga_color
 
 #define VGA_ENTRY(uc, color) (((unsigned char)uc) | ((uint8_t)color) << 8)
 #define VGA_ENTRY_COLOR(fg, bg) (((enum vga_color)fg) | ((enum vga_color)bg) << 4)
+#define VGA_OUTPUT(uc, color) (uc & 0xFF) | ((color & 0xFF) << 8)
 #define __VGA_MEMORY__ (uint16_t *)0xB8000
 
 #define __MAX_SCREEN_SUPPORTED__ (size_t)3
@@ -54,11 +55,8 @@ extern void terminal_update_screen(void);
 extern void terminal_putchar(char c);
 extern void terminal_writestring(const char *data);
 extern void terminal_setcolor(uint8_t color);
-extern void terminal_clear_screen(void);
 extern void terminal_writestring_location(const char *data, size_t x, size_t y);
-extern void terminal_back_once(void);
 extern void update_cursor(int x, int y);
-extern void terminal_insert_char(char c);
 extern void terminal_write_n_char(char c, size_t count);
 
 static const size_t VGA_WIDTH = 80;
@@ -74,6 +72,8 @@ extern uint16_t *terminal_buffer;
 
 #define TERMINAL_CURSOR_AT_LOCATION(x, y) get_terminal_index((size_t)y, (size_t)x)
 #define TERMINAL_CHAR(x, y) *get_terminal_char((size_t)x, (size_t)y)
+
+#define CLEAR_SCREEN() terminal_clear_screen()
 
 #define __TERMINAL_CURSOR_LOCATION__ get_terminal_index(terminal_row, terminal_column)
 
@@ -91,6 +91,26 @@ static inline bool __terminal_cursor_is_char__(void)
 static inline uint16_t *get_terminal_char(size_t column, size_t row)
 {
     return &(terminal_buffer[get_terminal_index(row, column)]);
+}
+
+static inline void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
+{
+    TERMINAL_CHAR(x, y) = VGA_ENTRY(c, color);
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_clear_screen(void)
+{
+    for (size_t y = 0; y < VGA_HEIGHT; y++)
+    {
+        for (size_t x = 0; x < VGA_WIDTH; x++)
+        {
+            terminal_putentryat(' ', terminal_color, x, y);
+        }
+    }
+    terminal_column = 0;
+    terminal_row = 0;
+    UPDATE_CURSOR();
 }
 
 #endif /* TERMINAL_H */

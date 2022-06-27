@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 18:33:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 18:34:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 19:26:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,4 +53,15 @@ size_t knbrlen(const int nbr)
         i++;
     }
     return (i);
+}
+
+char *kstrtrunc(char *str, size_t length)
+{
+    size_t i;
+
+    i = 0;
+    while (str[i] && i < length)
+        i++;
+    str[i] = '\0';
+    return (str);
 }

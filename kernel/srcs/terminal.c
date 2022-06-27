@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 23:08:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 18:16:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,6 @@ void terminal_setcolor(uint8_t color)
     terminal_color = color;
 }
 
-void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
-{
-    TERMINAL_CHAR(x, y) = VGA_ENTRY(c, color);
-    UPDATE_CURSOR();
-}
-
 void terminal_putchar(char c)
 {
     if (c == CHAR_NEWLINE)
@@ -72,7 +66,7 @@ void terminal_putchar(char c)
     }
 }
 
-void terminal_write(const char *data, size_t size)
+static void terminal_write(const char *data, size_t size)
 {
     for (size_t i = 0; i < size; i++)
         terminal_putchar(data[i]);
@@ -101,29 +95,6 @@ void terminal_writestring_location(const char *data, size_t x, size_t y)
     }
 }
 
-void terminal_clear_screen(void)
-{
-    for (size_t y = 0; y < VGA_HEIGHT; y++)
-    {
-        for (size_t x = 0; x < VGA_WIDTH; x++)
-        {
-            terminal_putentryat(' ', terminal_color, x, y);
-        }
-    }
-    terminal_column = 0;
-    terminal_row = 0;
-    UPDATE_CURSOR();
-}
-
-void terminal_back_once(void)
-{
-    if (terminal_column == 0)
-        terminal_column = 0;
-    else
-        terminal_column--;
-    terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
-}
-
 void update_cursor(int x, int y)
 {
     uint16_t pos = y * VGA_WIDTH + x;
@@ -132,17 +103,6 @@ void update_cursor(int x, int y)
     outb(0x3D5, (uint8_t)(pos & 0xFF));
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
-}
-
-void terminal_insert_char(char c)
-{
-    // To complete
-    // Update bug
-    const size_t index = __TERMINAL_CURSOR_LOCATION__;
-    for (size_t i = VGA_WIDTH; i > index; i++)
-        terminal_buffer[i] = terminal_buffer[i - 1];
-    terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
-    UPDATE_CURSOR();
 }
 
 void terminal_write_n_char(char c, size_t count)

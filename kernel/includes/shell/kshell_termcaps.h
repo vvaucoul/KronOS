@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:20:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 13:10:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 19:58:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 // TODO ! Kshell Buffer before
 // Stocker le buffer dans kshell buffer et afficher kshell buffer dans terminal buffer
+
+extern void ksh_move_buffer_offset_down(size_t offset);
 
 // static void kshell_copy_line(size_t y, size_t ny)
 // {
@@ -105,19 +107,22 @@ static inline void kshell_new_line(void)
     terminal_column = 0;
     if (terminal_row >= VGA_HEIGHT - 1)
     {
-        // kshell_move_offset_buffer_down(1);
+        // ksh_move_buffer_offset_down(1);
+        // ksh_save_line(terminal_row);
         terminal_column = __PROMPT_ASCII_LEN__;
         UPDATE_CURSOR();
-        return;
     }
-    ksh_save_line(terminal_row);
-    terminal_row++;
-    if (kshell_current_line == kshell_current_max_line)
-        kshell_current_max_line++;
-    kshell_current_line++;
-    DISPLAY_PROMPT();
-    terminal_column = __PROMPT_ASCII_LEN__;
-    UPDATE_CURSOR();
+    else
+    {
+        // ksh_save_line(terminal_row);
+        terminal_row++;
+        if (kshell_current_line == kshell_current_max_line)
+            kshell_current_max_line++;
+        kshell_current_line++;
+        DISPLAY_PROMPT();
+        terminal_column = __PROMPT_ASCII_LEN__;
+        UPDATE_CURSOR();
+    }
 }
 
 static inline void kshell_write_char(char c)
@@ -128,10 +133,7 @@ static inline void kshell_write_char(char c)
         return;
     else
     {
-        if (IS_CHAR() == true)
-            kshell_insert_char_location(c, terminal_column, terminal_row);
-        else
-            kputchar(c);
+        kshell_insert_char_location(c, terminal_column, terminal_row);
     }
 }
 

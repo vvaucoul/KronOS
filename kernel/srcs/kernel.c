@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 12:41:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 17:48:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void kmain(void)
     init_kernel();
     __asm__ __volatile__("sti");
     ksleep(1);
-    terminal_clear_screen();
+    CLEAR_SCREEN();
 
     kronos_shell();
 

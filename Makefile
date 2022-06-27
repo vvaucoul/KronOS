@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/26 14:10:54 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/06/27 19:34:25 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,25 +14,26 @@
 #*                                     VAR                                     *
 #*******************************************************************************
 
-NAME		=	kfs
-ISO			=	$(NAME).iso
-LIBKFS		=	lkfs
-LIBKFS_A	=	libkfs/libkfs.a
-CC			=	gcc
-CFLAGS		=	-Wall -Wextra -Werror -Wfatal-errors \
-				-fno-builtin -fno-exceptions -fno-stack-protector \
-				-nostdlib -nodefaultlibs \
-				-std=gnu99 -ffreestanding -O2
-LDFLAGS		= 	-g3 -m32
+NAME			=	kfs
+ISO				=	$(NAME).iso
+LIBKFS			=	lkfs
+LIBKFS_A		=	libkfs/libkfs.a
+CC				=	gcc
+CFLAGS			=	-Wall -Wextra -Wfatal-errors \
+					-fno-builtin -fno-exceptions -fno-stack-protector \
+					-nostdlib -nodefaultlibs \
+					-std=gnu99 -ffreestanding -O2
+LDFLAGS			= 	-g3 -m32
 
-ASM			=	nasm
-ASMFLAGS	=	-f elf32
-BOOT		=	boot/boot
-KDSRCS		=	srcs/kernel
-BIN			=	kernel.bin
-LINKER		=	linker.ld
+ASM				=	nasm
+ASMFLAGS		=	-f elf32
+BOOT			=	boot/boot
+KDSRCS			=	srcs/kernel
+BIN				=	kernel.bin
+BIN_DIR			=	bin
+LINKER			=	linker.ld
 
-XORRISO		=	xorriso-1.4.6
+XORRISO			=	xorriso-1.4.6
 MK_INCLUDE_DIR	=	mk-files
 
 #*******************************************************************************
@@ -40,29 +41,21 @@ MK_INCLUDE_DIR	=	mk-files
 #*******************************************************************************
 
 include $(MK_INCLUDE_DIR)/Colors.mk
-
-#*******************************************************************************
-#*                                    KBOOT                                    *
-#*******************************************************************************
-
-KBOOT_SRCS	=	$(BOOT).s
-KBOOT_OBJS	=	$(KBOOT_SRCS:.s=.o)
-
-%.o: %.s
-	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
+include $(MK_INCLUDE_DIR)/Sources-Boot.mk
+include $(MK_INCLUDE_DIR)/Sources.mk
+include $(MK_INCLUDE_DIR)/Sources-ASM.mk
 
 #*******************************************************************************
 #*                                    KSRCS                                    *
 #*******************************************************************************
 
-KSRCS_ASM	=	$(shell find kernel/srcs -name '*.s')
-KOBJS_ASM	=	$(KSRCS_ASM:.s=.o)
-KSRCS		=	$(shell find kernel/srcs -name '*.c')
-KOBJS		=	$(KSRCS:.c=.o)
 %.o: %.c
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(CC) $(LDFLAGS) $(CFLAGS) -c $< -o ${<:.c=.o}
+
+%.o: %.s
+	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
 
 #*******************************************************************************
 #*                                    RULES                                    *
@@ -70,7 +63,8 @@ KOBJS		=	$(KSRCS:.c=.o)
 
 all: $(NAME)
 
-$(NAME): ascii $(XORRISO) $(LIBKFS) $(BOOT) $(KDSRCS) $(BIN) $(ISO) helper
+$(NAME): ascii $(XORRISO) $(LIBKFS) $(BOOT) $(KDSRCS) $(BIN_DIR)/$(BIN) $(ISO) helper
+	@true
 
 $(LIBKFS):
 	@make -s -C libkfs
@@ -82,11 +76,11 @@ $(BOOT): $(KBOOT_OBJS)
 $(KDSRCS): $(KOBJS) $(KOBJS_ASM)
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-$(BIN):
-	@mkdir -p bin
-	@$(CC) $(LDFLAGS) -T $(LINKER) -o bin/$(BIN) $(CFLAGS) \
+$(BIN_DIR)/$(BIN):
+	@mkdir -p $(BIN_DIR)
+	@$(CC) $(LDFLAGS) -T $(LINKER) -o $(BIN_DIR)/$(BIN) $(CFLAGS) \
 	$(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) \
-	> /dev/null 2>&1
+	> /dev/null # 2>&1
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "KERNEL / LINKER / BOOT" 
 	@printf "$(_LWHITE)- KERNEL BIN $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)$(_DIM) -> ISO CREATION $(_END) \n"
 	@make -s -C . check
@@ -98,7 +92,7 @@ $(XORRISO):
 	@printf "$(_LWHITE)- $(XORRISO) $(_END)$(_DIM)---------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 check:
-	@grub-file --is-x86-multiboot bin/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"
+	@grub-file --is-x86-multiboot $(BIN_DIR)/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"
 	printf "$(_END)$(_DIM) -> ISO CHECKER $(_END)\n"
 
 run:
@@ -108,6 +102,7 @@ run:
 run-iso:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display sdl -boot d -vga std -full-screen
+	# @kvm -m 256 -cdrom kfs.iso -s -display sdl -full-screen
 
 run-curses:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
@@ -119,7 +114,7 @@ debug:
 
 $(ISO):
 	@mkdir -p isodir/boot/grub
-	@cp bin/kernel.bin isodir/boot/kernel.bin
+	@cp $(BIN_DIR)/kernel.bin isodir/boot/kernel.bin
 	@cp grub.cfg isodir/boot/grub/grub.cfg
 	@grub-mkrescue -o $(ISO) isodir \
 	--xorriso=$(shell pwd)/$(XORRISO)/xorriso/xorriso > /dev/null 2>&1
@@ -127,16 +122,17 @@ $(ISO):
 
 clean:
 	@make -s -C libkfs clean
-	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir bin/$(BIN) $(KOBJS) $(KOBJS_ASM)
+	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM)
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 fclean: clean
 	@make -s -C libkfs fclean
-	@rm -rf $(XORRISO) bin
+	@rm -rf $(XORRISO) $(BIN_DIR)
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 re: clean
-	@make -s -C libkfs re
+	@rm -rf $(BIN_DIR)
+	@make -s -C libkfs re > /dev/null 2>&1
 	@make -s -C . all
 
 ascii:

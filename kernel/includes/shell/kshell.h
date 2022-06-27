@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 13:10:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 18:35:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,10 @@
 
 #define DISPLAY_PROMPT() kprintf(__PROMPT__)
 #define KSH_CHAR(x, y) kshell_buffer[(y) * VGA_WIDTH + (x)]
+#define KSH_LINE(y) (kshell_buffer + (y) * VGA_WIDTH)
+
+#define KSH_CLR_TERM_SH() ksh_clear_terminal_shell_buffer()
+#define KSH_UPDATE_TERM_SH() ksh_update_terminal_shell_buffer()
 
 extern void kronos_shell(void);
 

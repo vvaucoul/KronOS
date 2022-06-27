@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:41:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 13:10:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 19:56:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,28 @@ static void kshell_move_offset_line_left(size_t x, size_t y, size_t offset)
 
 void ksh_save_line(size_t y)
 {
-    for (size_t x = 0; x < VGA_WIDTH - 1; x++)
+    kprintf("\n");
+    for (size_t x = __PROMPT_ASCII_LEN__; x < VGA_WIDTH - 1; x++)
     {
-        kshell_buffer[KSH_CHAR(x, y - __HEADER_HEIGHT__)] = TERMINAL_CHAR(x, y);
+        KSH_CHAR(x, y - __HEADER_HEIGHT__) = TERMINAL_CHAR(x, y);
+        KSH_CHAR(x + 1, y - __HEADER_HEIGHT__) = 0;
     }
+    
+    // return ;
+    // display save
+    char buffer[VGA_WIDTH];
+    kmemset(buffer, 0, VGA_WIDTH);
+
+    for (size_t x = 0; x < VGA_WIDTH; x++)
+    {
+        uint16_t value = KSH_CHAR(x, y - __HEADER_HEIGHT__);
+        // kprintf("%x", value);
+        char lo = value & 0xFF;
+        char hi = (value >> 8);
+        char c = lo | hi >> 8;
+        buffer[x] = c;
+    }
+    kprintf("Line: %s\n", buffer);
 }
 
 void kshell_del_char_location(size_t x, size_t y)

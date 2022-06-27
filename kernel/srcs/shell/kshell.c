@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 13:07:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 18:33:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,3 +51,6 @@ void kronos_shell(void)
 #undef __PROMPT_ASCII_LEN__
 #undef __HEADER_WIDTH__
 #undef __HEADER_HEIGHT__
+
+#undef KSH_CLR_TERM_SH
+#undef KSH_UPDATE_TERM_SH

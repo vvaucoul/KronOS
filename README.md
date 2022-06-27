@@ -13,8 +13,9 @@ Kronos is a lightweight Unix-like kernel writen in C and ASM.
 
 ### Prerequisites
 
-* [GCC] (https://gcc.gnu.org/)
-* [QEMU] (https://qemu.org/)
+* <strong>GCC</strong> (https://gcc.gnu.org/)
+* <strong>KVM</strong> (https://www.linux-kvm.org/)
+* <strong>QEMU</strong> (https://qemu.org/)
   
 ### Compilation
 

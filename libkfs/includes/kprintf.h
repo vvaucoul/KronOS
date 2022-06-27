@@ -6,15 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:07:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/23 12:15:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 23:38:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef KPRINTF_H
-#define KPRINTF_H
+#ifndef _KPRINTF_H
+#define _KPRINTF_H
 
-#include "../../kernel/includes/terminal.h"
 #include <stdarg.h>
+#include "../../kernel/includes/terminal.h"
+#include "../libs/string/string.h"
 
 #define MOD_DEL 0x25
 #define DEL_D 0x64
@@ -42,4 +43,4 @@ extern t_kprintf _g_kprintf;
 
 int kprintf(const char *format, ...);
 
-#endif // !KPRINTF_H
+#endif /* _KPRINTF_H */

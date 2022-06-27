@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 19:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/23 19:55:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 18:25:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,10 @@ static int n_lenght(int n)
     return (nsize);
 }
 
+/*******************************************************************************
+ *                             KITOA / KERNAL ITOA                             *
+ ******************************************************************************/
+
 int kitoa(int nbr, char str[__KITOA_BUFFER_LENGTH__])
 {
     int i;
@@ -57,6 +61,38 @@ int kitoa(int nbr, char str[__KITOA_BUFFER_LENGTH__])
     str[size] = '\0';
     return (0);
 }
+
+/*******************************************************************************
+ *                        KITOA_BASE / KERNEL ITOA BASE                        *
+ ******************************************************************************/
+
+int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
+{
+    int i;
+    int size;
+    int isneg;
+
+    size = n_lenght(nbr);
+    if (!str)
+        return (1);
+    if ((isneg = ((nbr >= -2147483647 && nbr < 0) ? 1 : 0)) == 1)
+        nbr *= -1;
+    i = (isneg ? 1 : 1);
+    while (size - i >= 0)
+    {
+        str[size - i] = nbr % base + 48;
+        nbr /= base;
+        ++i;
+    }
+    if (isneg)
+        str[0] = '-';
+    str[size] = '\0';
+    return (0);
+}
+
+/*******************************************************************************
+ *                             KATOI / KERNEL ATOI                             *
+ ******************************************************************************/
 
 int katoi(const char *str)
 {

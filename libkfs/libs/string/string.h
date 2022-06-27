@@ -1,28 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   knbrlen.c                                          :+:      :+:    :+:   */
+/*   string.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/21 21:24:08 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 18:38:44 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/06/25 18:32:03 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/06/25 23:30:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libkfs.h"
+#ifndef _STRING_H
+# define _STRING_H
 
-size_t knbrlen(const int nbr)
-{
-    size_t i = 0;
-    int nb = nbr;
+#include "../stddef/stddef.h"
 
-    if (nbr < 0)
-        i++;
-    while (nb != 0)
-    {
-        nb /= 10;
-        i++;
-    }
-    return (i);
-}
+extern size_t kstrlen(const char *str);
+extern size_t knbrlen(const int nbr);
+extern int kstrcmp(const char *s1, const char *s2);
+extern int kstrncmp(const char *s1, const char *s2, size_t length);
+
+#endif /* _STRING_H */

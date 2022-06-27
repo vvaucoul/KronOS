@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kstrlen.c                                          :+:      :+:    :+:   */
+/*   stdbool.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/20 13:38:45 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/23 19:58:09 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/06/25 17:58:36 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/06/25 19:58:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libkfs.h"
+#ifndef _STDBOOL_H
+#define _STDBOOL_H
 
-// size_t kstrlen(const char *str)
-// {
-//     size_t i = 0;
-//     while (str[i])
-//         i++;
-//     return (i);
-// }
+typedef unsigned int bool;
+
+#define true 1
+#define false 0
+
+#endif /* _STDBOOL_H */

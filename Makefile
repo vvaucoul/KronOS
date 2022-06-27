@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/24 15:15:31 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/06/26 14:10:54 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,11 +19,10 @@ ISO			=	$(NAME).iso
 LIBKFS		=	lkfs
 LIBKFS_A	=	libkfs/libkfs.a
 CC			=	gcc
-CFLAGS		=	-Wall -Wextra \
+CFLAGS		=	-Wall -Wextra -Werror -Wfatal-errors \
 				-fno-builtin -fno-exceptions -fno-stack-protector \
 				-nostdlib -nodefaultlibs \
 				-std=gnu99 -ffreestanding -O2
-
 LDFLAGS		= 	-g3 -m32
 
 ASM			=	nasm
@@ -112,7 +111,7 @@ run-iso:
 
 run-curses:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
-	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -curses -vga std -full-screen
+	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display curses -vga std -full-screen
 
 debug:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"

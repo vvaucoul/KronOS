@@ -1,16 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kstrncmp.c                                         :+:      :+:    :+:   */
+/*   string.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/22 15:42:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 18:39:03 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/06/25 18:33:19 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/06/25 18:34:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libkfs.h"
+#include "string.h"
+
+int kstrcmp(const char *s1, const char *s2)
+{
+    int i;
+
+    i = 0;
+    while (s1[i] && s2[i] && s1[i] == s2[i])
+        i++;
+    return (s1[i] - s2[i]);
+}
 
 int kstrncmp(const char *s1, const char *s2, size_t length)
 {
@@ -28,4 +38,19 @@ int kstrncmp(const char *s1, const char *s2, size_t length)
         ++i;
     }
     return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+}
+
+size_t knbrlen(const int nbr)
+{
+    size_t i = 0;
+    int nb = nbr;
+
+    if (nbr < 0)
+        i++;
+    while (nb != 0)
+    {
+        nb /= 10;
+        i++;
+    }
+    return (i);
 }

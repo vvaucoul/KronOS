@@ -6,25 +6,19 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 12:00:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 23:32:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef _LIBKFS_H_
-#define _LIBKFS_H_
-
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <limits.h>
+#ifndef _LIBKFS_H
+#define _LIBKFS_H
 
 #include "kprintf.h"
-#include "../libs/ctypes/ctypes.h"
 
-extern size_t kstrlen(const char *str);
-extern size_t knbrlen(const int nbr);
-extern int kstrcmp(const char *s1, const char *s2);
-extern int kstrncmp(const char *s1, const char *s2, size_t length);
+#include "../libs/stdbool/stdbool.h"
+#include "../libs/ctypes/ctypes.h"
+#include "../libs/string/string.h"
+#include "../libs/stddef/stddef.h"
 
 extern void *kmemset(void *ptr, int value, size_t length);
 extern void *kbzero(void *ptr, size_t len);
@@ -37,6 +31,7 @@ extern int katoi(const char *str);
 
 #define __KITOA_BUFFER_LENGTH__ 11
 extern int kitoa(int nbr, char str[__KITOA_BUFFER_LENGTH__]);
+extern int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__]);
 
 extern void kputchar(char c);
 extern void kputstr(const char *str);
@@ -56,4 +51,4 @@ static inline void kputnbr_bin(int n)
     kputnbr_base(n, 2);
 }
 
-#endif /* _LIBKFS_H_ */
+#endif /* _LIBKFS_H */

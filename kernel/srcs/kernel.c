@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/24 15:19:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 12:41:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ static void init_kernel(void)
     kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END"\n");
 
     kprintf("" COLOR_YELLOW "[LOG] " COLOR_GREEN "Kernel initialized\n" COLOR_END "");
+    kprintf(COLOR_END "\nLoading Kernel...\n");
 }
 
 void kmain(void)
@@ -44,7 +45,7 @@ void kmain(void)
     __asm__ __volatile__("cli");
     init_kernel();
     __asm__ __volatile__("sti");
-    ksleep(2);
+    ksleep(1);
     terminal_clear_screen();
 
     kronos_shell();

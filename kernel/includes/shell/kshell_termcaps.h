@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:20:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 15:49:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 13:10:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,32 @@
  *                              BUFFER MANAGEMENT                              *
  ******************************************************************************/
 
-static inline void kshell_move_offset_buffer_up(size_t offset)
-{
-    (void)offset;
-}
+// TODO ! Kshell Buffer before
+// Stocker le buffer dans kshell buffer et afficher kshell buffer dans terminal buffer
 
-static inline void kshell_move_offset_buffer_down(size_t offset)
-{
-    (void)offset;
-}
+// static void kshell_copy_line(size_t y, size_t ny)
+// {
+//     for (size_t i = 0; i < VGA_WIDTH - 1; i++)
+//     {
+//         TERMINAL_CHAR(i, y) = TERMINAL_CHAR(i, ny);
+//     }
+// }
+
+// static inline void kshell_move_offset_buffer_up(size_t offset)
+// {
+//     for (size_t y = __HEADER_HEIGHT__; y < VGA_HEIGHT; y++)
+//     {
+//         kshell_copy_line(y, y + offset);
+//     }
+// }
+
+// static inline void kshell_move_offset_buffer_down(size_t offset)
+// {
+//     for (size_t y = __HEADER_HEIGHT__; y < VGA_HEIGHT; y++)
+//     {
+//         kshell_copy_line(y, y + offset);
+//     }
+// }
 
 /*******************************************************************************
  *                               CURSOR MOVEMENT                               *
@@ -88,10 +105,12 @@ static inline void kshell_new_line(void)
     terminal_column = 0;
     if (terminal_row >= VGA_HEIGHT - 1)
     {
+        // kshell_move_offset_buffer_down(1);
         terminal_column = __PROMPT_ASCII_LEN__;
         UPDATE_CURSOR();
         return;
     }
+    ksh_save_line(terminal_row);
     terminal_row++;
     if (kshell_current_line == kshell_current_max_line)
         kshell_current_max_line++;

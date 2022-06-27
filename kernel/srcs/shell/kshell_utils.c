@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:41:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 15:37:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 13:10:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,14 @@ static void kshell_move_offset_line_left(size_t x, size_t y, size_t offset)
     for (size_t i = x; i < VGA_WIDTH - 1; i++)
     {
         TERMINAL_CHAR(i, y) = TERMINAL_CHAR(i + offset, y);
+    }
+}
+
+void ksh_save_line(size_t y)
+{
+    for (size_t x = 0; x < VGA_WIDTH - 1; x++)
+    {
+        kshell_buffer[KSH_CHAR(x, y - __HEADER_HEIGHT__)] = TERMINAL_CHAR(x, y);
     }
 }
 

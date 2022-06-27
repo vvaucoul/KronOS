@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 16:20:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 13:04:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,12 +141,7 @@ void keyboard_handler(struct regs *r)
          *  you would add 128 to the scancode when you look for it */
         if ((scancode_handler(scancode)) == false)
         {
-            // if (IS_CHAR() == true)
-            //     terminal_insert_char(kbdus[scancode]);
-            // else
-
             kshell_write_char(kbdus[scancode]);
-            // terminal_putchar(kbdus[scancode]);
         }
     }
 }

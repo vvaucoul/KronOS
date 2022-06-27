@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 11:58:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 12:27:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 19:58:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CTYPES_H
-#define CTYPES_H
+#ifndef _CTYPES_H
+#define _CTYPES_H
 
-#include <stdbool.h>
+#include "../stdbool/stdbool.h"
 
 extern bool isalnum(int c);
 extern bool isalpha(int c);
@@ -30,4 +30,4 @@ extern bool isxdigit(int c);
 extern void tolower(int c);
 extern void toupper(int c);
 
-#endif // !CTYPES_H
+#endif /* _CTYPES_H */

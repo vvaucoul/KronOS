@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 15:23:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/27 13:07:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ size_t kshell_max_line = VGA_HEIGHT - __HEADER_HEIGHT__;
 size_t kshell_min_line = __HEADER_HEIGHT__;
 size_t kshell_current_line = __HEADER_HEIGHT__;
 size_t kshell_current_max_line = __HEADER_HEIGHT__;
+
+uint16_t *kshell_buffer;
 
 static inline void kshell_header(void)
 {
@@ -36,9 +38,16 @@ static inline void kshell_header(void)
 
 void kronos_shell(void)
 {
+    kshell_init();
     kshell_header();
     DISPLAY_PROMPT();
     while (1)
     {
     }
 }
+
+#undef __PROMPT__
+#undef __PROMPT_LEN__
+#undef __PROMPT_ASCII_LEN__
+#undef __HEADER_WIDTH__
+#undef __HEADER_HEIGHT__

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 16:18:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 19:59:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include "kernel.h"
 #include "system/io.h"
+
+#include "../../libkfs/libs/stdbool/stdbool.h"
 
 /* Hardware text mode color constants. */
 enum vga_color
@@ -91,4 +93,4 @@ static inline uint16_t *get_terminal_char(size_t column, size_t row)
     return &(terminal_buffer[get_terminal_index(row, column)]);
 }
 
-#endif
+#endif /* TERMINAL_H */

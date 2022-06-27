@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kstrcmp.c                                          :+:      :+:    :+:   */
+/*   kshell_keyboard.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/23 11:48:39 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/23 11:49:00 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/06/25 22:55:18 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/06/27 13:11:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libkfs.h"
+#include "../../includes/shell/kshell.h"
 
-int kstrcmp(const char *s1, const char *s2)
+void kshell_init(void)
 {
-    int i;
-
-    i = 0;
-    while (s1[i] && s2[i] && s1[i] == s2[i])
-        i++;
-    return (s1[i] - s2[i]);
+    for (size_t y = 0; y < kshell_max_line; y++)
+    {
+        for (size_t x = 0; x < VGA_WIDTH; x++)
+        {
+            const size_t index = TERMINAL_CURSOR_AT_LOCATION(x, y);
+            kshell_buffer[index] = VGA_ENTRY(' ', terminal_color);
+        }
+    }
 }

@@ -6,27 +6,27 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/25 13:18:08 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/06/25 23:37:58 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libkfs.a
 CC = gcc
 ASM = nasm
-CFLAGS = -Wall -Wextra -Werror \
+CFLAGS = -Wall -Wextra -Werror -Wfatal-errors \
 				-fno-builtin -fno-exceptions -fno-stack-protector \
 				-nostdlib -nodefaultlibs \
-				-std=gnu99 -ffreestanding -O2 $(INCLUDE)
+				-std=gnu99 -ffreestanding -O2
 LDFLAGS		= 	-g3 -m32
 ASM_FLAGS	=	-f elf32
-INCLUDE = -I./include
 MK_INCLUDE_DIR	=	mk-files
 
 SRCS =	$(shell find srcs -name '*.c') \
 		$(shell find libs -name '*.c')
 OBJS = $(SRCS:.c=.o)
 
-SRCS_ASM	=	$(shell find srcs -name '*.s')
+SRCS_ASM	=	$(shell find srcs -name '*.s') \
+				$(shell find libs -name '*.s')
 OBJS_ASM	=	$(SRCS_ASM:.s=.o)
 
 #*******************************************************************************

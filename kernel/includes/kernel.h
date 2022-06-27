@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 18:58:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/25 23:32:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,4 +15,4 @@
 
 #include "../../libkfs/includes/libkfs.h"
 
-#endif
+#endif /* KERNEL_H */

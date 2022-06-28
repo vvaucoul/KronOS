@@ -71,12 +71,12 @@ $ make run
 
 🚧 ... redaction pending ...🚧
 <p align="left">
-<img src="https://user-images.githubusercontent.com/66129673/176182052-630d5111-d968-4858-b01f-0a9beee57b4a.png" width="80%" style="border:3px solid red"></img>
+<img src="https://user-images.githubusercontent.com/66129673/176182052-630d5111-d968-4858-b01f-0a9beee57b4a.png" width="80%" style="border-style:groove; border-color:white"></img>
 </p>
 
 ### The KERNEL itself
 
 🚧 ... redaction pending ...🚧
 <p align="left">
-<img src="https://user-images.githubusercontent.com/66129673/176182166-39fc1c60-7502-4f3a-878e-e8c7e3babe74.png" width="80%" style="border:3px solid red"></img>
+<img src="https://user-images.githubusercontent.com/66129673/176182166-39fc1c60-7502-4f3a-878e-e8c7e3babe74.png" width="80%" style="border-style:groove; border-color:white"></img>
 </p>

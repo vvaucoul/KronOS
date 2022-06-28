@@ -1,27 +1,62 @@
-make --dry-run --keep-going --print-directory
+make --dry-run --always-make --keep-going --print-directory
 make: Entering directory '/home/vintz/Documents/Github_Vintz/KFS/KronOS'
- 
 printf "\033[91m\r██╗  ██╗███████╗███████╗\033[97m      \033[91m ██╗\n\033[0m"
 printf "\033[91m\r██║ ██╔╝██╔════╝██╔════╝\033[97m      \033[91m███║\n\033[0m"
 printf "\033[91m\r█████╔╝ █████╗  ███████╗\033[97m█████╗\033[91m╚██║\n\033[0m"
 printf "\033[91m\r██╔═██╗ ██╔══╝  ╚════██║\033[97m╚════╝\033[91m ██║\n\033[0m"
 printf "\033[91m\r██║  ██╗██║     ███████║\033[97m      \033[91m ██║\n\033[0m"
 printf "\033[91m\r╚═╝  ╚═╝╚═╝     ╚══════╝\033[97m      \033[91m ╚═╝\n\033[0m"
- 
+printf "\033[93m- COMPILING XORRISO \033[0m\033[2m-----\033[0m \033[93m[\033[97m⚠️ \033[93m]\033[0m \033[93m>\033[0m\033[2m/home/vintz/Documents/Github_Vintz/KFS/KronOS/xorriso-1.4.6/\033[0m\033[93m<\033[0m\n"
+tar xf xorriso-1.4.6.tar.gz
+cd xorriso-1.4.6 && ./configure --prefix=/usr > /dev/null 2>&1 && make -j > /dev/null 2>&1
+printf "\033[97m- xorriso-1.4.6 \033[0m\033[2m---------\033[0m \033[92m[\033[97m✓\033[92m]\033[0m\n"
 make -s -C libkfs
 printf "\033[97m- LIBKFS\033[0m\033[0m\033[2m-----------------\033[0m \033[92m[\033[97m✓\033[92m]\033[0m\n"
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[95m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" boot/boot.s 
+nasm -f elf32 boot/boot.s -o boot/boot.o
 printf "\033[97m- ASM BOOT \033[0m\033[2m--------------\033[0m \033[92m[\033[97m✓\033[92m]\033[0m\n"
- 
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/terminal.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/terminal.c -o kernel/srcs/terminal.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/shell/kshell_utils.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/shell/kshell_utils.c -o kernel/srcs/shell/kshell_utils.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/shell/kshell.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/shell/kshell.c -o kernel/srcs/shell/kshell.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/shell/kshell_keyboard.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/shell/kshell_keyboard.c -o kernel/srcs/shell/kshell_keyboard.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/drivers/keyboard.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/drivers/keyboard.c -o kernel/srcs/drivers/keyboard.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/kernel.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/kernel.c -o kernel/srcs/kernel.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/idt/idt.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/system/idt/idt.c -o kernel/srcs/system/idt/idt.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/irq/irq.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/system/irq/irq.c -o kernel/srcs/system/irq/irq.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/pit/pit.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/system/pit/pit.c -o kernel/srcs/system/pit/pit.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/isr/isr.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/system/isr/isr.c -o kernel/srcs/system/isr/isr.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/gdt/gdt.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/system/gdt/gdt.c -o kernel/srcs/system/gdt/gdt.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[96m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/io/portb.c 
+gcc -g3 -m32 -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 -c kernel/srcs/system/io/portb.c -o kernel/srcs/system/io/portb.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[95m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/idt/idt_load.s 
+nasm -f elf32 kernel/srcs/system/idt/idt_load.s -o kernel/srcs/system/idt/idt_load.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[95m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/irq/irq_handler.s 
+nasm -f elf32 kernel/srcs/system/irq/irq_handler.s -o kernel/srcs/system/irq/irq_handler.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[95m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/isr/isr_routines.s 
+nasm -f elf32 kernel/srcs/system/isr/isr_routines.s -o kernel/srcs/system/isr/isr_routines.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[95m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/gdt/gdt_flush.s 
+nasm -f elf32 kernel/srcs/system/gdt/gdt_flush.s -o kernel/srcs/system/gdt/gdt_flush.o
+printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[95m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" kernel/srcs/system/io/poweroff.s 
+nasm -f elf32 kernel/srcs/system/io/poweroff.s -o kernel/srcs/system/io/poweroff.o
 printf "\033[97m- KERNEL SRCS \033[0m\033[2m-----------\033[0m \033[92m[\033[97m✓\033[92m]\033[0m\n"
- 
 mkdir -p bin
-gcc -g3 -m32 -T linker.ld -o bin/kernel.bin -Wall -Wextra -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 \
-boot/boot.o kernel/srcs/terminal.o kernel/srcs/shell/kshell_utils.o kernel/srcs/shell/kshell.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o libkfs/libkfs.a \
-> /dev/null #2>&1
+gcc -g3 -m32 -T linker.ld -o bin/kernel.bin -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2 \
+boot/boot.o kernel/srcs/terminal.o kernel/srcs/shell/kshell_utils.o kernel/srcs/shell/kshell.o kernel/srcs/shell/kshell_keyboard.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o libkfs/libkfs.a \
+> /dev/null # 2>&1
 printf "\033[97m    \033[2m- Compiling: \033[0m\033[2m--------\033[0m\033[93m %s \033[0m\033[92m[\033[97m✓\033[92m]\033[0m\n" "KERNEL / LINKER / BOOT" 
 printf "\033[97m- KERNEL BIN \033[0m\033[2m------------\033[0m \033[92m[\033[97m✓\033[92m]\033[0m\033[2m -> ISO CREATION \033[0m \n"
 make -s -C . check
- 
 mkdir -p isodir/boot/grub
 cp bin/kernel.bin isodir/boot/kernel.bin
 cp grub.cfg isodir/boot/grub/grub.cfg
@@ -29,5 +64,6 @@ grub-mkrescue -o kfs.iso isodir \
 --xorriso=/home/vintz/Documents/Github_Vintz/KFS/KronOS/xorriso-1.4.6/xorriso/xorriso > /dev/null 2>&1
 printf "\033[97m- ISO \033[0m\033[2m-------------------\033[0m \033[92m[\033[97m✓\033[92m]\033[0m\n"
 printf "\n\033[97m- Now you use: \'\033[93mmake run\033[0m\' or \'\033[93mmake run-iso\033[0m\' to start the kernel !\033[0m\n"
+true
 make: Leaving directory '/home/vintz/Documents/Github_Vintz/KFS/KronOS'
  

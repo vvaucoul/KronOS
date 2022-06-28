@@ -9,7 +9,9 @@ img/>
 
 --------------------------------
 
-Kronos is a lightweight Unix-like kernel writen in C and ASM.
+<strong>KronOS</strong> is a lightweight Unix-like kernel writen in C and ASM. 
+This is the result of the <strong>KFS</strong> projects of School 42.
+The kernel is currently not finished. I will make improvements as I go along
 
 ### Prerequisites
 
@@ -42,3 +44,15 @@ $ make run
 
 - [ ] A complete GDT system
 - [ ] A complete Shell system
+
+### GRUB 2
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/66129673/176182052-630d5111-d968-4858-b01f-0a9beee57b4a.png" width="80%">
+</p>
+
+### The KERNEL itself
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/66129673/176182166-39fc1c60-7502-4f3a-878e-e8c7e3babe74.png" width="80%">
+</p>

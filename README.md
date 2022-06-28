@@ -7,18 +7,33 @@ img/>
 
 # Kronos
 
---------------------------------
-
-<strong>KronOS</strong> is a lightweight Unix-like kernel writen in C and ASM. 
+<strong>KronOS</strong> is a lightweight Unix-like kernel writen in C and ASM.
 This is the result of the <strong>KFS</strong> projects of School 42.
 The kernel is currently not finished. I will make improvements as I go along
+
+---
 
 ### Prerequisites
 
 * <strong>GCC</strong> (https://gcc.gnu.org/)
 * <strong>KVM</strong> (https://www.linux-kvm.org/)
 * <strong>QEMU</strong> (https://qemu.org/)
-  
+
+---
+
+### KFS - SERIES
+
+- <strong>KFS-1</strong> : Grub / Boot and Screen
+- <strong>KFS-2</strong> : GDT & Stack
+- <strong>KFS-3</strong> : Memory
+- <strong>KFS-4</strong> : Interrupts
+- <strong>KFS-5</strong> : Processes
+- <strong>KFS-6</strong> : Filesystem
+- <strong>KFS-7</strong> : Syscalls, Sockets & env
+- <strong>KFS-8</strong> : Kernel Modules
+- <strong>KFS-9</strong> : ELF Parser
+- <strong>KFS-X</strong> : Complete Unix System
+
 ### Compilation
 
 ```bash

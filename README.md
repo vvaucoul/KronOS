@@ -34,6 +34,8 @@ The kernel is currently not finished. I will make improvements as I go along
 - <strong>KFS-9</strong> : ELF Parser
 - <strong>KFS-X</strong> : Complete Unix System
 
+---
+
 ### Compilation
 
 ```bash

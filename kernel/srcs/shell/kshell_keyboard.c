@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 22:55:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 19:25:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:48:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,11 @@ void ksh_clear_terminal_shell_buffer(void)
 
 void ksh_update_terminal_shell_buffer(void)
 {
-    size_t __terminal_column = 0;
+    // size_t __terminal_column = 0;
     size_t __terminal_row = __HEADER_HEIGHT__;
 
-    size_t __ksh_column = 0;
-    size_t __ksh_row = 0;
+    // size_t __ksh_column = 0;
+    // size_t __ksh_row = 0;
 
     for (size_t y = __terminal_row; y < VGA_HEIGHT; y++)
     {

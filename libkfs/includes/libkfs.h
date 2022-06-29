@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 19:36:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:42:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,6 @@
 #include "../libs/ctypes/ctypes.h"
 #include "../libs/string/string.h"
 #include "../libs/stddef/stddef.h"
-
-extern void *kmemset(void *ptr, int value, size_t length);
-extern void *kbzero(void *ptr, size_t len);
-extern void *kmemcpy(void *dst, const void *src, size_t length);
-extern void *kmemmove(void *dst, const void *src, size_t length);
 
 extern void kputs(const char *str);
 extern void kuputs(const unsigned char *str);

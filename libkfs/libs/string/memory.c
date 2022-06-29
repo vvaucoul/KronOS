@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 11:56:45 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 18:26:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/29 16:44:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libkfs.h"
+#include "string.h"
 
 void *kbzero(void *ptr, size_t len)
 {
@@ -55,4 +55,29 @@ void *kmemmove(void *dst, const void *src, size_t length)
         while (length--)
             *(tmp + length) = *(tmp2 + length);
     return (dst);
+}
+
+void *kmemchr(const void *s, int c, size_t n)
+{
+    unsigned char *tmp = (unsigned char *)s;
+
+    while (n--)
+        if (*tmp == (unsigned char)c)
+            return (tmp);
+        else
+            ++tmp;
+    return (NULL);
+}
+
+int kmemcmp(const void *s1, const void *s2, size_t n)
+{
+    unsigned char *tmp = (unsigned char *)s1;
+    unsigned char *tmp2 = (unsigned char *)s2;
+
+    while (n--)
+        if (*tmp != *tmp2)
+            return (*tmp - *tmp2);
+        else
+            ++tmp, ++tmp2;
+    return (0);
 }

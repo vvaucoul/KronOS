@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:44:12 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 23:31:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/29 12:39:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ typedef unsigned int uint32_t;
 typedef unsigned long uint64_t;
 typedef unsigned long uintptr_t;
 typedef unsigned long uintmax_t;
+
+#define NULL (void *)-1
 
 /*
 int8_t: 1 byte signed integer

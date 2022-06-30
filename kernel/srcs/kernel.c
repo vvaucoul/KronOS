@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 20:58:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 16:49:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,9 @@ void kmain(void)
     __asm__ __volatile__("cli");
     init_kernel();
     __asm__ __volatile__("sti");
+
+    kprintf("Test: [%5d]\n", 42);
+    kprintf("Test: [%-5d]\n", 42);
 
     kronos_shell();
 }

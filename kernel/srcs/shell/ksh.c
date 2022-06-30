@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 13:02:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:37:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void ksh_execute_command(void)
         poweroff();
     else if (kstrcmp(command, "reboot") == 0)
         reboot();
-    else if (kstrcmp(command, "print-stack") == 0)
+    else if (kstrcmp(command, "print-stack") == 0 || kstrcmp(command, "stack") == 0)
         print_stack();
     else if (command[0] != '\0')
         kprintf("       Unknown command: %s\n", command);

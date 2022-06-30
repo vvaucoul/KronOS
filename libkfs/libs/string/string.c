@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 18:33:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 16:47:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 16:34:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,4 +120,52 @@ char *kstrchr(const char *str, int n)
     if (str[i] == n)
         return ((char *)&str[i]);
     return (NULL);
+}
+
+char *kstrrchr(const char *str, int n)
+{
+    size_t i;
+
+    i = 0;
+    if (!str)
+        return (NULL);
+    while (str[i])
+        i++;
+    while (i > 0 && str[i] != n)
+        i--;
+    if (str[i] == n)
+        return ((char *)&str[i]);
+    return (NULL);
+}
+
+bool kccof(const char c, const char *str)
+{
+    size_t i;
+
+    i = 0;
+    if (!str)
+        return (false);
+    while (str[i])
+    {
+        if (str[i] == c)
+            return (true);
+        i++;
+    }
+    return (false);
+}
+
+bool kacof(const char *str, const char *chars)
+{
+    size_t i;
+
+    i = 0;
+    if (!str)
+        return (false);
+    while (str[i])
+    {
+        if (kccof(str[i], chars))
+            return (true);
+        i++;
+    }
+    return (false);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 14:54:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:12:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,15 @@ void gdt_install(void)
 
 extern void print_stack(void)
 {
-    kprintf("Stack: %x\n", gdt->limit_low);
+    int32_t ebp;
+    int32_t esp;
+
+    GET_EBP(ebp);
+    GET_ESP(esp);
+
+    kprintf("EBP: %x\n", ebp);
+    kprintf("ESP: %x\n", esp);
+    
 
     kprintf("Test 01\n");
     kprintf("Test 02\n");

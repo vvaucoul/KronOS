@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:06:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 19:40:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 16:49:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/kprintf.h"
+#include "../../includes/kprintf.h"
 
 t_kprintf _g_kprintf;
 
@@ -51,8 +51,46 @@ static int check_colors(const char *str)
         terminal_setcolor(VGA_COLOR_CYAN);
         return (kstrlen(COLOR_CYAN));
     }
-    
+
     return (0);
+}
+
+static int kprint_mod(const char *format, size_t i)
+{
+
+    /* CHECK SPECIAL DELIMITERS */
+
+    // SPACES
+    if (format[i] == SPE_DEL_MIN)
+    {
+        _g_kprintf.__is_neg_space = true;
+        ++i;
+    }
+    else
+        _g_kprintf.__is_neg_space = false;
+    int nbr = 0;
+    while (isdigit(format[i]))
+    {
+        nbr = nbr * 10 + format[i] - 0x30;
+        i++;
+    }
+    _g_kprintf.__space = nbr;
+
+    /* CHECK BASIC DELIMITERS */
+
+    if (format[i] == MOD_DEL)
+        __kpf_manage_mod();
+    else if (format[i] == DEL_D || format[i] == DEL_C || format[i] == DEL_I)
+        __kpf_manage_nbr();
+    else if (format[i] == DEL_S)
+        __kpf_manage_str();
+    else if (format[i] == DEL_P)
+        __kpf_manage_ptr();
+    else if (format[i] == DEL_U)
+        __kpf_manage_unsigned();
+    else if (format[i] == DEL_X)
+        __kpf_manage_hexa();
+    return (i);
 }
 
 static int kprintf_loop(const char *format)
@@ -72,35 +110,7 @@ static int kprintf_loop(const char *format)
         if (format[i] == MOD_DEL)
         {
             i++;
-            if (format[i] == MOD_DEL)
-            {
-                kputchar(MOD_DEL);
-            }
-            else if (format[i] == DEL_D || format[i] == DEL_C || format[i] == DEL_I)
-            {
-                int nbr = va_arg(_g_kprintf.args, int);
-                kputnbr(nbr);
-            }
-            else if (format[i] == DEL_S)
-            {
-                char *str = va_arg(_g_kprintf.args, char *);
-                kputstr(str);
-            }
-            else if (format[i] == DEL_P)
-            {
-                void *ptr = va_arg(_g_kprintf.args, void *);
-                kputptr(ptr);
-            }
-            else if (format[i] == DEL_U)
-            {
-                unsigned int nbr = va_arg(_g_kprintf.args, unsigned int);
-                kputnbr(nbr);
-            }
-            else if (format[i] == DEL_X)
-            {
-                unsigned int nbr = va_arg(_g_kprintf.args, unsigned int);
-                kputnbr_hex(nbr);
-            }
+            i = kprint_mod(format, i);
         }
         else
         {
@@ -114,6 +124,9 @@ static int kprintf_loop(const char *format)
 int kprintf(const char *format, ...)
 {
     int ret;
+
+    _g_kprintf.__is_neg_space = false;
+    _g_kprintf.__space = 0;
 
     va_start(_g_kprintf.args, format);
     ret = kprintf_loop(format);

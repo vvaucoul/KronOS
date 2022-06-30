@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 14:51:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:11:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define GDT_H
 
 #include "../kernel.h"
+#include "../asm/asm.h"
 
 #define SEG_DESCTYPE(x) ((x) << 0x04)
 #define SEG_PRES(x) ((x) << 0x07)

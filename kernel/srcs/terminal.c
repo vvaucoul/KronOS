@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 12:55:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:07:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,7 @@ void terminal_putchar(char c)
     if (++terminal_column == VGA_WIDTH)
     {
         terminal_column = 0;
-        if (++terminal_row == VGA_HEIGHT)
-            terminal_row = 0;
+        ++terminal_row;
     }
 }
 
@@ -95,9 +94,9 @@ void terminal_writestring_location(const char *data, size_t x, size_t y)
         terminal_putentryat(c, terminal_color, ux, uy);
         if (++ux == VGA_WIDTH)
         {
-            ux = 0;
+            ux = x;
             if (++uy == VGA_HEIGHT)
-                uy = 0;
+                uy = y;
         }
     }
 }

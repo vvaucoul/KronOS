@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:43:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 12:55:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:04:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,15 +78,6 @@ extern void ksh_new_line(void)
     terminal_column = 0;
     if (terminal_row >= VGA_HEIGHT - 1)
     {
-        // ksh_move_buffer_offset_down(1);
-        // ksh_save_line(terminal_row);
-        // terminal_column = __PROMPT_ASCII_LEN__;
-        // UPDATE_CURSOR();
-
-        // terminal_move_offset_down();
-        // terminal_row = VGA_HEIGHT - 1;
-        // terminal_column = 0;
-
         terminal_move_offset_down();
         terminal_row = VGA_HEIGHT - 1;
         terminal_column = 0;

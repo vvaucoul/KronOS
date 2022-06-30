@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:32:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 15:01:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:02:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 // #include "../kernel.h"
 #include "../../../libkfs/libs/stddef/stddef.h"
 
-extern unsigned char inportb(unsigned short _port);
-extern void outportb(unsigned short _port, unsigned char _data);
+extern uint8_t inportb(uint16_t _port);
+extern void outportb(uint16_t _port, uint8_t _data);
 extern void outb(uint16_t _port, uint8_t _data);
 extern void outw(uint16_t _port, uint16_t _data);
 extern void outl(uint32_t _port, uint32_t _data);

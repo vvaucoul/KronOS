@@ -6,22 +6,22 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:31:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 15:01:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:02:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../includes/system/io.h"
 
-unsigned char inportb(unsigned short _port)
+uint8_t inportb(uint16_t _port)
 {
-    unsigned char rv;
+    uint8_t rv;
     __asm__ __volatile__("inb %1, %0"
                          : "=a"(rv)
                          : "dN"(_port));
     return rv;
 }
 
-void outportb(unsigned short _port, unsigned char _data)
+void outportb(uint16_t _port, uint8_t _data)
 {
     __asm__ __volatile__("outb %1, %0"
                          :

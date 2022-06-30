@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 13:22:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:29:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,11 @@
 
 #define KEYBOARD_LEFT_SHIFT 42
 #define KEYBOARD_RIGHT_SHIFT 54
+#define KEYBOARD_CAPS 58
 
 extern void keyboard_handler(struct regs *r);
 extern void keyboard_install();
 
-extern bool __keyboard_shift;
+extern bool __keyboard_uppercase;
 
 #endif

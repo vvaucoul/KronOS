@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 13:26:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:29:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "../../includes/shell/ksh.h"
 #include "../../includes/shell/ksh_termcaps.h"
 
-bool __keyboard_shift = false;
+bool __keyboard_uppercase = false;
 
 unsigned char kbdus[128] =
     {
@@ -92,7 +92,12 @@ static bool scancode_handler(unsigned char scancode)
     case KEYBOARD_LEFT_SHIFT:
     case KEYBOARD_RIGHT_SHIFT:
     {
-        __keyboard_shift = true;
+        __keyboard_uppercase = true;
+        return (true);
+    }
+    case KEYBOARD_CAPS:
+    {
+        __keyboard_uppercase = !__keyboard_uppercase;
         return (true);
     }
     default:
@@ -122,7 +127,7 @@ void keyboard_handler(struct regs *r)
         {
         case KEYBOARD_LEFT_SHIFT:
         case KEYBOARD_RIGHT_SHIFT:
-            __keyboard_shift = false;
+            __keyboard_uppercase = false;
         default:
             break;
         }
@@ -132,7 +137,7 @@ void keyboard_handler(struct regs *r)
         if ((scancode_handler(scancode)) == false)
         {
             if (isalpha(kbdus[scancode]))
-                ksh_write_char(__keyboard_shift == true ? kbdus[scancode] - 32 : kbdus[scancode]);
+                ksh_write_char(__keyboard_uppercase == true ? kbdus[scancode] - 32 : kbdus[scancode]);
             else
                 ksh_write_char(kbdus[scancode]);
         }

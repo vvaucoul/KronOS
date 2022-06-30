@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 12:59:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:56:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 void gdt_install(void)
 {
     /* Setup the GDT pointer and limit */
-    gp.limit = (sizeof(struct gdt_entry) * 3) - 1;
+    gp.limit = (sizeof(struct gdt_entry) * GDT_SIZE) - 1;
     gp.base = (unsigned int)&gdt;
 
     gdt_set_gate(0, 0x0, 0x0, 0x0, 0x0);
@@ -59,6 +59,8 @@ void gdt_install(void)
 
 extern void print_stack(void)
 {
+    kprintf("Stack: %x\n", gdt->limit_low);
+
     kprintf("Test 01\n");
     kprintf("Test 02\n");
     kprintf("Test 03\n");

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:43:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 13:04:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:10:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,25 +19,25 @@
 extern void ksh_move_cursor_up(void)
 {
     return;
-    if (ksh_current_line <= ksh_min_line)
-        return;
-    terminal_row--;
-    if (terminal_row < __HEADER_HEIGHT__)
-        terminal_row = __HEADER_HEIGHT__;
-    terminal_column = __PROMPT_ASCII_LEN__;
-    ksh_current_line--;
+    // if (ksh_current_line <= ksh_min_line)
+    //     return;
+    // terminal_row--;
+    // if (terminal_row < __HEADER_HEIGHT__)
+    //     terminal_row = __HEADER_HEIGHT__;
+    // terminal_column = __PROMPT_ASCII_LEN__;
+    // ksh_current_line--;
 }
 
 extern void ksh_move_cursor_down(void)
 {
     return;
-    if (ksh_current_line >= ksh_current_max_line)
-        return;
-    terminal_row++;
-    if (terminal_row >= VGA_HEIGHT)
-        terminal_row = VGA_HEIGHT - 1;
-    terminal_column = __PROMPT_ASCII_LEN__;
-    ksh_current_line++;
+    // if (ksh_current_line >= ksh_current_max_line)
+    //     return;
+    // terminal_row++;
+    // if (terminal_row >= VGA_HEIGHT)
+    //     terminal_row = VGA_HEIGHT - 1;
+    // terminal_column = __PROMPT_ASCII_LEN__;
+    // ksh_current_line++;
 }
 
 extern void ksh_move_cursor_left(void)
@@ -84,7 +84,6 @@ extern void ksh_new_line(void)
     }
     else
     {
-        // ksh_save_line(terminal_row);
         terminal_row++;
         if (ksh_current_line == ksh_current_max_line)
             ksh_current_max_line++;

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 13:07:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:09:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,8 @@ void terminal_putchar(char c)
         }
         return;
     }
-    terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
+    else
+        terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
     if (++terminal_column == VGA_WIDTH)
     {
         terminal_column = 0;
@@ -130,5 +131,4 @@ void terminal_move_offset_down(void)
     }
     for (size_t x = 0; x < VGA_WIDTH; x++)
         TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', terminal_color);
-    // terminal_row++;
 }

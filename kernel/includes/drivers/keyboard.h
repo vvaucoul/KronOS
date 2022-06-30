@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 16:20:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:22:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,20 +29,25 @@
 #define KEYBOARD_KEY_ARROW_RIGHT 77
 #define KEYBOARD_KEY_ARROW_DOWN 80
 
-#define KEYBOARD_SCREEN_F1 59
-#define KEYBOARD_SCREEN_F2 60
-#define KEYBOARD_SCREEN_F3 61
-#define KEYBOARD_SCREEN_F4 62
-#define KEYBOARD_SCREEN_F5 63
-#define KEYBOARD_SCREEN_F6 64
-#define KEYBOARD_SCREEN_F7 65
-#define KEYBOARD_SCREEN_F8 66
-#define KEYBOARD_SCREEN_F9 67
-#define KEYBOARD_SCREEN_F10 68
-#define KEYBOARD_SCREEN_F11 69
-#define KEYBOARD_SCREEN_F12 70
+#define KEYBOARD_F1 59
+#define KEYBOARD_F2 60
+#define KEYBOARD_F3 61
+#define KEYBOARD_F4 62
+#define KEYBOARD_F5 63
+#define KEYBOARD_F6 64
+#define KEYBOARD_F7 65
+#define KEYBOARD_F8 66
+#define KEYBOARD_F9 67
+#define KEYBOARD_F10 68
+#define KEYBOARD_F11 69
+#define KEYBOARD_F12 70
+
+#define KEYBOARD_LEFT_SHIFT 42
+#define KEYBOARD_RIGHT_SHIFT 54
 
 extern void keyboard_handler(struct regs *r);
 extern void keyboard_install();
+
+extern bool __keyboard_shift;
 
 #endif

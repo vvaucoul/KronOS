@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 19:46:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 13:26:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,20 @@
 #include "../../includes/shell/ksh.h"
 #include "../../includes/shell/ksh_termcaps.h"
 
+bool __keyboard_shift = false;
+
 unsigned char kbdus[128] =
     {
-        0, 27, '1', '2', '3', '4', '5', '6', '7', '8',    /* 9 */
-        '9', '0', '-', '=', '\b',                         /* Backspace */
-        '\t',                                             /* Tab */
-        'q', 'w', 'e', 'r',                               /* 19 */
-        't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',     /* Enter key */
-        0,                                                /* 29   - Control */
-        'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', /* 39 */
-        '\'', '`', 0,                                     /* Left shift */
-        '\\', 'z', 'x', 'c', 'v', 'b', 'n',               /* 49 */
-        'm', ',', '.', '/', 0,                            /* Right shift */
+        0, 27, '1', '2', '3', '4', '5', '6', '7', '8',
+        '9', '0', '-', '=', '\b',
+        '\t',
+        'q', 'w', 'e', 'r',
+        't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
+        0,
+        'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
+        '\'', '`', KEYBOARD_LEFT_SHIFT,
+        '\\', 'z', 'x', 'c', 'v', 'b', 'n',
+        'm', ',', '.', '/', KEYBOARD_RIGHT_SHIFT,
         '*',
         0,   /* Alt */
         ' ', /* Space bar */
@@ -84,9 +86,15 @@ static bool scancode_handler(unsigned char scancode)
     case KEYBOARD_KEY_SUPPR:
         ksh_suppr_char();
         return (true);
-    case KEYBOARD_SCREEN_F1:
+    case KEYBOARD_F1:
         reboot();
         return (true);
+    case KEYBOARD_LEFT_SHIFT:
+    case KEYBOARD_RIGHT_SHIFT:
+    {
+        __keyboard_shift = true;
+        return (true);
+    }
     default:
         break;
     }
@@ -100,6 +108,7 @@ void keyboard_handler(struct regs *r)
 
     /* Read from the keyboard's data buffer */
     scancode = inportb(0x60);
+    // kprintf("%d\n", scancode);
 
     /* If the top bit of the byte we read from the keyboard is
      *  set, that means that a key has just been released */
@@ -107,24 +116,25 @@ void keyboard_handler(struct regs *r)
     {
         /* You can use this one to see if the user released the
          *  shift, alt, or control keys... */
+        // kprintf("Keyboard: Release %c\n", kbdus[scancode & 0x7F]);
+
+        switch (scancode & 0x7F)
+        {
+        case KEYBOARD_LEFT_SHIFT:
+        case KEYBOARD_RIGHT_SHIFT:
+            __keyboard_shift = false;
+        default:
+            break;
+        }
     }
     else
     {
-        /* Here, a key was just pressed. Please note that if you
-         *  hold a key down, you will get repeated key press
-         *  interrupts. */
-
-        /* Just to show you how this works, we simply translate
-         *  the keyboard scancode into an ASCII value, and then
-         *  display it to the screen. You can get creative and
-         *  use some flags to see if a shift is pressed and use a
-         *  different layout, or you can add another 128 entries
-         *  to the above layout to correspond to 'shift' being
-         *  held. If shift is held using the larger lookup table,
-         *  you would add 128 to the scancode when you look for it */
         if ((scancode_handler(scancode)) == false)
         {
-            ksh_write_char(kbdus[scancode]);
+            if (isalpha(kbdus[scancode]))
+                ksh_write_char(__keyboard_shift == true ? kbdus[scancode] - 32 : kbdus[scancode]);
+            else
+                ksh_write_char(kbdus[scancode]);
         }
     }
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 15:37:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 16:51:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ void ksh_execute_command(void)
 
     ksh_buffer_clear();
     terminal_column = 0;
-    UPDATE_CURSOR();
     DISPLAY_PROMPT();
     terminal_column = __PROMPT_ASCII_LEN__;
     UPDATE_CURSOR();

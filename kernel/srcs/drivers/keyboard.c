@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 13:04:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/29 19:46:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/drivers/keyboard.h"
 
-#include "../../includes/shell/kshell.h"
-#include "../../includes/shell/kshell_termcaps.h"
+#include "../../includes/shell/ksh.h"
+#include "../../includes/shell/ksh_termcaps.h"
 
 unsigned char kbdus[128] =
     {
@@ -59,47 +59,30 @@ static bool scancode_handler(unsigned char scancode)
 {
     switch (scancode)
     {
-        /* TERMINAL MODE */
-        // case KEYBOARD_KEY_ESCAPE:
-        //     reboot();
-        //     return (true);
-        // case KEYBOARD_KEY_BACK:
-        //     terminal_back_once();
-        //     return (true);
-        // case KEYBOARD_KEY_ARROW_LEFT:
-        // case KEYBOARD_KEY_ARROW_RIGHT:
-        //     return (true);
-        // case KEYBOARD_KEY_ARROW_DOWN:
-        //     terminal_cursor_up();
-        //     return (true);
-        // case KEYBOARD_KEY_ARROW_TOP:
-        //     terminal_cursor_down();
-        //     return (true);
-
     /* KSHELL MODE */
     case KEYBOARD_KEY_ESCAPE:
         poweroff();
         return (true);
     case KEYBOARD_KEY_BACK:
-        kshell_del_one();
+        ksh_del_one();
         return (true);
     case KEYBOARD_KEY_ARROW_LEFT:
-        kshell_move_cursor_left();
+        ksh_move_cursor_left();
         return (true);
     case KEYBOARD_KEY_ARROW_RIGHT:
-        kshell_move_cursor_right();
+        ksh_move_cursor_right();
         return (true);
     case KEYBOARD_KEY_ARROW_DOWN:
-        kshell_move_cursor_down();
+        ksh_move_cursor_down();
         return (true);
     case KEYBOARD_KEY_ARROW_TOP:
-        kshell_move_cursor_up();
+        ksh_move_cursor_up();
         return (true);
     case KEYBOARD_KEY_ENTER:
-        kshell_new_line();
+        ksh_new_line();
         return (true);
     case KEYBOARD_KEY_SUPPR:
-        kshell_suppr_char();
+        ksh_suppr_char();
         return (true);
     case KEYBOARD_SCREEN_F1:
         reboot();
@@ -141,7 +124,7 @@ void keyboard_handler(struct regs *r)
          *  you would add 128 to the scancode when you look for it */
         if ((scancode_handler(scancode)) == false)
         {
-            kshell_write_char(kbdus[scancode]);
+            ksh_write_char(kbdus[scancode]);
         }
     }
 }

@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Jun 25 15:45:16 2022
+# Make data base, printed on Wed Jun 29 18:41:09 2022
 
 # Variables
 
@@ -23,23 +23,23 @@ TERMINATOR_DBUS_NAME = net.tenshu.Terminator25ef4b219e3b005583550f2b0f9f990c3
 # makefile (from 'mk-files/Colors.mk', line 18)
 _END = $'\033[0m
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-8c7a0f3c-b9ff-4eef-90d5-3439b4a1e6a3.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-ef49b530-7023-499f-89f3-dfff5b32e9b7.sock
 # environment
 LC_NAME = fr_FR.UTF-8
 # makefile (from 'mk-files/Colors.mk', line 21)
 _REV = $'\033[7m
 # environment
 LC_NUMERIC = fr_FR.UTF-8
-# makefile (from 'Makefile', line 30)
+# makefile (from 'Makefile', line 29)
 ASMFLAGS = -f elf32
 # makefile (from 'mk-files/Colors.mk', line 34)
 _IGREY = $'\033[40m
 # environment
 VSCODE_CWD = /home/vintz/Documents/Github_Vintz/KFS/KronOS
-# makefile (from 'Makefile', line 61)
+# makefile (from 'mk-files/Sources-ASM.mk', line 18)
 KOBJS_ASM = $(KSRCS_ASM:.s=.o)
 # environment
-TERMINATOR_UUID = urn:uuid:e3fae519-d9f3-40bf-abba-b410d80eb6e3
+TERMINATOR_UUID = urn:uuid:e0091443-b027-4963-a2c2-b8308979e921
 # environment
 LC_ADDRESS = fr_FR.UTF-8
 # default
@@ -79,7 +79,7 @@ VSCODE_CODE_CACHE_PATH = /home/vintz/.config/Code/CachedData/30d9c6cd9483b2cc586
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.GTP1N1
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.UJE8N1
 # default
 .LOADED := 
 # default
@@ -96,7 +96,7 @@ _CYAN = $'\033[36m
 TERMINATOR_DBUS_PATH = /net/tenshu/Terminator2
 # makefile
 CURDIR := /home/vintz/Documents/Github_Vintz/KFS/KronOS
-# makefile (from 'Makefile', line 29)
+# makefile (from 'Makefile', line 28)
 ASM = nasm
 # environment
 VSCODE_PIPE_LOGGING = true
@@ -110,7 +110,7 @@ MFLAGS = -pqrR
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # default
 .SHELLFLAGS := -c
-# makefile (from 'Makefile', line 62)
+# makefile (from 'mk-files/Sources.mk', line 17)
 KSRCS = $(shell find kernel/srcs -name '*.c')
 # environment
 WAYLAND_DISPLAY = wayland-0
@@ -118,8 +118,8 @@ WAYLAND_DISPLAY = wayland-0
 +D = $(patsubst %/,%,$(dir $+))
 # environment
 XDG_SESSION_DESKTOP = ubuntu
-# makefile (from 'mk-files/Colors.mk', line 1)
-MAKEFILE_LIST := Makefile mk-files/Colors.mk
+# makefile (from 'mk-files/Sources-ASM.mk', line 1)
+MAKEFILE_LIST := Makefile mk-files/Colors.mk mk-files/Sources-Boot.mk mk-files/Sources.mk mk-files/Sources-ASM.mk
 # environment
 CONDA_SHLVL = 0
 # automatic
@@ -129,8 +129,8 @@ ZSH = /home/vintz/.oh-my-zsh
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 209665
-# makefile (from 'Makefile', line 60)
+VSCODE_PID = 3535
+# makefile (from 'mk-files/Sources-ASM.mk', line 17)
 KSRCS_ASM = $(shell find kernel/srcs -name '*.s')
 # makefile (from 'Makefile', line 18)
 ISO = $(NAME).iso
@@ -143,7 +143,7 @@ _LPURPLE = $'\033[95m
 # environment
 CONDA_PYTHON_EXE = /home/vintz/Documents/Conda/PythonConda/bin/python
 # environment
-SESSION_MANAGER = local/Vintz:@/tmp/.ICE-unix/1496,unix/Vintz:/tmp/.ICE-unix/1496
+SESSION_MANAGER = local/Vintz:@/tmp/.ICE-unix/1492,unix/Vintz:/tmp/.ICE-unix/1492
 # automatic
 *F = $(notdir $*)
 # environment
@@ -189,7 +189,7 @@ LC_MONETARY = fr_FR.UTF-8
 # environment
 LC_TIME = fr_FR.UTF-8
 # environment
-INVOCATION_ID = e17841d3c9bf4d779c392e8044cb84e9
+INVOCATION_ID = f7402ce26cb9415fb4b104c0f1c87eee
 # makefile (from 'mk-files/Colors.mk', line 40)
 _ICYAN = $'\033[46m
 # environment
@@ -218,7 +218,7 @@ NAME = kfs
 _IRED = $'\033[41m
 # makefile (from 'mk-files/Colors.mk', line 38)
 _IBLUE = $'\033[44m
-# makefile (from 'Makefile', line 32)
+# makefile (from 'Makefile', line 31)
 KDSRCS = srcs/kernel
 # environment
 XDG_CURRENT_DESKTOP = Unity
@@ -236,7 +236,7 @@ ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 GNUMAKEFLAGS := 
 # environment
 LOGNAME = vintz
-# makefile (from 'Makefile', line 31)
+# makefile (from 'Makefile', line 30)
 BOOT = boot/boot
 # makefile (from 'mk-files/Colors.mk', line 39)
 _IPURPLE = $'\033[45m
@@ -245,8 +245,8 @@ _BLUE = $'\033[34m
 # makefile
 .DEFAULT_GOAL := all
 # environment
-SYSTEMD_EXEC_PID = 1948
-# makefile (from 'Makefile', line 63)
+SYSTEMD_EXEC_PID = 2005
+# makefile (from 'mk-files/Sources.mk', line 18)
 KOBJS = $(KSRCS:.c=.o)
 # makefile (from 'Makefile', line 36)
 XORRISO = xorriso-1.4.6
@@ -264,39 +264,39 @@ MAKE_VERSION := 4.3
 _BOLD = $'\033[1m
 # makefile (from 'mk-files/Colors.mk', line 26)
 _GREEN = $'\033[32m
-# makefile (from 'Makefile', line 27)
+# makefile (from 'Makefile', line 26)
 LDFLAGS = -g3 -m32
 # environment
-MANAGERPID = 1285
+MANAGERPID = 1322
 # environment
 LC_MEASUREMENT = fr_FR.UTF-8
 # makefile (from 'mk-files/Colors.mk', line 29)
 _PURPLE = $'\033[35m
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 3459
+GIO_LAUNCHED_DESKTOP_FILE_PID = 3291
 # makefile (from 'mk-files/Colors.mk', line 45)
 _LRED = $'\033[91m
+ 
 # environment
 PAGER = less
 # environment
 _ = /usr/bin/make
 # environment
 LC_PAPER = fr_FR.UTF-8
-# makefile (from 'Makefile', line 33)
+# makefile (from 'Makefile', line 32)
 BIN = kernel.bin
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # makefile (from 'Makefile', line 22)
- 
-CFLAGS = -Wall -Wextra -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2
+CFLAGS = -Wall -Wextra -Wfatal-errors -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -std=gnu99 -ffreestanding -O2
 # environment
 COLORTERM = truecolor
 # environment
 _CE_M = 
-# makefile (from 'Makefile', line 49)
+# makefile (from 'mk-files/Sources-Boot.mk', line 17)
 KBOOT_SRCS = $(BOOT).s
 # environment
-JOURNAL_STREAM = 8:39740
+JOURNAL_STREAM = 8:44140
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -305,8 +305,10 @@ VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 HOME = /home/vintz
 # environment
 QT_IM_MODULE = ibus
-# makefile (from 'Makefile', line 50)
+# makefile (from 'mk-files/Sources-Boot.mk', line 18)
 KBOOT_OBJS = $(KBOOT_SRCS:.s=.o)
+# makefile (from 'Makefile', line 33)
+BIN_DIR = bin
 # makefile (from 'mk-files/Colors.mk', line 24)
 _GREY = $'\033[30m
 # environment
@@ -354,7 +356,7 @@ GDMSESSION = ubuntu
 # environment
 LC_IDENTIFICATION = fr_FR.UTF-8
 # variable set hash-table stats:
-# Load=171/1024=17%, Rehash=0, Collisions=26/285=9%
+# Load=172/1024=17%, Rehash=0, Collisions=26/297=9%
 
 # Pattern-specific Variable Values
 
@@ -362,21 +364,21 @@ LC_IDENTIFICATION = fr_FR.UTF-8
 
 # Directories
 
-# . (device 2053, inode 3165682): 19 files, no impossibilities.
+# . (device 2053, inode 3165682): 22 files, no impossibilities.
 
-# 19 files, no impossibilities in 1 directories.
+# 22 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
-%.o: %.s
-#  recipe to execute (from 'Makefile', line 53):
-	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
-
 %.o: %.c
-#  recipe to execute (from 'Makefile', line 65):
+#  recipe to execute (from 'Makefile', line 53):
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(CC) $(LDFLAGS) $(CFLAGS) -c $< -o ${<:.c=.o}
+
+%.o: %.s
+#  recipe to execute (from 'Makefile', line 57):
+	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
 
 # 2 implicit rules, 0 (0.0%) terminal.
 # Files
@@ -385,41 +387,54 @@ check:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 102):
-	@grub-file --is-x86-multiboot bin/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"
+#  recipe to execute (from 'Makefile', line 95):
+	@grub-file --is-x86-multiboot $(BIN_DIR)/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"
 	printf "$(_END)$(_DIM) -> ISO CHECKER $(_END)\n"
 
 boot/boot: boot/boot.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 81):
+#  recipe to execute (from 'Makefile', line 74):
 	@printf "$(_LWHITE)- ASM BOOT $(_END)$(_DIM)--------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 xorriso-1.4.6:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 96):
+#  recipe to execute (from 'Makefile', line 89):
 	@printf "$(_LYELLOW)- COMPILING XORRISO $(_END)$(_DIM)-----$(_END) $(_LYELLOW)[$(_LWHITE)⚠️ $(_LYELLOW)]$(_END) $(_LYELLOW)>$(_END)$(_DIM)$(shell pwd)/$(XORRISO)/$(_END)$(_LYELLOW)<$(_END)\n"
 	@tar xf $(XORRISO).tar.gz
 	@cd $(XORRISO) && ./configure --prefix=/usr > /dev/null 2>&1 && make -j$(nproc) > /dev/null 2>&1
 	@printf "$(_LWHITE)- $(XORRISO) $(_END)$(_DIM)---------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+
+bin/kernel.bin:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 80):
+	@mkdir -p $(BIN_DIR)
+	@$(CC) $(LDFLAGS) -T $(LINKER) -o $(BIN_DIR)/$(BIN) $(CFLAGS) \
+	$(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) \
+	> /dev/null # 2>&1
+	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "KERNEL / LINKER / BOOT" 
+	@printf "$(_LWHITE)- KERNEL BIN $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)$(_DIM) -> ISO CREATION $(_END) \n"
+	@make -s -C . check
 
 run-curses:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 114):
+#  recipe to execute (from 'Makefile', line 108):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
-	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -curses -vga std -full-screen
+	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display curses -vga std -full-screen
 
-srcs/kernel: kernel/srcs/terminal.o kernel/srcs/shell/kshell_utils.o kernel/srcs/shell/kshell.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o
+srcs/kernel: kernel/srcs/terminal.o kernel/srcs/shell/kshell_utils.o kernel/srcs/shell/kshell.o kernel/srcs/shell/kshell_keyboard.o kernel/srcs/drivers/keyboard.o kernel/srcs/kernel.o kernel/srcs/system/idt/idt.o kernel/srcs/system/irq/irq.o kernel/srcs/system/pit/pit.o kernel/srcs/system/isr/isr.o kernel/srcs/system/gdt/gdt.o kernel/srcs/system/io/portb.o kernel/srcs/system/idt/idt_load.o kernel/srcs/system/irq/irq_handler.o kernel/srcs/system/isr/isr_routines.o kernel/srcs/system/gdt/gdt_flush.o kernel/srcs/system/io/poweroff.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 84):
+#  recipe to execute (from 'Makefile', line 77):
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 # Not a target:
@@ -439,14 +454,21 @@ debug:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 118):
+#  recipe to execute (from 'Makefile', line 112):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -s -S -display sdl -vga std -full-screen
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-25 15:45:08.450572643
+#  Last modified 2022-06-28 14:37:39.737724883
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+mk-files/Sources-ASM.mk:
+#  Implicit rule search has been done.
+#  Last modified 2022-06-28 14:37:39.737724883
 #  File has been updated.
 #  Successfully updated.
 
@@ -461,16 +483,16 @@ clean:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 130):
+#  recipe to execute (from 'Makefile', line 124):
 	@make -s -C libkfs clean
-	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir bin/$(BIN) $(KOBJS) $(KOBJS_ASM)
+	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM)
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 lkfs:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 77):
+#  recipe to execute (from 'Makefile', line 70):
 	@make -s -C libkfs
 	@printf "$(_LWHITE)- LIBKFS$(_END)$(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
@@ -491,7 +513,7 @@ helper:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 152):
+#  recipe to execute (from 'Makefile', line 147):
 	@printf "\n$(_LWHITE)- Now you use: \'$(_LYELLOW)make run$(_END)\' or \'$(_LYELLOW)make run-iso$(_END)\' to start the kernel !$(_END)\n"
 
 # Not a target:
@@ -505,8 +527,9 @@ re: clean
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 140):
-	@make -s -C libkfs re
+#  recipe to execute (from 'Makefile', line 134):
+	@rm -rf $(BIN_DIR)
+	@make -s -C libkfs re > /dev/null 2>&1
 	@make -s -C . all
 
 # Not a target:
@@ -519,13 +542,21 @@ kfs.iso:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 122):
+#  recipe to execute (from 'Makefile', line 116):
 	@mkdir -p isodir/boot/grub
-	@cp bin/kernel.bin isodir/boot/kernel.bin
+	@cp $(BIN_DIR)/kernel.bin isodir/boot/kernel.bin
 	@cp grub.cfg isodir/boot/grub/grub.cfg
 	@grub-mkrescue -o $(ISO) isodir \
 	--xorriso=$(shell pwd)/$(XORRISO)/xorriso/xorriso > /dev/null 2>&1
 	@printf "$(_LWHITE)- ISO $(_END)$(_DIM)-------------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+
+# Not a target:
+mk-files/Sources.mk:
+#  Implicit rule search has been done.
+#  Last modified 2022-06-28 14:37:39.737724883
+#  File has been updated.
+ 
+#  Successfully updated.
 
 # Not a target:
 kernel/srcs/system/io/poweroff.o:
@@ -572,9 +603,9 @@ fclean: clean
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 135):
+#  recipe to execute (from 'Makefile', line 129):
 	@make -s -C libkfs fclean
-	@rm -rf $(XORRISO) bin
+	@rm -rf $(XORRISO) $(BIN_DIR)
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 run:
@@ -582,11 +613,10 @@ run:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 106):
+#  recipe to execute (from 'Makefile', line 99):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display sdl -vga std -full-screen 
 
- 
 # Not a target:
 kernel/srcs/shell/kshell.o:
 #  Implicit rule search has not been done.
@@ -618,7 +648,7 @@ ascii:
 # | := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=13/59=22%
-#  recipe to execute (from 'Makefile', line 144):
+#  recipe to execute (from 'Makefile', line 139):
 	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)      $(_LRED) ██╗\n$(_END)"
 	@printf "$(_LRED)\r██║ ██╔╝██╔════╝██╔════╝$(_LWHITE)      $(_LRED)███║\n$(_END)"
 	@printf "$(_LRED)\r█████╔╝ █████╗  ███████╗$(_LWHITE)█████╗$(_LRED)╚██║\n$(_END)"
@@ -626,23 +656,17 @@ ascii:
 	@printf "$(_LRED)\r██║  ██╗██║     ███████║$(_LWHITE)      $(_LRED) ██║\n$(_END)"
 	@printf "$(_LRED)\r╚═╝  ╚═╝╚═╝     ╚══════╝$(_LWHITE)      $(_LRED) ╚═╝\n$(_END)"
 
-kernel.bin:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'Makefile', line 87):
-	@mkdir -p bin
-	@$(CC) $(LDFLAGS) -T $(LINKER) -o bin/$(BIN) $(CFLAGS) \
-	$(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) \
-	> /dev/null #2>&1
-	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "KERNEL / LINKER / BOOT" 
-	@printf "$(_LWHITE)- KERNEL BIN $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)$(_DIM) -> ISO CREATION $(_END) \n"
-	@make -s -C . check
-
 # Not a target:
 mk-files/Colors.mk:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-25 15:40:20.465220276
+#  Last modified 2022-06-28 14:37:39.737724883
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+mk-files/Sources-Boot.mk:
+#  Implicit rule search has been done.
+#  Last modified 2022-06-28 14:37:39.737724883
 #  File has been updated.
 #  Successfully updated.
 
@@ -652,13 +676,15 @@ kernel/srcs/system/irq/irq.o:
 #  Modification time never checked.
 #  File has not been updated.
 
-kfs: ascii xorriso-1.4.6 lkfs boot/boot srcs/kernel kernel.bin kfs.iso helper
-#  Implicit rule search has been done.
+kfs: ascii xorriso-1.4.6 lkfs boot/boot srcs/kernel bin/kernel.bin kfs.iso helper
+#  Implicit rule search has not been done.
 #  File does not exist.
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/51=0%
+#  recipe to execute (from 'Makefile', line 67):
+	@true
 
 # Not a target:
 kernel/srcs/system/gdt/gdt.o:
@@ -690,6 +716,12 @@ kernel/srcs/system/idt/idt_load.o:
 #  File has not been updated.
 
 # Not a target:
+kernel/srcs/shell/kshell_keyboard.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
 kernel/srcs/system/gdt/gdt_flush.o:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -700,24 +732,25 @@ run-iso:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 110):
+#  recipe to execute (from 'Makefile', line 103):
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display sdl -boot d -vga std -full-screen
+	# @kvm -m 256 -cdrom kfs.iso -s -display sdl -full-screen
 
 # files hash-table stats:
-# Load=40/1024=4%, Rehash=0, Collisions=0/100=0%
+# Load=44/1024=4%, Rehash=0, Collisions=0/108=0%
 # VPATH Search Paths
 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 62 / storage = 863 B / avg = 13 B
-# current buf: size = 8162 B / used = 863 B / count = 62 / avg = 13 B
+# strcache buffers: 1 (0) / strings = 68 / storage = 989 B / avg = 14 B
+# current buf: size = 8162 B / used = 989 B / count = 68 / avg = 14 B
 
-# strcache performance: lookups = 111 / hit rate = 44%
+# strcache performance: lookups = 121 / hit rate = 43%
 # hash-table stats:
-# Load=62/8192=1%, Rehash=0, Collisions=1/111=1%
-# Finished Make data base on Sat Jun 25 15:45:16 2022
+# Load=68/8192=1%, Rehash=0, Collisions=1/121=1%
+# Finished Make data base on Wed Jun 29 18:41:09 2022
 
  

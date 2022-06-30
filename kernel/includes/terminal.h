@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 12:34:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/29 21:08:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ extern void terminal_setcolor(uint8_t color);
 extern void terminal_writestring_location(const char *data, size_t x, size_t y);
 extern void update_cursor(int x, int y);
 extern void terminal_write_n_char(char c, size_t count);
+extern void terminal_move_offset_down(void);
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;

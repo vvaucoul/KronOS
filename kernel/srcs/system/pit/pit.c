@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/25 11:21:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 01:06:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,16 +40,16 @@ void timer_handler(struct regs *r)
     }
     char buffer[__KITOA_BUFFER_LENGTH__];
 
-    terminal_writestring_location("Phase: ", VGA_WIDTH - kstrlen("Phase: ") - 7, 1);
-    terminal_writestring_location("Sec: ", VGA_WIDTH - kstrlen("Sec: ") - 7, 2);
+    terminal_writestring_location("Phase: ", VGA_WIDTH - kstrlen("Phase: ") - 7, 0);
+    terminal_writestring_location("Sec: ", VGA_WIDTH - kstrlen("Sec: ") - 7, 1);
 
     kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
     kitoa(timer_ticks, buffer);
-    terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 1);
+    terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 0);
 
     kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
     kitoa(timer_seconds, buffer);
-    terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 2);
+    terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 1);
 }
 
 void timer_install()

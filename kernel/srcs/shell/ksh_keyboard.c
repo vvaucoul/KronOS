@@ -1,25 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kshell_keyboard.c                                  :+:      :+:    :+:   */
+/*   ksh_keyboard.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 22:55:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 16:48:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 12:27:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/shell/kshell.h"
+#include "../../includes/shell/ksh.h"
 
-void kshell_init(void)
+void ksh_init(void)
 {
-    for (size_t y = 0; y < kshell_max_line; y++)
+    for (size_t y = 0; y < ksh_max_line; y++)
     {
         for (size_t x = 0; x < VGA_WIDTH; x++)
         {
             const size_t index = TERMINAL_CURSOR_AT_LOCATION(x, y);
-            kshell_buffer[index] = VGA_ENTRY(' ', terminal_color);
+            ksh_buffer[index] = VGA_ENTRY(' ', terminal_color);
         }
     }
 }

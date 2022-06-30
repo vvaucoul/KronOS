@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kshell_utils.c                                     :+:      :+:    :+:   */
+/*   ksh_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:41:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 19:56:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/29 19:29:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/shell/kshell.h"
+#include "../../includes/shell/ksh.h"
 
-size_t kshell_get_last_character_index(void)
+size_t ksh_get_last_character_index(void)
 {
     // TODO Debug
 
@@ -24,7 +24,7 @@ size_t kshell_get_last_character_index(void)
     return (i);
 }
 
-static void kshell_move_offset_line_right(size_t x, size_t y, size_t offset)
+static void ksh_move_offset_line_right(size_t x, size_t y, size_t offset)
 {
     for (size_t i = VGA_WIDTH - 2; i > __PROMPT_ASCII_LEN__ && i > x; i--)
     {
@@ -32,7 +32,7 @@ static void kshell_move_offset_line_right(size_t x, size_t y, size_t offset)
     }
 }
 
-static void kshell_move_offset_line_left(size_t x, size_t y, size_t offset)
+static void ksh_move_offset_line_left(size_t x, size_t y, size_t offset)
 {
     for (size_t i = x; i < VGA_WIDTH - 1; i++)
     {
@@ -48,7 +48,7 @@ void ksh_save_line(size_t y)
         KSH_CHAR(x, y - __HEADER_HEIGHT__) = TERMINAL_CHAR(x, y);
         KSH_CHAR(x + 1, y - __HEADER_HEIGHT__) = 0;
     }
-    
+
     // return ;
     // display save
     char buffer[VGA_WIDTH];
@@ -66,15 +66,15 @@ void ksh_save_line(size_t y)
     kprintf("Line: %s\n", buffer);
 }
 
-void kshell_del_char_location(size_t x, size_t y)
+void ksh_del_char_location(size_t x, size_t y)
 {
-    kshell_move_offset_line_left(x, y, 1);
+    ksh_move_offset_line_left(x, y, 1);
     UPDATE_CURSOR();
 }
 
-void kshell_insert_char_location(char c, size_t x, size_t y)
+void ksh_insert_char_location(char c, size_t x, size_t y)
 {
-    kshell_move_offset_line_right(x, y, 1);
+    ksh_move_offset_line_right(x, y, 1);
     kputchar(c);
     UPDATE_CURSOR();
 }

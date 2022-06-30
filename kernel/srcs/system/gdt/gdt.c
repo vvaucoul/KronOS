@@ -6,13 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 21:44:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 12:59:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../../includes/system/gdt.h"
+#include "../../../includes/system/tss.h"
 
-struct gdt_entry gdt[3];
+// #include <gdt.h>
+
+struct gdt_entry gdt[GDT_SIZE];
 struct gdt_ptr gp;
 
 /* Setup a descriptor in the Global Descriptor Table */
@@ -37,27 +40,28 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
  *  finally call gdt_flush() in our assembler file in order
  *  to tell the processor where the new GDT is and update the
  *  new segment registers */
-void gdt_install()
+void gdt_install(void)
 {
     /* Setup the GDT pointer and limit */
     gp.limit = (sizeof(struct gdt_entry) * 3) - 1;
     gp.base = (unsigned int)&gdt;
 
-    /* Our NULL descriptor */
-    gdt_set_gate(0, 0, 0, 0, 0);
+    gdt_set_gate(0, 0x0, 0x0, 0x0, 0x0);
+    gdt_set_gate(1, 0x0, 0xFFFFFFFF, 0x9A, 0xCF);
+    gdt_set_gate(2, 0x0, 0xFFFFFFFF, 0x92, 0xCF);
+    gdt_set_gate(3, 0x0, 0xFFFFFFFF, 0xFA, 0xC);
+    gdt_set_gate(4, 0x0, 0xFFFFFFFF, 0xF2, 0xC);
+    
+    // gdt_set_gate(5, &tss, sizeof(tss), 0x89, 0x0);
 
-    /* The second entry is our Code Segment. The base address
-     *  is 0, the limit is 4GBytes, it uses 4KByte granularity,
-     *  uses 32-bit opcodes, and is a Code Segment descriptor.
-     *  Please check the table above in the tutorial in order
-     *  to see exactly what each value means */
-    gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
-
-    /* The third entry is our Data Segment. It's EXACTLY the
-     *  same as our code segment, but the descriptor type in
-     *  this entry's access byte says it's a Data Segment */
-    gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
-
-    /* Flush out the old GDT and install the new changes! */
     gdt_flush();
+}
+
+extern void print_stack(void)
+{
+    kprintf("Test 01\n");
+    kprintf("Test 02\n");
+    kprintf("Test 03\n");
+    kprintf("Test 04\n");
+    kprintf("Test 05\n");
 }

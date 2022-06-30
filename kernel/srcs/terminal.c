@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 18:16:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 12:55:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,13 @@ void terminal_putchar(char c)
     {
         ++terminal_row;
         terminal_column = 0;
+
+        if (terminal_row >= VGA_HEIGHT - 1)
+        {
+            terminal_move_offset_down();
+            terminal_row = VGA_HEIGHT - 1;
+            terminal_column = 0;
+        }
         return;
     }
     else if (c == CHAR_TAB)
@@ -109,4 +116,20 @@ void terminal_write_n_char(char c, size_t count)
 {
     for (size_t i = 0; i < count; i++)
         terminal_putchar(c);
+}
+
+void terminal_move_offset_down(void)
+{
+    size_t y = 0;
+
+    for (; y < VGA_HEIGHT - 1; y++)
+    {
+        for (size_t x = 0; x < VGA_WIDTH; x++)
+        {
+            TERMINAL_CHAR(x, y) = TERMINAL_CHAR(x, y + 1);
+        }
+    }
+    for (size_t x = 0; x < VGA_WIDTH; x++)
+        TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', terminal_color);
+    // terminal_row++;
 }

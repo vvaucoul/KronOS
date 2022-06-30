@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 12:59:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:51:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,45 +40,71 @@
 #define SEG_CODE_EXRDC 0x0E     // Execute/Read, conforming
 #define SEG_CODE_EXRDCA 0x0F    // Execute/Read, conforming, accessed
 
+/* 0x9A */
 #define GDT_CODE_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(0) | SEG_CODE_EXRD
 
+/* 0x92 */
 #define GDT_DATA_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(0) | SEG_DATA_RDWR
 
+/* 0x96 */
+#define GDT_STACK_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
+                          SEG_PRIV(0) | SEG_DATA_RDWREXPD
+
+/* 0xFA */
 #define GDT_CODE_PL3 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(3) | SEG_CODE_EXRD
 
+/* 0xF2 */
 #define GDT_DATA_PL3 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(3) | SEG_DATA_RDWR
 
-#define GDT_ADDR 0x00000800
-#define GDT_SIZE 6
+/* 0xF6 */
+#define GDT_STACK_PL3 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
+                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
+                          SEG_PRIV(3) | SEG_DATA_RDWREXPD
 
-struct gdt_entry
+#define __GDT_ADDR__ 0x00000800
+#define GDT_SIZE 7
+
+/*
+    "code": kernel code, used to stored the executable binary code
+    "data": kernel data
+    "stack": kernel stack, used to stored the call stack during kernel execution
+    "ucode": user code, used to stored the executable binary code for user program
+    "udata": user program data
+    "ustack": user stack, used to stored the call stack during execution in userland
+*/
+
+typedef struct __attribute__((packed)) gdt_entry
 {
-    unsigned short limit_low;
-    unsigned short base_low;
-    unsigned char base_middle;
-    unsigned char access;
-    unsigned char granularity;
-    unsigned char base_high;
-} __attribute__((packed));
+    uint16_t limit_low;
+    uint16_t base_low;
+    uint8_t base_middle;
+    uint8_t access;
+    uint8_t granularity;
+    uint8_t base_high;
+} t_gdt_entry;
 
-struct gdt_ptr
+typedef struct __attribute__((packed)) gdt_ptr
 {
-    unsigned short limit;
-    unsigned int base;
-} __attribute__((packed));
+    uint16_t limit;
+    uint32_t base;
+} t_gdt_ptr;
 
-extern struct gdt_entry gdt[GDT_SIZE];
-extern struct gdt_ptr gp;
+#define GDT_ENTRY t_gdt_entry
+#define GDT_PTR t_gdt_ptr
 
-extern void gdt_flush(void);
+extern GDT_ENTRY gdt[GDT_SIZE];
+extern GDT_PTR *gp;
+
+extern void gdt_flush(uint32_t gdt_ptr);
 extern void gdt_install(void);
 extern void print_stack(void);
 

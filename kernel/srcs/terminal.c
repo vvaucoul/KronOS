@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 13:09:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 21:07:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,8 @@ void terminal_putchar(char c)
         ++terminal_row;
         terminal_column = 0;
 
-        if (terminal_row >= VGA_HEIGHT - 1)
+        // if (terminal_row >= VGA_HEIGHT - 1)
+        if (terminal_row >= VGA_HEIGHT)
         {
             terminal_move_offset_down();
             terminal_row = VGA_HEIGHT - 1;

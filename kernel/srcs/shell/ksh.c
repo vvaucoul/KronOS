@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 16:51:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 22:32:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ void ksh_execute_command(void)
         reboot();
     else if (kstrcmp(command, "print-stack") == 0 || kstrcmp(command, "stack") == 0)
         print_stack();
+    else if (kstrcmp(command, "time") == 0)
+        timer_display_ktimer();
     else if (command[0] != '\0')
         kprintf("       Unknown command: %s\n", command);
 
@@ -53,6 +55,7 @@ void kronos_shell(void)
 {
     ksh_init();
     DISPLAY_PROMPT();
+    UPDATE_CURSOR();
 
     while (1)
     {

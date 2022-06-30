@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:43:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 16:50:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 22:34:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ extern void ksh_move_cursor_left(void)
         return;
     else
         terminal_column--;
+    UPDATE_CURSOR();
 }
 
 extern void ksh_move_cursor_right(void)
@@ -54,6 +55,7 @@ extern void ksh_move_cursor_right(void)
         return;
     else
         terminal_column++;
+    UPDATE_CURSOR();
 }
 
 /*******************************************************************************
@@ -100,6 +102,8 @@ extern void ksh_new_line(void)
 
 extern void ksh_suppr_char(void)
 {
+    // TODO FIX SUPPR CHAR
+
     ksh_del_char_location(terminal_column, terminal_row);
     ksh_buffer_delete_char_at(terminal_column - __PROMPT_ASCII_LEN__);
 }

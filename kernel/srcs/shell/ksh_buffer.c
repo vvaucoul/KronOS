@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:18:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 20:16:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/06/30 22:26:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ extern void ksh_buffer_add_char(char c)
 extern void ksh_update_buffer(const char *str, size_t length)
 {
     kbzero(ksh_line_buffer, __KSH_INPUT_BUFFER_SIZE__);
-    
+
     if (length > __KSH_INPUT_BUFFER_SIZE__)
         length = __KSH_INPUT_BUFFER_SIZE__;
     for (size_t i = 0; i < length; i++)
@@ -46,11 +46,14 @@ extern void ksh_insert_char_at(char c, size_t index)
 
 extern void ksh_buffer_delete_char_at(size_t index)
 {
-    for (size_t i = index; i < ksh_line_index; i++)
+    if (ksh_line_index > 0)
     {
-        ksh_line_buffer[i] = ksh_line_buffer[i + 1];
+        for (size_t i = index; i < ksh_line_index; i++)
+        {
+            ksh_line_buffer[i] = ksh_line_buffer[i + 1];
+        }
+        ksh_line_index--;
     }
-    ksh_line_index--;
 }
 
 extern void ksh_buffer_delete_last_char(void)

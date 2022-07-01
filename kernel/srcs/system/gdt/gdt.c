@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 15:12:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/01 11:31:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,21 +50,50 @@ void gdt_install(void)
 
 extern void print_stack(void)
 {
+    kprintf("%8%% GDT Entry: 0x00000%x\n", __GDT_ADDR__);
+    kprintf("%8%% GDT Base: 0x0%x\n", gp->base);
+    kprintf("%8%% GDT Limit: 0x00000%x\n", gp->limit);
+
+    kprintf("\n%8%% BASE LOW | BASE MIDDLE | BASE HIGH | LIMIT LOW | GRAN | ACCESS\n");
+
+    kprintf("%8%% 0x0%x ", gdt[0].base_low);
+    kprintf("  \t0x0%x ", gdt[0].base_middle);
+    kprintf(" \t\t0x0%x ", gdt[0].base_high);
+    kprintf("   \t0x0%x ", gdt[0].limit_low);
+    kprintf("   \t0x0%x ", gdt[0].granularity);
+    kprintf("  0x0%x ", gdt[0].access);
+    kprintf("\n");
+
+    for (size_t i = 1; i < GDT_SIZE; i++)
+    {
+        kprintf("%8%% 0x0%x ", gdt[i].base_low);
+        kprintf("  \t0x0%x ", gdt[i].base_middle);
+        kprintf(" \t\t0x0%x ", gdt[i].base_high);
+        kprintf("   \t0x0%x ", gdt[i].limit_low);
+        kprintf("\t0x0%x ", gdt[i].granularity);
+        kprintf(" 0x0%x ", gdt[i].access);
+        kprintf("\n");
+    }
+
     int32_t ebp;
     int32_t esp;
 
+    char tmp[128];
+
+    kbzero(tmp, 128);
+    tmp[0] = 'a';
+    kprintf("\n%8%% Add to stack PTR[128]\n");
+
+    kprintf("%8%% Stack: \n");
+
     GET_EBP(ebp);
     GET_ESP(esp);
-
-    kprintf("EBP: %x\n", ebp);
-    kprintf("ESP: %x\n", esp);
-    
-
-    kprintf("Test 01\n");
-    kprintf("Test 02\n");
-    kprintf("Test 03\n");
-    kprintf("Test 04\n");
-    kprintf("Test 05\n");
+    while (ebp != 0)
+    {
+        kprintf("%8%% 0x%x\n", ebp);
+        ebp = *(int32_t *)ebp;
+    }
+    kprintf("%8%% 0x%x\n", esp);
 }
 
 #undef __GDT_ADDR__

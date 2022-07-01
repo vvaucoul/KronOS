@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 15:11:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/01 10:49:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,14 @@
 
 #include "../kernel.h"
 #include "../asm/asm.h"
+
+// REF: https://www.youtube.com/watch?v=5LbXClJhxcs
+
+typedef enum
+{
+    GDT_ACCESS_CODE_READABLE = 0x02,
+    GDT_ACCESS_DATA_WRITABLE = 0x02,
+} GDT_ACCESS;
 
 #define SEG_DESCTYPE(x) ((x) << 0x04)
 #define SEG_PRES(x) ((x) << 0x07)
@@ -83,21 +91,21 @@
     "ustack": user stack, used to stored the call stack during execution in userland
 */
 
-typedef struct __attribute__((packed)) gdt_entry
+typedef struct gdt_entry
 {
     uint16_t limit_low;
     uint16_t base_low;
     uint8_t base_middle;
     uint8_t access;
-    uint8_t granularity;
+    uint8_t granularity; // shifted left by 12 bits if 1
     uint8_t base_high;
-} t_gdt_entry;
+} __attribute__((packed)) t_gdt_entry;
 
-typedef struct __attribute__((packed)) gdt_ptr
+typedef struct gdt_ptr
 {
     uint16_t limit;
     uint32_t base;
-} t_gdt_ptr;
+} __attribute__((packed)) t_gdt_ptr;
 
 #define GDT_ENTRY t_gdt_entry
 #define GDT_PTR t_gdt_ptr

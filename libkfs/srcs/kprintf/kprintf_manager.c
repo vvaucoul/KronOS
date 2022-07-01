@@ -6,15 +6,21 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:54:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 16:48:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/01 10:23:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/kprintf.h"
 
-void __kpf_manage_mod()
+size_t __kpf_manage_mod(const char *format, size_t i)
 {
-    kputchar(MOD_DEL);
+    __kpf_manage_space_front(1);
+    --i;
+    if (format[i + 1] != MOD_DEL)
+        kputchar(MOD_DEL);
+    ++i;
+    __kpf_manage_space_back(1);
+    return (i);
 }
 
 void __kpf_manage_nbr()

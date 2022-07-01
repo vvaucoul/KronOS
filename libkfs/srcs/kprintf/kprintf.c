@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:06:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 16:49:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/01 10:20:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static int kprint_mod(const char *format, size_t i)
     /* CHECK BASIC DELIMITERS */
 
     if (format[i] == MOD_DEL)
-        __kpf_manage_mod();
+        i = __kpf_manage_mod(format, i);
     else if (format[i] == DEL_D || format[i] == DEL_C || format[i] == DEL_I)
         __kpf_manage_nbr();
     else if (format[i] == DEL_S)

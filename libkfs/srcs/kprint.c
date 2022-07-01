@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 12:19:39 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/23 20:11:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/01 10:51:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ void kputnbr(int n)
 
 void kputnbr_base(int n, int base)
 {
+    char s_base[18] = "0123456789ABCDEF";
+
     if (n < 0)
     {
         kputchar('-');
@@ -53,7 +55,17 @@ void kputnbr_base(int n, int base)
     }
     if (n >= base)
         kputnbr_base(n / base, base);
-    kputchar(n % base + '0');
+    kputchar(s_base[n % base]);
+
+
+    // if (n < 0)
+    // {
+    //     kputchar('-');
+    //     n = -n;
+    // }
+    // if (n >= base)
+    //     kputnbr_base(n / base, base);
+    // kputchar(n % base + '0');
 }
 
 void kputunbr(unsigned int n)

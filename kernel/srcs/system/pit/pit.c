@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 22:31:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/01 10:24:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,20 +74,7 @@ void ksleep(int seconds)
 
 void timer_display_ktimer(void)
 {
-
-    kprintf("Phase: %d\n", timer_ticks);
-    kprintf("Seconds: %d\n", timer_seconds);
-    kprintf("HZ: %d\n", (size_t)__TIMER_HZ__);
-
-    // char buffer[__KITOA_BUFFER_LENGTH__];
-    // terminal_writestring_location("Phase: ", VGA_WIDTH - kstrlen("Phase: ") - 7, 0);
-    // terminal_writestring_location("Sec: ", VGA_WIDTH - kstrlen("Sec: ") - 7, 1);
-
-    // kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
-    // kitoa(timer_ticks, buffer);
-    // terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 0);
-
-    // kmemset(buffer, 0, __KITOA_BUFFER_LENGTH__);
-    // kitoa(timer_seconds, buffer);
-    // terminal_writestring_location(buffer, VGA_WIDTH - kstrlen(buffer) - 1, 1);
+    kprintf("%8%% Phase: " " %d\n", timer_ticks);
+    kprintf("%8%% Seconds: %d\n", timer_seconds);
+    kprintf("%8%% HZ: %d\n", (size_t)__TIMER_HZ__);
 }

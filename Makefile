@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/03 10:28:13 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/03 17:56:16 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,11 +19,13 @@ ISO				=	$(NAME).iso
 LIBKFS			=	lkfs
 LIBKFS_A		=	libkfs/libkfs.a
 CC				=	clang
+LD				=	ld
 CFLAGS			=	-Wall -Wextra -Wfatal-errors \
 					-fno-builtin -fno-exceptions -fno-stack-protector \
 					-nostdlib -nodefaultlibs \
 					-std=gnu99 -ffreestanding -O2
 LDFLAGS			= 	-g3 -m32
+LD_FLAGS		=	-m elf_i386
 
 ASM				=	nasm
 ASMFLAGS		=	-f elf32
@@ -78,9 +80,7 @@ $(KDSRCS): $(KOBJS) $(KOBJS_ASM)
 
 $(BIN_DIR)/$(BIN):
 	@mkdir -p $(BIN_DIR)
-	@$(CC) $(LDFLAGS) -T $(LINKER) -o $(BIN_DIR)/$(BIN) $(CFLAGS) \
-	$(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) \
-	> /dev/null # 2>&1
+	@$(LD) $(LD_FLAGS) -T $(LINKER) -o $(BIN_DIR)/$(BIN) $(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) > /dev/null 2>&1
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "KERNEL / LINKER / BOOT" 
 	@printf "$(_LWHITE)- KERNEL BIN $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)$(_DIM) -> ISO CREATION $(_END) \n"
 	@make -s -C . check
@@ -102,7 +102,6 @@ run:
 run-iso:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display sdl -boot d -vga std -full-screen
-	# @kvm -m 256 -cdrom kfs.iso -s -display sdl -full-screen
 
 run-curses:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
@@ -122,10 +121,10 @@ $(ISO):
 
 clean:
 	@make -s -C libkfs clean
-	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM)
+	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM) $(BIN)
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-fclean: clean
+fclean: clean clear-docker
 	@make -s -C libkfs fclean
 	@rm -rf $(XORRISO) $(BIN_DIR)
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
@@ -134,6 +133,19 @@ re: clean
 	@rm -rf $(BIN_DIR)
 	@make -s -C libkfs re > /dev/null 2>&1
 	@make -s -C . all
+
+run-docker: ascii
+	@printf "$(_LCYAN)- DOCKER $(_END)$(_DIM)----------------$(_END) $(_LYELLOW)[$(_LWHITE)⚠️ $(_LYELLOW)]$(_END) $(_LYELLOW)\n$(_END)"
+	@cd Docker > /dev/null ; sh compil.sh > /dev/null 2>&1
+	@mkdir -p isodir/boot
+	@cp Docker/kfs.iso . && cp Docker/kernel.bin . && cp Docker/kernel.bin isodir/boot/kernel.bin
+	@printf "$(_LWHITE)- KFS.iso $(_END)$(_DIM)---------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@printf "$(_LWHITE)- KERNEL.bin $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@printf "$(_LWHITE)- BOOT/KERNEL.bin $(_END)$(_DIM)-------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@make -s -C . helper
+
+clear-docker:
+	@cd Docker; sh clear.sh > /dev/null 2>&1
 
 ascii:
 	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)      $(_LRED) ██╗\n$(_END)"
@@ -146,4 +158,4 @@ ascii:
 helper:
 	@printf "\n$(_LWHITE)- Now you use: \'$(_LYELLOW)make run$(_END)\' or \'$(_LYELLOW)make run-iso$(_END)\' to start the kernel !$(_END)\n"
 
-.PHONY: all clean fclean re debug run run-iso ascii helper run-curses
+.PHONY: all clean fclean re debug run run-iso ascii helper run-curses run-docker clear-docker

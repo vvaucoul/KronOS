@@ -6,12 +6,12 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/25 23:37:58 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/03 10:28:50 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libkfs.a
-CC = gcc
+CC = clang
 ASM = nasm
 CFLAGS = -Wall -Wextra -Werror -Wfatal-errors \
 				-fno-builtin -fno-exceptions -fno-stack-protector \

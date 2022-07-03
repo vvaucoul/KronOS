@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/01 11:31:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/02 21:33:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,17 +83,35 @@ extern void print_stack(void)
     kbzero(tmp, 128);
     tmp[0] = 'a';
     kprintf("\n%8%% Add to stack PTR[128]\n");
-
-    kprintf("%8%% Stack: \n");
+    kprintf("%8%% TMP: 0x%x\n\n", tmp);
 
     GET_EBP(ebp);
     GET_ESP(esp);
-    while (ebp != 0)
+
+    int limit = ebp - esp;
+    kprintf("Limit: %d\n", limit);
+    for (int i = 0; i < limit; i++)
     {
-        kprintf("%8%% 0x%x\n", ebp);
-        ebp = *(int32_t *)ebp;
+        if (i % 16 == 0)
+            kprintf("\n");
+        kprintf("%8%% 0x0%s\n", (char *)ebp);
+        ++ebp;
     }
-    kprintf("%8%% 0x%x\n", esp);
+
+    // void *ptr = ebp - esp;
+    // while (ebp != 0)
+    // {
+    //     kprintf("%8%% 0x%x\n", ebp);
+    //     ebp = ebp + 4;
+    // }
+    // kprintf("%8%% 0x%x\n", esp);
+
+    // GDT_PTR *gdt_tmp = (GDT_PTR *)__GDT_ADDR__;
+    // while (gdt_tmp->base != 0)
+    // {
+    //     kprintf("%8%% 0x%x\n", gdt_tmp->base);
+    //     gdt_tmp += 8;
+    // }
 }
 
 #undef __GDT_ADDR__

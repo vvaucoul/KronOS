@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/06/27 19:34:25 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/03 10:28:13 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ NAME			=	kfs
 ISO				=	$(NAME).iso
 LIBKFS			=	lkfs
 LIBKFS_A		=	libkfs/libkfs.a
-CC				=	gcc
+CC				=	clang
 CFLAGS			=	-Wall -Wextra -Wfatal-errors \
 					-fno-builtin -fno-exceptions -fno-stack-protector \
 					-nostdlib -nodefaultlibs \

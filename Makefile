@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/03 17:56:16 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/07 23:56:37 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -80,7 +80,7 @@ $(KDSRCS): $(KOBJS) $(KOBJS_ASM)
 
 $(BIN_DIR)/$(BIN):
 	@mkdir -p $(BIN_DIR)
-	@$(LD) $(LD_FLAGS) -T $(LINKER) -o $(BIN_DIR)/$(BIN) $(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) > /dev/null 2>&1
+	@$(LD) $(LD_FLAGS) -T $(LINKER) -o $(BIN_DIR)/$(BIN) $(KBOOT_OBJS) $(KOBJS) $(KOBJS_ASM) $(LIBKFS_A) #> /dev/null 2>&1
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "KERNEL / LINKER / BOOT" 
 	@printf "$(_LWHITE)- KERNEL BIN $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)$(_DIM) -> ISO CREATION $(_END) \n"
 	@make -s -C . check
@@ -97,11 +97,11 @@ check:
 
 run:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
-	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display sdl -vga std -full-screen 
+	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display gtk -vga std -full-screen 
  
 run-iso:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
-	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display sdl -boot d -vga std -full-screen
+	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display gtk -boot d -vga std -full-screen
 
 run-curses:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
@@ -109,7 +109,7 @@ run-curses:
 
 debug:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
-	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -s -S -display sdl -vga std -full-screen
+	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -full-screen
 
 $(ISO):
 	@mkdir -p isodir/boot/grub

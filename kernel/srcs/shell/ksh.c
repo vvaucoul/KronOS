@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 22:32:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/08 19:00:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,10 @@ void ksh_execute_command(void)
         reboot();
     else if (kstrcmp(command, "print-stack") == 0 || kstrcmp(command, "stack") == 0)
         print_stack();
+    else if (kstrcmp(command, "print-gdt") == 0 || kstrcmp(command, "gdt") == 0)
+        print_gdt();
+    else if (kstrcmp(command, "gdt-test") == 0)
+        gdt_test();
     else if (kstrcmp(command, "time") == 0)
         timer_display_ktimer();
     else if (command[0] != '\0')

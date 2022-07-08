@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/01 10:49:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/08 19:00:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,35 @@ typedef enum
 {
     GDT_ACCESS_CODE_READABLE = 0x02,
     GDT_ACCESS_DATA_WRITABLE = 0x02,
+    GDT_ACCESS_STACK_WRITABLE = 0x02,
+
+    GDT_ACCESS_CODE_CONFORMING = 0x04,
+    GDT_ACCESS_DATA_DIRECTION_NORMAL = 0x00,
+    GDT_ACCESS_DATA_DIRECTION_DOWN = 0x04,
+
+    GDT_ACCESS_DATA_SEGMENT = 0x10,
+    GDT_ACCESS_CODE_SEGMENT = 0x18,
+    GDT_ACCESS_STACK_SEGMENT = 0x1A,
+
+    GDT_ACCESS_DESCRIPTOR_TTS = 0x00,
+
+    GDT_ACCESS_RING0 = 0x00,
+    GDT_ACCESS_RING1 = 0x20,
+    GDT_ACCESS_RING2 = 0x40,
+    GDT_ACCESS_RING3 = 0x60,
+
+    GDT_ACCESS_PRESENT = 0x80,
 } GDT_ACCESS;
+
+typedef enum
+{
+    GDT_FLAG_64_BIT = 0x20,
+    GDT_FLAG_32_BIT = 0x40,
+    GDT_FLAG_16_BIT = 0x00,
+
+    GDT_FLAG_GRANULARITY_1B = 0x00,
+    GDT_FLAG_GRANULARITY_4K = 0x80,
+} GDT_FLAGS;
 
 #define SEG_DESCTYPE(x) ((x) << 0x04)
 #define SEG_PRES(x) ((x) << 0x07)
@@ -91,30 +119,50 @@ typedef enum
     "ustack": user stack, used to stored the call stack during execution in userland
 */
 
-typedef struct gdt_entry
+#define GDT_LIMIT_LOW(limit) ((limit)&0xFFFF)
+#define GDT_BASE_LOW(base) ((base)&0xFFFF)
+#define GDT_BASE_MIDDLE(base) (((base) >> 16) & 0xFF)
+#define GDT_BASE_HIGH(base) (((base) >> 24) & 0xFF)
+#define GDT_FLAGS_LIMIT_HI(limit, flags) (((limit >> 16) & 0xF) | flags & 0xF0)
+#define GDT_ACCESS(access) (access)
+
+#define GDT_ENTRY(base, limit, access, flags) \
+    {                                         \
+        GDT_LIMIT_LOW(limit),                 \
+            GDT_BASE_LOW(base),               \
+            GDT_BASE_MIDDLE(base),            \
+            GDT_ACCESS(access),               \
+            GDT_FLAGS_LIMIT_HI(limit, flags), \
+            GDT_BASE_HIGH(base),              \
+    }
+
+typedef struct s_gdt_entry
 {
-    uint16_t limit_low;
-    uint16_t base_low;
-    uint8_t base_middle;
-    uint8_t access;
-    uint8_t granularity; // shifted left by 12 bits if 1
-    uint8_t base_high;
+    uint16_t limit_low;  // Limit (bits 0-15)
+    uint16_t base_low;   // Base address (bits 0-15)
+    uint8_t base_middle; // Base address (bits 16-23)
+    uint8_t access;      // Access flags
+    uint8_t granularity; // Granularity flags (bits 16-19)
+    uint8_t base_high;   // Base address (bits 24-31)
 } __attribute__((packed)) t_gdt_entry;
 
-typedef struct gdt_ptr
+#define GDTEntry t_gdt_entry
+
+typedef struct s_gdt_ptr
 {
     uint16_t limit;
-    uint32_t base;
+    GDTEntry *base;
 } __attribute__((packed)) t_gdt_ptr;
 
-#define GDT_ENTRY t_gdt_entry
-#define GDT_PTR t_gdt_ptr
+#define GDTPtr t_gdt_ptr
 
-extern GDT_ENTRY gdt[GDT_SIZE];
-extern GDT_PTR *gp;
+extern GDTEntry gdt[GDT_SIZE];
+extern GDTPtr *gp;
 
 extern void gdt_flush(uint32_t gdt_ptr);
 extern void gdt_install(void);
 extern void print_stack(void);
+extern void print_gdt(void);
+extern void gdt_test(void);
 
 #endif

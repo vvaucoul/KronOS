@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 20:05:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:11:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/system/irq.h"
+#include <system/irq.h>
 
 extern void irq0();
 extern void irq1();

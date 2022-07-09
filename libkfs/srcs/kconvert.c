@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 19:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/27 19:36:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:05:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libkfs.h"
+#include <libkfs.h>
 
 static int n_lenght(int n)
 {

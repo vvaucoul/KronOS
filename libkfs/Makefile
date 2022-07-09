@@ -6,13 +6,14 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/03 10:28:50 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/09 12:05:22 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libkfs.a
 CC = clang
 ASM = nasm
+INLCUDES_PATH = -I./includes/
 CFLAGS = -Wall -Wextra -Werror -Wfatal-errors \
 				-fno-builtin -fno-exceptions -fno-stack-protector \
 				-nostdlib -nodefaultlibs \
@@ -37,7 +38,7 @@ include ../$(MK_INCLUDE_DIR)/Colors.mk
 
 %.o: %.c
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(CC) $(LDFLAGS) $(CFLAGS) -c $< -o ${<:.c=.o}
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -c $< -o ${<:.c=.o}
 
 %.o: %.s
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $<

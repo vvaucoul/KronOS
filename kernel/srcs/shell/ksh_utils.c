@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:41:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 19:29:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:13:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/shell/ksh.h"
+#include <shell/ksh.h>
 
 size_t ksh_get_last_character_index(void)
 {

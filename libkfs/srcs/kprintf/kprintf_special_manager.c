@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:59:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 16:19:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:07:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/kprintf.h"
+#include <kprintf.h>
 
 void __kpf_manage_space_front(const int arg_len)
 {

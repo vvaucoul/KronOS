@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/08 19:00:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/shell/ksh.h"
-#include "../../includes/system/gdt.h"
+#include <shell/ksh.h>
+#include <system/gdt.h>
 
 size_t ksh_max_line = VGA_HEIGHT - __HEADER_HEIGHT__;
 size_t ksh_min_line = __HEADER_HEIGHT__;

@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 01:20:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:08:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/system/gdt.h"
-#include "../../../includes/system/pit.h"
+#include <system/pit.h>
+#include <system/gdt.h>
 
 GDTEntry gdt[GDT_SIZE] = {
     GDT_ENTRY(0x0, 0x0, 0x0, 0x0),

@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 16:11:35 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 16:13:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:07:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/kprintf.h"
+#include <kprintf.h>
 
 size_t __kptrlen(const void *ptr)
 {

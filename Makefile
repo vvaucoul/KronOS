@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/09 01:25:38 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/09 12:01:43 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,10 +20,11 @@ LIBKFS			=	lkfs
 LIBKFS_A		=	libkfs/libkfs.a
 CC				=	clang
 LD				=	ld
+INLCUDES_PATH	=	-I./kernel/includes/
 CFLAGS			=	-Wall -Wextra -Wfatal-errors \
 					-fno-builtin -fno-exceptions -fno-stack-protector \
 					-nostdlib -nodefaultlibs \
-					-std=gnu99 -ffreestanding -O2
+					-std=gnu99 -ffreestanding -O2 
 LDFLAGS			= 	-g3 -m32
 LD_FLAGS		=	-m elf_i386
 
@@ -53,7 +54,7 @@ include $(MK_INCLUDE_DIR)/Sources-ASM.mk
 
 %.o: %.c
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(CC) $(LDFLAGS) $(CFLAGS) -c $< -o ${<:.c=.o}
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -c $< -o ${<:.c=.o}
 
 %.o: %.s
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 

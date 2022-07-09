@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 20:05:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:11:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/system/isr.h"
+#include <system/isr.h>
 
 extern void isr0();  // Division By Zero Exception
 extern void isr1();  // Debug Exception

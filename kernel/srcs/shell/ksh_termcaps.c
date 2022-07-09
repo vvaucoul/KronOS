@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:43:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 22:34:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:13:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/shell/ksh_termcaps.h"
+#include <shell/ksh_termcaps.h>
 
 /*******************************************************************************
  *                               CURSOR MOVEMENT                               *

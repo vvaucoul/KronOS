@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 18:56:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 19:41:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:10:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/system/tss.h"
-#include "../../../includes/system/gdt.h"
+#include <system/tss.h>
+#include <system/gdt.h>
 
 void tss_load(unsigned long cpu_num)
 {

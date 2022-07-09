@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:31:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 15:02:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:11:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/system/io.h"
+#include <system/io.h>
 
 uint8_t inportb(uint16_t _port)
 {

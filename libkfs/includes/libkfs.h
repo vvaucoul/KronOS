@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 16:42:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:06:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define _LIBKFS_H
 
 #include "kprintf.h"
-
 #include "../libs/stdbool/stdbool.h"
 #include "../libs/ctypes/ctypes.h"
 #include "../libs/string/string.h"

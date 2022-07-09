@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:54:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/01 10:23:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:09:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/kprintf.h"
+#include <kprintf.h>
 
 size_t __kpf_manage_mod(const char *format, size_t i)
 {

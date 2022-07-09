@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 21:07:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:10:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/terminal.h"
+#include <terminal.h>
 
 size_t terminal_row;
 size_t terminal_column;

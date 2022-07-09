@@ -6,14 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 13:29:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:14:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/drivers/keyboard.h"
-
-#include "../../includes/shell/ksh.h"
-#include "../../includes/shell/ksh_termcaps.h"
+#include <drivers/keyboard.h>
+#include <shell/ksh.h>
+#include <shell/ksh_termcaps.h>
 
 bool __keyboard_uppercase = false;
 

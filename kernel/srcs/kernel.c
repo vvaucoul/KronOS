@@ -6,18 +6,18 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/08 18:09:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:09:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/kernel.h"
-#include "../includes/shell/ksh.h"
-#include "../includes/system/gdt.h"
-#include "../includes/system/idt.h"
-#include "../includes/system/isr.h"
-#include "../includes/system/irq.h"
-#include "../includes/system/pit.h"
-#include "../includes/drivers/keyboard.h"
+#include <kernel.h>
+#include <shell/ksh.h>
+#include <system/gdt.h>
+#include <system/idt.h>
+#include <system/isr.h>
+#include <system/irq.h>
+#include <system/pit.h>
+#include <drivers/keyboard.h>
 
 static inline void ksh_header(void)
 {

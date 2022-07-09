@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:06:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/01 10:20:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:07:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/kprintf.h"
+#include <kprintf.h>
 
 t_kprintf _g_kprintf;
 

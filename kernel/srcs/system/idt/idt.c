@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:09:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 21:46:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:12:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../includes/system/idt.h"
+#include <system/idt.h>
 
 struct idt_entry idt[256];
 struct idt_ptr idtp;

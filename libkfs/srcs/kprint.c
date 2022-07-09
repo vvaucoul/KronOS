@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 12:19:39 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/01 10:51:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:05:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/libkfs.h"
+#include <libkfs.h>
 
 void kputchar(char c)
 {

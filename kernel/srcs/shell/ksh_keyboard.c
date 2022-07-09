@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 22:55:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 12:27:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:13:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/shell/ksh.h"
+#include <shell/ksh.h>
 
 void ksh_init(void)
 {

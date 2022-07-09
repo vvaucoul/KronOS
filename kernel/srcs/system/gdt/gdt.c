@@ -6,14 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:08:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:46:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/pit.h>
 #include <system/gdt.h>
+#include <system/panic.h>
 
-GDTEntry gdt[GDT_SIZE] = {
+GDTEntry gdt[__GDT_SIZE] = {
     GDT_ENTRY(0x0, 0x0, 0x0, 0x0),
     GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL0), 0xCF),  // kernel code segmentmake
     GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL0), 0xCF),  // kernel data segment
@@ -23,7 +24,7 @@ GDTEntry gdt[GDT_SIZE] = {
     GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL3), 0xCF), // user stack segment
 };
 
-GDTPtr *gp = (GDTPtr *)__GDT_ADDR__;
+GDTPtr *gp = (GDTPtr *)__GDT_ADDR;
 
 // void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint16_t access, uint8_t gran)
 // {
@@ -39,8 +40,11 @@ GDTPtr *gp = (GDTPtr *)__GDT_ADDR__;
 void gdt_install(void)
 {
     /* Setup the GDT pointer and limit */
-    gp->limit = (sizeof(GDTEntry) * GDT_SIZE) - 1;
+    gp->limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
     gp->base = gdt;
+
+    if (gp->limit > __GDT_LIMIT)
+        kernel_panic(__GDT_ERROR_LIMIT);
 
     // gdt_set_gate(0, 0x0, 0x0, 0x0, 0x0);
     // gdt_set_gate(1, 0x0, 0xFFFFFFFF, (uint16_t)GDT_CODE_PL0, 0xCF); // kernel code segment
@@ -66,7 +70,7 @@ void gdt_install(void)
 
 extern void print_gdt(void)
 {
-    kprintf("%8%% GDT Entry: 0x00000%x\n", __GDT_ADDR__);
+    kprintf("%8%% GDT Entry: 0x00000%x\n", __GDT_ADDR);
     kprintf("%8%% GDT Base: 0x0%x\n", gp->base);
     kprintf("%8%% GDT Limit: 0x00000%x\n", gp->limit);
 
@@ -80,7 +84,7 @@ extern void print_gdt(void)
     kprintf("   0x%x ", gdt[0].access);
     kprintf("\n");
 
-    for (size_t i = 1; i < GDT_SIZE; i++)
+    for (size_t i = 1; i < __GDT_SIZE; i++)
     {
         kprintf("%8%% 0x%x ", gdt[i].base_low);
         kprintf("   \t0x%x ", gdt[i].base_middle);
@@ -180,4 +184,7 @@ extern void print_stack(void)
     // kprintf("%8%% TMP ptr: 0x%x\n\n", &tmp);
 }
 
-#undef __GDT_ADDR__
+#undef __GDT_ADDR
+#undef __GDT_SIZE
+#undef __GDT_LIMIT
+#undef __GDT_ERROR_LIMIT

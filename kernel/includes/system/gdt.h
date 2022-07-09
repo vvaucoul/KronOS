@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/08 19:00:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/09 12:47:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,11 @@ typedef enum
                           SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                           SEG_PRIV(3) | SEG_DATA_RDWREXPD
 
-#define __GDT_ADDR__ 0x00000800
-#define GDT_SIZE 7
+#define __GDT_ADDR 0x00000800
+#define __GDT_SIZE 7
+
+#define __GDT_LIMIT (uint16_t)0xFFFFF
+#define __GDT_ERROR_LIMIT "GDT limit is too high"
 
 /*
     "code": kernel code, used to stored the executable binary code
@@ -156,7 +159,7 @@ typedef struct s_gdt_ptr
 
 #define GDTPtr t_gdt_ptr
 
-extern GDTEntry gdt[GDT_SIZE];
+extern GDTEntry gdt[__GDT_SIZE];
 extern GDTPtr *gp;
 
 extern void gdt_flush(uint32_t gdt_ptr);

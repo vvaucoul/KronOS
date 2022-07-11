@@ -16,6 +16,7 @@ The kernel is currently not finished. I will make improvements as I go along
 ### Prerequisites
 
 * <strong>GCC</strong> (https://gcc.gnu.org/)
+* <strong>CLANG</strong> (https://clang.llvm.org/)
 * <strong>KVM</strong> (https://www.linux-kvm.org/)
 * <strong>QEMU</strong> (https://qemu.org/)
 
@@ -23,16 +24,16 @@ The kernel is currently not finished. I will make improvements as I go along
 
 ### KFS - SERIES
 
-- <strong>KFS-1</strong> : Grub / Boot and Screen
-- <strong>KFS-2</strong> : GDT & Stack
-- <strong>KFS-3</strong> : Memory
-- <strong>KFS-4</strong> : Interrupts
-- <strong>KFS-5</strong> : Processes
-- <strong>KFS-6</strong> : Filesystem
-- <strong>KFS-7</strong> : Syscalls, Sockets & env
-- <strong>KFS-8</strong> : Kernel Modules
-- <strong>KFS-9</strong> : ELF Parser
-- <strong>KFS-X</strong> : Complete Unix System
+- [x] <strong>KFS-1</strong> : Grub / Boot and Screen
+- [ ] <strong>KFS-2</strong> : GDT & Stack
+- [ ] <strong>KFS-3</strong> : Memory
+- [ ] <strong>KFS-4</strong> : Interrupts
+- [ ] <strong>KFS-5</strong> : Processes
+- [ ] <strong>KFS-6</strong> : Filesystem
+- [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
+- [ ] <strong>KFS-8</strong> : Kernel Modules
+- [ ] <strong>KFS-9</strong> : ELF Parser
+- [ ] <strong>KFS-X</strong> : Complete Unix System
 
 ##### Documentation
 
@@ -51,21 +52,20 @@ $ make
 
 ```bash
 $ make run
+$ make run-iso
 ```
 
 ### Features
 
 - [x] Basic Kernel System
-- [x] Boot via Grub
+- [x] Boot via Grub 2
 - [x] ASM Bootable base
 - [x] Kernel Library with basics functions and types 
 - [x] Keyboard Support
 - [x] VGA Support
 - [x] Scroll and Cursor support
 - [x] Colors support
-
-- [ ] A complete GDT system
-- [ ] A complete Shell system
+- [x] A Complete GDT system
 
 ### GRUB 2
 

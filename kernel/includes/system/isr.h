@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 19:54:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 12:28:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ISR_H
 #define ISR_H
 
-#include "../kernel.h"
-#include "idt.h"
+#include <kernel.h>
+#include <system/idt.h>
 
 #define ISR_MAX_COUNT 32
 

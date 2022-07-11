@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/09 12:01:43 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/11 12:27:16 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,6 +32,7 @@ ASM				=	nasm
 ASMFLAGS		=	-f elf32
 BOOT			=	boot/boot
 KDSRCS			=	srcs/kernel
+HEADERS_DIR		=	kernel/includes/
 BIN				=	kernel.bin
 BIN_DIR			=	bin
 LINKER			=	linker.ld
@@ -47,6 +48,7 @@ include $(MK_INCLUDE_DIR)/Colors.mk
 include $(MK_INCLUDE_DIR)/Sources-Boot.mk
 include $(MK_INCLUDE_DIR)/Sources.mk
 include $(MK_INCLUDE_DIR)/Sources-ASM.mk
+include $(MK_INCLUDE_DIR)/Headers.mk
 
 #*******************************************************************************
 #*                                    KSRCS                                    *
@@ -66,7 +68,7 @@ include $(MK_INCLUDE_DIR)/Sources-ASM.mk
 
 all: $(NAME)
 
-$(NAME): ascii $(XORRISO) $(LIBKFS) $(BOOT) $(KDSRCS) $(BIN_DIR)/$(BIN) $(ISO) helper
+$(NAME): ascii $(XORRISO) $(LIBKFS) $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) helper
 	@true
 
 $(LIBKFS):
@@ -76,7 +78,7 @@ $(LIBKFS):
 $(BOOT): $(KBOOT_OBJS)
 	@printf "$(_LWHITE)- ASM BOOT $(_END)$(_DIM)--------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-$(KDSRCS): $(KOBJS) $(KOBJS_ASM)
+$(KDSRCS): $(KOBJS) $(KOBJS_ASM) $(HEADERS)
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(BIN_DIR)/$(BIN):

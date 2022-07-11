@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:08:45 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/22 19:54:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 12:19:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef IDT_H
 # define IDT_H
 
-#include "../kernel.h"
+#include <kernel.h>
 
 /* Defines an IDT entry */
 struct idt_entry

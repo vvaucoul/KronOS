@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:47:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 12:18:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GDT_H
 #define GDT_H
 
-#include "../kernel.h"
-#include "../asm/asm.h"
+#include <kernel.h>
+#include <asm/asm.h>
 
 // REF: https://www.youtube.com/watch?v=5LbXClJhxcs
 
@@ -108,10 +108,18 @@ typedef enum
                           SEG_PRIV(3) | SEG_DATA_RDWREXPD
 
 #define __GDT_ADDR 0x00000800
-#define __GDT_SIZE 7
+#define __GDT_SIZE 0x07
 
 #define __GDT_LIMIT (uint16_t)0xFFFFF
 #define __GDT_ERROR_LIMIT "GDT limit is too high"
+
+#define _GDT_KERNEL_CODE 0
+#define _GDT_KERNEL_DATA 1
+#define _GDT_KERNEL_STACK 2
+
+#define _GDT_USER_CODE 3
+#define _GDT_USER_DATA 4
+#define _GDT_USER_STACK 5
 
 /*
     "code": kernel code, used to stored the executable binary code

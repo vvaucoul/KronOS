@@ -84,3 +84,19 @@ $ make run-iso
 <img src="https://user-images.githubusercontent.com/66129673/176182166-39fc1c60-7502-4f3a-878e-e8c7e3babe74.png" width="80%"></img>
 </kbd>
 </p>
+
+### GDT
+
+🚧 ... redaction pending ...🚧
+
+- Kernel GDT
+![image](https://user-images.githubusercontent.com/66129673/178347995-5cab91ca-cd35-47f5-b260-7cc80fa43942.png)
+![image](https://user-images.githubusercontent.com/66129673/178347667-2f4433ee-97e3-4cd6-9471-3bea19b7deb8.png)
+
+- GDT - TEST
+![image](https://user-images.githubusercontent.com/66129673/178347721-22271cd3-8d49-42c3-96c6-679c556e85e6.png)
+![image](https://user-images.githubusercontent.com/66129673/178347760-4edac329-18af-428f-94be-5aa1255ceec6.png)
+
+- STACK
+![image](https://user-images.githubusercontent.com/66129673/178347873-5b58e8a6-f70f-45e0-b537-42edf01be889.png)
+

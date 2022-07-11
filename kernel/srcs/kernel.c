@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:09:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 21:39:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,15 @@ static void init_kernel(void)
     kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "PIT " COLOR_END "\n");
     keyboard_install();
     kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END "\n");
-
-    kprintf(COLOR_GREEN "KFS: " COLOR_END "42" COLOR_GREEN " | Kernel initialized\n\n" COLOR_END "");
 }
 
 void kmain(void)
 {
-    __asm__ __volatile__("cli");
+    ASM_CLI();
     init_kernel();
-    __asm__ __volatile__("sti");
+    kprintf("\n");
+    khexdump(0x00000800 - 64, 142);
+    kprintf("\n");
+    ASM_STI();
     kronos_shell();
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 12:18:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 18:35:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,42 +15,6 @@
 
 #include <kernel.h>
 #include <asm/asm.h>
-
-// REF: https://www.youtube.com/watch?v=5LbXClJhxcs
-
-typedef enum
-{
-    GDT_ACCESS_CODE_READABLE = 0x02,
-    GDT_ACCESS_DATA_WRITABLE = 0x02,
-    GDT_ACCESS_STACK_WRITABLE = 0x02,
-
-    GDT_ACCESS_CODE_CONFORMING = 0x04,
-    GDT_ACCESS_DATA_DIRECTION_NORMAL = 0x00,
-    GDT_ACCESS_DATA_DIRECTION_DOWN = 0x04,
-
-    GDT_ACCESS_DATA_SEGMENT = 0x10,
-    GDT_ACCESS_CODE_SEGMENT = 0x18,
-    GDT_ACCESS_STACK_SEGMENT = 0x1A,
-
-    GDT_ACCESS_DESCRIPTOR_TTS = 0x00,
-
-    GDT_ACCESS_RING0 = 0x00,
-    GDT_ACCESS_RING1 = 0x20,
-    GDT_ACCESS_RING2 = 0x40,
-    GDT_ACCESS_RING3 = 0x60,
-
-    GDT_ACCESS_PRESENT = 0x80,
-} GDT_ACCESS;
-
-typedef enum
-{
-    GDT_FLAG_64_BIT = 0x20,
-    GDT_FLAG_32_BIT = 0x40,
-    GDT_FLAG_16_BIT = 0x00,
-
-    GDT_FLAG_GRANULARITY_1B = 0x00,
-    GDT_FLAG_GRANULARITY_4K = 0x80,
-} GDT_FLAGS;
 
 #define SEG_DESCTYPE(x) ((x) << 0x04)
 #define SEG_PRES(x) ((x) << 0x07)
@@ -107,10 +71,14 @@ typedef enum
                           SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                           SEG_PRIV(3) | SEG_DATA_RDWREXPD
 
+#define GDT_ENTRY_FLAG_BASE 0xCF
+#define GDT_ENTRY_FLAG_ZERO 0x0
+
 #define __GDT_ADDR 0x00000800
 #define __GDT_SIZE 0x07
 
 #define __GDT_LIMIT (uint16_t)0xFFFFF
+#define __GDT_USER_LIMIT (uint16_t)0xBFFFF
 #define __GDT_ERROR_LIMIT "GDT limit is too high"
 
 #define _GDT_KERNEL_CODE 0
@@ -134,7 +102,7 @@ typedef enum
 #define GDT_BASE_LOW(base) ((base)&0xFFFF)
 #define GDT_BASE_MIDDLE(base) (((base) >> 16) & 0xFF)
 #define GDT_BASE_HIGH(base) (((base) >> 24) & 0xFF)
-#define GDT_FLAGS_LIMIT_HI(limit, flags) (((limit >> 16) & 0xF) | flags & 0xF0)
+#define GDT_FLAGS_LIMIT_HI(limit, flags) (((limit >> 16) & 0x0F) | (flags << 4) & 0xF0)
 #define GDT_ACCESS(access) (access)
 
 #define GDT_ENTRY(base, limit, access, flags) \
@@ -162,7 +130,7 @@ typedef struct s_gdt_entry
 typedef struct s_gdt_ptr
 {
     uint16_t limit;
-    GDTEntry *base;
+    uint32_t base;
 } __attribute__((packed)) t_gdt_ptr;
 
 #define GDTPtr t_gdt_ptr

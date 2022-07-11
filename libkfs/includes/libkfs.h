@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:06:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 13:38:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,5 +44,7 @@ static inline void kputnbr_bin(int n)
 {
     kputnbr_base(n, 2);
 }
+
+extern void khexdump(uint32_t addr, int limit);
 
 #endif /* _LIBKFS_H */

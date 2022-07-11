@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 12:18:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 21:52:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,13 @@
 #include <system/panic.h>
 
 GDTEntry gdt[__GDT_SIZE] = {
-    GDT_ENTRY(0x0, 0x0, 0x0, 0x0),
-    GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL0), 0xCF),  // kernel code segmentmake
-    GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL0), 0xCF),  // kernel data segment
-    GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL0), 0xCF), // Kernel stack segment
-    GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL3), 0xCF),  // user code segment
-    GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL3), 0xCF),  // user data segment
-    GDT_ENTRY(0x0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL3), 0xCF), // user stack segment
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO),
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE),       // kernel code segment
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE),       // kernel data segment
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE),      // Kernel stack segment
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_CODE_PL3), GDT_ENTRY_FLAG_BASE),  // user code segment
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE),  // user data segment
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE), // user stack segment
 };
 
 GDTPtr *gp = (GDTPtr *)__GDT_ADDR;
@@ -41,7 +41,7 @@ void gdt_install(void)
 {
     /* Setup the GDT pointer and limit */
     gp->limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
-    gp->base = gdt;
+    gp->base = ((uint32_t)(&gdt));
 
     /* Check if GDT don't reach the limit */
     if (gp->limit > __GDT_LIMIT)
@@ -60,11 +60,11 @@ void gdt_install(void)
 
 extern void print_gdt(void)
 {
-    kprintf("%8%% GDT Entry: 0x00000%x\n", __GDT_ADDR);
-    kprintf("%8%% GDT Base: 0x0%x\n", gp->base);
-    kprintf("%8%% GDT Limit: 0x00000%x\n", gp->limit);
+    kprintf("%8%% GDT Entry: " COLOR_GREEN "0x00000%x\n" COLOR_END, __GDT_ADDR);
+    kprintf("%8%% GDT Base: " COLOR_GREEN "0x0%x\n" COLOR_END, gp->base);
+    kprintf("%8%% GDT Limit: " COLOR_GREEN "%d\n" COLOR_END, gp->limit);
 
-    kprintf("\n%8%% BASE LOW | BASE MIDDLE | BASE HIGH | LIMIT LOW | GRAN | ACCESS\n");
+    kprintf(COLOR_YELLOW "\n%8%% BASE LOW | BASE MIDDLE | BASE HIGH | LIMIT LOW | GRAN | ACCESS\n" COLOR_END);
 
     kprintf("%8%% 0x%x ", gdt[0].base_low);
     kprintf("   \t0x%x ", gdt[0].base_middle);
@@ -88,37 +88,36 @@ extern void print_gdt(void)
 
 extern void gdt_test(void)
 {
-    int32_t ebp;
-    int32_t esp;
+    uint32_t ebp;
+    uint32_t esp;
 
-    char tmp[128];
-    kbzero(tmp, 128);
-    // tmp[0] = 'a';
+    char tmp[13];
+    kbzero(tmp, 13);
     kmemcpy(tmp, "Hello World!", 12);
-    kprintf("%8%% Add to stack PTR[128] = 'Hello World!'\n");
-    kprintf("%8%% TMP: 0x%x\n\n", tmp);
+    kprintf("%8%% Add to stack PTR[13]: " COLOR_GREEN "'Hello World!'\n" COLOR_END);
+    kprintf("%8%% TMP: " COLOR_GREEN "0x%x\n\n" COLOR_END, tmp);
 
     GET_EBP(ebp);
     GET_ESP(esp);
     int limit = esp;
     int i = 0;
 
-    kprintf("%8%% LIMIT: %d\n", limit);
-    kprintf("%8%% PTR: 0x%x\n", &tmp);
-    ksleep(1);
+    ksleep(2);
+    ebp = (uint32_t)tmp - 64;
     do
     {
-        if (ebp == (int32_t)tmp)
+        if (ebp == (uint32_t)tmp)
         {
-            kprintf("%8%% PTR Found: [EBP: 0x%x]\n", ebp);
-            kprintf("%8%% TMP [PTR: 0x%x]\n\n", (int32_t *)&tmp);
-            kprintf("%8%% 0x%x: %c\n", ebp, (char)(*(char *)ebp));
-            kprintf("%8%% 0x%x: %s\n", ebp, ((char *)ebp));
+            kprintf("\n%8%% PTR Found: " COLOR_GREEN "[EBP: 0x%x]\n" COLOR_END, ebp);
+            kprintf("%8%% TMP " COLOR_GREEN "[PTR: 0x%x]\n\n" COLOR_END, (int32_t *)&tmp);
+            kprintf("%8%% 0x%x[0]: " COLOR_GREEN "%c\n" COLOR_END, ebp, (char)(*(char *)ebp));
+            kprintf("%8%% 0x%x: " COLOR_GREEN "%s\n\n" COLOR_END, ebp, ((char *)ebp));
+            khexdump(ebp - 32, 80);
             return;
         }
         else if ((char)(*(char *)ebp) > 0)
         {
-            kprintf("%8%% 0x%x: %c\tcheck: %x <==> %x\n", ebp, (char)(*(char *)ebp), ebp, tmp);
+            kprintf(COLOR_CYAN "0x%x <==> 0x%x: " COLOR_END "%2%% %s: %s\n" COLOR_END, ebp, (char)(*(char *)ebp), ebp, tmp);
         }
         ebp += 1;
         ++i;
@@ -127,58 +126,20 @@ extern void gdt_test(void)
 
 extern void print_stack(void)
 {
-    kprintf("Kernel Stack:\n");
-    uint32_t kstack = gdt[_GDT_KERNEL_STACK].base_low;
-    uint32_t kstack_limit = gdt[_GDT_KERNEL_STACK].limit_low;
-    uint32_t j = kstack;
-    do
-    {
-        if (*(uint32_t *)kstack != 0)
-        {
-            char tmp[17];
-            kbzero(tmp, 17);
-            kmemcpy(tmp, (char *)kstack, 16);
-            kprintf("%8%% 0x%x: %s\n", kstack, tmp);
-        }
-        kstack += 4;
-        ++j;
-    } while (kstack < kstack_limit);
-
-    return;
-
-    int32_t ebp;
-    int32_t esp;
+    uint32_t esp;
+    uint32_t ebp;
 
     GET_EBP(ebp);
     GET_ESP(esp);
 
-    int limit = esp;
-
-    kprintf("Limit: %d\n", limit);
-    kprintf("ESP (START): 0x%x\n", esp);
-    kprintf("EBP (CURRENT): 0x%x\n", ebp);
-    ksleep(2);
-    int i = 0;
-    do
-    {
-        if ((char)(*(char *)ebp) != 0 && (char)(*(char *)ebp) >= 32)
-        {
-            kprintf("0x%x: %c", ebp, (char)(*(char *)ebp));
-            char tmp[17];
-            kbzero(tmp, 17);
-            kmemcpy(tmp, (char *)ebp, 16);
-            kprintf("%8%% %s\n", (char *)tmp);
-            timer_wait(20);
-        }
-        ebp += 16;
-        ++i;
-    } while (i < limit);
+    khexdump(esp - 128, 128);
 }
 
 #undef __GDT_ADDR
 #undef __GDT_SIZE
 #undef __GDT_LIMIT
 #undef __GDT_ERROR_LIMIT
+#undef __GDT_USER_LIMIT
 
 #undef _GDT_KERNEL_CODE
 #undef _GDT_KERNEL_DATA

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:54:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:09:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/07/11 21:01:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,14 @@ size_t __kpf_manage_mod(const char *format, size_t i)
     return (i);
 }
 
+void __kpf_manage_char()
+{
+    char c = va_arg(_g_kprintf.args, int);
+
+    __kpf_manage_space_front(1);
+    kputchar(c);
+    __kpf_manage_space_back(1);
+}
 void __kpf_manage_nbr()
 {
     int nbr = va_arg(_g_kprintf.args, int);

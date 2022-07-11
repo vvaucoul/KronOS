@@ -6,14 +6,15 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/09 12:05:22 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/07/11 13:34:12 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libkfs.a
 CC = clang
 ASM = nasm
-INLCUDES_PATH = -I./includes/
+INLCUDES_PATH = -I./includes/ \
+				-I./libs/
 CFLAGS = -Wall -Wextra -Werror -Wfatal-errors \
 				-fno-builtin -fno-exceptions -fno-stack-protector \
 				-nostdlib -nodefaultlibs \

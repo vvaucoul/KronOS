@@ -90,7 +90,7 @@ $ make run-iso
 🚧 ... redaction pending ...🚧
 
 - Kernel GDT
-![image](https://user-images.githubusercontent.com/66129673/178347995-5cab91ca-cd35-47f5-b260-7cc80fa43942.png)
+![image](https://user-images.githubusercontent.com/66129673/178467131-f02fd993-e9b6-497a-a2ce-cc615e5d0f5f.png)
 ![image](https://user-images.githubusercontent.com/66129673/178347667-2f4433ee-97e3-4cd6-9471-3bea19b7deb8.png)
 
 - GDT - TEST

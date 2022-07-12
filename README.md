@@ -25,7 +25,7 @@ The kernel is currently not finished. I will make improvements as I go along
 ### KFS - SERIES
 
 - [x] <strong>KFS-1</strong> : Grub / Boot and Screen
-- [ ] <strong>KFS-2</strong> : GDT & Stack
+- [x] <strong>KFS-2</strong> : GDT & Stack
 - [ ] <strong>KFS-3</strong> : Memory
 - [ ] <strong>KFS-4</strong> : Interrupts
 - [ ] <strong>KFS-5</strong> : Processes

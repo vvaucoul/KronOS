@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/11 21:40:47 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/16 14:48:36 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -151,14 +151,14 @@ clear-docker:
 	@cd Docker; sh clear.sh > /dev/null 2>&1
 
 ascii:
-	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)      $(_LRED)██████╗ \n$(_END)"
-	@printf "$(_LRED)\r██║ ██╔╝██╔════╝██╔════╝$(_LWHITE)      $(_LRED)╚════██╗\n$(_END)"
-	@printf "$(_LRED)\r█████╔╝ █████╗  ███████╗$(_LWHITE)█████╗$(_LRED) █████╔╝\n$(_END)"
-	@printf "$(_LRED)\r██╔═██╗ ██╔══╝  ╚════██║$(_LWHITE)╚════╝$(_LRED)██╔═══╝ \n$(_END)"
-	@printf "$(_LRED)\r██║  ██╗██║     ███████║$(_LWHITE)      $(_LRED)███████╗\n$(_END)"
-	@printf "$(_LRED)\r╚═╝  ╚═╝╚═╝     ╚══════╝$(_LWHITE)      $(_LRED)╚══════╝\n$(_END)"
+	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)     $(_LRED)██████╗ \n$(_END)"
+	@printf "$(_LRED)\r██║ ██╔╝██╔════╝██╔════╝$(_LWHITE)     $(_LRED)╚════██╗\n$(_END)"
+	@printf "$(_LRED)\r█████╔╝ █████╗  ███████╗$(_LWHITE)█████╗$(_LRED)█████╔╝\n$(_END)"
+	@printf "$(_LRED)\r██╔═██╗ ██╔══╝  ╚════██║$(_LWHITE)╚════╝$(_LRED)╚═══██╗\n$(_END)"
+	@printf "$(_LRED)\r██║  ██╗██║     ███████║$(_LWHITE)     $(_LRED)██████╔╝\n$(_END)"
+	@printf "$(_LRED)\r╚═╝  ╚═╝╚═╝     ╚══════╝$(_LWHITE)     $(_LRED)╚═════╝ \n$(_END)"
 
 helper:
-	@printf "\n$(_LWHITE)- Now you use: \'$(_LYELLOW)make run$(_END)\' or \'$(_LYELLOW)make run-iso$(_END)\' to start the kernel !$(_END)\n"
+	@printf "\n$(_LWHITE)- Now you use: '$(_LYELLOW)make run$(_END)$(_LWHITE)' or '$(_LYELLOW)make run-iso$(_END)$(_LWHITE)' to start the kernel !$(_END)\n"
 
 .PHONY: all clean fclean re debug run run-iso ascii helper run-curses run-docker clear-docker

@@ -1,6 +1,5 @@
 %define EAX_REG 0x80000001
 
-
 ;extern page_directory
 
 section .text

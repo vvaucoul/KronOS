@@ -6,18 +6,22 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 21:39:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/16 16:24:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <shell/ksh.h>
+
 #include <system/gdt.h>
 #include <system/idt.h>
 #include <system/isr.h>
 #include <system/irq.h>
 #include <system/pit.h>
+
 #include <drivers/keyboard.h>
+
+#include <memory/memory.h>
 
 static inline void ksh_header(void)
 {
@@ -53,6 +57,8 @@ static void init_kernel(void)
     kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "PIT " COLOR_END "\n");
     keyboard_install();
     kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END "\n");
+    init_kernel_memory();
+    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
 }
 
 void kmain(void)
@@ -63,5 +69,14 @@ void kmain(void)
     khexdump(0x00000800 - 64, 142);
     kprintf("\n");
     ASM_STI();
+
+    kprintf("Test Alloc: \n");
+    char *str = kmalloc(1024);
+    str[0] = 'A';
+    str[1] = 'B';
+    str[2] = 'C';
+
+    kprintf("str = %s\n", str);
+
     kronos_shell();
 }

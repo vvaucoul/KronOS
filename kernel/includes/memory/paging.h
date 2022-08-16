@@ -1,19 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   page_table.h                                       :+:      :+:    :+:   */
+/*   paging.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/16 15:07:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/16 16:27:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef _PAGE_TABLE_H
-#define _PAGE_TABLE_H
+#ifndef _PAGING_H
+#define _PAGING_H
 
-typedef struct s_page_table
+#define PAGE_TABLE_SIZE 1024
+
+typedef struct s_page
 {
     int p : 1;     // Present
     int rw : 1;    // Read/Write
@@ -27,7 +29,7 @@ typedef struct s_page_table
     int g : 1;     // Global
     int avail : 3; // Available
     int pfa : 20;  // Page Frame Address
-} t_page_table;
+} t_page;
 
 /*
 P: indicate if the page or table is in physical memory
@@ -45,12 +47,18 @@ bits because these addresses are aligned on 4kb, so the last 12bits should be eq
 • A pages directory can address 1024 (1024 4k) = 4 Gb
 */
 
+typedef struct s_page_table
+{
+    t_page pages[PAGE_TABLE_SIZE];
+    unsigned int physical_address;
+} t_page_table;
+
+#define Page t_page
 #define PageTable t_page_table
 
-static void enable_paging(PageTable page);
-extern void __enable_paging(PageTable page)
-{
-    enable_paging(page);
-}
+extern void enable_paging(void *page);
+#define __enable_paging enable_paging
 
-#endif /* _PAGE_TABLE_H */
+#define PAGING_OFFSET (sizeof(Page))
+
+#endif /* _PAGING_H */

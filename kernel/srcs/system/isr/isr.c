@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:11:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 17:47:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/isr.h>
+#include <system/panic.h>
 
 extern void isr0();  // Division By Zero Exception
 extern void isr1();  // Debug Exception
@@ -121,11 +122,16 @@ void isrs_install()
 
 void fault_handler(struct regs *r)
 {
+    kerrno_assign_error(__KERRNO_SECTOR_ISR, r->int_no, __FILE_NAME__, __FUNCTION__);
     if (r->int_no < 32)
     {
-        kuputs(exception_messages[r->int_no]);
-        kputs(" Exception. System Halted!\n");
-        for (;;)
-            ;
+        __PANIC_MULTISTR(((const char *[3]){
+            (const char *)(exception_messages[r->int_no]),
+            (const char *)("Exception. System Halted !"),
+            NULL}), 2);
+    }
+    else
+    {
+        __PANIC("Unknown Interrupt. System Halted !");
     }
 }

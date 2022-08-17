@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/16 16:27:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 15:20:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define _PAGING_H
 
 #define PAGE_TABLE_SIZE 1024
+#define PAGE_SIZE 4096
 
 typedef struct s_page
 {
@@ -47,6 +48,21 @@ bits because these addresses are aligned on 4kb, so the last 12bits should be eq
 • A pages directory can address 1024 (1024 4k) = 4 Gb
 */
 
+typedef struct s_table
+{
+    int p : 1;     // Present
+    int rw : 1;    // Read/Write
+    int us : 1;    // User/Supervisor
+    int pwt : 1;   // Page-Level Write-Through
+    int pcd : 1;   // Page-Level Cache Disable
+    int a : 1;     // Accessed
+    int d : 1;     // Dirty
+    int pat : 1;   // Page-Attribute Table
+    int g : 1;     // Global
+    int avail : 3; // Available
+    int pfa : 20;  // Page Frame Address
+} t_table;
+
 typedef struct s_page_table
 {
     t_page pages[PAGE_TABLE_SIZE];
@@ -54,11 +70,18 @@ typedef struct s_page_table
 } t_page_table;
 
 #define Page t_page
+#define Table t_table
 #define PageTable t_page_table
 
-extern void enable_paging(void *page);
-#define __enable_paging enable_paging
+extern uint32_t __page_directory[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+
+extern void enable_paging(void);
+extern void load_page_directory(void *page);
+#define __enable_paging() enable_paging()
+#define __load_page_directory(page) load_page_directory(page)
 
 #define PAGING_OFFSET (sizeof(Page))
+
+extern void *__request_new_page(size_t size);
 
 #endif /* _PAGING_H */

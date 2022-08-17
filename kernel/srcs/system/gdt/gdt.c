@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 21:52:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 17:51:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/pit.h>
 #include <system/gdt.h>
 #include <system/panic.h>
+#include <system/kerrno.h>
 
 GDTEntry gdt[__GDT_SIZE] = {
     GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO),
@@ -26,17 +27,6 @@ GDTEntry gdt[__GDT_SIZE] = {
 
 GDTPtr *gp = (GDTPtr *)__GDT_ADDR;
 
-// void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint16_t access, uint8_t gran)
-// {
-//     gdt[num].base_low = (base & 0xFFFF);
-//     gdt[num].base_middle = (base >> 16) & 0xFF;
-//     gdt[num].base_high = (base >> 24) & 0xFF;
-//     gdt[num].limit_low = (limit & 0xFFFF);
-//     gdt[num].granularity = ((limit >> 16) & 0x0F);
-//     gdt[num].granularity |= (gran & 0xF0);
-//     gdt[num].access = access;
-// }
-
 void gdt_install(void)
 {
     /* Setup the GDT pointer and limit */
@@ -45,7 +35,10 @@ void gdt_install(void)
 
     /* Check if GDT don't reach the limit */
     if (gp->limit > __GDT_LIMIT)
+    {
+        kerrno_assign_error(__KERRNO_SECTOR_GDT, KERRNO_GDT_LIMIT, __FILE_NAME__, __FUNCTION__);
         kernel_panic(__GDT_ERROR_LIMIT);
+    }
 
     /* Flush the GDT */
     gdt_flush((uint32_t)gp);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/16 16:24:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 18:31:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <system/isr.h>
 #include <system/irq.h>
 #include <system/pit.h>
+#include <system/kerrno.h>
 
 #include <drivers/keyboard.h>
 
@@ -44,6 +45,8 @@ static void init_kernel(void)
 {
     terminal_initialize();
     ksh_header();
+    init_kerrno();
+    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KERRNO " COLOR_END "\n");
     kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "TERMINAL " COLOR_END "\n");
     gdt_install();
     kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "GDT " COLOR_END "\n");

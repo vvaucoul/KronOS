@@ -6,37 +6,39 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:53:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/16 16:36:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 15:21:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 
-__MemorySystem *root;
+__MemorySystem *__mem_root;
+uint32_t __page_directory[PAGE_TABLE_SIZE];
 size_t __nb_pages;
 
 void init_kernel_memory(void)
 {
-    root = NULL;
+    __mem_root = NULL;
     __nb_pages = 0;
 
-    
-    // Test Debug
-    Page page;
+    for (size_t i = 0; i < PAGE_TABLE_SIZE; i++)
+    {
+        // This sets the following flags to the pages:
+        // Supervisor: Only kernel-mode can access them
+        // Write Enabled: It can be both read from and written to
+        // Not Present: The page table is not present
+        __page_directory[i] = 0x00000002;
+    }
 
-    page.p = 1;
-    page.rw = 1;
-    page.us = 1;
-    page.pwt = 1;
-    page.pcd = 1;
-    page.a = 0;
-    page.d = 0;
-    page.pat = 0;
-    page.g = 1;
-    page.avail = 0;
-    page.pfa = 0;
+    uint32_t page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+    for (size_t i = 0; i < PAGE_TABLE_SIZE; i++)
+    {
+        // As the address is page aligned, it will always leave 12 bits zeroed.
+        // Those bits are used by the attributes ;)
+        page_table[i] = (i * 0x1000) | 3; // 0x3 = Supervisor + Write Enabled + Not Present
+    }
+    __page_directory[0] = ((unsigned int)page_table) | 3;
 
-
-    enable_paging(&page);
-    //enable_paging(&root);
+    __load_page_directory(__page_directory);
+    __enable_paging();
 }

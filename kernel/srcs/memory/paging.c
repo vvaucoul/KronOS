@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 15:07:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 18:38:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 //     return page;
 // }
 
-
 void *__request_new_page(size_t size)
 {
-    return (__mem_root->page);
+    // return (0x00080000);
+//    return (__mem_root->page);
 }

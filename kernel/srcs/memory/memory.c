@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:53:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 15:21:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 18:38:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ void init_kernel_memory(void)
     }
     __page_directory[0] = ((unsigned int)page_table) | 3;
 
+    kprintf("Load New Page Directory\n");
     __load_page_directory(__page_directory);
+    kprintf("Enable paging\n");
     __enable_paging();
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 18:31:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/17 18:39:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void kmain(void)
     ASM_CLI();
     init_kernel();
     kprintf("\n");
-    khexdump(0x00000800 - 64, 142);
+    // khexdump(0x00000800 - 64, 142);
     kprintf("\n");
     ASM_STI();
 

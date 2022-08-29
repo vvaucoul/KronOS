@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/29 20:44:19 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/29 20:49:57 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,8 +23,7 @@ $(ISO):
 	@cp grub.cfg isodir/boot/grub/grub.cfg
 	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(ISO)" 
 	@grub-mkrescue -o $(ISO) isodir \
-	--xorriso=$(shell pwd)/$(XORRISO)/xorriso/xorriso 
-	#> /dev/null 2>&1
+	--xorriso=$(shell pwd)/$(XORRISO)/xorriso/xorriso > /dev/null 2>&1
 	@printf "$(_LWHITE)- ISO $(_END)$(_DIM)-------------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 iso: $(OBJS_ASM) $(OBJS)

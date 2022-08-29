@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/17 16:08:44 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/18 18:19:34 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -102,6 +102,10 @@ run:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display gtk -vga std -full-screen 
  
+run-sdl:
+	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
+	@qemu-system-i386 -smp 1 -kernel isodir/boot/$(BIN) -display sdl -vga std -full-screen 
+
 run-iso:
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
 	@qemu-system-i386 -smp 1 -cdrom $(NAME).iso -display gtk -boot d -vga std -full-screen
@@ -161,4 +165,4 @@ ascii:
 helper:
 	@printf "\n$(_LWHITE)- Now you use: '$(_LYELLOW)make run$(_END)$(_LWHITE)' or '$(_LYELLOW)make run-iso$(_END)$(_LWHITE)' to start the kernel !$(_END)\n"
 
-.PHONY: all clean fclean re debug run run-iso ascii helper run-curses run-docker clear-docker
+.PHONY: all clean fclean re debug run run-iso ascii helper run-curses run-docker run-sdl clear-docker

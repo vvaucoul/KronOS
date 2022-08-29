@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/29 17:16:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/29 20:18:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,15 @@ typedef struct s_page_table
     unsigned int physical_address;
 } t_page_table;
 
+typedef struct s_page_directory
+{
+    t_page_table *tables[PAGE_TABLE_SIZE];
+} t_page_directory;
+
 #define Page t_page
 #define Table t_table
 #define PageTable t_page_table
+#define PageDirectory t_page_directory
 
 extern uint32_t __page_directory[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SIZE)));
 

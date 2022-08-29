@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/29 17:00:10 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/29 20:20:03 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,6 +40,8 @@ LINKER			=	linker.ld
 XORRISO			=	xorriso-1.4.6
 MK_INCLUDE_DIR	=	mk-files
 
+DEPENDS			=	$(KOBJS:.o=.d)
+
 #*******************************************************************************
 #*                                  INLCUDES                                   *
 #*******************************************************************************
@@ -56,11 +58,11 @@ include $(MK_INCLUDE_DIR)/Headers.mk
 
 %.o: %.c
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -c $< -o ${<:.c=.o}
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.c=.o}
 
 %.o: %.s
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
+	@$(ASM) $(ASMFLAGS) -MD $< -o ${<:.s=.o}
 
 #*******************************************************************************
 #*                                    RULES                                    *
@@ -78,7 +80,7 @@ $(LIBKFS):
 $(BOOT): $(KBOOT_OBJS)
 	@printf "$(_LWHITE)- ASM BOOT $(_END)$(_DIM)--------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-$(KDSRCS): $(KOBJS) $(KOBJS_ASM) $(HEADERS)
+$(KDSRCS): $(KOBJS) $(KOBJS_ASM)
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(XORRISO):
@@ -93,7 +95,7 @@ check:
 
 clean:
 	@make -s -C libkfs clean
-	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM) $(BIN)
+	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM) $(BIN) $(DEPENDS)
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 fclean: clean docker-clear
@@ -120,5 +122,7 @@ helper:
 include $(MK_INCLUDE_DIR)/QEMU-Runner.mk
 include $(MK_INCLUDE_DIR)/Docker.mk
 include $(MK_INCLUDE_DIR)/Kernel-Maker.mk
+
+-include $(DEPENDS)
 
 .PHONY: all clean fclean re debug ascii helper

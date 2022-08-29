@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 16:13:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/29 17:06:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,5 +16,7 @@
 #pragma once
 
 #include "../../libkfs/includes/libkfs.h"
+
+#define __DISPLAY_INIT_LOG__ false
 
 #endif /* KERNEL_H */

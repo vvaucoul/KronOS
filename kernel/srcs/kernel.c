@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 18:39:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/29 17:25:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,40 +46,65 @@ static void init_kernel(void)
     terminal_initialize();
     ksh_header();
     init_kerrno();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KERRNO " COLOR_END "\n");
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "TERMINAL " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KERRNO " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "TERMINAL " COLOR_END "\n");
     gdt_install();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "GDT " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "GDT " COLOR_END "\n");
     idt_install();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IDT " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IDT " COLOR_END "\n");
     isrs_install();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "ISR " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "ISR " COLOR_END "\n");
     irq_install();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IRQ " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IRQ " COLOR_END "\n");
     timer_install();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "PIT " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "PIT " COLOR_END "\n");
     keyboard_install();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END "\n");
     init_kernel_memory();
-    kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
 }
 
 void kmain(void)
 {
     ASM_CLI();
     init_kernel();
-    kprintf("\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf("\n");
     // khexdump(0x00000800 - 64, 142);
-    kprintf("\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf("\n");
     ASM_STI();
 
+
+    kprintf("\n");
     kprintf("Test Alloc: \n");
     char *str = kmalloc(1024);
+
+    kbzero(str, 1024);
     str[0] = 'A';
     str[1] = 'B';
     str[2] = 'C';
 
     kprintf("str = %s\n", str);
+
+    char *str2 = kmalloc(1024);
+
+    kbzero(str2, 1024);
+    str2[0] = 'D';
+    str2[1] = 'E';
+    str2[2] = 'F';
+
+    kprintf("str = %s\n", str);
+    kprintf("str2 = %s\n", str2);
 
     kronos_shell();
 }

@@ -1,0 +1,15 @@
+name: Kronos Kernel Workflow
+
+on:
+  push:
+    branches: [ "main", "memory-system" ]
+	
+jobs:
+  build:
+
+    runs-on: debian-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Compiling Kernel
+      run: make

@@ -6,11 +6,13 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/07/03 16:32:59 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/03 16:33:18 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/29 16:03:28 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-make -C ../ clean
+make -C ../ fclean
+sh clear.sh 2>&1
+
 mkdir -pv build
 
 cp -r ../Makefile build/Makefile

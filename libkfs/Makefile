@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/07/11 13:34:12 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/29 21:05:45 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,8 @@ SRCS =	$(shell find srcs -name '*.c') \
 		$(shell find libs -name '*.c')
 OBJS = $(SRCS:.c=.o)
 
+DEPENDS		=	$(OBJS:.o=.d)
+
 SRCS_ASM	=	$(shell find srcs -name '*.s') \
 				$(shell find libs -name '*.s')
 OBJS_ASM	=	$(SRCS_ASM:.s=.o)
@@ -39,7 +41,7 @@ include ../$(MK_INCLUDE_DIR)/Colors.mk
 
 %.o: %.c
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -c $< -o ${<:.c=.o}
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.c=.o}
 
 %.o: %.s
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $<
@@ -51,11 +53,13 @@ $(NAME): $(OBJS) $(OBJS_ASM)
 	@ar -rcs $(NAME) $(OBJS) $(OBJS_ASM)
 
 clean:
-	@rm -f $(OBJS) $(OBJS_ASM)
+	@rm -f $(OBJS) $(OBJS_ASM) $(DEPENDS)
 
 fclean: clean
 	@rm -f $(NAME)
 
 re: fclean all
+
+-include $(DEPENDS)
 
 .PHONY: clean fclean all re

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/29 20:20:03 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/29 20:21:37 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,7 +62,7 @@ include $(MK_INCLUDE_DIR)/Headers.mk
 
 %.o: %.s
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(ASM) $(ASMFLAGS) -MD $< -o ${<:.s=.o}
+	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
 
 #*******************************************************************************
 #*                                    RULES                                    *

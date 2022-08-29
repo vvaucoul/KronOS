@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/29 20:21:37 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/08/29 20:42:08 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -122,6 +122,7 @@ helper:
 include $(MK_INCLUDE_DIR)/QEMU-Runner.mk
 include $(MK_INCLUDE_DIR)/Docker.mk
 include $(MK_INCLUDE_DIR)/Kernel-Maker.mk
+include $(MK_INCLUDE_DIR)/Dependencies.mk
 
 -include $(DEPENDS)
 

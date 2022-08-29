@@ -11,5 +11,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Installing dependencies
+      run : make install-dependencies
     - name: Compiling Kernel
       run: make

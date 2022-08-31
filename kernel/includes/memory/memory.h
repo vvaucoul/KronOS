@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:42:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 15:07:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/30 18:14:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,10 @@
 
 typedef struct s_memory_list
 {
-    PageTable *page;
+    void *value;
     struct s_memory_list *next;
     struct s_memory_list *prev;
 } t_memory_list;
-
-#define Page t_page
 
 #define Memory_List t_memory_list
 #ifndef __MEMORY_LIST__
@@ -40,6 +38,8 @@ typedef struct s_memory_list
 #endif
 
 extern __MemorySystem *__mem_root;
+
+extern uint32_t __placement_address;
 
 extern void init_kernel_memory(void);
 extern size_t __nb_pages;

@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/29 20:18:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/30 18:14:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef _PAGING_H
 #define _PAGING_H
+
+#include <kernel.h>
 
 #define PAGE_TABLE_SIZE 1024
 #define PAGE_SIZE 4096
@@ -66,12 +68,11 @@ typedef struct s_table
 typedef struct s_page_table
 {
     t_page pages[PAGE_TABLE_SIZE];
-    unsigned int physical_address;
 } t_page_table;
 
 typedef struct s_page_directory
 {
-    t_page_table *tables[PAGE_TABLE_SIZE];
+    t_page_table tables[PAGE_TABLE_SIZE];
 } t_page_directory;
 
 #define Page t_page
@@ -80,6 +81,8 @@ typedef struct s_page_directory
 #define PageDirectory t_page_directory
 
 extern uint32_t __page_directory[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+
+// extern PageDirectory __page_directory __attribute__((aligned(PAGE_SIZE)));
 
 extern void enable_paging(void);
 extern void load_page_directory(void *page);
@@ -92,5 +95,7 @@ extern void enable_large_pages(void);
 #define PAGING_OFFSET (sizeof(Page))
 
 extern void *__request_new_page(size_t size);
+
+extern void __pagination_init(void);
 
 #endif /* _PAGING_H */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/29 17:25:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/30 18:17:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,21 +87,33 @@ void kmain(void)
 
     kprintf("\n");
     kprintf("Test Alloc: \n");
-    char *str = kmalloc(1024);
+    char *str = kmalloc(4);
 
-    kbzero(str, 1024);
+    kbzero(str, 4);
     str[0] = 'A';
     str[1] = 'B';
     str[2] = 'C';
 
     kprintf("str = %s\n", str);
 
-    char *str2 = kmalloc(1024);
+    char *str2 = kmalloc(4);
 
-    kbzero(str2, 1024);
-    str2[0] = 'D';
-    str2[1] = 'E';
-    str2[2] = 'F';
+    kbzero(str2, 4);
+    str2[0] = 'F';
+    str2[1] = 'G';
+    str2[2] = 'H';
+
+    kprintf("str = %s\n", str);
+    kprintf("str2 = %s\n", str2);
+    
+    kprintf("\n");
+
+    kprintf("str addr: %p\n", str);
+    kprintf("str 2 addr: %p\n", str2);
+
+    str[3] = 'D';
+    str[4] = 'E';
+    str[5] = 0;
 
     kprintf("str = %s\n", str);
     kprintf("str2 = %s\n", str2);

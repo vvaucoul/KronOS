@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:53:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/29 17:17:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/30 18:14:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 
 __MemorySystem *__mem_root;
+// PageDirectory __page_directory;
 uint32_t __page_directory[PAGE_TABLE_SIZE];
 size_t __nb_pages;
 

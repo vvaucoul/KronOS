@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/30 18:14:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/08/31 17:32:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,18 +20,18 @@
 
 typedef struct s_page
 {
-    int p : 1;     // Present
-    int rw : 1;    // Read/Write
-    int us : 1;    // User/Supervisor
-    int pwt : 1;   // Page-Level Write-Through
-    int pcd : 1;   // Page-Level Cache Disable
-    int a : 1;     // Accessed
-    int d : 1;     // Dirty
-    int pat : 1;   // Page-Attribute Table
-    int ps : 1;    // Page size
-    int g : 1;     // Global
-    int avail : 3; // Available
-    int pfa : 20;  // Page Frame Address
+    uint32_t present : 1;   // Present
+    uint32_t rw : 1;        // Read/Write
+    uint32_t user : 1;      // User/Supervisor
+    uint32_t pwt : 1;       // Page-Level Write-Through
+    uint32_t pcd : 1;       // Page-Level Cache Disable
+    uint32_t accessed : 1;  // Accessed
+    uint32_t dirty : 1;     // Dirty
+    uint32_t pat : 1;       // Page-Attribute Table
+    uint32_t pageSize : 1; // Page size
+    uint32_t global : 1;    // Global
+    uint32_t available : 3; // Available
+    uint32_t frame : 20;    // Page Frame Address
 } t_page;
 
 /*
@@ -50,21 +50,6 @@ bits because these addresses are aligned on 4kb, so the last 12bits should be eq
 • A pages directory can address 1024 (1024 4k) = 4 Gb
 */
 
-typedef struct s_table
-{
-    int p : 1;     // Present
-    int rw : 1;    // Read/Write
-    int us : 1;    // User/Supervisor
-    int pwt : 1;   // Page-Level Write-Through
-    int pcd : 1;   // Page-Level Cache Disable
-    int a : 1;     // Accessed
-    int d : 1;     // Dirty
-    int pat : 1;   // Page-Attribute Table
-    int g : 1;     // Global
-    int avail : 3; // Available
-    int pfa : 20;  // Page Frame Address
-} t_table;
-
 typedef struct s_page_table
 {
     t_page pages[PAGE_TABLE_SIZE];
@@ -73,10 +58,11 @@ typedef struct s_page_table
 typedef struct s_page_directory
 {
     t_page_table tables[PAGE_TABLE_SIZE];
+    uint32_t tablesPhysical[PAGE_TABLE_SIZE]; // Physical location for CR3 Register.
+    uint32_t physicalAddr; // Physical address of tablrsPhysical
 } t_page_directory;
 
 #define Page t_page
-#define Table t_table
 #define PageTable t_page_table
 #define PageDirectory t_page_directory
 
@@ -93,6 +79,11 @@ extern void enable_large_pages(void);
 #define __enable_large_pages() enable_large_pages()
 
 #define PAGING_OFFSET (sizeof(Page))
+
+#define PAGE_ACCESS_LEVEL_PL0(x) (x.user == 0)
+#define PAGE_ACCESS_LEVEL_PL3(x) (x.user == 1)
+#define PAGE_READ_WRITE(x) (x.rw == 0)
+#define PAGE_READ_ONLY(x)(x.rw == 1)
 
 extern void *__request_new_page(size_t size);
 

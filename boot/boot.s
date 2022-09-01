@@ -11,7 +11,6 @@
 %define PSE_BIT 0x00000010
 %define PG_BIT 0x80000000
 
-
 bits 32
 
 global _multiboot
@@ -68,8 +67,8 @@ _kernel_entry:
     ; or ecx, PG_BIT
     ; mov cr0, ecx
 
-	lea ecx, [_start]
-    jmp ecx
+	lea ebx, [_start]
+    jmp ebx
 
 	; jmp _start
 	.end:

@@ -11,7 +11,7 @@ SECTIONS
     ******************************************************************************/
 
 	. = 0x100000;
-	.boot.text BLOCK(__align_size) : ALIGN(__align_size)
+	/* .boot.text BLOCK(__align_size) : ALIGN(__align_size)
 	{
 		*(.boot.text)
 	}
@@ -26,7 +26,7 @@ SECTIONS
 	.boot.rodata BLOCK(__align_size) : ALIGN(__align_size)
 	{
 		*(.boot.rodata)
-	}
+	} */
 
     /******************************************************************************
     *                               KERNEL SECTIONS                               *

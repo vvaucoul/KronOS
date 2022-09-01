@@ -4,14 +4,6 @@
 %define MAGIC 0x1BADB002
 %define CHECKSUM -(MAGIC + FLAGS)
 
-%define KERNEL_STACK_SIZE 16384
-
-%define KERNEL_VIRTUAL_BASE 0xC0000000
-%define PDE_INDEX (KERNEL_VIRTUAL_BASE >> 22) ; Index in page Directory
-%define PSE_BIT 0x00000010
-%define PG_BIT 0x80000000
-
-
 bits 32
 
 global _multiboot
@@ -21,9 +13,7 @@ extern _kernel_end
 extern _kernel_start
 
 section .multiboot
-_multiboot:
-	align 4
-
+align 4
 	dd MAGIC
 	dd FLAGS
 	dd CHECKSUM
@@ -38,7 +28,7 @@ section .bss
 	align 16
 
 	stack_bottom:
-	resb KERNEL_STACK_SIZE ; Kernel STACK = 16 KiB
+	resb 16384
 	stack_top:
 
 section .data

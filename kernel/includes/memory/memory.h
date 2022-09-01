@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:42:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/31 17:34:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/01 14:26:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #define MEMORY_START 0x100000
 #define PAGE_SIZE 4096
 
-#define KERNEL_MEMORY_START 0xC0000000
+#define KERNEL_MEMORY_START 0xC0100000
 #define KERNEL_MEMORY_END 0xFFFFFFFF
 
 // #define MEMORY_MAX 4294967296

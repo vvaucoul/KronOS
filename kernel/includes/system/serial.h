@@ -1,22 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kernel.h                                           :+:      :+:    :+:   */
+/*   serial.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/01 16:26:55 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/09/01 16:14:50 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/09/01 16:17:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef KERNEL_H
-# define KERNEL_H
+#ifndef SERIAL_H
+#define SERIAL_H
 
-#pragma once
+#include <kernel.h>
+#include <system/io.h>
 
-#include "../../libkfs/includes/libkfs.h"
+#define PORT_COM1 0x3f8
 
-#define __DISPLAY_INIT_LOG__ true
+void serial_init(void);
 
-#endif /* KERNEL_H */
+void qemu_printf(const char *str, ...);
+
+#endif /* SERIALH_H */

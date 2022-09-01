@@ -1,50 +1,65 @@
 OUTPUT_FORMAT(elf32-i386)
-ENTRY(_start)
+/* ENTRY(_start) */
+ENTRY(_kernel_entry)
 
-__kernel_virtual_memory_start = 0xc0100000;
-__kernel_physical_memory_start = 0x00100000;
+__align_size = 0x1000;
 
 SECTIONS
 {
-    . = 1M;
-	/* . = __kernel_virtual_memory_start;
-	__kernel_start = .; */
+    /******************************************************************************
+    *                              BOOTING SECTTIONS                              *
+    ******************************************************************************/
 
-	PROVIDE (_begin = .);
-
-    .text BLOCK(4K) : ALIGN(4K)
-	/* .text ALIGN (4K) : AT(ADDR(.text) - 0xC0000000) */
+	. = 0x100000;
+	.boot.text BLOCK(__align_size) : ALIGN(__align_size)
 	{
+		*(.boot.text)
+	}
+	.boot.stack BLOCK(__align_size) : ALIGN(__align_size)
+	{
+		*(.boot.stack)
+	}
+	.boot.data BLOCK(__align_size) : ALIGN(__align_size)
+	{
+		*(.boot.data)
+	}
+	.boot.rodata BLOCK(__align_size) : ALIGN(__align_size)
+	{
+		*(.boot.rodata)
+	}
+
+    /******************************************************************************
+    *                               KERNEL SECTIONS                               *
+    ******************************************************************************/
+
+	. += 0xC0000000;
+	_kernel_start = .;
+
+    .text BLOCK(__align_size) : AT(ADDR(.text) - 0xC0000000) ALIGN(__align_size)
+	{
+		_code_section = .;
 		*(.multiboot)
 		*(.text)
 	}
- 
 	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
-	/* .rodata ALIGN (4K) : AT(ADDR(.rodata) - 0xC0000000) */
+	.rodata BLOCK(__align_size) : AT(ADDR(.rodata) - 0xC0000000) ALIGN(__align_size)
 	{
+		_rodata_section = .;
 		*(.rodata)
 	}
- 
 	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
-	/* .data ALIGN (4K) : AT(ADDR(.data) - 0xC0000000) */
+	.data BLOCK(__align_size) : AT(ADDR(.data) - 0xC0000000) ALIGN(__align_size)
 	{
+		_data_section = .;
 		*(.data)
 	}
- 
-	PROVIDE (_edata = .);
-
 	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(4K) : ALIGN(4K)
-	/* .bss ALIGN (4K) : AT(ADDR(.bss) - 0xC0000000) */
+	.bss BLOCK(__align_size) : AT(ADDR(.bss) - 0xC0000000) ALIGN(__align_size)
 	{
+		_bss_section = .;
 		*(COMMON)
 		*(.bss)
 	}
 
-	PROVIDE (_end = .);
+	_kernel_end = .;
 }
-
-__kernel_virtual_memory_end = . ;
-__kernel_physical_memory_end = . - 0xC0000000;

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/30 18:17:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/01 17:22:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <system/irq.h>
 #include <system/pit.h>
 #include <system/kerrno.h>
+#include <system/serial.h>
 
 #include <drivers/keyboard.h>
 
@@ -45,6 +46,7 @@ static void init_kernel(void)
 {
     terminal_initialize();
     ksh_header();
+    poweroff();
     init_kerrno();
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KERRNO " COLOR_END "\n");
@@ -73,8 +75,11 @@ static void init_kernel(void)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
 }
 
-void kmain(void)
+void kmain(struct multiboot *mboot_ptr, uint32_t kernel_physical_start, uint32_t kernel_physical_end)
 {
+    (void)kernel_physical_start;
+    (void)kernel_physical_end;
+
     ASM_CLI();
     init_kernel();
     if (__DISPLAY_INIT_LOG__)
@@ -82,41 +87,41 @@ void kmain(void)
     // khexdump(0x00000800 - 64, 142);
     if (__DISPLAY_INIT_LOG__)
         kprintf("\n");
+    qemu_printf("Salut !\n");
     ASM_STI();
 
+    // kprintf("\n");
+    // kprintf("Test Alloc: \n");
+    // char *str = kmalloc(4);
 
-    kprintf("\n");
-    kprintf("Test Alloc: \n");
-    char *str = kmalloc(4);
+    // kbzero(str, 4);
+    // str[0] = 'A';
+    // str[1] = 'B';
+    // str[2] = 'C';
 
-    kbzero(str, 4);
-    str[0] = 'A';
-    str[1] = 'B';
-    str[2] = 'C';
+    // kprintf("str = %s\n", str);
 
-    kprintf("str = %s\n", str);
+    // char *str2 = kmalloc(4);
 
-    char *str2 = kmalloc(4);
+    // kbzero(str2, 4);
+    // str2[0] = 'F';   
+    // str2[1] = 'G';
+    // str2[2] = 'H';
 
-    kbzero(str2, 4);
-    str2[0] = 'F';
-    str2[1] = 'G';
-    str2[2] = 'H';
+    // kprintf("str = %s\n", str);
+    // kprintf("str2 = %s\n", str2);
 
-    kprintf("str = %s\n", str);
-    kprintf("str2 = %s\n", str2);
-    
-    kprintf("\n");
+    // kprintf("\n");
 
-    kprintf("str addr: %p\n", str);
-    kprintf("str 2 addr: %p\n", str2);
+    // kprintf("str addr: %p\n", str);
+    // kprintf("str 2 addr: %p\n", str2);
 
-    str[3] = 'D';
-    str[4] = 'E';
-    str[5] = 0;
+    // str[3] = 'D';
+    // str[4] = 'E';
+    // str[5] = 0;
 
-    kprintf("str = %s\n", str);
-    kprintf("str2 = %s\n", str2);
+    // kprintf("str = %s\n", str);
+    // kprintf("str2 = %s\n", str2);
 
     kronos_shell();
 }

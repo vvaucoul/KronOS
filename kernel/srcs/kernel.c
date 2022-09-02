@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/02 14:58:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/02 17:18:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ static void init_kernel(void)
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "TERMINAL " COLOR_END "\n");
     gdt_install();
-    poweroff();
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "GDT " COLOR_END "\n");
     idt_install();
@@ -84,7 +83,7 @@ void kmain(void)
     // khexdump(0x00000800 - 64, 142);
     if (__DISPLAY_INIT_LOG__)
         kprintf("\n");
-    qemu_printf("Salut !\n");
+    // qemu_printf("Salut !\n");
     ASM_STI();
 
     // kprintf("\n");
@@ -101,7 +100,7 @@ void kmain(void)
     // char *str2 = kmalloc(4);
 
     // kbzero(str2, 4);
-    // str2[0] = 'F';   
+    // str2[0] = 'F';
     // str2[1] = 'G';
     // str2[2] = 'H';
 

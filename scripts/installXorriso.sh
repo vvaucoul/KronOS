@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/02 13:23:58 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/02 14:06:07 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/02 17:45:02 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,7 +56,7 @@ pwd=$(pwd)
 xorriso=xorriso-1.4.6
 xorriso_installed=$(sh scripts/checkXorriso.sh)
 
-printf "$_LWHITE- Check package $_LYELLOW[XORRISO]$_LWHITE      $_LYELLOW> $_END$_DIM$xorriso or earlier version$_END$_LYELLOW <$_END\n"
+printf "$_LWHITE- Check package $_LYELLOW[XORRISO]$_LWHITE      $_LYELLOW> $_END$_DIM$xorriso or later version$_END$_LYELLOW <$_END\n"
 
 if [ $xorriso_installed == "true" ]; then
     printf "$_LWHITE-$_LYELLOW [XORRISO]$_LGREEN already installed $_END$_DIM---------$_END $_LGREEN[$_LWHITE✓$_LGREEN]$_END\n\n"

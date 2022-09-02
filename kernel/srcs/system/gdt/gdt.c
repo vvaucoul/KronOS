@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/02 14:58:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/02 17:18:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,14 @@
 #include <system/kerrno.h>
 
 GDTEntry gdt[__GDT_SIZE] = {
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO),
+    /* Input Structure :
+        - Base
+        - Limit
+        - Access
+        - Flags
+    */
+
+    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO),   // NULL Segment, required
     GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE),       // kernel code segment
     GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE),       // kernel data segment
     GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE),      // Kernel stack segment
@@ -32,7 +39,6 @@ void gdt_install(void)
     /* Setup the GDT pointer and limit */
     gp->limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
     gp->base = ((uint32_t)(&gdt));
-    // poweroff();
 
     /* Check if GDT don't reach the limit */
     if (gp->limit > __GDT_LIMIT)
@@ -42,7 +48,7 @@ void gdt_install(void)
     }
 
     /* Flush the GDT */
-    gdt_flush((uint32_t)gp);
+    gdt_flush((uint32_t)(gp));
 }
 
 /*

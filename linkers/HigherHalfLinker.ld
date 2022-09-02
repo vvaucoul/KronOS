@@ -1,10 +1,8 @@
 OUTPUT_FORMAT(elf32-i386)
-/* ENTRY(_start) */
 ENTRY(_kernel_entry)
 
 __align_size = 0x1000;
-__Kernel_Memory_Start = 0xC0000000;
-/* __Kernel_Memory_Start = 0x0; */
+__Kernel_Memory_Start = 0xC0000000; /* Start Kernel at 3GB */
 
 SECTIONS
 {
@@ -40,7 +38,7 @@ SECTIONS
     .text ALIGN(__align_size) : AT(ADDR(.text) - __Kernel_Memory_Start)
 	{
 		_code_section = .;
-		*(.multiboot)
+		/* *(.multiboot) */
 		*(.text)
 	}
 	/* Read-only data. */
@@ -61,6 +59,7 @@ SECTIONS
 		_bss_section = .;
 		*(COMMON)
 		*(.bss)
+		*(.bootstrap_stack)
 	}
 
 	_kernel_end = .;

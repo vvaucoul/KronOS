@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 12:30:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/02 11:45:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,9 @@ enum vga_color
 #define VGA_ENTRY(uc, color) (((unsigned char)uc) | ((uint8_t)color) << 8)
 #define VGA_ENTRY_COLOR(fg, bg) (((enum vga_color)fg) | ((enum vga_color)bg) << 4)
 #define VGA_OUTPUT(uc, color) (uc & 0xFF) | ((color & 0xFF) << 8)
+
 #define __VGA_MEMORY__ (uint16_t *)0xB8000
+#define __HIGHER_HALF_VGA_MEMORY__ (uint16_t *)0xC03FF000
 
 #define __MAX_SCREEN_SUPPORTED__ (size_t)3
 

@@ -6,9 +6,12 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/29 20:49:57 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/02 11:47:46 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
+GRUB_CONFIG_DIR = config
+LINKER_DIR = linkers
 
 $(BIN_DIR)/$(BIN):
 	@mkdir -p $(BIN_DIR)
@@ -20,7 +23,7 @@ $(BIN_DIR)/$(BIN):
 $(ISO):
 	@mkdir -p isodir/boot/grub
 	@cp $(BIN_DIR)/kernel.bin isodir/boot/kernel.bin
-	@cp grub.cfg isodir/boot/grub/grub.cfg
+	@cp $(GRUB_CONFIG_DIR)/grub.cfg isodir/boot/grub/grub.cfg
 	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(ISO)" 
 	@grub-mkrescue -o $(ISO) isodir \
 	--xorriso=$(shell pwd)/$(XORRISO)/xorriso/xorriso > /dev/null 2>&1

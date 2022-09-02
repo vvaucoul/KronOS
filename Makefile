@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/29 20:42:08 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/02 12:08:47 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,14 @@ KDSRCS			=	srcs/kernel
 HEADERS_DIR		=	kernel/includes/
 BIN				=	kernel.bin
 BIN_DIR			=	bin
-LINKER			=	linker.ld
+
+CHECK_HIGHER_HALF_KERNEL = $(shell sh scripts/isHigherHalfKernel.sh)
+
+ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)
+	LINKER		=	$(LINKER_DIR)/linker.ld
+else
+	LINKER		=	$(LINKER_DIR)/HigherHalfLinker.ld
+endif
 
 XORRISO			=	xorriso-1.4.6
 MK_INCLUDE_DIR	=	mk-files

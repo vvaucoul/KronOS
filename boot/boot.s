@@ -4,7 +4,7 @@
 %define MAGIC 0x1BADB002
 %define CHECKSUM -(MAGIC + FLAGS)
 
-%define KERNEL_STACK_SIZE 16384
+%define KERNEL_STACK_SIZE 4096
 
 %define KERNEL_VIRTUAL_BASE 0xC0000000
 %define PDE_INDEX (KERNEL_VIRTUAL_BASE >> 22) ; Index in page Directory
@@ -26,12 +26,6 @@ _multiboot:
 	dd MAGIC
 	dd FLAGS
 	dd CHECKSUM
-
-	; dd _multiboot
-	; dd _code_section
-	; dd _bss_section
-	; dd _kernel_end
-	; dd _kernel_start
 
 section .bss
 	align 16
@@ -74,23 +68,24 @@ _kernel_entry:
 	.end:
 
 _start:
-
-	mov dword [_page_directory], 0
-	invlpg[0]
-
-	mov esp, stack_top
-	call kmain
-	cli
-
-	; mov dword[_page_directory], 0
+	; mov dword [_page_directory], 0
 	; invlpg[0]
-
 	; mov esp, stack_top
 	; extern kmain
 	; push ebx
-
 	; call kmain
 	; cli
+
+	mov dword[_page_directory], 0
+	invlpg[0]
+
+	mov esp, stack_top
+	extern kmain
+	push ebx
+
+	call kmain
+	cli
+
 .hang:
 	hlt
 	jmp .hang

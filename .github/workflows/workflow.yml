@@ -2,7 +2,7 @@ name: Kronos Kernel Workflow
 
 on:
   push:
-    branches: [ "main", "memory-system" ]
+    branches: [ "main", "memory-system", "work-in-progress" ]
 
 jobs:
   build:

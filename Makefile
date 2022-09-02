@@ -6,9 +6,22 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/02 12:08:47 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/02 13:44:59 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
+#*******************************************************************************
+#*                                  INLCUDES                                   *
+#*******************************************************************************
+
+MK_INCLUDE_DIR	=	mk-files
+
+include $(MK_INCLUDE_DIR)/Colors.mk
+include $(MK_INCLUDE_DIR)/Sources-Boot.mk
+include $(MK_INCLUDE_DIR)/Sources.mk
+include $(MK_INCLUDE_DIR)/Sources-ASM.mk
+include $(MK_INCLUDE_DIR)/Headers.mk
+include $(MK_INCLUDE_DIR)/ShellRules-Dependencies.mk
 
 #*******************************************************************************
 #*                                     VAR                                     *
@@ -30,13 +43,19 @@ LD_FLAGS		=	-m elf_i386
 
 ASM				=	nasm
 ASMFLAGS		=	-f elf32
-BOOT			=	boot/boot
+
+BOOT_DIR		=	boot
+
+ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)
+	BOOT			=	$(BOOT_DIR)/lowerHalfKernel
+else
+	BOOT			=	$(BOOT_DIR)/boot
+endif
+
 KDSRCS			=	srcs/kernel
 HEADERS_DIR		=	kernel/includes/
 BIN				=	kernel.bin
 BIN_DIR			=	bin
-
-CHECK_HIGHER_HALF_KERNEL = $(shell sh scripts/isHigherHalfKernel.sh)
 
 ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)
 	LINKER		=	$(LINKER_DIR)/linker.ld
@@ -44,20 +63,10 @@ else
 	LINKER		=	$(LINKER_DIR)/HigherHalfLinker.ld
 endif
 
-XORRISO			=	xorriso-1.4.6
-MK_INCLUDE_DIR	=	mk-files
+XORRISO				=	xorriso-1.4.6
+XORRISO_INSTALLED	=	$(CHECK_XORRISO_INSTALL)
 
 DEPENDS			=	$(KOBJS:.o=.d)
-
-#*******************************************************************************
-#*                                  INLCUDES                                   *
-#*******************************************************************************
-
-include $(MK_INCLUDE_DIR)/Colors.mk
-include $(MK_INCLUDE_DIR)/Sources-Boot.mk
-include $(MK_INCLUDE_DIR)/Sources.mk
-include $(MK_INCLUDE_DIR)/Sources-ASM.mk
-include $(MK_INCLUDE_DIR)/Headers.mk
 
 #*******************************************************************************
 #*                                    KSRCS                                    *
@@ -91,10 +100,7 @@ $(KDSRCS): $(KOBJS) $(KOBJS_ASM)
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(XORRISO):
-	@printf "$(_LYELLOW)- COMPILING XORRISO $(_END)$(_DIM)-----$(_END) $(_LYELLOW)[$(_LWHITE)⚠️ $(_LYELLOW)]$(_END) $(_LYELLOW)>$(_END)$(_DIM)$(shell pwd)/$(XORRISO)/$(_END)$(_LYELLOW)<$(_END)\n"
-	@tar xf $(XORRISO).tar.gz
-	@cd $(XORRISO) && ./configure --prefix=/usr > /dev/null 2>&1 && make -j$(nproc) > /dev/null 2>&1
-	@printf "$(_LWHITE)- $(XORRISO) $(_END)$(_DIM)---------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@sh $(SCRIPTS_DIR)/installXorriso.sh
 
 check:
 	@grub-file --is-x86-multiboot $(BIN_DIR)/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"

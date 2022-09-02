@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 18:35:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/02 13:12:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@
 #define GDT_ENTRY_FLAG_BASE 0xCF
 #define GDT_ENTRY_FLAG_ZERO 0x0
 
-#define __GDT_ADDR 0x00000800
+#define __GDT_ADDR (0x00000800 + __HIGHER_HALF_KERNEL__ == true ? _KERNEL_MEMORY_START : 0x0)
 #define __GDT_SIZE 0x07
 
 #define __GDT_LIMIT (uint16_t)0xFFFFF

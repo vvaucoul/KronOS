@@ -40,7 +40,7 @@ SECTIONS
     .text ALIGN(__align_size) : AT(ADDR(.text) - __Kernel_Memory_Start)
 	{
 		_code_section = .;
-		/* *(.multiboot) */
+		*(.multiboot)
 		*(.text)
 	}
 	/* Read-only data. */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/29 14:57:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/02 14:58:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,12 @@ void gdt_install(void)
     /* Setup the GDT pointer and limit */
     gp->limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
     gp->base = ((uint32_t)(&gdt));
+    // poweroff();
 
     /* Check if GDT don't reach the limit */
     if (gp->limit > __GDT_LIMIT)
     {
-        kerrno_assign_error(__KERRNO_SECTOR_GDT, KERRNO_GDT_LIMIT, __FILE_NAME__, __FUNCTION__);
+        KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_GDT, KERRNO_GDT_LIMIT);
         kernel_panic(__GDT_ERROR_LIMIT);
     }
 

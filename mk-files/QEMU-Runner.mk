@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/02 17:21:22 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/02 18:48:04 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,6 @@ run-curses: $(NAME)
 
 run-debug: $(NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
-	@qemu-system-i386 $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -full-screen
+	@qemu-system-i386 $(GLOBAL_QEMU_FLAGS) --enable-kvm -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std
 
 .PHONY: run run-sdl run-iso run-curses run-debug

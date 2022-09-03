@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/02 17:18:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/03 19:33:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,40 +15,63 @@
 #include <system/panic.h>
 #include <system/kerrno.h>
 
+GDTEntry gdt[__GDT_SIZE];
+
+/*
 GDTEntry gdt[__GDT_SIZE] = {
-    /* Input Structure :
-        - Base
-        - Limit
-        - Access
-        - Flags
-    */
-
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO),   // NULL Segment, required
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE),       // kernel code segment
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE),       // kernel data segment
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE),      // Kernel stack segment
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_CODE_PL3), GDT_ENTRY_FLAG_BASE),  // user code segment
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE),  // user data segment
-    GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE), // user stack segment
+        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO),   // NULL Segment, required
+        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE),       // kernel code segment
+        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE),       // kernel data segment
+        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE),      // Kernel stack segment
+        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_CODE_PL3), GDT_ENTRY_FLAG_BASE),  // user code segment
+        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE),  // user data segment
+        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE), // user stack segment
 };
+*/
 
-GDTPtr *gp = (GDTPtr *)__GDT_ADDR;
+GDTPtr gp; //= (GDTPtr *)__GDT_ADDR;
+
+void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity)
+{
+    gdt[index].base_low = (base & 0xFFFF);
+    gdt[index].base_middle = (base >> 16) & 0xFF;
+    gdt[index].base_high = (base >> 24) & 0xFF;
+    gdt[index].limit_low = (limit & 0xFFFF);
+    gdt[index].granularity = (limit >> 16) & 0x0F;
+    gdt[index].granularity |= granularity & 0xF0;
+    gdt[index].access = access;
+}
 
 void gdt_install(void)
 {
     /* Setup the GDT pointer and limit */
-    gp->limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
-    gp->base = ((uint32_t)(&gdt));
+    gp.limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
+    gp.base = ((uint32_t)(&gdt));
+
+    gdt_add_entry(0, 0, 0, 0, 0);
+    gdt_add_entry(1, 0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE);
+    gdt_add_entry(2, 0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE);
+    gdt_add_entry(3, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE);
+    gdt_add_entry(4, 0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL3), GDT_ENTRY_FLAG_BASE);
+    gdt_add_entry(5, 0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE);
+    gdt_add_entry(6, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE);
 
     /* Check if GDT don't reach the limit */
-    if (gp->limit > __GDT_LIMIT)
+    if (gp.limit > __GDT_LIMIT)
     {
         KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_GDT, KERRNO_GDT_LIMIT);
         kernel_panic(__GDT_ERROR_LIMIT);
     }
 
+    kprintf("GDT: Limit: %d\n", gp.limit);
+    kprintf("GDT Base: %d\n", gp.base);
+
+
     /* Flush the GDT */
-    gdt_flush((uint32_t)(gp));
+    while (1);
+    gdt_flush((uint32_t)(&gp));
+    kprintf("Flush GDT SUCCESS !");
+    // poweroff();
 }
 
 /*
@@ -61,8 +84,8 @@ void gdt_install(void)
 extern void print_gdt(void)
 {
     kprintf("%8%% GDT Entry: " COLOR_GREEN "0x00000%x\n" COLOR_END, __GDT_ADDR);
-    kprintf("%8%% GDT Base: " COLOR_GREEN "0x0%x\n" COLOR_END, gp->base);
-    kprintf("%8%% GDT Limit: " COLOR_GREEN "%d\n" COLOR_END, gp->limit);
+    kprintf("%8%% GDT Base: " COLOR_GREEN "0x0%x\n" COLOR_END, gp.base);
+    kprintf("%8%% GDT Limit: " COLOR_GREEN "%d\n" COLOR_END, gp.limit);
 
     kprintf(COLOR_YELLOW "\n%8%% BASE LOW | BASE MIDDLE | BASE HIGH | LIMIT LOW | GRAN | ACCESS\n" COLOR_END);
 

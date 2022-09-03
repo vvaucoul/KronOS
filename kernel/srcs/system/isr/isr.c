@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 17:47:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/03 18:51:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ void isrs_install()
 
 void fault_handler(struct regs *r)
 {
-    kerrno_assign_error(__KERRNO_SECTOR_ISR, r->int_no, __FILE_NAME__, __FUNCTION__);
+    KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
     if (r->int_no < 32)
     {
         __PANIC_MULTISTR(((const char *[3]){

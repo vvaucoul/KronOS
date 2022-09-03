@@ -1,20 +1,17 @@
 OUTPUT_FORMAT(elf32-i386)
-ENTRY(low_kernel_entry)
+ENTRY(start)
+
+__align_size = 0x1000;
+__Kernel_Memory_Start = 0xC0000000; /* Start Kernel at 3GB */
 
 SECTIONS
 {
-
-	__align_size = 0x1000;
-	__Kernel_Memory_Start = 0xC0000000; /* Start Kernel at 3GB */
-
     /******************************************************************************
     *                              BOOTING SECTTIONS                              *
     ******************************************************************************/
 
-	. = 0x00100000;
-	_multiboot_start = .;
-
-	.multiboot.text :
+	/* . = 0x00100000; */
+	/* .multiboot.text :
 	{
 		*(.multiboot.text)
 	}
@@ -29,38 +26,42 @@ SECTIONS
 	.multiboot.rodata :
 	{
 		*(.multiboot.rodata)
-	}
-
-	_multiboot_end = .;
+	} */
 
     /******************************************************************************
     *                               KERNEL SECTIONS                               *
     ******************************************************************************/
 
-	. += __Kernel_Memory_Start;
+	. = 0xC0100000;
 	_kernel_start = .;
 
-	.text ALIGN(4096) : AT(ADDR(.text) - 0xC0000000)
+    .text : AT(ADDR(.text) - 0xC0000000)
 	{
-		_text_section = .;
+		_code_section = .;
+		/* *(.multiboot) */
 		*(.text)
+		*(.rodata*)
 	}
-	.data ALIGN (4096) : AT(ADDR(.data) - 0xC0000000)
+	/* Read-only data. */
+	/* .rodata ALIGN(__align_size) : AT(ADDR(.rodata) - __Kernel_Memory_Start)
+	{
+		_rodata_section = .;
+		*(.rodata)
+	} */
+	/* Read-write data (initialized) */
+	.data ALIGN(__align_size) : AT(ADDR(.data) - 0xC0000000)
 	{
 		_data_section = .;
 		*(.data)
 	}
-	.rodata ALIGN(4096) : AT(ADDR(.rodata) - 0xC0000000)
-	{
-		_rodata_section = .;
-       *(.rodata*)
-	}
-	.bss ALIGN(4096) : AT(ADDR(.bss) - 0xC0000000)
+	/* Read-write data (uninitialized) and stack */
+	.bss : AT(ADDR(.bss) - 0xC0000000)
 	{
 		_bss_section = .;
 		*(COMMON)
 		*(.bss)
 		_end_bss_section = .;
 	}
+
 	_kernel_end = .;
 }

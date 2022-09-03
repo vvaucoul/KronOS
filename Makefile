@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/02 13:44:59 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/03 16:41:56 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,7 @@ INLCUDES_PATH	=	-I./kernel/includes/
 CFLAGS			=	-Wall -Wextra -Wfatal-errors \
 					-fno-builtin -fno-exceptions -fno-stack-protector \
 					-nostdlib -nodefaultlibs \
-					-std=gnu99 -ffreestanding -O2 
+					-std=gnu99 -ffreestanding -O2
 LDFLAGS			= 	-g3 -m32
 LD_FLAGS		=	-m elf_i386
 

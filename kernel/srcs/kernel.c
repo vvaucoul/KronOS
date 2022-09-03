@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/02 17:18:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/03 19:03:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ static void init_kernel(void)
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "TERMINAL " COLOR_END "\n");
     gdt_install();
+    // poweroff();
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "GDT " COLOR_END "\n");
     idt_install();
@@ -77,14 +78,19 @@ static void init_kernel(void)
 void kmain(void)
 {
     ASM_CLI();
+    // poweroff();
     init_kernel();
     if (__DISPLAY_INIT_LOG__)
         kprintf("\n");
     // khexdump(0x00000800 - 64, 142);
     if (__DISPLAY_INIT_LOG__)
         kprintf("\n");
+
+    print_stack();
+    gdt_test();
+
     // qemu_printf("Salut !\n");
-    ASM_STI();
+    // poweroff();
 
     // kprintf("\n");
     // kprintf("Test Alloc: \n");
@@ -118,6 +124,10 @@ void kmain(void)
 
     // kprintf("str = %s\n", str);
     // kprintf("str2 = %s\n", str2);
+
+    while (1)
+        ;
+    ASM_STI();
 
     kronos_shell();
 }

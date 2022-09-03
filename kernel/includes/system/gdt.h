@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/02 17:03:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/03 19:27:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@
 #define GDT_ENTRY_FLAG_BASE 0xCF
 #define GDT_ENTRY_FLAG_ZERO 0x0
 
-#define __GDT_ADDR (0x00000800 + __HIGHER_HALF_KERNEL__ == true ? KERNEL_MEMORY_START : 0x0)
+#define __GDT_ADDR 0x00000800 //(0x00000800 + __HIGHER_HALF_KERNEL__ == true ? KERNEL_MEMORY_START : 0x0)
 #define __GDT_SIZE 0x07
 
 #define __GDT_LIMIT (uint16_t)0xFFFFF
@@ -137,7 +137,7 @@ typedef struct s_gdt_ptr
 #define GDTPtr t_gdt_ptr
 
 extern GDTEntry gdt[__GDT_SIZE];
-extern GDTPtr *gp;
+extern GDTPtr gp;
 
 extern void gdt_flush(uint32_t gdt_ptr);
 extern void gdt_install(void);

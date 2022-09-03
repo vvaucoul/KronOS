@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 19:33:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/03 21:09:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ GDTEntry gdt[__GDT_SIZE] = {
 };
 */
 
-GDTPtr gp; //= (GDTPtr *)__GDT_ADDR;
+GDTPtr *gp = (GDTPtr *)__GDT_ADDR;
 
 void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity)
 {
@@ -45,8 +45,8 @@ void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access,
 void gdt_install(void)
 {
     /* Setup the GDT pointer and limit */
-    gp.limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
-    gp.base = ((uint32_t)(&gdt));
+    gp->limit = (sizeof(GDTEntry) * __GDT_SIZE) - 1;
+    gp->base = ((uint32_t)(&gdt));
 
     gdt_add_entry(0, 0, 0, 0, 0);
     gdt_add_entry(1, 0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE);
@@ -57,20 +57,21 @@ void gdt_install(void)
     gdt_add_entry(6, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE);
 
     /* Check if GDT don't reach the limit */
-    if (gp.limit > __GDT_LIMIT)
+    if (gp->limit > __GDT_LIMIT)
     {
         KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_GDT, KERRNO_GDT_LIMIT);
         kernel_panic(__GDT_ERROR_LIMIT);
     }
 
-    kprintf("GDT: Limit: %d\n", gp.limit);
-    kprintf("GDT Base: %d\n", gp.base);
-
+    kprintf("GDT: Limit: %d\n", gp->limit);
+    kprintf("GDT Base: %d\n", gp->base);
+    kprintf("GDT ADDR : %d\n", __GDT_ADDR);
 
     /* Flush the GDT */
-    while (1);
-    gdt_flush((uint32_t)(&gp));
-    kprintf("Flush GDT SUCCESS !");
+    gdt_flush((uint32_t)(gp));
+    kprintf("Flush GDT SUCCESS !\n");
+    while (1)
+        ;
     // poweroff();
 }
 
@@ -84,8 +85,8 @@ void gdt_install(void)
 extern void print_gdt(void)
 {
     kprintf("%8%% GDT Entry: " COLOR_GREEN "0x00000%x\n" COLOR_END, __GDT_ADDR);
-    kprintf("%8%% GDT Base: " COLOR_GREEN "0x0%x\n" COLOR_END, gp.base);
-    kprintf("%8%% GDT Limit: " COLOR_GREEN "%d\n" COLOR_END, gp.limit);
+    kprintf("%8%% GDT Base: " COLOR_GREEN "0x0%x\n" COLOR_END, gp->base);
+    kprintf("%8%% GDT Limit: " COLOR_GREEN "%d\n" COLOR_END, gp->limit);
 
     kprintf(COLOR_YELLOW "\n%8%% BASE LOW | BASE MIDDLE | BASE HIGH | LIMIT LOW | GRAN | ACCESS\n" COLOR_END);
 

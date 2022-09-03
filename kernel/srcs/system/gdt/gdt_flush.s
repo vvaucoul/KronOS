@@ -19,6 +19,7 @@ gdt_flush:
 
 	mov ax, KERNEL_STACK_OFFSET				; 0x18 is the offset in the GDT to our kernel stack
 	mov ss, ax             		   			; Stack Segment
+	ret
 	jmp CODE_SEGMENT_OFFSET:.code_selector 	; 0x08 is the offset to our code segment: Far jump!
 .code_selector:
 	ret                    		   			; Returns back to the C code!

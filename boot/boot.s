@@ -64,7 +64,7 @@ section .text
 	global kernel_entry
 	global low_kernel_entry
 
-low_kernel_entry equ (kernel_entry - KERNEL_VIRTUAL_BASE)
+low_kernel_entry: ;equ (kernel_entry - KERNEL_VIRTUAL_BASE)
 
 kernel_entry:
 	mov ecx, (KernelPageDirectory - KERNEL_VIRTUAL_BASE)

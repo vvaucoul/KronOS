@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/03 16:41:56 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/03 21:17:30 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,8 @@ LIBKFS			=	lkfs
 LIBKFS_A		=	libkfs/libkfs.a
 CC				=	clang
 LD				=	ld
-INLCUDES_PATH	=	-I./kernel/includes/
+INLCUDES_PATH	=	-I./kernel/includes/ \
+					-I./libkfs/includes/
 CFLAGS			=	-Wall -Wextra -Wfatal-errors \
 					-fno-builtin -fno-exceptions -fno-stack-protector \
 					-nostdlib -nodefaultlibs \

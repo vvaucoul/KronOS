@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/30 17:55:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/30 18:08:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/03 21:29:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,21 @@
 
 void *physical_to_virtual_memory(void *virtualaddr)
 {
+    __UNUSED__(virtualaddr);
     // unsigned long pdindex = (unsigned long) virtualaddr >> 22;
     // unsigned long ptindex = (unsigned long) virtualaddr >> 12 & 0x03FF;
 
     // unsigned long *pd = (unsigned long *)0xFFFFF000;
     // unsigned long *pt = ((unsigned long *)0xFFC0000) + (0x400 * ptindex);
     // return (void *)((pt[ptindex] & ~0xFFF) + ((unsigned long)virtualaddr & 0xFFF));
+    return (NULL);
 }
 
 void virtual_to_physical_memory(void *physaddr, void *virtualaddr, unsigned int flags)
 {
+    __UNUSED__(physaddr);
+    __UNUSED__(virtualaddr);
+    __UNUSED__(flags);
     // unsigned long pdindex = (unsigned long)virtualaddr >> 22;
     // unsigned long ptindex = (unsigned long)virtualaddr >> 12 & 0x03FF;
 

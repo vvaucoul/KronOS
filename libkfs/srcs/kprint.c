@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 12:19:39 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:30:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:34:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,45 +137,3 @@ void kputf(const float value)
     kftoa(buffer, value);
     kputstr(buffer);
 }
-
-/*
-void ftoa(char *buf, float f) {
-    uint32 count = 1;
-    const uint32 DEFAULT_DECIMAL_COUNT = 8;
-    char int_part_buf[16];
-    char *p;
-
-    memset(int_part_buf, 0, sizeof(int_part_buf));
-    // add integer part
-    int x = (int)f;
-    itoa(int_part_buf, 'd', x);
-    p = int_part_buf;
-    while (*p != '\0') {
-        *buf++ = *p++;
-    }
-    *buf++ = '.';
-
-    // example decimal = 3.14159 - 3 = 0.14159
-    float decimal = f - x;
-    if (decimal == 0)
-        *buf++ = '0';
-    else {
-        while (decimal > 0) {
-            uint32 y = decimal * 10;  // y = 0.14159 * 10 = 1
-            *buf++ = y + '0';
-            decimal = (decimal * 10) - y;  // decimal = (0.14159 * 10) - 1 = 0.4159
-            count++;
-            if (count == DEFAULT_DECIMAL_COUNT)
-                break;
-        }
-    }
-    *buf = '\0';
-}
-
-void float_print(const char *msg, float f, const char *end) {
-    char buf[32];
-    memset(buf, 0, sizeof(buf));
-    ftoa(buf, f);
-    printf("%s%s%s", msg, buf, end);
-}
-*/

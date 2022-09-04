@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:18:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 16:49:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:38:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,6 @@ static void __print_single_section(const char *__section_name, uint8_t *_addr, b
 static void __print_section(const char *__section_name, uint8_t *_addr_start, uint8_t *_addr_end, bool __nl)
 {
     const uint32_t __res = ((uint32_t)_addr_end - (uint32_t)_addr_start);
-
-    //kprintf("- %s: "COLOR_GREEN"0x%x"COLOR_END"\n", _s_start, _addr_start);
-    //kprintf("- %s: "COLOR_GREEN"0x%x"COLOR_END"\n", _s_end, _addr_end);
-    //kprintf("- %s: "COLOR_GREEN"0x%x"COLOR_END" | "COLOR_GREEN"%d"COLOR_END" Bytes\n", "TOTAL", __res, __res);
 
     kprintf(""COLOR_CYAN"%s\n"COLOR_END, __section_name);
     kprintf("- START: "COLOR_GREEN"0x%x"COLOR_END" | END: "COLOR_GREEN"0x%x"COLOR_END" | TOTAL: "COLOR_GREEN"0x%x"COLOR_END" - "COLOR_GREEN"%d"COLOR_END" Bytes\n", _addr_start, _addr_end, __res, __res);

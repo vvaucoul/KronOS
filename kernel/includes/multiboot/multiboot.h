@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 14:09:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:40:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,11 +154,11 @@ static inline void __display_multiboot_infos(void)
 {
     kprintf("  _multiboot_info: %p\n", &_multiboot_info);
     kprintf("  flags: 0x%x\n", _multiboot_info->flags);
-    return;
     kprintf("  mem_low: 0x%x KB\n", _multiboot_info->mem_low);
     kprintf("  mem_high: 0x%x KB\n", _multiboot_info->mem_high);
     kprintf("  boot_device: 0x%x\n", _multiboot_info->boot_device);
     kprintf("  cmdline: %s\n", (char *)_multiboot_info->cmdline);
+    return;
     kprintf("  modules_count: %d\n", _multiboot_info->modules_count);
     kprintf("  modules_addr: 0x%x\n", _multiboot_info->modules_addr);
     kprintf("  mmap_length: %d\n", _multiboot_info->mmap_length);

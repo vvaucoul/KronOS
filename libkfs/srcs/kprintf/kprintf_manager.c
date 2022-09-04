@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:54:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:26:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:43:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,23 @@ void __kpf_manage_nbr()
 void __kpf_manage_str()
 {
     char *str = va_arg(_g_kprintf.args, char *);
-    __kpf_manage_space_front(kstrlen(str));
-    kputstr(str);
-    __kpf_manage_space_back(kstrlen(str));
+
+    if (str == NULL)
+    {
+        char __str[7];
+
+        kbzero(__str, 7);
+        kmemcpy(__str, "(null)", 6);
+        __kpf_manage_space_front(kstrlen(__str));
+        kputstr(__str);
+        __kpf_manage_space_back(kstrlen(__str));
+    }
+    else
+    {
+        __kpf_manage_space_front(kstrlen(str));
+        kputstr(str);
+        __kpf_manage_space_back(kstrlen(str));
+    }
 }
 
 void __kpf_manage_ptr()

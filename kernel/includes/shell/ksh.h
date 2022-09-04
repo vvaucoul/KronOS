@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 12:38:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/05 01:48:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include "../system/pit.h"
 
 #include "ksh_buffer.h"
+#include "ksh_builtins.h"
 
 #define __PROMPT__ COLOR_END "KSH" COLOR_GREEN " $> " COLOR_END
 #define __PROMPT_LEN__ (sizeof(__PROMPT__) - 1)
@@ -36,7 +37,7 @@
 
 extern void kronos_shell(void);
 
-extern uint16_t *ksh_buffer;
+extern uint32_t *ksh_buffer;
 
 extern size_t ksh_max_line;         // Max line of the shell
 extern size_t ksh_current_max_line; // Current max line of the shell
@@ -60,5 +61,7 @@ extern size_t ksh_get_last_character_index(void);
 extern void ksh_del_char_location(size_t x, size_t y);
 extern void ksh_insert_char_location(char c, size_t x, size_t y);
 extern void ksh_save_line(size_t y);
+
+extern void ksh_clear(void);
 
 #endif /* KSH_H */

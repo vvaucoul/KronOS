@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 18:32:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/30 16:34:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 23:41:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ extern int kstrncmp(const char *s1, const char *s2, size_t length);
 extern char *kstrtrunc(char *str, size_t length);
 extern char *kstrcat(char *dest, const char *src);
 extern char *kstrncat(char *dest, const char *src, size_t n);
+extern char *kstrclr(char *new_str, char *str);
 
 extern bool kccof(const char c, const char *str);
 extern bool kacof(const char *str, const char *chars);

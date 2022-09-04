@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:45:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/05 01:42:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,27 +96,7 @@ void kmain(hex_t magic_number, hex_t addr)
         if (_multiboot_info == NULL)
             __PANIC("Error: _multiboot_info is NULL");
     }
-
-    // __display_multiboot_infos();
-    // display_sections();
-    UPDATE_CURSOR();
-
-
-    // kprintf("Value 1: %f\n", 1.73728);
-    // kprintf("Value 2: %f\n", 123.00237);
-    // kprintf("Value 3: %f\n", 936624);
-    // kprintf("Value 4: %f\n", 0.000352);
-    // kprintf("Value 5: %f\n", 89347.403402361);
-   
+    kprintf("\n");
     ASM_STI();
-    while (1);
-
-    // if (__DISPLAY_INIT_LOG__)
-    //     kprintf("\n");
-    // khexdump(0x00000800 - 64, 142);
-    // if (__DISPLAY_INIT_LOG__)
-    //     kprintf("\n");
-    // kprintf("Using video type: %d\n", get_bios_area_video_type());
-
     kronos_shell();
 }

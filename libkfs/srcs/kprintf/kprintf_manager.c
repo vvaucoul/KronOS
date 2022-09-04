@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:54:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 21:01:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/03 21:46:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,8 @@ void __kpf_manage_hexa()
 
 void __kpf_manage_unsigned()
 {
-    unsigned int nbr = va_arg(_g_kprintf.args, unsigned int);
+    uint32_t nbr = va_arg(_g_kprintf.args, uint32_t);
     __kpf_manage_space_front(knbrlen(nbr));
-    kputnbr(nbr);
+    kputunbr(nbr);
     __kpf_manage_space_back(knbrlen(nbr));
 }

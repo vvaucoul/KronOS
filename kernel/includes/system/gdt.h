@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 21:09:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 02:50:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,8 +136,10 @@ typedef struct s_gdt_ptr
 
 #define GDTPtr t_gdt_ptr
 
-extern GDTEntry gdt[__GDT_SIZE];
-extern GDTPtr *gp;
+extern GDTEntry *gdt;
+extern GDTPtr gp;
+
+#define __GDT_LOGS__ false
 
 extern void gdt_flush(uint32_t gdt_ptr);
 extern void gdt_install(void);

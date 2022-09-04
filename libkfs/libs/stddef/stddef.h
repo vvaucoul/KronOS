@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:44:12 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 21:28:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 02:54:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 // #include <stddef.h>
 
 typedef unsigned int size_t;
+typedef int ssize_t;
+typedef unsigned char uchar_t;
 
 typedef signed char int8_t;
 typedef signed short int16_t;

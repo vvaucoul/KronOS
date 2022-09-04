@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 13:29:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 21:37:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 02:44:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@ void khexdump(uint32_t ebp, int limit)
     do
     {
         kprintf(ebp == 0x00000800 ? COLOR_GREEN : COLOR_CYAN);
-        kprintf("0x%x: " COLOR_END, ebp);
+        kprintf("0x%u: " COLOR_END, ebp);
 
         uint32_t next = ebp + 16;
         uint32_t tmp = ebp;
         while (tmp < next && i < limit)
         {
-            if (*(char *)tmp > 32)
-                kprintf(COLOR_GREEN "%x " COLOR_END, *(char *)tmp);
+            if (*(char *)tmp >= 32)
+                kprintf(COLOR_GREEN "%u " COLOR_END, *(char *)tmp);
             else
                 kprintf(COLOR_END "00 " COLOR_END);
             ++tmp;

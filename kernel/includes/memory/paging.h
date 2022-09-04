@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/31 17:32:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 13:14:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,10 +73,12 @@ extern uint32_t __page_directory[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SI
 extern void enable_paging(void);
 extern void load_page_directory(void *page);
 extern void enable_large_pages(void);
+extern void flush_tlb(void);
 
 #define __enable_paging() enable_paging()
 #define __load_page_directory(page) load_page_directory(page)
 #define __enable_large_pages() enable_large_pages()
+#define __flush_tlb() flush_tlb()
 
 #define PAGING_OFFSET (sizeof(Page))
 

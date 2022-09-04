@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:06:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 21:45:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:08:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ static int kprint_mod(const char *format, size_t i)
         __kpf_manage_unsigned();
     else if (format[i] == DEL_X)
         __kpf_manage_hexa();
+    else if (format[i] == DEL_F)
+        __kpf_manage_float();
     return (i);
 }
 

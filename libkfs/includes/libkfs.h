@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 02:57:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:25:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 extern void kputs(const char *str);
 extern void kuputs(const uint8_t *str);
 extern int katoi(const char *str);
+extern void kftoa(char *buffer, float value);
 
 #define __KITOA_BUFFER_LENGTH__ 11
 extern int kitoa(int nbr, char str[__KITOA_BUFFER_LENGTH__]);
@@ -36,6 +37,8 @@ extern void kputnbr_base(int n, int base);
 extern void kputunbr(uint32_t n);
 extern void kputunbr_base(uint32_t n, uint32_t base);
 extern void kputptr(void *ptr);
+extern void kputf(const float value);
+
 
 /*******************************************************************************
  *                                PUTNBR - HEX                                 *

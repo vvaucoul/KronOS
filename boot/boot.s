@@ -6,6 +6,7 @@ MBOOT_MBALIGN equ 1 << 0
 MBOOT_MEM_INFO equ 1 << 1
 MBOOT_HEADER_FLAGS equ (MBOOT_MBALIGN | MBOOT_MEM_INFO)
 MBOOT_HEADER_MAGIC equ 0x1BADB002
+MBOOT_BOOTLOADER_MAGIC equ 0x2BADB002
 MBOOT_CHECKSUM equ -(MBOOT_HEADER_MAGIC + MBOOT_HEADER_FLAGS)
 
 ;*******************************************************************************
@@ -88,11 +89,13 @@ higher_half_kernel:
     invlpg[0]
 
 	mov esp, stack_top
+	mov eax, MBOOT_BOOTLOADER_MAGIC
+	
 	push ebx
-
+	push eax
+	
 	extern kmain
 	call kmain
-	cli
 .hang:
 	hlt
 	jmp .hang	

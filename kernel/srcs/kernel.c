@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 02:48:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:32:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,19 @@
 #include <system/pit.h>
 #include <system/kerrno.h>
 #include <system/serial.h>
+#include <system/panic.h>
+#include <system/sections.h>
+#include <system/fpu.h>
 
 #include <drivers/keyboard.h>
+#include <drivers/display.h>
+
+#include <multiboot/multiboot.h>
+
 
 #include <memory/memory.h>
+
+MultibootInfo *_multiboot_info = NULL;
 
 static inline void ksh_header(void)
 {
@@ -72,59 +81,44 @@ static void init_kernel(void)
     // init_kernel_memory();
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
+    enable_fpu();
 }
 
-void kmain(void)
+void kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
     init_kernel();
+    if (__check_magic_number(magic_number) == false)
+        return;
+    else
+    {
+        _multiboot_info = (MultibootInfo *)(addr);
+        if (_multiboot_info == NULL)
+            __PANIC("Error: _multiboot_info is NULL");
+    }
+
+    // display_sections();
+    UPDATE_CURSOR();
+
+
+    kprintf("Value 1: %f\n", 1.73728);
+    kprintf("Value 2: %f\n", 123.00237);
+    kprintf("Value 3: %f\n", 936624);
+    kprintf("Value 4: %f\n", 0.000352);
+    kprintf("Value 5: %f\n", 89347.403402361);
+   
+   
+    ASM_STI();
+    while (1)
+        ;
+
+
     // if (__DISPLAY_INIT_LOG__)
     //     kprintf("\n");
     // khexdump(0x00000800 - 64, 142);
     // if (__DISPLAY_INIT_LOG__)
     //     kprintf("\n");
-    ASM_STI();
-
-    // qemu_printf("Salut !\n");
-    // poweroff();
-
-    // kprintf("\n");
-    // kprintf("Test Alloc: \n");
-    // char *str = kmalloc(4);
-
-    // kbzero(str, 4);
-    // str[0] = 'A';
-    // str[1] = 'B';
-    // str[2] = 'C';
-
-    // kprintf("str = %s\n", str);
-
-    // char *str2 = kmalloc(4);
-
-    // kbzero(str2, 4);
-    // str2[0] = 'F';
-    // str2[1] = 'G';
-    // str2[2] = 'H';
-
-    // kprintf("str = %s\n", str);
-    // kprintf("str2 = %s\n", str2);
-
-    // kprintf("\n");
-
-    // kprintf("str addr: %p\n", str);
-    // kprintf("str 2 addr: %p\n", str2);
-
-    // str[3] = 'D';
-    // str[4] = 'E';
-    // str[5] = 0;
-
-    // kprintf("str = %s\n", str);
-    // kprintf("str2 = %s\n", str2);
-
-    ASM_STI();
-    UPDATE_CURSOR();
-    while (1)
-        ;
+    // kprintf("Using video type: %d\n", get_bios_area_video_type());
 
     kronos_shell();
 }

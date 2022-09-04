@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 19:09:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 16:38:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <shell/ksh.h>
 #include <system/gdt.h>
+#include <multiboot/multiboot.h>
+#include <system/sections.h>
 
 size_t ksh_max_line = VGA_HEIGHT - __HEADER_HEIGHT__;
 size_t ksh_min_line = __HEADER_HEIGHT__;
@@ -45,6 +47,10 @@ void ksh_execute_command(void)
         gdt_test();
     else if (kstrcmp(command, "time") == 0)
         timer_display_ktimer();
+    else if (kstrcmp(command, "mboot") == 0)
+        __display_multiboot_infos();
+    else if (kstrcmp(command, "sections") == 0)
+        display_sections();
     else if (command[0] != '\0')
         kprintf("       Unknown command: %s\n", command);
 
@@ -57,7 +63,6 @@ void ksh_execute_command(void)
 
 void kronos_shell(void)
 {
-
     ksh_init();
     DISPLAY_PROMPT();
     UPDATE_CURSOR();

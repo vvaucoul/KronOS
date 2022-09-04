@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:07:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 21:20:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/04 19:10:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #define DEL_P 0x70
 #define DEL_U 0x75
 #define DEL_X 0x78
+#define DEL_F 0X66
 
 #define SPE_DEL_MIN 0x2d
 
@@ -58,6 +59,7 @@ extern void __kpf_manage_str();
 extern void __kpf_manage_ptr();
 extern void __kpf_manage_hexa();
 extern void __kpf_manage_unsigned();
+extern void __kpf_manage_float();
 
 extern void __kpf_manage_space_front(const int arg_len);
 extern void __kpf_manage_space_back(const int arg_len);

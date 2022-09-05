@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 01:48:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/05 13:18:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,17 @@ extern size_t ksh_max_line;         // Max line of the shell
 extern size_t ksh_current_max_line; // Current max line of the shell
 extern size_t ksh_min_line;         // Min line of the shell
 extern size_t ksh_current_line;     // Current line of the shell
+
+/*******************************************************************************
+ *                                   HISTORY                                   *
+ ******************************************************************************/
+
+#define __MAX_HISTORY_LENGTH__ 16
+extern char *ksh_history[__MAX_HISTORY_LENGTH__];
+
+extern void ksh_add_line_history(const char *str);
+extern void ksh_history_up(void);
+extern void ksh_history_down(void);
 
 /*******************************************************************************
  *                                 GET - LINE                                  *

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 01:47:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/05 13:07:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,12 @@ void ksh_execute_command(void)
     /* SIMPLE COMMAND EXECUTOR */
     char __formated_command[128];
     kstrclr(__formated_command, ksh_line_buffer);
-    __ksh_execute_builtins(__formated_command);
+    if (__formated_command[0] != 0)
+    {
+        __ksh_execute_builtins(__formated_command);
+        ksh_add_line_history(__formated_command);
+    }
+
     /*
         if (kstrcmp(__formated_command, "clear") == 0)
         {

@@ -65,21 +65,6 @@ section .text
 	global kernel_entry
 	global low_kernel_entry
 
-	global __kernel_start
-	global __kernel_end
-	global __kernel_text_section_start
-	global __kernel_text_section_end
-	global __kernel_data_section_start
-	global __kernel_data_section_end
-	global __kernel_rodata_section_start
-	global __kernel_rodata_section_end
-	global __kernel_bss_section_start
-	global __kernel_bss_section_end
-	global __kernel_virtual_memory_start
-	global __kernel_physical_memory_start
-	global __multiboot_start
-	global __multiboot_end
-
 low_kernel_entry: ;equ (kernel_entry - KERNEL_VIRTUAL_BASE)
 
 kernel_entry:

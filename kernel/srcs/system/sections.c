@@ -6,11 +6,26 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:18:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:38:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/05 02:28:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/sections.h>
+
+uint8_t __kernel_start;
+uint8_t __kernel_end;
+uint8_t __kernel_text_section_start;
+uint8_t __kernel_text_section_end;
+uint8_t __kernel_data_section_start;
+uint8_t __kernel_data_section_end;
+uint8_t __kernel_rodata_section_start;
+uint8_t __kernel_rodata_section_end;
+uint8_t __kernel_bss_section_start;
+uint8_t __kernel_bss_section_end;
+uint8_t __kernel_virtual_memory_start;
+uint8_t __kernel_physical_memory_start;
+uint8_t __multiboot_start;
+uint8_t __multiboot_end;
 
 static void __print_single_section(const char *__section_name, uint8_t *_addr, bool __nl)
 {

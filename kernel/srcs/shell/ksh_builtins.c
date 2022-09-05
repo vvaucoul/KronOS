@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 01:54:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/05 02:16:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,20 @@
 #include <system/sections.h>
 
 KshBuiltins __ksh_builtins[__NB_BUILTINS_];
+
+union u_ksh_builtins __unions_ksh_builtins[__NB_BUILTINS_] =
+    {
+        (union u_ksh_builtins)((char *[__BUILTINS_MAX_NAMES]){"clear", ""}, &ksh_clear)
+        // (char *[__BUILTINS_MAX_NAMES]){"poweroff", "halt", "shutdown", ""}, &poweroff,
+        // (char *[__BUILTINS_MAX_NAMES]){"reboot", ""}, &reboot,
+        // (char *[__BUILTINS_MAX_NAMES]){"print-stack", "stack", ""}, &print_stack,
+        // (char *[__BUILTINS_MAX_NAMES]){"print-gdt", "gdt", ""}, &print_gdt,
+        // (char *[__BUILTINS_MAX_NAMES]){"gdt-test", ""}, &gdt_test,
+        // (char *[__BUILTINS_MAX_NAMES]){"time", ""}, &timer_display_ktimer,
+        // (char *[__BUILTINS_MAX_NAMES]){"mboot", ""}, &__display_multiboot_infos,
+        // (char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections
+};
+
 static uint8_t __current_index = 0;
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -39,7 +53,7 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"print-gdt", "gdt", ""}, &print_gdt);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"gdt-test", ""}, &gdt_test);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"time", ""}, &timer_display_ktimer);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", ""}, &__display_multiboot_infos);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &__display_multiboot_infos);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
 }
 

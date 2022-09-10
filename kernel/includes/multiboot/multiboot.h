@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:40:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/10 20:32:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,193 @@
 
 #include <kernel.h>
 
-#define MULTIBOOT_MAGIC_HEADER 0x1BADB002
+#define MULTIBOOT_SEARCH 8192
+#define MULTIBOOT_HEADER_ALIGN 4
+
+/* Check Multiboot flags */
+#define CHECK_FLAG(flags, bit) ((flags) & (1 << (bit)))
+
+#define MULTIBOOT_HEADER_MAGIC 0x1BADB002
 #define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002
 
-typedef enum e_multiboot_memory_type
+/* Alignment of multiboot modules. */
+#define MULTIBOOT_MOD_ALIGN 0x00001000
+
+/* Alignment of the multiboot info structure. */
+#define MULTIBOOT_INFO_ALIGN 0x00000004
+
+/* Flags set in the ’flags’ member of the multiboot header. */
+
+/* Align all boot modules on i386 page (4KB) boundaries. */
+#define MULTIBOOT_PAGE_ALIGN 0x00000001
+
+/* Must pass memory information to OS. */
+#define MULTIBOOT_MEMORY_INFO 0x00000002
+
+/* Must pass video information to OS. */
+#define MULTIBOOT_VIDEO_MODE 0x00000004
+
+/* This flag indicates the use of the address fields in the header. */
+#define MULTIBOOT_AOUT_KLUDGE 0x00010000
+
+/* Flags to be set in the ’flags’ member of the multiboot info structure. */
+
+/* is there basic lower/upper memory information? */
+#define MULTIBOOT_INFO_MEMORY 0x00000001
+/* is there a boot device set? */
+#define MULTIBOOT_INFO_BOOTDEV 0x00000002
+/* is the command-line defined? */
+#define MULTIBOOT_INFO_CMDLINE 0x00000004
+/* are there modules to do something with? */
+#define MULTIBOOT_INFO_MODS 0x00000008
+
+/* These next two are mutually exclusive */
+
+/* is there a symbol table loaded? */
+#define MULTIBOOT_INFO_AOUT_SYMS 0x00000010
+/* is there an ELF section header table? */
+#define MULTIBOOT_INFO_ELF_SHDR 0X00000020
+
+/* is there a full memory map? */
+#define MULTIBOOT_INFO_MEM_MAP 0x00000040
+
+/* Is there drive info? */
+#define MULTIBOOT_INFO_DRIVE_INFO 0x00000080
+
+/* Is there a config table? */
+#define MULTIBOOT_INFO_CONFIG_TABLE 0x00000100
+
+/* Is there a boot loader name? */
+#define MULTIBOOT_INFO_BOOT_LOADER_NAME 0x00000200
+
+/* Is there a APM table? */
+#define MULTIBOOT_INFO_APM_TABLE 0x00000400
+
+/* Is there video information? */
+#define MULTIBOOT_INFO_VBE_INFO 0x00000800
+#define MULTIBOOT_INFO_FRAMEBUFFER_INFO 0x00001000
+
+#ifndef __MULTIBOOT_UINT_8_T__
+typedef unsigned char multiboot_uint8_t;
+#define __MULTIBOOT_UINT_8_T__
+#endif
+
+#ifndef __MULTIBOOT_UINT_16_T__
+typedef unsigned short multiboot_uint16_t;
+#define __MULTIBOOT_UINT_16_T__
+#endif
+
+#ifndef __MULTIBOOT_UINT_32_T__
+typedef unsigned int multiboot_uint32_t;
+#define __MULTIBOOT_UINT_32_T__
+#endif
+
+#ifndef __MULTIBOOT_UINT_64_T__
+typedef unsigned long long multiboot_uint64_t;
+#define __MULTIBOOT_UINT_64_T__
+#endif
+
+/*
+**         +-------------------+
+** 0       | flags             |    (required)
+**         +-------------------+
+** 4       | mem_lower         |    (present if flags[0] is set)
+** 8       | mem_upper         |    (present if flags[0] is set)
+**         +-------------------+
+** 12      | boot_device       |    (present if flags[1] is set)
+**         +-------------------+
+** 16      | cmdline           |    (present if flags[2] is set)
+**         +-------------------+
+** 20      | mods_count        |    (present if flags[3] is set)
+** 24      | mods_addr         |    (present if flags[3] is set)
+**         +-------------------+
+** 28 - 40 | syms              |    (present if flags[4] or
+**         |                   |                flags[5] is set)
+**         +-------------------+
+** 44      | mmap_length       |    (present if flags[6] is set)
+** 48      | mmap_addr         |    (present if flags[6] is set)
+**         +-------------------+
+** 52      | drives_length     |    (present if flags[7] is set)
+** 56      | drives_addr       |    (present if flags[7] is set)
+**         +-------------------+
+** 60      | config_table      |    (present if flags[8] is set)
+**         +-------------------+
+** 64      | boot_loader_name  |    (present if flags[9] is set)
+**         +-------------------+
+** 68      | apm_table         |    (present if flags[10] is set)
+**         +-------------------+
+** 72      | vbe_control_info  |    (present if flags[11] is set)
+** 76      | vbe_mode_info     |
+** 80      | vbe_mode          |
+** 82      | vbe_interface_seg |
+** 84      | vbe_interface_off |
+** 86      | vbe_interface_len |
+**         +-------------------+
+** 88      | framebuffer_addr  |    (present if flags[12] is set)
+** 96      | framebuffer_pitch |
+** 100     | framebuffer_width |
+** 104     | framebuffer_height|
+** 108     | framebuffer_bpp   |
+** 109     | framebuffer_type  |
+** 110-115 | color_info        |
+**         +-------------------+
+*/
+
+/* multiboot_header */
+typedef struct s_multiboot_header
+{
+    /* Must be MULTIBOOT_MAGIC */
+    multiboot_uint32_t magic;
+
+    /* Feature flags */
+    multiboot_uint32_t flags;
+
+    /* The above fields plus this one must equal 0 mod 2^32. */
+    multiboot_uint32_t checksum;
+
+    /* These are only valid if MULTIBOOT_AOUT_KLUDGE is set. */
+    multiboot_uint32_t header_addr;
+    multiboot_uint32_t load_addr;
+    multiboot_uint32_t load_end_addr;
+    multiboot_uint32_t bss_end_addr;
+    multiboot_uint32_t entry_addr;
+
+    /* These are only valid if MULTIBOOT_VIDEO_MODE is set. */
+    multiboot_uint32_t mode_type;
+    multiboot_uint32_t width;
+    multiboot_uint32_t height;
+    multiboot_uint32_t depth;
+} t_multiboot_header;
+
+/* The symbol table for a.out. */
+typedef struct s_aout_symbol_table
+{
+    multiboot_uint32_t tabsize;
+    multiboot_uint32_t strsize;
+    multiboot_uint32_t addr;
+    multiboot_uint32_t reserved;
+} t_aout_symbol_table;
+
+/* The section header table for ELF. */
+typedef struct s_elf_section_header_table
+{
+    multiboot_uint32_t num;
+    multiboot_uint32_t size;
+    multiboot_uint32_t addr;
+    multiboot_uint32_t shndx;
+} t_elf_section_header_table;
+
+/* Multiboot memory information */
+enum e_multiboot_memory_type
 {
     __MULTIBOOT_MEMORY_AVAILABLE = 1,
     __MULTIBOOT_MEMORY_RESERVED = 2,
     __MULTIBOOT_MEMORY_ACPI_RECLAIMABLE = 3,
     __MULTIBOOT_MEMORY_NVS = 4,
     __MULTIBOOT_MEMORY_BADRAM = 5
-} multiboot_memory_type;
+};
 
+/* A memory map entry. */
 typedef struct s_multiboot_memory_map
 {
     uint32_t size;
@@ -37,81 +212,49 @@ typedef struct s_multiboot_memory_map
     enum e_multiboot_memory_type type;
 } t_multiboot_memory_map;
 
-/* The Multiboot header. */
-typedef struct s_multiboot_header
-{
-    uint32_t magic;
-    uint32_t flags;
-    uint32_t checksum;
-    uint32_t header_addr;
-    uint32_t load_addr;
-    uint32_t load_end_addr;
-    uint32_t bss_end_addr;
-    uint32_t entry_addr;
-} t_multiboot_header;
-
-/* The symbol table for a.out. */
-typedef struct s_aout_symbol_table
-{
-    uint32_t tabsize;
-    uint32_t strsize;
-    uint32_t addr;
-    uint32_t reserved;
-} t_aout_symbol_table;
-
-/* The section header table for ELF. */
-typedef struct s_multiboot_elf_section
-{
-    uint32_t num;
-    uint32_t size;
-    uint32_t addr;
-    uint32_t shndx;
-} t_multiboot_elf_section;
-
 typedef struct s_multiboot_info
 {
-    /* required, defined in entry.asm */
+    /* Multiboot info version number */
     uint32_t flags;
 
-    /* available low-high memory from BIOS, present if flags[0] is set(MEMINFO in entry.asm) */
-    uint32_t mem_low;
-    uint32_t mem_high;
+    /* Available memory from BIOS */
+    uint32_t mem_lower;
+    uint32_t mem_upper;
 
-    /* "root" partition, present if flags[1] is set(BOOTDEVICE in entry.asm) */
+    /* "root" partition */
     uint32_t boot_device;
 
-    /* kernel command line, present if flags[2] is set(CMDLINE in entry.asm) */
+    /* Kernel command line */
     uint32_t cmdline;
 
-    /* no of modules loaded, present if flags[3] is set(MODULECOUNT in entry.asm) */
-    uint32_t modules_count;
-    uint32_t modules_addr;
+    /* Boot-Module list */
+    uint32_t mods_count;
+    uint32_t mods_addr;
 
-    /* symbol table info, present if flags[4] & flags[5] is set(SYMT in entry.asm) */
     union
     {
         t_aout_symbol_table aout_sym;
-        t_multiboot_elf_section elf_sec;
+        t_elf_section_header_table elf_sec;
     } u;
 
-    /* memory mapping, present if flags[6] is set(MEMMAP in entry.asm) */
+    /* Memory Mapping buffer */
     uint32_t mmap_length;
     uint32_t mmap_addr;
 
-    /* drive info, present if flags[7] is set(DRIVE in entry.asm) */
+    /* Drive Info buffer */
     uint32_t drives_length;
     uint32_t drives_addr;
 
-    /* ROM configuration table, present if flags[8] is set(CONFIGT in entry.asm) */
+    /* ROM configuration table */
     uint32_t config_table;
 
-    /* boot loader name, present if flags[9] is set(BOOTLDNAME in entry.asm) */
+    /* Boot Loader Name */
     uint32_t boot_loader_name;
 
-    /* Advanced Power Management(APM) table, present if flags[10] is set(APMT in entry.asm) */
+    /* APM table (Advanced Power Management) */
     uint32_t apm_table;
 
-    /* video info, present if flags[11] is set(VIDEO in entry.asm) */
+    /* VIDEO BIOS EXTENSIONS */
     uint32_t vbe_control_info;
     uint32_t vbe_mode_info;
     uint16_t vbe_mode;
@@ -119,54 +262,69 @@ typedef struct s_multiboot_info
     uint16_t vbe_interface_off;
     uint16_t vbe_interface_len;
 
-    /* video framebufer info, present if flags[12] is set(VIDEO_FRAMEBUF in entry.asm)  */
-    uint64_t framebuffer_addr;
-    uint32_t framebuffer_pitch;
-    uint32_t framebuffer_width;
-    uint32_t framebuffer_height;
-    uint8_t framebuffer_bpp;
-    uint8_t framebuffer_type; // indexed = 0, RGB = 1, EGA = 2
+    /* Framebuffer */
+    multiboot_uint64_t framebuffer_addr;
+    multiboot_uint32_t framebuffer_pitch;
+    multiboot_uint32_t framebuffer_width;
+    multiboot_uint32_t framebuffer_height;
+    multiboot_uint8_t framebuffer_bpp;
+
+#define MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED 0
+#define MULTIBOOT_FRAMEBUFFER_TYPE_RGB 1
+#define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT 2
+    multiboot_uint8_t framebuffer_type;
+    union
+    {
+        struct
+        {
+            multiboot_uint32_t framebuffer_palette_addr;
+            multiboot_uint16_t framebuffer_palette_num_colors;
+        };
+        struct
+        {
+            multiboot_uint8_t framebuffer_red_field_position;
+            multiboot_uint8_t framebuffer_red_mask_size;
+            multiboot_uint8_t framebuffer_green_field_position;
+            multiboot_uint8_t framebuffer_green_mask_size;
+            multiboot_uint8_t framebuffer_blue_field_position;
+            multiboot_uint8_t framebuffer_blue_mask_size;
+        };
+    };
 } t_multiboot_info;
 
 #define MultibootMemoryMap t_multiboot_memory_map
 #define MultibootInfo t_multiboot_info
 #define MultibootHeader t_multiboot_header
-#define MultibootELF t_multiboot_elf_section
+#define MultibootELF t_elf_section_header_table
 #define MUltibootAout t_aout_symbol_table
 #define MultibootMemoryType enum e_multiboot_memory_type
 
-extern MultibootInfo *_multiboot_info;
+extern MultibootInfo *__multiboot_info;
 
-static inline bool __check_magic_number(hex_t magic_number)
-{
-    if (magic_number != MULTIBOOT_BOOTLOADER_MAGIC)
-    {
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[CHECK] " COLOR_RED "MAGIC NUMBER IS INVALID " COLOR_END "\n");
-        UPDATE_CURSOR();
-        return (false);
-    }
-    else
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[CHECK] " COLOR_CYAN "MAGIC NUMBER IS VALID " COLOR_END "\n");
-    return (true);
-}
+extern int multiboot_init(MultibootInfo *mboot_ptr);
+extern bool multiboot_check_magic_number(hex_t magic_number);
 
 static inline void __display_multiboot_infos(void)
 {
-    kprintf("  _multiboot_info: %p\n", &_multiboot_info);
-    kprintf("  flags: 0x%x\n", _multiboot_info->flags);
-    kprintf("  mem_low: 0x%x KB\n", _multiboot_info->mem_low);
-    kprintf("  mem_high: 0x%x KB\n", _multiboot_info->mem_high);
-    kprintf("  boot_device: 0x%x\n", _multiboot_info->boot_device);
-    kprintf("  cmdline: %s\n", (char *)_multiboot_info->cmdline);
-    return;
-    kprintf("  modules_count: %d\n", _multiboot_info->modules_count);
-    kprintf("  modules_addr: 0x%x\n", _multiboot_info->modules_addr);
-    kprintf("  mmap_length: %d\n", _multiboot_info->mmap_length);
-    kprintf("  mmap_addr: 0x%x\n", _multiboot_info->mmap_addr);
-    kprintf("  memory map:-\n");
-    for (uint32_t i = 0; i < _multiboot_info->mmap_length; i += sizeof(MultibootMemoryMap))
+    kprintf("- " COLOR_CYAN "multiboot_info" COLOR_END ": " COLOR_GREEN "%p\n" COLOR_END, &__multiboot_info);
+    kprintf("- " COLOR_CYAN "flags" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->flags);
+    kprintf("- " COLOR_CYAN "mem_low" COLOR_END ": " COLOR_GREEN "%u KB\n" COLOR_END, __multiboot_info->mem_lower);
+    kprintf("- " COLOR_CYAN "mem_upper" COLOR_END ": " COLOR_GREEN "%u KB\n" COLOR_END, __multiboot_info->mem_upper);
+    kprintf("- " COLOR_CYAN "boot_device" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->boot_device);
+    kprintf("- " COLOR_CYAN "cmdline" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->cmdline);
+    kprintf("- " COLOR_CYAN "modules_count" COLOR_END ": " COLOR_GREEN "%d\n" COLOR_END, __multiboot_info->mods_count);
+    kprintf("- " COLOR_CYAN "modules_addr" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->mods_addr);
+    kprintf("- " COLOR_CYAN "mmap_length" COLOR_END ": " COLOR_GREEN "%d\n" COLOR_END, __multiboot_info->mmap_length);
+    kprintf("- " COLOR_CYAN "mmap_addr" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->mmap_addr);
+    if (__multiboot_info->mmap_length > 0)
+        kprintf("- " COLOR_CYAN "Memory Map:-\n" COLOR_END);
+    else
+        kprintf("- " COLOR_CYAN "Memory Map: " COLOR_RED "none" COLOR_END "\n");
+    for (uint32_t i = 0; i < __multiboot_info->mmap_length; i += sizeof(MultibootMemoryMap))
     {
-        MultibootMemoryMap *mmap = (MultibootMemoryMap *)(_multiboot_info->mmap_addr + i);
+        MultibootMemoryMap *mmap = (MultibootMemoryMap *)(__multiboot_info->mmap_addr + i);
+        if (mmap->type == __MULTIBOOT_MEMORY_AVAILABLE)
+            continue;
         kprintf("    size: %d, addr: 0x%x%x, len: %d%d, type: %d\n",
                 mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high, mmap->type);
 
@@ -175,13 +333,14 @@ static inline void __display_multiboot_infos(void)
             /**** Available memory  ****/
         }
     }
-    kprintf("  boot_loader_name: %s\n", (char *)_multiboot_info->boot_loader_name);
-    kprintf("  vbe_control_info: 0x%x\n", _multiboot_info->vbe_control_info);
-    kprintf("  vbe_mode_info: 0x%x\n", _multiboot_info->vbe_mode_info);
-    kprintf("  framebuffer_addr: 0x%x\n", _multiboot_info->framebuffer_addr);
-    kprintf("  framebuffer_width: %d\n", _multiboot_info->framebuffer_width);
-    kprintf("  framebuffer_height: %d\n", _multiboot_info->framebuffer_height);
-    kprintf("  framebuffer_type: %d\n", _multiboot_info->framebuffer_type);
+    if (__multiboot_info->boot_loader_name)
+        kprintf("  boot_loader_name: %s\n", (char *)__multiboot_info->boot_loader_name);
+    kprintf("  vbe_control_info: 0x%x\n", __multiboot_info->vbe_control_info);
+    kprintf("  vbe_mode_info: 0x%x\n", __multiboot_info->vbe_mode_info);
+    kprintf("  vbe_mode: 0x%x\n", __multiboot_info->vbe_mode);
+    kprintf("  vbe_interface_seg: 0x%x\n", __multiboot_info->vbe_interface_seg);
+    kprintf("  vbe_interface_off: 0x%x\n", __multiboot_info->vbe_interface_off);
+    kprintf("  vbe_interface_len: 0x%x\n", __multiboot_info->vbe_interface_len);
 }
 
 #endif /* MULTIBOOT_H */

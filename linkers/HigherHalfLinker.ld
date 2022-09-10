@@ -4,8 +4,8 @@ ENTRY(low_kernel_entry)
 SECTIONS
 {
 	__align_size = 0x1000;
+	__kernel_physical_memory_start = 0x00100000; /* Start Kernel at 1MB */
 	__kernel_virtual_memory_start = 0xC0000000; /* Start Kernel at 3GB */
-	__kernel_physical_memory_start = 0x00100000;
 
     /******************************************************************************
     *                              BOOTING SECTTIONS                              *
@@ -14,19 +14,19 @@ SECTIONS
 	. = __kernel_physical_memory_start;
 	__multiboot_start = .;
 
-	.multiboot.text :
+	.multiboot.text : ALIGN(__align_size)
 	{
 		*(.multiboot.text)
 	}
-	.multiboot.bss :
+	.multiboot.bss : ALIGN(__align_size)
 	{
 		*(.multiboot.bss)
 	}
-	.multiboot.data :
+	.multiboot.data : ALIGN(__align_size)
 	{
 		*(.multiboot.data)
 	}
-	.multiboot.rodata :
+	.multiboot.rodata : ALIGN(__align_size)
 	{
 		*(.multiboot.rodata)
 	}

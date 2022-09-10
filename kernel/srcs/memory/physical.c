@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 16:23:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 21:33:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/10 11:56:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,22 @@ uint32_t __page_placement_address = 0;
 
 void *kmalloc(size_t size)
 {
-    uint32_t tmp = __page_placement_address;
+    void *ptr;
+    size_t pages;
 
-    __page_placement_address += size;
-    __UNUSED__(tmp);
-    __UNUSED__(size);
-    return (NULL);
+    pages = (size + sizeof(t_memory_list) + PAGE_SIZE - 1) / PAGE_SIZE;
+    if (__page_placement_address + pages * PAGE_SIZE > KERNEL_MEMORY_END)
+        return (NULL);
+    ptr = (void *)__page_placement_address;
+    __page_placement_address += pages * PAGE_SIZE;
+    return (ptr);
+
+    // uint32_t tmp = __page_placement_address;
+
+    // __page_placement_address += size;
+    // __UNUSED__(tmp);
+    // __UNUSED__(size);
+    // return (NULL);
 }
 
 void *kmalloc_aligned(size_t size)

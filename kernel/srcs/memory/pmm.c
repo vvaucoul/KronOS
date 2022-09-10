@@ -1,21 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   paging.c                                           :+:      :+:    :+:   */
+/*   pmm.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 13:21:52 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/09/10 12:06:36 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/09/10 13:18:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/memory.h>
+#include <memory/pmm.h>
 
-void *__request_new_page(size_t size)
-{
-}
 
-void __pagination_init(void)
-{
-}

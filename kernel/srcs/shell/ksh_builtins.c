@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 02:16:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/10 11:46:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,20 @@
 
 KshBuiltins __ksh_builtins[__NB_BUILTINS_];
 
-union u_ksh_builtins __unions_ksh_builtins[__NB_BUILTINS_] =
-    {
-        (union u_ksh_builtins)((char *[__BUILTINS_MAX_NAMES]){"clear", ""}, &ksh_clear)
-        // (char *[__BUILTINS_MAX_NAMES]){"poweroff", "halt", "shutdown", ""}, &poweroff,
-        // (char *[__BUILTINS_MAX_NAMES]){"reboot", ""}, &reboot,
-        // (char *[__BUILTINS_MAX_NAMES]){"print-stack", "stack", ""}, &print_stack,
-        // (char *[__BUILTINS_MAX_NAMES]){"print-gdt", "gdt", ""}, &print_gdt,
-        // (char *[__BUILTINS_MAX_NAMES]){"gdt-test", ""}, &gdt_test,
-        // (char *[__BUILTINS_MAX_NAMES]){"time", ""}, &timer_display_ktimer,
-        // (char *[__BUILTINS_MAX_NAMES]){"mboot", ""}, &__display_multiboot_infos,
-        // (char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections
-};
-
 static uint8_t __current_index = 0;
+
+static void __ksh_help(void)
+{
+    kprintf("KSH builtins:\n");
+    kprintf("- " COLOR_GREEN "help" COLOR_END ": display this help\n");
+    kprintf("- " COLOR_GREEN "clear" COLOR_END ": clear the screen\n");
+    kprintf("- " COLOR_GREEN "reboot" COLOR_END ": reboot kernel\n");
+    kprintf("- " COLOR_GREEN "poweroff" COLOR_END "/" COLOR_GREEN "halt" COLOR_END "/" COLOR_GREEN "shutdown" COLOR_END ": shutdown kernel\n");
+    kprintf("- " COLOR_GREEN "stack" COLOR_END "/" COLOR_GREEN "print-stack" COLOR_END ": display kernel stack (gdt)\n");
+    kprintf("- " COLOR_GREEN "sections" COLOR_END ": display kernel sections\n");
+    kprintf("- " COLOR_GREEN "mboot" COLOR_END "/" COLOR_GREEN "multiboot" COLOR_END ": display multiboot info\n");
+    kprintf("\n");
+}
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
 {
@@ -55,6 +55,7 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"time", ""}, &timer_display_ktimer);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &__display_multiboot_infos);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"help", ""}, &__ksh_help);
 }
 
 void __ksh_execute_builtins(const char *name)

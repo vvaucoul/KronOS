@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:53:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 13:22:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/10 13:53:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,19 @@ size_t __nb_pages;
 
 void init_kernel_memory(void)
 {
+ 
+    // poweroff();
+    __pagination_init();
+    return;
+
+    __mem_root = (__MemorySystem *)kmalloc(sizeof(__MemorySystem));
+    __mem_root->value = (void *)MEMORY_START;
+    __mem_root->next = NULL;
+    __mem_root->prev = NULL;
+    __nb_pages = 0;
+
+    /*
+
     __mem_root = NULL;
     __nb_pages = 0;
 
@@ -42,9 +55,10 @@ void init_kernel_memory(void)
 
     // __enable_large_pages();
     kprintf("Load New Page Directory\n");
-    // __load_page_directory(__page_directory);
+    __load_page_directory(__page_directory);
     kprintf("Enable paging\n");
     __enable_paging();
     // poweroff();
     // __flush_tlb();
+    */
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:43:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 13:06:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/07 01:08:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 extern void ksh_move_cursor_up(void)
 {
+    ksh_history_up();
     return;
     // if (ksh_current_line <= ksh_min_line)
     //     return;

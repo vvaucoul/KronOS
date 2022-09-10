@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 01:42:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/11 01:11:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,9 @@
 
 #include <multiboot/multiboot.h>
 
-
 #include <memory/memory.h>
 
-MultibootInfo *_multiboot_info = NULL;
+MultibootInfo *__multiboot_info = NULL;
 
 static inline void ksh_header(void)
 {
@@ -78,7 +77,7 @@ static void init_kernel(void)
     keyboard_install();
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END "\n");
-    // init_kernel_memory();
+    init_kernel_memory();
     if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
     enable_fpu();
@@ -88,14 +87,17 @@ void kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
     init_kernel();
-    if (__check_magic_number(magic_number) == false)
+    if (multiboot_check_magic_number(magic_number) == false)
         return;
     else
     {
-        _multiboot_info = (MultibootInfo *)(&addr);
-        if (_multiboot_info == NULL)
-            __PANIC("Error: _multiboot_info is NULL");
+        __multiboot_info = (MultibootInfo *)(addr);
+        if (__multiboot_info == NULL)
+            __PANIC("Error: __multiboot struct is NULL");
+        if (multiboot_init(__multiboot_info))
+            __PANIC("Error: multiboot_init failed");
     }
+    __display_multiboot_infos();
     kprintf("\n");
     ASM_STI();
     kronos_shell();

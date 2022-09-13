@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 18:57:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 21:03:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,12 +110,14 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr)
     return (0);
 }
 
-void kmain(hex_t magic_number, hex_t addr)
+int kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
     if ((init_kernel(magic_number, addr)))
-        __PANIC("Error: Kernel init failed");
+        return (1);
+        // __PANIC("Error: Kernel init failed");
     kprintf("\n");
     ASM_STI();
     kronos_shell();
+    return (0);
 }

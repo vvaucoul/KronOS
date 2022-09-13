@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 12:06:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 18:57:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 20:57:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,34 @@ static void __pmm_free_blocks(void *addr, uint32_t size)
     }
 }
 
+static void __pmm_swap_blocks(uint32_t block1, uint32_t block2)
+{
+    PMM_BLOCK tmp = pmm_info.blocks[block1];
+    pmm_info.blocks[block1] = pmm_info.blocks[block2];
+    pmm_info.blocks[block2] = tmp;
+}
+
+/*
+** Sort blocks by address (Simple Bubble Sort) (TODO : Improve)
+*/
+static void __pmm_defragment(void)
+{
+    uint32_t i;
+
+    i = 0;
+    while (i < pmm_info.infos.max_blocks)
+    {
+        if (pmm_info.blocks[i].state == PMM_BLOCK_FREE && pmm_info.blocks[i + 1].state != PMM_BLOCK_FREE)
+        {
+            __pmm_swap_blocks(i, i + 1);
+            i = 0;
+            continue;
+        }
+        else
+            ++i;
+    }
+}
+
 /*******************************************************************************
  *                            GLOBAL PMM FUNCTIONS                             *
  ******************************************************************************/
@@ -206,6 +234,12 @@ int pmm_get_next_available_block(void)
     return (__pmm_get_first_free_block());
 }
 
+/* Defragment */
+void pmm_defragment(void)
+{
+    __pmm_defragment();
+}
+
 /*******************************************************************************
  *                                  PMM UTILS                                  *
  ******************************************************************************/
@@ -244,20 +278,16 @@ uint32_t pmm_get_block_size(void)
  *                                  TEST PMM                                   *
  ******************************************************************************/
 
-void pmm_display_blocks(void)
+void pmm_display_blocks(uint32_t size)
 {
     uint32_t i;
 
     i = 0;
-    while (i < pmm_info.infos.used_blocks)
+    while (i < size)
     {
-        kprintf("Block %d: %s, %d bytes, addr: 0x%x - 0x%x (%d) - %d bytes\n", i,
+        kprintf("Block %d: " COLOR_YELLOW "%s" COLOR_END ", addr: 0x%x\n", i,
                 pmm_info.blocks[i].state == PMM_BLOCK_FREE ? "FREE" : "USED",
-                pmm_info.blocks[i].size,
-                pmm_info.blocks[i].addr,
-                pmm_info.blocks[i].addr + pmm_info.blocks[i].size,
-                pmm_info.blocks[i].addr + pmm_info.blocks[i].size,
-                pmm_info.blocks[i].size);
+                pmm_info.blocks[i].addr);
         ++i;
     }
 }
@@ -270,7 +300,7 @@ void pmm_display(void)
     kprintf("- " COLOR_YELLOW "Memory Map Start" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, pmm_info.infos.memory_map_start);
     kprintf("- " COLOR_YELLOW "Memory Map End" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, pmm_info.infos.memory_map_end);
     kprintf("- " COLOR_YELLOW "Memory Map Length" COLOR_END ": " COLOR_GREEN "%u\n" COLOR_END, pmm_info.infos.memory_map_length);
-    kprintf("- " COLOR_YELLOW "BLocks" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, pmm_info.blocks);
+    kprintf("- " COLOR_YELLOW "Blocks" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, pmm_info.blocks);
 }
 
 int pmm_test(void)
@@ -304,7 +334,7 @@ int pmm_test(void)
         kprintf("Alloc Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr5, pmm_get_next_available_block());
 
     kprintf("\n");
-    
+
     kbzero(ptr1, PMM_BLOCK_SIZE);
     kmemcpy(ptr1, "Hello World", 12);
     kprintf("ptr1: %s at 0x%x \n", ptr1, ptr1);
@@ -336,4 +366,33 @@ int pmm_test(void)
     kprintf("Free Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr1, pmm_get_next_available_block());
     kprintf("\nNext Available block " COLOR_GREEN "%d" COLOR_END " (should be 0)\n", pmm_get_next_available_block());
     return (0);
+}
+
+int pmm_defragment_test(void)
+{
+    kprintf("PMM Defragment Test: \n");
+    uint32_t *ptr1 = pmm_alloc_block();
+    kprintf("Alloc Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr1, pmm_get_next_available_block());
+    uint32_t *ptr2 = pmm_alloc_block();
+    kprintf("Alloc Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr2, pmm_get_next_available_block());
+    uint32_t *ptr3 = pmm_alloc_block();
+    kprintf("Alloc Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr3, pmm_get_next_available_block());
+
+    kprintf("\n");
+    pmm_display_blocks(3);
+    kprintf("\n");
+    pmm_free_block(ptr2);
+    kprintf("Free Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr2, pmm_get_next_available_block());
+    pmm_display_blocks(3);
+    kprintf("\n");
+    pmm_defragment();
+    kprintf("Defragmentation done\n");
+    pmm_display_blocks(3);
+    kprintf("\n");
+    pmm_free_block(ptr1);
+    kprintf("Free Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr1, pmm_get_next_available_block());
+    pmm_free_block(ptr3);
+    kprintf("Free Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr3, pmm_get_next_available_block());
+    pmm_display_blocks(3);
+    kprintf("\n");
 }

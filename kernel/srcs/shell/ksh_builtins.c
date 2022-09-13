@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 17:50:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 20:45:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ static void __ksh_help(void)
     kprintf("- " COLOR_GREEN "kmmap" COLOR_END ": display kernel memory info\n");
     kprintf("- " COLOR_GREEN "pmm" COLOR_END "/" COLOR_GREEN "pmm-info" COLOR_END ": display physical memory managment infos\n");
     kprintf("- " COLOR_GREEN "pmm-test" COLOR_END ": test physical memory managment\n");
+    kprintf("- " COLOR_GREEN "pmm-defrag" COLOR_END ": test defragmentation physical memory managment\n");
 }
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -63,6 +64,7 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm", "pmm-info"}, &pmm_display);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm-test", ""}, &pmm_test);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm-defrag", ""}, &pmm_defragment_test);
 }
 
 void __ksh_execute_builtins(const char *name)

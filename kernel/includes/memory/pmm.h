@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 13:17:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 18:44:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 20:47:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ extern uint32_t pmm_get_memory_map_start(void);
 extern uint32_t pmm_get_memory_map_end(void);
 extern uint32_t pmm_get_memory_map_length(void);
 extern uint32_t pmm_get_block_size(void);
+extern void pmm_defragment(void);
 
 /*******************************************************************************
  *                                  PMM TEST                                   *
@@ -120,6 +121,7 @@ extern uint32_t pmm_get_block_size(void);
 
 extern int pmm_test(void);
 extern void pmm_display(void);
-extern void pmm_display_blocks(void);
+extern void pmm_display_blocks(uint32_t size);
+extern int pmm_defragment_test(void);
 
 #endif /* !PMM_H */

@@ -10,6 +10,7 @@ STACK_SIZE equ 0x4000
 
 global __call_kmain
 extern BOOTLOADER_MAGIC
+extern display_error_msg
 
 section .data
 	align 4096
@@ -33,6 +34,8 @@ _start:
 	push ebx
 	push eax
 	call kmain
+	cli
+	call display_error_msg
 .hang:
 	hlt
 	jmp .hang

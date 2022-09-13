@@ -1,7 +1,8 @@
 %define DEFAULT_MEMORY_PLACEMENT 0x000B8000
 
 section	.data
-ERROR_MSG db "Error: ", 0x0d, 0x0a, 0
+ERROR_MSG db "Unknown error", 0
+FILE_MSG db "File not found", 0
 
 section .text
 
@@ -9,14 +10,17 @@ extern bsod
 
 global display_error_msg
 display_error_msg:
-    ; Display string
-    ; call __clear_screen
+    ; Clear the screen
+    call __clear_screen
 
-    ; Display error message
-    mov eax, dword [ERROR_MSG]
-    push eax
+    ; Display the error message
+    mov edi, ERROR_MSG
+    mov esi, FILE_MSG
+    push esi
+    push edi
     call bsod
-    pop eax
+    pop edi
+    pop esi
     ret
 
 __clear_screen:
@@ -27,5 +31,6 @@ __clear_screen:
         mov dword [DEFAULT_MEMORY_PLACEMENT + ecx], 0x0000
         add ecx, 2
         jmp .loop
+    ret
 .ret:
     ret

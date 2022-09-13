@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 11:59:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/11 09:59:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define _PAGING_H
 
 #include <kernel.h>
+#include <system/isr.h>
+#include <system/panic.h>
 
 #define PAGE_TABLE_SIZE 1024
 #define PAGE_SIZE 4096
@@ -89,5 +91,6 @@ extern void flush_tlb(void);
 
 extern void *__request_new_page(size_t size);
 extern void __pagination_init(void);
+extern void __page_fault(struct regs *r);
 
 #endif /* _PAGING_H */

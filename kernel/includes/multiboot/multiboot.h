@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 20:32:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/12 19:34:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,30 +317,34 @@ static inline void __display_multiboot_infos(void)
     kprintf("- " COLOR_CYAN "mmap_length" COLOR_END ": " COLOR_GREEN "%d\n" COLOR_END, __multiboot_info->mmap_length);
     kprintf("- " COLOR_CYAN "mmap_addr" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->mmap_addr);
     if (__multiboot_info->mmap_length > 0)
-        kprintf("- " COLOR_CYAN "Memory Map:-\n" COLOR_END);
+        kprintf("- " COLOR_CYAN "Memory Map:\n" COLOR_END);
     else
         kprintf("- " COLOR_CYAN "Memory Map: " COLOR_RED "none" COLOR_END "\n");
     for (uint32_t i = 0; i < __multiboot_info->mmap_length; i += sizeof(MultibootMemoryMap))
     {
         MultibootMemoryMap *mmap = (MultibootMemoryMap *)(__multiboot_info->mmap_addr + i);
         if (mmap->type == __MULTIBOOT_MEMORY_AVAILABLE)
-            continue;
-        kprintf("    size: %d, addr: 0x%x%x, len: %d%d, type: %d\n",
-                mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high, mmap->type);
-
-        if (mmap->type == __MULTIBOOT_MEMORY_AVAILABLE)
         {
-            /**** Available memory  ****/
+            kprintf("  - " COLOR_CYAN "size: " COLOR_GREEN "%u" COLOR_CYAN ", addr: " COLOR_GREEN "0x%x%x" COLOR_CYAN ", len: " COLOR_GREEN "%u%u" COLOR_CYAN ", type: " COLOR_YELLOW "%d" COLOR_CYAN "\n" COLOR_END,
+                    mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high, mmap->type);
+        }
+        else
+        {
+            kprintf("  - " COLOR_CYAN "size: " COLOR_GREEN "%u" COLOR_CYAN ", addr: " COLOR_GREEN "0x%x%x" COLOR_CYAN ", len: " COLOR_GREEN "%u%u" COLOR_CYAN ", type: " COLOR_GREEN "%u" COLOR_CYAN "\n" COLOR_END,
+                    mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high, mmap->type);
         }
     }
-    if (__multiboot_info->boot_loader_name)
-        kprintf("  boot_loader_name: %s\n", (char *)__multiboot_info->boot_loader_name);
-    kprintf("  vbe_control_info: 0x%x\n", __multiboot_info->vbe_control_info);
-    kprintf("  vbe_mode_info: 0x%x\n", __multiboot_info->vbe_mode_info);
-    kprintf("  vbe_mode: 0x%x\n", __multiboot_info->vbe_mode);
-    kprintf("  vbe_interface_seg: 0x%x\n", __multiboot_info->vbe_interface_seg);
-    kprintf("  vbe_interface_off: 0x%x\n", __multiboot_info->vbe_interface_off);
-    kprintf("  vbe_interface_len: 0x%x\n", __multiboot_info->vbe_interface_len);
+    kprintf("\n" COLOR_END);
+    // if (__multiboot_info->boot_loader_name)
+    // kprintf(COLOR_CYAN "- boot_loader_name" COLOR_END ": " COLOR_GREEN "%s\n" COLOR_END, (char *)__multiboot_info->boot_loader_name);
+    kprintf("- " COLOR_CYAN "vbe_control_info" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->vbe_control_info);
+    kprintf("- " COLOR_CYAN "vbe_mode_info" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->vbe_mode_info);
+    kprintf("- " COLOR_CYAN "vbe_mode" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->vbe_mode);
+
+    kprintf("- " COLOR_CYAN "framebuffer_addr" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->framebuffer_addr);
+    kprintf("- " COLOR_CYAN "framebuffer_width" COLOR_END ": " COLOR_GREEN "%d\n" COLOR_END, __multiboot_info->framebuffer_width);
+    kprintf("- " COLOR_CYAN "framebuffer_height" COLOR_END ": " COLOR_GREEN "%d\n" COLOR_END, __multiboot_info->framebuffer_height);
+    kprintf("- " COLOR_CYAN "framebuffer_type" COLOR_END ": " COLOR_GREEN "%d\n" COLOR_END, __multiboot_info->framebuffer_type);
 }
 
 #endif /* MULTIBOOT_H */

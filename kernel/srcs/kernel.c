@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/11 01:11:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 18:57:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@
 #include <multiboot/multiboot.h>
 
 #include <memory/memory.h>
+#include <memory/memory_map.h>
+#include <memory/pmm.h>
 
 MultibootInfo *__multiboot_info = NULL;
 
@@ -50,54 +52,69 @@ static inline void ksh_header(void)
     kprintf("\n");
 }
 
-static void init_kernel(void)
+static void ksh_log_info(const char *part, const char *name)
+{
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[%s] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "%s " COLOR_END "\n", part, name);
+}
+
+static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
     ksh_header();
+    ksh_log_info("LOG", "TERMINAL");
+
+    /* Check Magic Number and assign multiboot info */
+    if (multiboot_check_magic_number(magic_number) == false)
+        return (1);
+    else
+        __multiboot_info = (MultibootInfo *)(addr);
     init_kerrno();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KERRNO " COLOR_END "\n");
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "TERMINAL " COLOR_END "\n");
+    ksh_log_info("LOG", "KERRNO");
     gdt_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "GDT " COLOR_END "\n");
+    ksh_log_info("LOG", "GDT");
     idt_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IDT " COLOR_END "\n");
+    ksh_log_info("LOG", "IDT");
     isrs_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "ISR " COLOR_END "\n");
+    ksh_log_info("LOG", "ISRS");
     irq_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IRQ " COLOR_END "\n");
+    ksh_log_info("LOG", "IRQ");
     timer_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "PIT " COLOR_END "\n");
+    ksh_log_info("LOG", "TIMER");
     keyboard_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END "\n");
+    ksh_log_info("LOG", "KEYBOARD");
+
+    if (__multiboot_info == NULL)
+        __PANIC("Error: __multiboot struct is NULL");
+    if (multiboot_init(__multiboot_info))
+        __PANIC("Error: multiboot_init failed");
+    ksh_log_info("LOG", "MULTIBOOT");
+    if (get_kernel_memory_map(__multiboot_info))
+        __PANIC("Error: kernel memory map failed");
+    ksh_log_info("LOG", "KERNEL MEMORY MAP");
+
+    pmm_init(KMAP.available.start_addr, KMAP.available.length);
+    ksh_log_info("LOG", "PMM");
+
     init_kernel_memory();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
+    ksh_log_info("LOG", "KERNEL MEMORY");
     enable_fpu();
+    ksh_log_info("LOG", "FPU");
+    return (0);
+}
+int init_multiboot_kernel(hex_t magic_number, hex_t addr)
+{
+    if (multiboot_check_magic_number(magic_number) == false)
+        return (1);
+    __multiboot_info = (MultibootInfo *)(addr);
+    return (0);
 }
 
 void kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
-    init_kernel();
-    if (multiboot_check_magic_number(magic_number) == false)
-        return;
-    else
-    {
-        __multiboot_info = (MultibootInfo *)(addr);
-        if (__multiboot_info == NULL)
-            __PANIC("Error: __multiboot struct is NULL");
-        if (multiboot_init(__multiboot_info))
-            __PANIC("Error: multiboot_init failed");
-    }
-    __display_multiboot_infos();
+    if ((init_kernel(magic_number, addr)))
+        __PANIC("Error: Kernel init failed");
     kprintf("\n");
     ASM_STI();
     kronos_shell();

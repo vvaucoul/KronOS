@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:44:12 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 13:34:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 16:48:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,7 @@ typedef unsigned long uintmax_t;
 #define __UNUSED__(x) ((void)(x))
 #define ATTR_UNUSED __attribute__((unused))
 #define ATTR_NORETURN __attribute__((noreturn))
+#define private static
+#define public extern
 
 #endif /* _STDDEF_H */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 11:46:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 17:50:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include <system/gdt.h>
 #include <multiboot/multiboot.h>
 #include <system/sections.h>
+#include <memory/memory_map.h>
+#include <memory/pmm.h>
 
 KshBuiltins __ksh_builtins[__NB_BUILTINS_];
 
@@ -29,7 +31,9 @@ static void __ksh_help(void)
     kprintf("- " COLOR_GREEN "stack" COLOR_END "/" COLOR_GREEN "print-stack" COLOR_END ": display kernel stack (gdt)\n");
     kprintf("- " COLOR_GREEN "sections" COLOR_END ": display kernel sections\n");
     kprintf("- " COLOR_GREEN "mboot" COLOR_END "/" COLOR_GREEN "multiboot" COLOR_END ": display multiboot info\n");
-    kprintf("\n");
+    kprintf("- " COLOR_GREEN "kmmap" COLOR_END ": display kernel memory info\n");
+    kprintf("- " COLOR_GREEN "pmm" COLOR_END "/" COLOR_GREEN "pmm-info" COLOR_END ": display physical memory managment infos\n");
+    kprintf("- " COLOR_GREEN "pmm-test" COLOR_END ": test physical memory managment\n");
 }
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -56,6 +60,9 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &__display_multiboot_infos);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"help", ""}, &__ksh_help);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm", "pmm-info"}, &pmm_display);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm-test", ""}, &pmm_test);
 }
 
 void __ksh_execute_builtins(const char *name)

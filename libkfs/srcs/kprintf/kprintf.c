@@ -6,13 +6,23 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:06:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:08:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/12 19:22:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kprintf.h>
 
 t_kprintf _g_kprintf;
+
+static int check_special_strings(const char *str)
+{
+    if (kstrncmp(str, CURSOR_MOVE_UP, kstrlen(CURSOR_MOVE_UP)) == 0)
+    {
+        terminal_move_cursor_up();
+        return (kstrlen(CURSOR_MOVE_UP));
+    }
+    return (0);
+}
 
 static int check_colors(const char *str)
 {
@@ -51,7 +61,6 @@ static int check_colors(const char *str)
         terminal_setcolor(VGA_COLOR_CYAN);
         return (kstrlen(COLOR_CYAN));
     }
-
     return (0);
 }
 
@@ -105,6 +114,11 @@ static int kprintf_loop(const char *format)
     while (format[i])
     {
         if ((ret = (check_colors(format + i))) != 0)
+        {
+            i += ret;
+            continue;
+        }
+        else if ((ret = (check_special_strings(format + i))) != 0)
         {
             i += ret;
             continue;

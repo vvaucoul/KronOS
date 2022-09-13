@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 13:07:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 17:40:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ size_t ksh_min_line = __HEADER_HEIGHT__;
 size_t ksh_current_line = __HEADER_HEIGHT__;
 size_t ksh_current_max_line = __HEADER_HEIGHT__;
 
-uint32_t *ksh_buffer = (uint32_t *)(0x00002000 + KERNEL_MEMORY_START);
+uint32_t *ksh_buffer = (uint32_t *)(0x00002000 + __HIGHER_HALF_KERNEL__ ? KERNEL_MEMORY_START : 0x0);
 
 void ksh_clear(void)
 {
@@ -42,35 +42,6 @@ void ksh_execute_command(void)
         __ksh_execute_builtins(__formated_command);
         ksh_add_line_history(__formated_command);
     }
-
-    /*
-        if (kstrcmp(__formated_command, "clear") == 0)
-        {
-            KSH_CLR_TERM_SH();
-            CLEAR_SCREEN();
-            ksh_current_line = __HEADER_HEIGHT__;
-            ksh_current_max_line = __HEADER_HEIGHT__;
-            ksh_min_line = __HEADER_HEIGHT__;
-        }
-        else if (kstrcmp(__formated_command, "halt") == 0 || kstrcmp(__formated_command, "poweroff") == 0 || kstrcmp(__formated_command, "shutdown") == 0)
-            poweroff();
-        else if (kstrcmp(__formated_command, "reboot") == 0)
-            reboot();
-        else if (kstrcmp(__formated_command, "print-stack") == 0 || kstrcmp(__formated_command, "stack") == 0)
-            print_stack();
-        else if (kstrcmp(__formated_command, "print-gdt") == 0 || kstrcmp(__formated_command, "gdt") == 0)
-            print_gdt();
-        else if (kstrcmp(__formated_command, "gdt-test") == 0)
-            gdt_test();
-        else if (kstrcmp(__formated_command, "time") == 0)
-            timer_display_ktimer();
-        else if (kstrcmp(__formated_command, "mboot") == 0)
-            __display_multiboot_infos();
-        else if (kstrcmp(__formated_command, "sections") == 0)
-            display_sections();
-        else if (__formated_command[0] != '\0')
-            kprintf("       Unknown command: %s\n", __formated_command);
-    */
     ksh_buffer_clear();
     terminal_column = 0;
     DISPLAY_PROMPT();
@@ -82,17 +53,12 @@ void kronos_shell(void)
 {
     ksh_init();
     __ksh_init_builtins();
+    kprintf("Welcome to " COLOR_RED "KSH" COLOR_END " !\n");
     DISPLAY_PROMPT();
     UPDATE_CURSOR();
 
     while (1)
-    {
-        /* Remplacer le systeme par:
-            - a chaque touche appuyer, set variable char c dans le fichier keyboard .h et lire la variable dans le while 1
-            remetre ensuite la variable à 0,
-    */
-        // kprintf("Line: %s\n", line);
-    }
+        ;
 }
 
 #undef __PROMPT__

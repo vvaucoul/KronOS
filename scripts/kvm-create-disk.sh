@@ -1,20 +1,29 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Sources-Boot.mk                                    :+:      :+:    :+:    #
+#    kvm-create-disk.sh                                 :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/06/27 17:36:21 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/12 19:01:47 by vvaucoul         ###   ########.fr        #
+#    Created: 2022/09/12 19:38:09 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/09/12 20:12:35 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
+#!/bin/sh
 
-#*******************************************************************************
-#*                                    KBOOT                                    *
-#*******************************************************************************
+DISKNAME=$1
+DISKSIZE=$2
+DISKPATH=$3
 
-KBOOT_SRCS	=	$(BOOT).s \
-				boot/boot_error.s
-KBOOT_OBJS	=	$(KBOOT_SRCS:.s=.o)
+if [ -z $DISKNAME ] || [ -z $DISKSIZE ] || [ -z $DISKPATH ]; then
+    echo "Usage: $0 <diskname> <disksize> <diskpath>"
+    exit 1
+fi
+
+if [ -f $DISKPATH/$DISKNAME ]; then
+    echo "Disk $DISKNAME already exists"
+    exit 1
+fi
+
+qemu-img create -f raw $DISKPATH/$DISKNAME $DISKSIZE > /dev/null 2>&1

@@ -1,31 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   isr.h                                              :+:      :+:    :+:   */
+/*   bsod.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/11 09:58:28 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/09/11 20:57:55 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/09/11 21:20:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ISR_H
-#define ISR_H
+#include <system/bsod.h>
 
-#include <kernel.h>
-#include <system/idt.h>
+uint16_t *g_bsod_buffer = BSOD_MEMORY;
 
-#define ISR_MAX_COUNT 32
-
-struct regs
+void bsod(char *msg)
 {
-    unsigned int gs, fs, es, ds;
-    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    unsigned int int_no, err_code;
-    unsigned int eip, cs, eflags, useresp, ss;
-};
+    g_bsod_buffer[0] = BSOD_VGA_ENTRY('c', VGA_COLOR_WHITE);
+    g_bsod_buffer[1] = BSOD_VGA_ENTRY('r', VGA_COLOR_WHITE);
 
-void isrs_install();
-
-#endif // !ISR_H
+    for (int i = 0; msg[i]; i++)
+    {
+        g_bsod_buffer[i] = BSOD_VGA_ENTRY(msg[i], VGA_COLOR_WHITE);
+    }
+}

@@ -6,12 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 18:51:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/11 15:46:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/isr.h>
 #include <system/panic.h>
+#include <memory/memory.h>
 
 extern void isr0();  // Division By Zero Exception
 extern void isr1();  // Debug Exception
@@ -123,6 +124,8 @@ void isrs_install()
 void fault_handler(struct regs *r)
 {
     KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
+    if (r->int_no == 14)
+        __page_fault(r);
     if (r->int_no < 32)
     {
         __PANIC_MULTISTR(((const char *[3]){

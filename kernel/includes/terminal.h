@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/03 21:24:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/12 19:21:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,42 @@ static inline void terminal_clear_screen(void)
     }
     terminal_column = 0;
     terminal_row = 0;
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_left(void)
+{
+    if (terminal_column > 0)
+    {
+        terminal_column--;
+    }
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_right(void)
+{
+    if (terminal_column < VGA_WIDTH)
+    {
+        terminal_column++;
+    }
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_up(void)
+{
+    if (terminal_row > 0)
+    {
+        terminal_row--;
+    }
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_down(void)
+{
+    if (terminal_row < VGA_HEIGHT)
+    {
+        terminal_row++;
+    }
     UPDATE_CURSOR();
 }
 

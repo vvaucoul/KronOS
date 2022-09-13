@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:10:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 11:40:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/13 17:50:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KSH_BUILTINS_H
 #define KSH_BUILTINS_H
 
-#define __NB_BUILTINS_ 0x0A
+#define __NB_BUILTINS_ 0x0D
 #define __BUILTINS_MAX_NAMES 0x04
 #define __BUILTINS_MAX_NAME_LENGTH 0x80
 

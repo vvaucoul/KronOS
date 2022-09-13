@@ -6,32 +6,33 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/08/29 21:05:45 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/13 12:16:35 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = libkfs.a
-CC = clang
-ASM = nasm
-INLCUDES_PATH = -I./includes/ \
+NAME 			= libkfs.a
+CC 				= clang
+ASM 			= nasm
+INLCUDES_PATH 	= -I./includes/ \
 				-I./libs/
-CFLAGS = -Wall -Wextra -Werror -Wfatal-errors \
+CFLAGS 			= -Wall -Wextra -Werror -Wfatal-errors \
 				-fno-builtin -fno-exceptions -fno-stack-protector \
 				-nostdlib -nodefaultlibs \
 				-std=gnu99 -ffreestanding -O2
-LDFLAGS		= 	-g3 -m32
-ASM_FLAGS	=	-f elf32
+LDFLAGS			= 	-g3 -m32
+ASM_FLAGS		=	-f elf32 
 MK_INCLUDE_DIR	=	mk-files
 
-SRCS =	$(shell find srcs -name '*.c') \
-		$(shell find libs -name '*.c')
-OBJS = $(SRCS:.c=.o)
-
-DEPENDS		=	$(OBJS:.o=.d)
+SRCS 		=	$(shell find srcs -name '*.c') \
+				$(shell find libs -name '*.c')
+OBJS 		= 	$(SRCS:.c=.o)
 
 SRCS_ASM	=	$(shell find srcs -name '*.s') \
 				$(shell find libs -name '*.s')
 OBJS_ASM	=	$(SRCS_ASM:.s=.o)
+
+DEPENDS		=	$(OBJS:.o=.d)
+DEPENDS_ASM	=	$(OBJS_ASM:.o=.d)
 
 #*******************************************************************************
 #*                                  INLCUDES                                   *
@@ -53,7 +54,7 @@ $(NAME): $(OBJS) $(OBJS_ASM)
 	@ar -rcs $(NAME) $(OBJS) $(OBJS_ASM)
 
 clean:
-	@rm -f $(OBJS) $(OBJS_ASM) $(DEPENDS)
+	@rm -f $(OBJS) $(OBJS_ASM) $(DEPENDS) $(DEPENDS_ASM)
 
 fclean: clean
 	@rm -f $(NAME)
@@ -61,5 +62,6 @@ fclean: clean
 re: fclean all
 
 -include $(DEPENDS)
+-include $(DEPENDS_ASM)
 
 .PHONY: clean fclean all re

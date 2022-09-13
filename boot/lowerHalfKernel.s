@@ -1,20 +1,26 @@
-%define MBALIGN 1 << 0
-%define MEMINFO 1 << 1
-%define FLAGS (MBALIGN | MEMINFO)
-%define MAGIC 0x1BADB002
-%define CHECKSUM -(MAGIC + FLAGS)
+;*******************************************************************************
+;*                                   DEFINES                                   *
+;*******************************************************************************
 
-bits 32
-section .multiboot
-align 4
-	dd MAGIC
-	dd FLAGS
-	dd CHECKSUM
+STACK_SIZE equ 0x4000
+
+;*******************************************************************************
+;*                                  MULTIBOOT                                  *
+;*******************************************************************************
+
+global __call_kmain
+extern BOOTLOADER_MAGIC
+
+section .data
+	align 4096
+
+section .initial_stack, nobits
+    align 4
 
 section .bss
 	align 16
 	stack_bottom:
-	resb 16384
+	resb STACK_SIZE
 	stack_top:
 
 section .text
@@ -23,9 +29,11 @@ section .text
 
 _start:
 	mov esp, stack_top
+	mov eax, BOOTLOADER_MAGIC
+	push ebx
+	push eax
 	call kmain
-	cli
 .hang:
 	hlt
-	jmp .hang	
+	jmp .hang
 .end:

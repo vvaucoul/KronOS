@@ -1,31 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   isr.h                                              :+:      :+:    :+:   */
+/*   bsod.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/11 09:58:28 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/09/11 20:57:16 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/09/11 21:03:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ISR_H
-#define ISR_H
+#ifndef BSOD_H
+# define BSOD_H
 
 #include <kernel.h>
-#include <system/idt.h>
 
-#define ISR_MAX_COUNT 32
+#define BSOD_MEMORY (uint16_t *)0x000B8000
+#define BSOD_VGA_ENTRY(uc, color) (((uc) | ((color) << 8)))
 
-struct regs
-{
-    unsigned int gs, fs, es, ds;
-    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    unsigned int int_no, err_code;
-    unsigned int eip, cs, eflags, useresp, ss;
-};
+extern uint16_t *g_bsod_buffer;
 
-void isrs_install();
+extern void bsod(char *msg);
 
-#endif // !ISR_H
+#endif /* !BSOD_H */

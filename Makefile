@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/03 21:17:30 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/09/13 12:20:27 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,25 +27,28 @@ include $(MK_INCLUDE_DIR)/ShellRules-Dependencies.mk
 #*                                     VAR                                     *
 #*******************************************************************************
 
-NAME			=	kfs
-ISO				=	$(NAME).iso
-LIBKFS			=	lkfs
-LIBKFS_A		=	libkfs/libkfs.a
-CC				=	clang
-LD				=	ld
-INLCUDES_PATH	=	-I./kernel/includes/ \
-					-I./libkfs/includes/
-CFLAGS			=	-Wall -Wextra -Wfatal-errors \
-					-fno-builtin -fno-exceptions -fno-stack-protector \
-					-nostdlib -nodefaultlibs \
-					-std=gnu99 -ffreestanding -O2
-LDFLAGS			= 	-g3 -m32
-LD_FLAGS		=	-m elf_i386
+NAME				=	kfs
+ISO					=	$(NAME).iso
+LIBKFS				=	lkfs
+LIBKFS_A			=	libkfs/libkfs.a
+CC					=	clang
+LD					=	ld
+INLCUDES_PATH		=	-I./kernel/includes/ \
+						-I./libkfs/includes/
+CFLAGS				=	-Wall -Wextra -Wfatal-errors \
+						-fno-builtin -fno-exceptions -fno-stack-protector \
+						-nostdlib -nodefaultlibs \
+						-std=gnu99 -ffreestanding -O2
+LDFLAGS				= 	-g3 -m32
+LD_FLAGS			=	-m elf_i386
 
-ASM				=	nasm
-ASMFLAGS		=	-f elf32
+OBJS_DIR			=	objs
+DEPENDS_DIR			=	depends
 
-BOOT_DIR		=	boot
+ASM					=	nasm
+ASMFLAGS			=	-f elf32
+
+BOOT_DIR			=	boot
 
 ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)
 	BOOT			=	$(BOOT_DIR)/lowerHalfKernel
@@ -53,21 +56,22 @@ else
 	BOOT			=	$(BOOT_DIR)/boot
 endif
 
-KDSRCS			=	srcs/kernel
-HEADERS_DIR		=	kernel/includes/
-BIN				=	kernel.bin
-BIN_DIR			=	bin
+KDSRCS				=	srcs/kernel
+HEADERS_DIR			=	kernel/includes/
+BIN					=	kernel.bin
+BIN_DIR				=	bin
 
 ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)
-	LINKER		=	$(LINKER_DIR)/linker.ld
+	LINKER			=	$(LINKER_DIR)/linker.ld
 else
-	LINKER		=	$(LINKER_DIR)/HigherHalfLinker.ld
+	LINKER			=	$(LINKER_DIR)/HigherHalfLinker.ld
 endif
 
 XORRISO				=	xorriso-1.4.6
 XORRISO_INSTALLED	=	$(CHECK_XORRISO_INSTALL)
 
-DEPENDS			=	$(KOBJS:.o=.d)
+DEPENDS				=	$(KOBJS:.o=.d)
+DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
 #*******************************************************************************
 #*                                    KSRCS                                    *
@@ -109,6 +113,7 @@ check:
 
 clean:
 	@make -s -C libkfs clean
+	@make -s -C . clean-disk
 	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM) $(BIN) $(DEPENDS)
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
@@ -139,5 +144,6 @@ include $(MK_INCLUDE_DIR)/Kernel-Maker.mk
 include $(MK_INCLUDE_DIR)/Dependencies.mk
 
 -include $(DEPENDS)
+-include $(DEPENDS_ASM)
 
 .PHONY: all clean fclean re debug ascii helper

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:07:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 11:45:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/12 19:18:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,11 @@
 #define COLOR_BLUE "\x1b[34m"
 #define COLOR_MAGENTA "\x1b[35m"
 #define COLOR_CYAN "\x1b[36m"
+
+#define CURSOR_MOVE_UP "\x1b[1A"
+#define CURSOR_MOVE_DOWN "\x1b[1B"
+#define CURSOR_MOVE_RIGHT "\x1b[1C"
+#define CURSOR_MOVE_LEFT "\x1b[1D"
 
 typedef struct s_kprintf
 {

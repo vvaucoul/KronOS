@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 12:06:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 20:57:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/14 00:49:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,7 +364,7 @@ int pmm_test(void)
     kprintf("Free 5 Blocks at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr2, pmm_get_next_available_block());
     pmm_free_block(ptr1);
     kprintf("Free Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr1, pmm_get_next_available_block());
-    kprintf("\nNext Available block " COLOR_GREEN "%d" COLOR_END " (should be 0)\n", pmm_get_next_available_block());
+    kprintf("\nNext Available block " COLOR_GREEN "%d" COLOR_END "\n", pmm_get_next_available_block());
     return (0);
 }
 
@@ -395,4 +395,5 @@ int pmm_defragment_test(void)
     kprintf("Free Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%d" COLOR_END "\n", ptr3, pmm_get_next_available_block());
     pmm_display_blocks(3);
     kprintf("\n");
+    return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:42:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 13:52:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/14 01:12:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 #include <kernel.h>
 #include "paging.h"
-#include "alloc.h"
 
 #define MEMORY_START 0x100000
 #define PAGE_SIZE 4096

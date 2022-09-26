@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 21:36:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/14 00:47:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 #include <memory/memory.h>
 #include <memory/memory_map.h>
 #include <memory/pmm.h>
+#include <memory/kheap.h>
 
 MultibootInfo *__multiboot_info = NULL;
 
@@ -95,6 +96,12 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
     ksh_log_info("LOG", "PMM");
+
+    /* 20 * 4096 = 81920 */
+    void *kheap_start_addr = pmm_alloc_blocks(20);
+    void *kheap_end_addr = (void *)(pmm_get_next_available_block() * PMM_BLOCK_SIZE);
+    kheap_init(kheap_start_addr, kheap_end_addr);
+    ksh_log_info("LOG", "KHEAP");
 
     init_kernel_memory();
     ksh_log_info("LOG", "KERNEL MEMORY");

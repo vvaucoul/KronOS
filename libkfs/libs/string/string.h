@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 18:32:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 23:41:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/26 17:51:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,5 +35,6 @@ extern void *kmemmove(void *dst, const void *src, size_t length);
 extern void *kmemchr(const void *s, int c, size_t n);
 extern char *kstrrchr(const char *str, int n);
 extern int kmemcmp(const void *s1, const void *s2, size_t n);
+extern void *kmemjoin(void *s1, const void *s2, size_t n1, size_t n2);
 
 #endif /* _STRING_H */

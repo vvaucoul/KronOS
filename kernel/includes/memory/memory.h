@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:42:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/14 01:12:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/26 17:48:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,16 @@
 // #define MEMORY_MAX 4294967296
 #define MEMORY_MAX (4 * 1024 * 1024 * 1024)
 #define MAX_PAGES (MEMORY_MAX / PAGE_SIZE)
+
+static inline uint32_t __get_cr2(void)
+{
+    uint32_t cr2;
+    asm volatile("mov %%cr2, %0" : "=r"(cr2));
+    return cr2;
+}
+
+#define PAGE_FAULT_BUFFER_SIZE 256
+#define PAGE_FAULT_ADDR(x) x = __get_cr2()
 
 typedef struct s_memory_list
 {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:25:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/27 11:38:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ extern void kputunbr(uint32_t n);
 extern void kputunbr_base(uint32_t n, uint32_t base);
 extern void kputptr(void *ptr);
 extern void kputf(const float value);
-
 
 /*******************************************************************************
  *                                PUTNBR - HEX                                 *

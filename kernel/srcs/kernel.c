@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/14 00:47:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/27 12:27:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,11 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
     ksh_log_info("LOG", "PMM");
 
-    /* 20 * 4096 = 81920 */
+    /*
+    ** Init Kernel Heap with 8MB
+    - 20 * 4096 = 81920
+    */
+
     void *kheap_start_addr = pmm_alloc_blocks(20);
     void *kheap_end_addr = (void *)(pmm_get_next_available_block() * PMM_BLOCK_SIZE);
     kheap_init(kheap_start_addr, kheap_end_addr);
@@ -111,9 +115,11 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr)
 {
-    if (multiboot_check_magic_number(magic_number) == false)
-        return (1);
-    __multiboot_info = (MultibootInfo *)(addr);
+    __UNUSED(magic_number);
+    __UNUSED(addr);
+    // if (multiboot_check_magic_number(magic_number) == false)
+    //     return (1);
+    // __multiboot_info = (MultibootInfo *)(addr);
     return (0);
 }
 
@@ -124,6 +130,25 @@ int kmain(hex_t magic_number, hex_t addr)
         return (1);
     kprintf("\n");
     ASM_STI();
-    kronos_shell();
+    // kronos_shell();
+
+    kprintf("Test:\n");
+
+    uchar_t *ptr = kmalloc(1024);
+    ptr[0] = 'A';
+    ptr[1] = 'B';
+    ptr[2] = 'C';
+    kprintf("ptr = %s\n", ptr);
+
+    uint32_t i = 0;
+    while (1)
+    {
+        kprintf("[%d], Alloc 1024 bytes\n", i);
+        kmalloc(1024);
+        ++i;
+    }
+
+    while (1)
+        ;
     return (0);
 }

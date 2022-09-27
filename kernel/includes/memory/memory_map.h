@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 20:19:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 15:01:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/27 12:23:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define MEMORY_MAP_H
 
 #include <kernel.h>
+#include <multiboot/multiboot.h>
 
 extern uint8_t __kernel_section_start;
 extern uint8_t __kernel_text_section_start;

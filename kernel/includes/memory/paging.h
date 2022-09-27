@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/11 09:59:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/26 17:46:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ typedef struct s_page
     uint32_t accessed : 1;  // Accessed
     uint32_t dirty : 1;     // Dirty
     uint32_t pat : 1;       // Page-Attribute Table
-    uint32_t pageSize : 1; // Page size
+    uint32_t pageSize : 1;  // Page size
     uint32_t global : 1;    // Global
     uint32_t available : 3; // Available
     uint32_t frame : 20;    // Page Frame Address
@@ -61,7 +61,7 @@ typedef struct s_page_directory
 {
     t_page_table tables[PAGE_TABLE_SIZE];
     uint32_t tablesPhysical[PAGE_TABLE_SIZE]; // Physical location for CR3 Register.
-    uint32_t physicalAddr; // Physical address of tablrsPhysical
+    uint32_t physicalAddr;                    // Physical address of tablrsPhysical
 } t_page_directory;
 
 #define Page t_page
@@ -87,7 +87,7 @@ extern void flush_tlb(void);
 #define PAGE_ACCESS_LEVEL_PL0(x) (x.user == 0)
 #define PAGE_ACCESS_LEVEL_PL3(x) (x.user == 1)
 #define PAGE_READ_WRITE(x) (x.rw == 0)
-#define PAGE_READ_ONLY(x)(x.rw == 1)
+#define PAGE_READ_ONLY(x) (x.rw == 1)
 
 extern void *__request_new_page(size_t size);
 extern void __pagination_init(void);

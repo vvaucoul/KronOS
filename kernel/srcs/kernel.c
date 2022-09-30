@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/27 12:27:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 15:24:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,24 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     terminal_initialize();
     ksh_header();
     ksh_log_info("LOG", "TERMINAL");
+    init_kerrno();
+    ksh_log_info("LOG", "KERRNO");
 
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (1);
     else
+    {
         __multiboot_info = (MultibootInfo *)(addr);
-    init_kerrno();
-    ksh_log_info("LOG", "KERRNO");
+        if (__multiboot_info == NULL)
+            __PANIC("Error: __multiboot struct is invalid");
+        if (multiboot_init(__multiboot_info))
+            __PANIC("Error: multiboot_init failed");
+        ksh_log_info("LOG", "MULTIBOOT");
+        if (get_kernel_memory_map(__multiboot_info))
+            __PANIC("Error: kernel memory map failed");
+        ksh_log_info("LOG", "KERNEL MEMORY MAP");
+    }
     gdt_install();
     ksh_log_info("LOG", "GDT");
     idt_install();
@@ -85,14 +95,9 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     keyboard_install();
     ksh_log_info("LOG", "KEYBOARD");
 
-    if (__multiboot_info == NULL)
-        __PANIC("Error: __multiboot struct is NULL");
-    if (multiboot_init(__multiboot_info))
-        __PANIC("Error: multiboot_init failed");
-    ksh_log_info("LOG", "MULTIBOOT");
-    if (get_kernel_memory_map(__multiboot_info))
-        __PANIC("Error: kernel memory map failed");
-    ksh_log_info("LOG", "KERNEL MEMORY MAP");
+    kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.start_addr);
+    kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.end_addr);
+    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u)" COLOR_END "\n", KMAP.available.length, KMAP.available.length);
 
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
     ksh_log_info("LOG", "PMM");
@@ -102,9 +107,10 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     - 20 * 4096 = 81920
     */
 
-    void *kheap_start_addr = pmm_alloc_blocks(20);
-    void *kheap_end_addr = (void *)(pmm_get_next_available_block() * PMM_BLOCK_SIZE);
-    kheap_init(kheap_start_addr, kheap_end_addr);
+    void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
+    void *kheap_end_addr = (void *)(kheap_start_addr + (pmm_get_next_available_block() * (PMM_BLOCK_SIZE * PHYSICAL_EXPAND_HEAP_SIZE)));
+    if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
+        __PANIC("Error: kheap_init failed");
     ksh_log_info("LOG", "KHEAP");
 
     init_kernel_memory();
@@ -130,25 +136,45 @@ int kmain(hex_t magic_number, hex_t addr)
         return (1);
     kprintf("\n");
     ASM_STI();
-    // kronos_shell();
+    // __PANIC("PANIC TEST");
 
     kprintf("Test:\n");
+
+    kheap_test();
+    kpause();
 
     uchar_t *ptr = kmalloc(1024);
     ptr[0] = 'A';
     ptr[1] = 'B';
     ptr[2] = 'C';
     kprintf("ptr = %s\n", ptr);
+    kfree(ptr);
 
     uint32_t i = 0;
-    while (1)
+    const uint32_t alloc_size = (1024);
+
+    while (i < 100)
     {
-        kprintf("[%d], Alloc 1024 bytes\n", i);
-        kmalloc(1024);
+        ksh_clear();
+        kprintf("\n" COLOR_CYAN "[%d]" COLOR_END ", Alloc " COLOR_GREEN "%d" COLOR_END " bytes\n", i, alloc_size);
+        void *ptr = kmalloc(alloc_size);
+
+        if (ptr == NULL)
+        {
+            kprintf(COLOR_RED "Error: ptr is NULL\n" COLOR_END);
+            break;
+            return (0);
+        }
+        else
+        {
+            kbzero(ptr, alloc_size);
+            kprintf("ptr = " COLOR_GREEN "%p" COLOR_END "\n", ptr);
+        }
+        kprintf("Allocated " COLOR_GREEN "[%u]" COLOR_END " bytes\n", alloc_size);
         ++i;
+        timer_wait(10);
     }
 
-    while (1)
-        ;
+    kronos_shell();
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 20:19:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/27 12:23:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/28 13:54:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@
 extern uint8_t __kernel_section_start;
 extern uint8_t __kernel_text_section_start;
 extern uint8_t __kernel_text_section_end;
-extern uint8_t __kernel_rodata_section_start;
-extern uint8_t __kernel_rodata_section_end;
 extern uint8_t __kernel_data_section_start;
 extern uint8_t __kernel_data_section_end;
+extern uint8_t __kernel_rodata_section_start;
+extern uint8_t __kernel_rodata_section_end;
 extern uint8_t __kernel_bss_section_start;
 extern uint8_t __kernel_bss_section_end;
 extern uint8_t __kernel_section_end;
@@ -83,6 +83,5 @@ extern KERNEL_MEMORY_MAP kernel_memory_map;
 #define KMAP kernel_memory_map
 
 extern int get_kernel_memory_map(MultibootInfo *multiboot_info);
-extern void display_kernel_memory_map(void);
 
 #endif /* !MEMORY_MAP_H */

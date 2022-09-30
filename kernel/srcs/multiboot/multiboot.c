@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 13:09:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/28 12:00:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,11 @@ int multiboot_init(MultibootInfo *mboot_ptr)
     if ((mboot_ptr->flags & MULTIBOOT_INFO_CMDLINE) == 0)
     {
         kprintf(COLOR_GREEN "[CHECK] CMDLINE: " COLOR_RED "INVALID " COLOR_END "\n");
+        return (1);
+    }
+    if ((mboot_ptr->flags & MULTIBOOT_INFO_MODS) == 0)
+    {
+        kprintf(COLOR_GREEN "[CHECK] MODS: " COLOR_RED "INVALID " COLOR_END "\n");
         return (1);
     }
     return (0);

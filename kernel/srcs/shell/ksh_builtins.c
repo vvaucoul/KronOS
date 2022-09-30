@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 20:45:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/29 10:17:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <system/sections.h>
 #include <memory/memory_map.h>
 #include <memory/pmm.h>
+
+#include <workflows/workflows.h>
 
 KshBuiltins __ksh_builtins[__NB_BUILTINS_];
 
@@ -58,7 +60,7 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"print-gdt", "gdt", ""}, &print_gdt);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"gdt-test", ""}, &gdt_test);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"time", ""}, &timer_display_ktimer);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &__display_multiboot_infos);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &display_multiboot_infos);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"help", ""}, &__ksh_help);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);

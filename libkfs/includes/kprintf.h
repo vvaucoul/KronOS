@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:07:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/12 19:18:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/29 10:46:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ typedef struct s_kprintf
 extern t_kprintf _g_kprintf;
 
 extern int kprintf(const char *format, ...);
+extern void kvsprintf(const char *str, void (*write)(const char), const char *format, va_list arg);
 
 extern size_t __kptrlen(const void *ptr);
 

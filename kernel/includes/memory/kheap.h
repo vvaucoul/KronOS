@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/27 12:23:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 13:19:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,21 @@
 #define PHYSICAL_END KMAP.available.end_addr
 #define PHYSICAL_LENGTH KMAP.available.length
 
+#define PHYSICAL_MEMORY_BLOCKS 0x14
+
+#define PHYSICAL_EXPAND_HEAP_START_SIZE 0x14
+#define PHYSICAL_EXPAND_HEAP_START_OFFSET 0x20
 #define PHYSICAL_EXPAND_HEAP_SIZE 0x1000
 
-#define PHYSICAL_EXPAND_HEAP(current_end, size) (void *)(current_end + (pmm_get_next_available_block() * PMM_BLOCK_SIZE) + size)
+#define PHYSICAL_EXPAND_HEAP_START(size) (pmm_alloc_blocks(size))
+#define PHYSICAL_EXPAND_HEAP_END(current_end, size) (void *)(current_end + (pmm_get_next_available_block() * PMM_BLOCK_SIZE + size))
 
 typedef void data_t;
 
 enum e_heap_block_state
 {
-    HEAP_BLOCK_FREE,
-    HEAP_BLOCK_USED
+    HEAP_BLOCK_FREE = 0,
+    HEAP_BLOCK_USED = 1
 };
 
 typedef struct s_heap_block
@@ -52,6 +57,7 @@ typedef struct s_heap
     data_t *end_addr;
     uint32_t max_size;
     uint32_t used_size;
+    uint32_t allocated_blocks;
     t_heap_block *root;
 } __attribute((packed)) t_heap;
 
@@ -60,7 +66,12 @@ typedef struct s_heap
 
 extern Heap kheap;
 
-extern int kheap_init(void *start_addr, void *end_addr);
+#define KHEAP_GET_MAX_SIZE() (kheap.max_size)
+#define KHEAP_GET_USED_SIZE() (kheap.used_size)
+#define KHEAP_GET_START_ADDR() (kheap.start_addr)
+#define KHEAP_GET_END_ADDR() (kheap.end_addr)
+
+extern int kheap_init(data_t *start_addr, data_t *end_addr);
 extern data_t *kbrk(uint32_t size);
 extern data_t *kmalloc(uint32_t size);
 extern data_t *krealloc(void *ptr, uint32_t size);

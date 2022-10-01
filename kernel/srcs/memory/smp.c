@@ -6,35 +6,9 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 15:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 15:52:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 18:02:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-/*
-
-#define CPUID_SMEP 7
-#define CPUID_SMAP 20
-#define CPU_CR4_SMEP_BIT 20
-
-#define CPU_CR4_SMAP_BIT 21
-
-void supervisor_memory_protection_init(void) {
-    uint32_t eax, ebx, ecx, edx;
-    eax = 7;
-    ecx = 0;
-    cpuid(&eax, &ebx, &ecx, &edx);
-    if (ebx & CPUID_SMEP) {
-        cpu_cr4_set_bit(CPU_CR4_SMEP_BIT);
-        log(Log_Info, "SMEP Enabled");
-    }
-
-    if (ebx & CPUID_SMAP) {
-        cpu_cr4_set_bit(CPU_CR4_SMAP_BIT);
-        log(Log_Info, "SMAP Enabled");
-    }
-}
-
-*/
 
 #include <kernel.h>
 #include <memory/smp.h>
@@ -55,32 +29,43 @@ void *user_memcpy(void *destination, const void *source, size_t size)
     return ret;
 }
 
-static void cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx)
+void cpu_cr4_set_bit(uint32_t bit)
 {
-    // Perform CPUID instruction.
-    __asm__ volatile("cpuid"
-                     : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx)
-                     : "a"(*eax), "c"(*ecx));
+    asm volatile("mov %0,%%cr4"
+                 : "+r"(bit)
+                 :
+                 : "memory");
+
+    // uint32_t cr4 = 0;
+    // asm volatile("mov %%cr4, %0"
+    //              : "=r"(cr4));
+    // cr4 |= (1 << bit);
+    // asm volatile("mov %0, %%cr4"
+    //              :
+    //              : "r"(cr4));
+    // kprintf("CR4: %x\n", cr4);
 }
 
 static void __smp_init(void)
 {
     uint32_t eax = 0x07;
-    uint32_t ebx;
+    uint32_t ebx = 0;
     uint32_t ecx = 0;
-    uint32_t edx;
+    uint32_t edx = 0;
 
-    cpuid(&eax, &ebx, &ecx, &edx);
+    CPUID(&eax, &ebx, &ecx, &edx);
+    kprintf("CPUID: %x | %x | %x | %x\n", eax, ebx, ecx, edx);
     if (ebx & CPUID_SMEP)
     {
-        SET_CR4(CPU_CR4_SMEP_BIT);
-        ksh_log_info("LOG", "SMEP Enabled");
+        cpu_cr4_set_bit(CPU_CR4_SMEP_BIT);
+        kernel_log_info("LOG", "SMEP Enabled");
     }
     if (ebx & CPUID_SMAP)
     {
-        SET_CR4(CPU_CR4_SMAP_BIT);
-        ksh_log_info("LOG", "SMAP Enabled");
+        cpu_cr4_set_bit(CPU_CR4_SMAP_BIT);
+        kernel_log_info("LOG", "SMAP Enabled");
     }
+    // SMP_SET_AC();
 }
 
 void smp_init(void)

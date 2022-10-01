@@ -6,18 +6,75 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/26 17:58:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 19:54:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/memory.h>
+#include <memory/paging.h>
+#include <asm/asm.h>
+
+PageDirectory __page_directory = {0};
+PageTable __page_table = {0};
+bool __paging_enabled = false;
 
 void *__request_new_page(size_t size)
 {
+    __UNUSED(size);
 }
 
-void __pagination_init(void)
+static void __init_paging(void)
 {
+    uint32_t cr0 = 0x0;
+
+    kmemset(__page_directory.pages, 0, sizeof(Page) * PAGE_DIRECTORY_SIZE);
+    kmemset(__page_table.pages, 0, sizeof(Page) * PAGE_TABLE_SIZE);
+
+    // set all page directory read/write & user access
+    for (uint32_t i = 0; i < PAGE_DIRECTORY_SIZE; i++)
+    {
+        __page_directory.pages[i].rw = 1;
+        __page_directory.pages[i].user = 1;
+    }
+
+    // Enable 4MB pages
+    for (uint32_t i = 0; i < PAGE_TABLE_SIZE; i++)
+    {
+        __page_table.pages[i].present = 1;
+        __page_table.pages[i].rw = 1;
+        __page_table.pages[i].user = 1;
+        __page_table.pages[i].frame = (i * PAGE_SIZE) >> 12;
+    }
+
+    // set first page directory to be accessed with frame 0x11a(kernel region address)
+    __page_directory.pages[0].present = 1;
+    __page_directory.pages[0].accessed = 0;
+    __page_directory.pages[0].user = 1;
+    __page_directory.pages[0].frame = 0x11A;
+
+    // isr_register_interrupt_handler(14, __page_fault);
+
+    // set cr3 point to page directory
+    // asm volatile("mov %0, %%cr3" ::"r"(&__page_directory.pages));
+
+    // // set bit in cr0 to enable paging
+    // asm volatile("mov %%cr0, %0"
+    //              : "=r"(cr0));
+    // cr0 = cr0 | 0x80000000;
+    // asm volatile("mov %0, %%cr0" ::"r"(cr0));
+
+    // set cr3 to page directory address
+    __load_page_directory((__page_directory.pages));
+    // enable 4MB pages
+    __enable_large_pages();
+    // set cr0 to paging enabled
+    __enable_paging();
+    kpause();
+    __paging_enabled = true;
+}
+
+void init_paging(void)
+{
+    __init_paging();
 }
 
 static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], struct regs *r)
@@ -30,7 +87,7 @@ static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], str
     int rw = r->err_code & 0x2;         // Write operation?
     int us = r->err_code & 0x4;         // Processor was in user-mode?
     int reserved = r->err_code & 0x8;   // Overwritten CPU-reserved bits of page entry?
-    int id = r->err_code & 0x10;        // Caused by an instruction fetch?
+    // int id = r->err_code & 0x10;        // Caused by an instruction fetch?
 
     // Output an error message.
     kmemjoin(buffer, "Page Fault! (", 0, 14);
@@ -48,6 +105,10 @@ static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], str
     kitoa(faulting_address, __kitoa_buffer);
     kmemjoin(buffer, __kitoa_buffer, kstrlen(buffer), kstrlen(__kitoa_buffer));
     kmemjoin(buffer, "\n", kstrlen(buffer), 1);
+    kprintf(buffer);
+    ASM_CLI();
+    while (1)
+        ;
 }
 
 void __page_fault(struct regs *r)

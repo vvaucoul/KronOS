@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/28 13:42:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 17:48:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,5 +19,7 @@
 
 #define __DISPLAY_INIT_LOG__ true
 #define __HIGHER_HALF_KERNEL__ false
+
+extern void kernel_log_info(const char *part, const char *name);
 
 #endif /* KERNEL_H */

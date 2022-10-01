@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/11 09:58:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 18:49:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,19 @@
 
 #define ISR_MAX_COUNT 32
 
-struct regs
+typedef struct regs
 {
     unsigned int gs, fs, es, ds;
     unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
     unsigned int int_no, err_code;
     unsigned int eip, cs, eflags, useresp, ss;
-};
+} t_regs;
+
+typedef void (*ISR)(t_regs *);
+
+#define NB_INTERRUPT_HANDLERS 256
+
+extern ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS];
 
 void isrs_install();
 

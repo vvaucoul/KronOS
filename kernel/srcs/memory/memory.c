@@ -6,29 +6,31 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:53:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 13:53:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 18:19:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 
-__MemorySystem *__mem_root;
+// __MemorySystem *__mem_root;
 // PageDirectory __page_directory;
-uint32_t __page_directory[PAGE_TABLE_SIZE];
-size_t __nb_pages;
+// uint32_t __page_directory[PAGE_TABLE_SIZE];
+// size_t __nb_pages;
 
 void init_kernel_memory(void)
 {
  
-    // poweroff();
-    __pagination_init();
     return;
+    
+    // poweroff();
+    // init_paging();
+    // return;
 
-    __mem_root = (__MemorySystem *)kmalloc(sizeof(__MemorySystem));
-    __mem_root->value = (void *)MEMORY_START;
-    __mem_root->next = NULL;
-    __mem_root->prev = NULL;
-    __nb_pages = 0;
+    // __mem_root = (__MemorySystem *)kmalloc(sizeof(__MemorySystem));
+    // __mem_root->value = (void *)MEMORY_START;
+    // __mem_root->next = NULL;
+    // __mem_root->prev = NULL;
+    // __nb_pages = 0;
 
     /*
 

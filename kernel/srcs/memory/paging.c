@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/06 14:28:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/06 17:19:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/paging.h>
 #include <asm/asm.h>
 
-PageDirectory __page_directory = {0};
-PageTable __page_table = {0};
+PageDirectory __page_directory __attribute__((aligned(PAGE_SIZE))) = {0};
+PageTable __page_table __attribute__((aligned(PAGE_SIZE))) = {0};
 bool __paging_enabled = false;
 
 /* TMP */
@@ -29,7 +29,6 @@ static void __init_tmp_pages()
 
     for (uint32_t i = 0; i < PAGE_DIRECTORY_SIZE; i++)
     {
-        // __tmp_page_table[i].present = 1;
         __tmp_page_directory[i] = 0x00000002;
     }
 
@@ -38,11 +37,15 @@ static void __init_tmp_pages()
         __tmp_page_table[i] = (i * 0x1000) | 3;
     }
 
-    __tmp_page_directory[0] = ((unsigned int)__tmp_page_table) | 0x3;
+    __tmp_page_directory[0] = ((unsigned int)__tmp_page_table) | 0x03;
 
     __load_page_directory(__tmp_page_directory);
-    // __enable_paging();
-    __enable_large_pages();
+    __enable_paging();
+    // __enable_large_pages();
+}
+
+void identity_paging()
+{
 }
 
 void *__request_new_page(size_t size)
@@ -52,8 +55,12 @@ void *__request_new_page(size_t size)
 
 static void __init_paging(void)
 {
-    __init_tmp_pages();
-    return;
+    // __init_tmp_pages();
+    // isr_register_interrupt_handler(14, __page_fault);
+    // __paging_enabled = true;
+    // return;
+
+    // TO DO
 
     uint32_t cr0 = 0x0;
 
@@ -64,7 +71,7 @@ static void __init_paging(void)
     for (uint32_t i = 0; i < PAGE_DIRECTORY_SIZE; i++)
     {
         __page_directory.pages[i].rw = 1;
-        __page_directory.pages[i].user = 1;
+        __page_directory.pages[i].user = 1;        
     }
 
     // Enable 4MB pages
@@ -77,12 +84,19 @@ static void __init_paging(void)
     }
 
     // set first page directory to be accessed with frame 0x11a(kernel region address)
-    __page_directory.pages[0].present = 1;
-    __page_directory.pages[0].accessed = 0;
-    __page_directory.pages[0].user = 1;
-    __page_directory.pages[0].frame = 0x11A;
+    // __page_directory.pages[0].present = 1;
+    // __page_directory.pages[0].accessed = 0;
+    // __page_directory.pages[0].user = 1;
+    // __page_directory.pages[0].frame = 0x11A;
 
-    // isr_register_interrupt_handler(14, __page_fault);
+    //__page_directory.pages[0] = __page_table.pages[0];
+
+    __page_directory.pages[0].present = 1;
+    __page_directory.pages[0].rw = 1;
+    __page_directory.pages[0].user = 1;
+    __page_directory.pages[0].frame = ((uint32_t)__page_table.pages) >> 12;
+
+    isr_register_interrupt_handler(14, __page_fault);
 
     // set cr3 point to page directory
     // asm volatile("mov %0, %%cr3" ::"r"(&__page_directory.pages));
@@ -98,7 +112,7 @@ static void __init_paging(void)
     // set cr0 to paging enabled
     __enable_paging();
     // enable 4MB pages
-    __enable_large_pages();
+    // __enable_large_pages();
     kpause();
     __paging_enabled = true;
 }
@@ -117,43 +131,75 @@ static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], str
     int present = !(r->err_code & 0x1); // Page not present
     int rw = r->err_code & 0x2;         // Write operation?
     int us = r->err_code & 0x4;         // Processor was in user-mode?
-    int reserved = r->err_code & 0x8;   // Overwritten CPU-reserved bits of page entry?
-    // int id = r->err_code & 0x10;        // Caused by an instruction fetch?
 
-    // Output an error message.
-    kmemjoin(buffer, "Page Fault! (", 0, 14);
-    if (present)
-        kmemjoin(buffer, "present ", kstrlen(buffer), 8);
-    if (rw)
-        kmemjoin(buffer, "read-only ", kstrlen(buffer), 10);
-    if (us)
-        kmemjoin(buffer, "user-mode ", kstrlen(buffer), 10);
-    if (reserved)
-        kmemjoin(buffer, "reserved ", kstrlen(buffer), 9);
-    kmemjoin(buffer, ") at 0x", kstrlen(buffer), 7);
+    // 0 - 0 - 0
+    if (us == false && rw == false && present == false)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_000, 0, kstrlen(PAGE_FAULT_PANIC_000));
+    // 0 - 0 - 1
+    else if (us == false && rw == false && present == true)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_001, 0, kstrlen(PAGE_FAULT_PANIC_001));
+    // 0 - 1 - 0
+    else if (us == false && rw == true && present == false)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_010, 0, kstrlen(PAGE_FAULT_PANIC_010));
+    // 0 - 1 - 1
+    else if (us == false && rw == true && present == true)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_011, 0, kstrlen(PAGE_FAULT_PANIC_011));
+    // 1 - 0 - 0
+    else if (us == true && rw == false && present == false)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_100, 0, kstrlen(PAGE_FAULT_PANIC_100));
+    // 1 - 0 - 1
+    else if (us == true && rw == false && present == true)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_101, 0, kstrlen(PAGE_FAULT_PANIC_101));
+    // 1 - 1 - 0
+    else if (us == true && rw == true && present == false)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_110, 0, kstrlen(PAGE_FAULT_PANIC_110));
+    // 1 - 1 - 1
+    else if (us == true && rw == true && present == true)
+        kmemjoin(buffer, PAGE_FAULT_PANIC_111, 0, kstrlen(PAGE_FAULT_PANIC_111));
+    else
+        kmemjoin(buffer, PAGE_FAULT_PANIC_UNKNOWN, 0, kstrlen(PAGE_FAULT_PANIC_UNKNOWN));
+    
+    kmemjoin(buffer, "\n\tError: ", kstrlen(buffer), 9);
+    if (us == false && rw == false && present == false)
+        kmemjoin(buffer, "0 - 0 - 0", kstrlen(buffer), 9);
+    else if (us == false && rw == false && present == true)
+        kmemjoin(buffer, "0 - 0 - 1", kstrlen(buffer), 9);
+    else if (us == false && rw == true && present == false)
+        kmemjoin(buffer, "0 - 1 - 0", kstrlen(buffer), 9);
+    else if (us == false && rw == true && present == true)
+        kmemjoin(buffer, "0 - 1 - 1", kstrlen(buffer), 9);
+    else if (us == true && rw == false && present == false)
+        kmemjoin(buffer, "1 - 0 - 0", kstrlen(buffer), 9);
+    else if (us == true && rw == false && present == true)
+        kmemjoin(buffer, "1 - 0 - 1", kstrlen(buffer), 9);
+    else if (us == true && rw == true && present == false)
+        kmemjoin(buffer, "1 - 1 - 0", kstrlen(buffer), 9);
+    else if (us == true && rw == true && present == true)
+        kmemjoin(buffer, "1 - 1 - 1", kstrlen(buffer), 9);
+    else
+        kmemjoin(buffer, "Unknown error", kstrlen(buffer), 13);
+
+    kmemjoin(buffer, "\n\tFaulting address: 0x", kstrlen(buffer), 22);
 
     char __kitoa_buffer[__KITOA_BUFFER_LENGTH__];
+    kbzero(__kitoa_buffer, __KITOA_BUFFER_LENGTH__);
     kitoa(faulting_address, __kitoa_buffer);
     kmemjoin(buffer, __kitoa_buffer, kstrlen(buffer), kstrlen(__kitoa_buffer));
     kmemjoin(buffer, "\n", kstrlen(buffer), 1);
-    kprintf(buffer);
-    ASM_CLI();
-    while (1)
-        ;
 }
 
 void __page_fault(struct regs *r)
 {
     /*
-    US RW  P - Description
-    0  0  0 - Supervisory process tried to read a non-present page entry
-    0  0  1 - Supervisory process tried to read a page and caused a protection fault
-    0  1  0 - Supervisory process tried to write to a non-present page entry
-    0  1  1 - Supervisory process tried to write a page and caused a protection fault
-    1  0  0 - User process tried to read a non-present page entry
-    1  0  1 - User process tried to read a page and caused a protection fault
-    1  1  0 - User process tried to write to a non-present page entry
-    1  1  1 - User process tried to write a page and caused a protection fault
+    ** US RW  P - Description
+    ** 0  0  0 - Supervisory process tried to read a non-present page entry
+    ** 0  0  1 - Supervisory process tried to read a page and caused a protection fault
+    ** 0  1  0 - Supervisory process tried to write to a non-present page entry
+    ** 0  1  1 - Supervisory process tried to write a page and caused a protection fault
+    ** 1  0  0 - User process tried to read a non-present page entry
+    ** 1  0  1 - User process tried to read a page and caused a protection fault
+    ** 1  1  0 - User process tried to write to a non-present page entry
+    ** 1  1  1 - User process tried to write a page and caused a protection fault
     */
 
     char buffer[PAGE_FAULT_BUFFER_SIZE];
@@ -161,49 +207,4 @@ void __page_fault(struct regs *r)
     kbzero(buffer, PAGE_FAULT_BUFFER_SIZE);
     __generate_page_fault_panic(buffer, r);
     __PANIC(buffer);
-
-    /*
-        if (r->int_no & 0x1)
-        {
-            // User mode
-            if (r->int_no & 0x2)
-            {
-                // Write
-                __PANIC("Page fault: User mode write\n");
-            }
-            else
-            {
-                // Read
-                __PANIC("Page fault: User mode read\n");
-            }
-        }
-        else if (r->int_no & 0x2)
-        {
-            // Supervisor mode
-            if (r->int_no & 0x2)
-            {
-                // Write
-                __PANIC("Page fault: Supervisor mode write\n");
-            }
-            else
-            {
-                // Read
-                __PANIC("Page fault: Supervisor mode read\n");
-            }
-        }
-        else
-        {
-            // Kernel mode
-            if (r->int_no & 0x2)
-            {
-                // Write
-                __PANIC("Page fault: Kernel mode write\n");
-            }
-            else
-            {
-                // Read
-                __PANIC("Page fault: Kernel mode read\n");
-            }
-        }
-        */
 }

@@ -1,4 +1,4 @@
-%define LARGE_PAGE_ENABLE_VALUE 0x00000010
+LARGE_PAGE_ENABLE_VALUE equ 0x00000010
 
 section .text
 global enable_large_pages

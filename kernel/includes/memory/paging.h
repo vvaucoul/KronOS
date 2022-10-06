@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/06 14:23:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/06 17:20:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ typedef struct s_page
     uint32_t global : 1;    // Global
     uint32_t available : 3; // Available
     uint32_t frame : 20;    // Page Frame Address
-} t_page __attribute__((aligned(PAGE_SIZE)));
+} t_page;
 
 /*
 P: indicate if the page or table is in physical memory
@@ -68,12 +68,12 @@ bits because these addresses are aligned on 4kb, so the last 12bits should be eq
 
 typedef struct s_page_table
 {
-    t_page pages[PAGE_TABLE_SIZE];
+    t_page pages[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SIZE)));
 } t_page_table __attribute__((aligned(PAGE_SIZE)));
 
 typedef struct s_page_directory
 {
-    t_page pages[PAGE_DIRECTORY_SIZE];
+    t_page pages[PAGE_DIRECTORY_SIZE] __attribute__((aligned(PAGE_SIZE)));
 } t_page_directory __attribute__((aligned(PAGE_SIZE)));
 
 #define Page t_page
@@ -127,5 +127,24 @@ extern void __page_fault(struct regs *r);
 #define PAGE_ATTRIBUTE_WRITE_THROUGH 0x8
 #define PAGE_ATTRIBUTE_CACHE_DISABLE 0x10
 #define PAGE_ATTRIBUTE_ACCESSED 0x20
+
+/*******************************************************************************
+ *                          PAGE FAULT PANIC MESSAGES                          *
+ ******************************************************************************/
+
+#ifndef __PAGE_FAULT_PANIC_MESSAGES
+#define __PAGE_FAULT_PANIC_MESSAGES
+
+#define PAGE_FAULT_PANIC_000 "\n\tKernel tried to read a page and caused a protection fault"
+#define PAGE_FAULT_PANIC_001 "\n\tKernel tried to read a page and caused a protection fault"
+#define PAGE_FAULT_PANIC_010 "\n\tKernel tried to write a non-present page"
+#define PAGE_FAULT_PANIC_011 "\n\tKernel tried to write a page and caused a protection fault"
+#define PAGE_FAULT_PANIC_100 "\n\tUser tried to read a non-present page"
+#define PAGE_FAULT_PANIC_101 "\n\tUser tried to read a page and caused a protection fault"
+#define PAGE_FAULT_PANIC_110 "\n\tUser tried to write a non-present page"
+#define PAGE_FAULT_PANIC_111 "\n\tUser tried to write a page and caused a protection fault"
+#define PAGE_FAULT_PANIC_UNKNOWN "\n\tUnknown page fault"
+
+#endif /* !__PAGE_FAULT_PANIC_MESSAGES */
 
 #endif /* _PAGING_H */

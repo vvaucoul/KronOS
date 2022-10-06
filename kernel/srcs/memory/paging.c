@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 19:54:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/06 14:28:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,34 @@ PageDirectory __page_directory = {0};
 PageTable __page_table = {0};
 bool __paging_enabled = false;
 
+/* TMP */
+
+unsigned int __tmp_page_directory[PAGE_DIRECTORY_SIZE] __attribute__((aligned(PAGE_SIZE))) = {0};
+unsigned int __tmp_page_table[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SIZE))) = {0};
+
+static void __init_tmp_pages()
+{
+    kmemset(__tmp_page_directory, 0, PAGE_DIRECTORY_SIZE * sizeof(unsigned int));
+    kmemset(__tmp_page_table, 0, PAGE_TABLE_SIZE * sizeof(unsigned int));
+
+    for (uint32_t i = 0; i < PAGE_DIRECTORY_SIZE; i++)
+    {
+        // __tmp_page_table[i].present = 1;
+        __tmp_page_directory[i] = 0x00000002;
+    }
+
+    for (uint32_t i = 0; i < PAGE_TABLE_SIZE; i++)
+    {
+        __tmp_page_table[i] = (i * 0x1000) | 3;
+    }
+
+    __tmp_page_directory[0] = ((unsigned int)__tmp_page_table) | 0x3;
+
+    __load_page_directory(__tmp_page_directory);
+    // __enable_paging();
+    __enable_large_pages();
+}
+
 void *__request_new_page(size_t size)
 {
     __UNUSED(size);
@@ -24,6 +52,9 @@ void *__request_new_page(size_t size)
 
 static void __init_paging(void)
 {
+    __init_tmp_pages();
+    return;
+
     uint32_t cr0 = 0x0;
 
     kmemset(__page_directory.pages, 0, sizeof(Page) * PAGE_DIRECTORY_SIZE);
@@ -64,10 +95,10 @@ static void __init_paging(void)
 
     // set cr3 to page directory address
     __load_page_directory((__page_directory.pages));
-    // enable 4MB pages
-    __enable_large_pages();
     // set cr0 to paging enabled
     __enable_paging();
+    // enable 4MB pages
+    __enable_large_pages();
     kpause();
     __paging_enabled = true;
 }

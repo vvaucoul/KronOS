@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:42:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 18:20:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/06 14:23:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "paging.h"
 
 #define MEMORY_START 0x100000
-#define PAGE_SIZE 4096
+// #define PAGE_SIZE 4096
 
 #define USER_MEMORY_START 0x00000000
 #define USER_MEMORY_END 0xBFFFFFFF

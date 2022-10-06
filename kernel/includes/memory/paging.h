@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 19:55:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/06 14:23:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,20 @@
 
 #define PAGE_TABLE_SIZE 1024
 #define PAGE_DIRECTORY_SIZE 1024
-#define PAGE_SIZE 4096
+
+#define PAGE_SHIFT 12
+#define PAGE_SIZE (1UL << PAGE_SHIFT) // 2^12 = 4096
+#define PAGE_MASK (~(PAGE_SIZE - 1))
+
+/*
+** Bit Function
+** _PAGE_PRESENT    Page is resident in memory and not swapped out
+** _PAGE_PROTNONE	Page is resident but not accessable
+** _PAGE_RW         Set if the page may be written to
+** _PAGE_USER       Set if the page is accessible from user space
+** _PAGE_DIRTY      Set if the page is written to
+** _PAGE_ACCESSED   Set if the page is accessed
+*/
 
 typedef struct s_page
 {
@@ -55,7 +68,7 @@ bits because these addresses are aligned on 4kb, so the last 12bits should be eq
 
 typedef struct s_page_table
 {
-    t_page pages[PAGE_TABLE_SIZE] ;
+    t_page pages[PAGE_TABLE_SIZE];
 } t_page_table __attribute__((aligned(PAGE_SIZE)));
 
 typedef struct s_page_directory
@@ -67,8 +80,8 @@ typedef struct s_page_directory
 #define PageTable t_page_table
 #define PageDirectory t_page_directory
 
-extern PageDirectory __page_directory;
-extern PageTable __page_table;
+extern PageDirectory __page_directory __attribute__((aligned(PAGE_SIZE)));
+extern PageTable __page_table __attribute__((aligned(PAGE_SIZE)));
 extern bool __paging_enabled;
 
 // extern PageDirectory __page_directory __attribute__((aligned(PAGE_SIZE)));
@@ -107,5 +120,12 @@ static inline uint32_t __get_cr2(void)
 extern void *__request_new_page(size_t size);
 extern void init_paging(void);
 extern void __page_fault(struct regs *r);
+
+#define PAGE_ATTRIBUTE_PRESENT 0x1
+#define PAGE_ATTRIBUTE_READ_WRITE 0x2
+#define PAGE_ATTRIBUTE_USER 0x4
+#define PAGE_ATTRIBUTE_WRITE_THROUGH 0x8
+#define PAGE_ATTRIBUTE_CACHE_DISABLE 0x10
+#define PAGE_ATTRIBUTE_ACCESSED 0x20
 
 #endif /* _PAGING_H */

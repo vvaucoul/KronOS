@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/06 17:20:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/13 14:19:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,19 +68,22 @@ bits because these addresses are aligned on 4kb, so the last 12bits should be eq
 
 typedef struct s_page_table
 {
-    t_page pages[PAGE_TABLE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+    t_page pages[PAGE_TABLE_SIZE];
 } t_page_table __attribute__((aligned(PAGE_SIZE)));
 
 typedef struct s_page_directory
 {
-    t_page pages[PAGE_DIRECTORY_SIZE] __attribute__((aligned(PAGE_SIZE)));
+    t_page_table *tables[PAGE_DIRECTORY_SIZE];
+    uint32_t tablesPhysical[PAGE_DIRECTORY_SIZE];
+    uint32_t physicalAddr;
 } t_page_directory __attribute__((aligned(PAGE_SIZE)));
 
 #define Page t_page
 #define PageTable t_page_table
 #define PageDirectory t_page_directory
 
-extern PageDirectory __page_directory __attribute__((aligned(PAGE_SIZE)));
+extern PageDirectory *__kernel_page_directory __attribute__((aligned(PAGE_SIZE)));
+extern PageDirectory *__current_page_directory __attribute__((aligned(PAGE_SIZE)));
 extern PageTable __page_table __attribute__((aligned(PAGE_SIZE)));
 extern bool __paging_enabled;
 

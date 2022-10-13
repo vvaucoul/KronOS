@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 13:21:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/13 15:29:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,6 @@ Heap kheap;
 /*******************************************************************************
  *                           PRIVATE HEAP FUNCTIONS                            *
  ******************************************************************************/
-
-static void __init_heap(uint32_t new_end)
-{
-    HeapBlock *block = (HeapBlock *)kheap.root;
-}
 
 static void __expand_heap(uint32_t size)
 {
@@ -132,44 +127,67 @@ static HeapBlock *__allocate_new_block(uint32_t size)
     }
 }
 
-static data_t *__kmalloc(uint32_t size)
+static data_t *__kmalloc_int(uint32_t size, int align, uint32_t *phys)
 {
-    if (size <= 0)
+    if (size == 0)
         return (NULL);
     else
     {
-        kprintf("Kmalloc %u bytes\n", size);
-        if (kheap.root == NULL)
+        if (align == 1 && (__placement_address & 0xFFFFF000))
         {
-            kprintf("- Init Heap\n");
-            kheap.root = (HeapBlock *)__kbrk(sizeof(HeapBlock));
-            kheap.root->metadata.size = size;
-            kheap.root->metadata.state = HEAP_BLOCK_USED;
-            kheap.root->next = NULL;
-            kheap.root->data = (data_t *)__kbrk(size);
-            return (kheap.root->data);
+            __placement_address &= 0xFFFFF000;
+            __placement_address += 0x1000;
         }
+        if (phys)
+            *phys = __placement_address;
+        data_t *tmp = __placement_address;
+        __placement_address += size;
+        return (tmp);
+    }
+    return (NULL);
+}
+
+static data_t *__init_heap(uint32_t size)
+{
+    kheap.root = (HeapBlock *)__kbrk(sizeof(HeapBlock));
+    if (kheap.root == NULL)
+        return (NULL);
+    else
+    {
+        kheap.root->metadata.state = HEAP_BLOCK_USED;
+        kheap.root->metadata.size = size;
+        kheap.root->data = __kbrk(size);
+        kheap.root->next = NULL;
+        return (kheap.root->data);
+    }
+}
+
+static data_t *__kmalloc_kernel_heap(uint32_t size)
+{
+    if (size == 0)
+        return (NULL);
+    else
+    {
+        if (kheap.root == NULL)
+            return (__init_heap(kheap.end_addr));
         else
         {
-            kprintf("- Get First Free Block\n");
             HeapBlock *block = __get_first_free_block(size);
-            kprintf("- Block: 0x%x\n", block);
-
             if (block == NULL)
             {
-                kprintf("- Allocate New Block : %u bytes\n", size);
-                HeapBlock *new_block = __allocate_new_block(size);
-                kprintf("- New Block: 0x%x\n", new_block);
-                if (new_block == NULL)
+                block = __allocate_new_block(size);
+                if (block == NULL)
                     return (NULL);
                 else
                 {
-                    new_block->metadata.state = HEAP_BLOCK_USED;
-                    new_block->metadata.size = size;
-                    new_block->data = (data_t *)__kbrk(size);
-                    return (new_block->data);
+                    block->metadata.state = HEAP_BLOCK_USED;
+                    block->metadata.size = size;
+                    block->data = (data_t *)__kbrk(size);
+                    return (block->data);
                 }
             }
+            if (block == NULL)
+                return (NULL);
             else
             {
                 block->metadata.state = HEAP_BLOCK_USED;
@@ -179,13 +197,62 @@ static data_t *__kmalloc(uint32_t size)
     }
 }
 
+
+// static data_t *__kmalloc(uint32_t size)
+// {
+//     if (size <= 0)
+//         return (NULL);
+//     else
+//     {
+//         kprintf("Kmalloc %u bytes\n", size);
+//         if (kheap.root == NULL)
+//         {
+//             kprintf("- Init Heap\n");
+//             kheap.root = (HeapBlock *)__kbrk(sizeof(HeapBlock));
+//             kheap.root->metadata.size = size;
+//             kheap.root->metadata.state = HEAP_BLOCK_USED;
+//             kheap.root->next = NULL;
+//             kheap.root->data = (data_t *)__kbrk(size);
+//             return (kheap.root->data);
+//         }
+//         else
+//         {
+//             kprintf("- Get First Free Block\n");
+//             HeapBlock *block = __get_first_free_block(size);
+//             kprintf("- Block: 0x%x\n", block);
+
+//             if (block == NULL)
+//             {
+//                 kprintf("- Allocate New Block : %u bytes\n", size);
+//                 HeapBlock *new_block = __allocate_new_block(size);
+//                 kprintf("- New Block: 0x%x\n", new_block);
+//                 if (new_block == NULL)
+//                     return (NULL);
+//                 else
+//                 {
+//                     new_block->metadata.state = HEAP_BLOCK_USED;
+//                     new_block->metadata.size = size;
+//                     new_block->data = (data_t *)__kbrk(size);
+//                     return (new_block->data);
+//                 }
+//             }
+//             else
+//             {
+//                 block->metadata.state = HEAP_BLOCK_USED;
+//                 return (block->data);
+//             }
+//         }
+//     }
+// }
+
 static data_t *__kcalloc(uint32_t count, uint32_t size)
 {
     if (count < 0 || size < 0)
         return (NULL);
     else
     {
-        data_t *addr = __kmalloc(count * size);
+        // data_t *addr = __kmalloc(count * size);
+        data_t *addr = __kmalloc_kernel_heap(count * size);
         if (addr == NULL)
             return (NULL);
         kmemset(addr, 0, count * size);
@@ -260,7 +327,28 @@ int kheap_init(data_t *start_addr, data_t *end_addr)
 
 data_t *kmalloc(uint32_t size)
 {
-    return (__kmalloc(size));
+    return (__kmalloc_int(size, 0, NULL));
+    // return (__kmalloc(size));
+}
+
+data_t *kmalloc_int(uint32_t size, int align, uint32_t *phys)
+{
+    return (__kmalloc_int(size, align, phys));
+}
+
+data_t *kmalloc_a(uint32_t size)
+{
+    return (__kmalloc_int(size, 1, NULL));
+}
+
+data_t *kmalloc_p(uint32_t size, uint32_t *phys)
+{
+    return (__kmalloc_int(size, 0, phys));
+}
+
+data_t *kmalloc_ap(uint32_t size, uint32_t *phys)
+{
+    return (__kmalloc_int(size, 1, phys));
 }
 
 data_t *krealloc(void *ptr, uint32_t size)

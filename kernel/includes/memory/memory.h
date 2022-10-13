@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:42:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/06 14:23:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/13 14:39:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,29 +25,11 @@
 #define KERNEL_MEMORY_START 0xC0000000
 #define KERNEL_MEMORY_END 0xFFFFFFFF
 
-// #define MEMORY_MAX 4294967296
 #define MEMORY_MAX (4 * 1024 * 1024 * 1024)
 #define MAX_PAGES (MEMORY_MAX / PAGE_SIZE)
-
-
-// typedef struct s_memory_list
-// {
-//     void *value;
-//     struct s_memory_list *next;
-//     struct s_memory_list *prev;
-// } t_memory_list;
-
-// #define Memory_List t_memory_list
-// #ifndef __MEMORY_LIST__
-// #define __MemorySystem Memory_List
-// #define __MEMORY_LIST__
-// #endif
-
-// extern __MemorySystem *__mem_root;
 
 extern uint32_t __placement_address;
 
 extern void init_kernel_memory(void);
-extern size_t __nb_pages;
 
 #endif

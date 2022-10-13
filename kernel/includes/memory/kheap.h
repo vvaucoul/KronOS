@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 13:19:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/13 14:28:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define KHEAP_H
 
 #include <kernel.h>
+#include <memory/memory.h>
 #include <memory/pmm.h>
 #include <memory/memory_map.h>
 
@@ -73,7 +74,13 @@ extern Heap kheap;
 
 extern int kheap_init(data_t *start_addr, data_t *end_addr);
 extern data_t *kbrk(uint32_t size);
+
 extern data_t *kmalloc(uint32_t size);
+extern data_t *kmalloc_a(uint32_t size);
+extern data_t *kmalloc_p(uint32_t size, uint32_t *phys);
+extern data_t *kmalloc_ap(uint32_t size, uint32_t *phys);
+extern data_t *kmalloc_int(uint32_t size, int align, uint32_t *phys);
+
 extern data_t *krealloc(void *ptr, uint32_t size);
 extern uint32_t ksize(data_t *ptr);
 extern void kfree(void *ptr);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/06 17:02:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/15 19:24:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,20 +110,25 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
     kernel_log_info("LOG", "PMM");
 
-    init_paging();
-    kernel_log_info("LOG", "PAGING");
-    // kpause();
-
     /*
     ** Init Kernel Heap with 8MB
     - 20 * 4096 = 81920
     */
 
     void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
-    void *kheap_end_addr = (void *)(kheap_start_addr + (pmm_get_next_available_block() * (PMM_BLOCK_SIZE * PHYSICAL_EXPAND_HEAP_SIZE)));
+    void *kheap_end_addr = (void *)(kheap_start_addr + (pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
     if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
         __PANIC("Error: kheap_init failed");
     kernel_log_info("LOG", "KHEAP");
+    // kpause();
+
+    // kheap_test();
+
+    // kpause();
+    init_paging();
+    kernel_log_info("LOG", "PAGING");
+    // kpause();
+
     init_kernel_memory();
     kernel_log_info("LOG", "KERNEL MEMORY");
 
@@ -149,8 +154,6 @@ int kmain(hex_t magic_number, hex_t addr)
     kprintf("\n");
     ASM_STI();
     // __PANIC("PANIC TEST");
-
-    kprintf("Test:\n");
 
     kheap_test();
     // kpause();

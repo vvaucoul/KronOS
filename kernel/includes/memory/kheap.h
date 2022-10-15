@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/13 14:28:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/15 19:15:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <memory/pmm.h>
 #include <memory/memory_map.h>
 
-#define SIZEOF_KBRK() (sizeof(void *))
 
 #define PHYSICAL_START KMAP.available.start_addr
 #define PHYSICAL_END KMAP.available.end_addr
@@ -30,10 +29,9 @@
 #define PHYSICAL_EXPAND_HEAP_START_OFFSET 0x20
 #define PHYSICAL_EXPAND_HEAP_SIZE 0x1000
 
-#define PHYSICAL_EXPAND_HEAP_START(size) (pmm_alloc_blocks(size))
-#define PHYSICAL_EXPAND_HEAP_END(current_end, size) (void *)(current_end + (pmm_get_next_available_block() * PMM_BLOCK_SIZE + size))
-
 typedef void data_t;
+
+#define SIZEOF_KBRK() (sizeof(data_t *))
 
 enum e_heap_block_state
 {
@@ -58,6 +56,7 @@ typedef struct s_heap
     data_t *end_addr;
     uint32_t max_size;
     uint32_t used_size;
+    uint32_t last_addr;
     uint32_t allocated_blocks;
     t_heap_block *root;
 } __attribute((packed)) t_heap;
@@ -71,6 +70,8 @@ extern Heap kheap;
 #define KHEAP_GET_USED_SIZE() (kheap.used_size)
 #define KHEAP_GET_START_ADDR() (kheap.start_addr)
 #define KHEAP_GET_END_ADDR() (kheap.end_addr)
+#define KHEAP_GET_PLACEMENT_ADDR() (kheap.last_addr)
+#define KHEAP_GET_PHYSICAL_ADDR() (KHEAP_GET_PLACEMENT_ADDR())
 
 extern int kheap_init(data_t *start_addr, data_t *end_addr);
 extern data_t *kbrk(uint32_t size);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/13 15:29:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/15 16:11:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,12 +94,13 @@ static void  __init()
 
     uint32_t i = 0;
 
-    while (i < __placement_address)
+    while (i < KHEAP_GET_PLACEMENT_ADDR())
     {
         alloc_frame(get_page(i, 1, __kernel_page_directory), 0, 0);
         i += PAGE_SIZE;
     }
     isr_register_interrupt_handler(14, __page_fault);
+    // __enable_paging();
     switch_page_directory(__kernel_page_directory);
 }
 

@@ -6,14 +6,17 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 15:24:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/15 15:44:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __WORKFLOWS_H
-# define __WORKFLOWS_H
+#define __WORKFLOWS_H
 
 #include <kernel.h>
+
+#define __WORKFLOW_HEADER() \
+    kprintf(COLOR_END "Starting workflow: " COLOR_CYAN "%s\n" COLOR_END, __FUNCTION__);
 
 /* Kernel Memory Map */
 extern void display_kernel_memory_map(void);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 13:17:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 20:47:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/15 19:12:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,11 @@ extern void pmm_free_blocks(void *addr, uint32_t size);
 ** Get the next available block
 */
 extern int pmm_get_next_available_block(void);
+
+/*
+** Get the next available blocks of size
+*/
+extern int pmm_get_next_available_blocks(uint32_t size);
 
 /*******************************************************************************
  *                                  PMM UTILS                                  *

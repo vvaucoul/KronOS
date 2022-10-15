@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 12:06:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/06 17:03:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/15 19:12:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,7 +207,7 @@ int pmm_init(pmm_physical_addr_t bitmap, uint32_t total_memory_size)
     pmm_info.blocks = (pmm_block_t *)bitmap;
     __pmm_init_blocks(pmm_info.infos.max_blocks * sizeof(pmm_physical_addr_t));
 
-    pmm_info.infos.used_blocks = 0x0;
+    pmm_info.infos.used_blocks = 0;
     pmm_info.infos.memory_map_end = (uint32_t)(&(pmm_info.blocks[pmm_info.infos.max_blocks]));
 
     return (0);
@@ -238,6 +238,11 @@ void pmm_free_blocks(void *addr, uint32_t size)
 int pmm_get_next_available_block(void)
 {
     return (__pmm_get_first_free_block());
+}
+
+int pmm_get_next_available_blocks(uint32_t size)
+{
+    return (__pmm_get_first_free_block_by_size(size));
 }
 
 /* Defragment */

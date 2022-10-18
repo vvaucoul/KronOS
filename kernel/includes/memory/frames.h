@@ -6,14 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/13 14:01:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/17 16:37:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:09:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef _FRAMES_H
 #define _FRAMES_H
 
-#include <kernel.h>
 #include <memory/paging.h>
 
 #define INDEX_FROM_BIT(a) (a / (8 * 4))

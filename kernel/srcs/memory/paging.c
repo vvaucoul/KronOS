@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/17 17:05:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:09:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 #include <asm/asm.h>
 
 #include <memory/kheap.h>
-
-#include <system/isr.h>
 
 PageDirectory *__kernel_page_directory __attribute__((aligned(PAGE_SIZE))) = NULL;
 PageDirectory *__current_page_directory __attribute__((aligned(PAGE_SIZE))) = NULL;

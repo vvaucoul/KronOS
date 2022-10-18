@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 14:23:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/17 16:55:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "../libs/stddef/stddef.h"
 #include "../libs/macros/macros.h"
 #include "../libs/bits/bits.h"
+#include "../libs/assert/assert.h"
 
 extern void kputs(const char *str);
 extern void kuputs(const uint8_t *str);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 19:24:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/15 19:26:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ int kmain(hex_t magic_number, hex_t addr)
     ASM_STI();
     // __PANIC("PANIC TEST");
 
-    kheap_test();
+    // kheap_test();
     // kpause();
 
     /*

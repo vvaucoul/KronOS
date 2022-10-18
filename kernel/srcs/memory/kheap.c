@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 19:23:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/16 12:16:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,18 @@ Heap kheap;
  *                           PRIVATE HEAP FUNCTIONS                            *
  ******************************************************************************/
 
-static void __expand_heap(uint32_t size)
+static int __expand_heap(uint32_t size)
 {
     // kprintf(COLOR_YELLOW "Expand BLOCK\n" COLOR_END);
     void *new_block = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
-    void *new_end_addr = (void *)(kheap.end_addr + (pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
+    if (new_block == NULL)
+        return (1);
+    void *new_end_addr = (void *)(kheap.end_addr + (pmm_get_next_available_block() * (size)));
     kheap.end_addr = new_end_addr;
     kheap.max_size = kheap.end_addr - kheap.start_addr;
     // kprintf(COLOR_GREEN "New Max Size: %u Ko\n" COLOR_END, kheap.max_size / 1024);
     // timer_wait(1000);
+    return (0);
 }
 
 static HeapBlock *__get_first_free_block(uint32_t size)
@@ -93,7 +96,13 @@ static data_t *__kbrk(uint32_t size)
         return (NULL);
     }
     else if (kheap.used_size + size >= kheap.max_size)
-        __expand_heap(PHYSICAL_EXPAND_HEAP_SIZE);
+    {
+        if (__expand_heap(PHYSICAL_EXPAND_HEAP_SIZE) == 1)
+        {
+            kprintf("Not enough memory to expand heap !\n");
+            return (NULL);
+        }
+    }
     addr = (kheap.start_addr + kheap.used_size + size + SIZEOF_KBRK());
     kheap.used_size += size + SIZEOF_KBRK();
     return (addr);

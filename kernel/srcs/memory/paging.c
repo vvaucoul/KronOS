@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 16:11:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/17 17:05:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include <asm/asm.h>
 
 #include <memory/kheap.h>
+
+#include <system/isr.h>
 
 PageDirectory *__kernel_page_directory __attribute__((aligned(PAGE_SIZE))) = NULL;
 PageDirectory *__current_page_directory __attribute__((aligned(PAGE_SIZE))) = NULL;
@@ -93,15 +95,23 @@ static void  __init()
     __current_page_directory = __kernel_page_directory;
 
     uint32_t i = 0;
+    Page *__current_page = NULL;
+
 
     while (i < KHEAP_GET_PLACEMENT_ADDR())
     {
-        alloc_frame(get_page(i, 1, __kernel_page_directory), 0, 0);
+        __current_page = get_page(i, 1, __kernel_page_directory);
+        assert(__current_page == NULL);
+        alloc_frame(__current_page, true, false);
+        // alloc_frame(get_page(i, 1, __kernel_page_directory), 0, 0);
         i += PAGE_SIZE;
     }
     isr_register_interrupt_handler(14, __page_fault);
-    // __enable_paging();
-    switch_page_directory(__kernel_page_directory);
+    __load_page_directory((__current_page_directory->tablesPhysical));
+    __enable_paging();
+    // switch_page_directory(__current_page_directory);
+    kpause();
+    __paging_enabled = true;
 }
 
 static void __init_paging(void)
@@ -113,8 +123,9 @@ static void __init_paging(void)
 
     // TO DO
 
+    // __enable_paging();
     __init();
-    return ;
+    return;
 
     /*
 

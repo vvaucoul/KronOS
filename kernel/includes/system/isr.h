@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 18:49:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/16 12:17:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,5 +33,6 @@ typedef void (*ISR)(t_regs *);
 extern ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS];
 
 void isrs_install();
+void isr_register_interrupt_handler(int num, ISR handler);
 
 #endif // !ISR_H

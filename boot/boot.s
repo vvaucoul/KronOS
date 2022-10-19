@@ -39,7 +39,7 @@ __kernel_tmp_page_directory:
 	times(1024 - PDE_INDEX - 1) dd 0
 
 ; Stack Section
-section .bss, nobits
+section .bootstrap_stack, nobits
 	align 4
 	resb STACK_SIZE
 	stack_top:
@@ -76,7 +76,6 @@ _higher_half_kernel:
 	; Unmap the first 4MB of memory
 	mov dword[__kernel_tmp_page_directory], 0
 	invlpg[0]
-
 	mov esp, stack_top
 	push ebx
 	call kmain

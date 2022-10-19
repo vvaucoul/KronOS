@@ -19,7 +19,7 @@ global BOOTLOADER_MAGIC
 bits 32
 global __init_multiboot
 
-section .multiboot
+section .multiboot.data
 	align 4
 	__init_multiboot:
 	dd MAGIC
@@ -36,3 +36,5 @@ section .multiboot
 	dd 800
 	dd 400
 	dd 32
+	
+	ret

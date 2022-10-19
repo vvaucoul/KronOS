@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 17:46:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/19 14:20:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,7 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr)
 
 int kmain(hex_t magic_number, hex_t addr)
 {
+    return (0);
     ASM_CLI();
     if ((init_kernel(magic_number, addr)))
         return (1);

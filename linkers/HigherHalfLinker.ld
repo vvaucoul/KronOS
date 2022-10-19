@@ -3,9 +3,9 @@ ENTRY(low_kernel_entry)
 
 SECTIONS
 {
-	__align_size = 0x1000;
-	__kernel_physical_memory_start = 0x00100000; /* Start Kernel at 1MB */
-	__kernel_virtual_memory_start = 0xC0000000; /* Start Kernel at 3GB */
+	__align_size = 0x1000; /* Align to 4K (Page-Align) */
+	__kernel_physical_memory_start = 0x00100000; /* Start Kernel at 1MB (Physical address space) */
+	__kernel_virtual_memory_start = 0xC0000000; /* Start Kernel at 3GB + 1MB (Virtual address space) */
 
     /******************************************************************************
     *                              BOOTING SECTTIONS                              *
@@ -14,29 +14,17 @@ SECTIONS
 	. = __kernel_physical_memory_start;
 	__multiboot_start = .;
 
-	.multiboot.text : ALIGN(__align_size)
+	.multiboot.text : 
 	{
 		__multiboot_text_start = .;
 		*(.multiboot.text)
 		__multiboot_text_end = .;
 	}
-	.multiboot.bss : ALIGN(__align_size)
-	{
-		__multiboot_bss_start = .;
-		*(.multiboot.bss)
-		__multiboot_bss_end = .;
-	}
-	.multiboot.data : ALIGN(__align_size)
+	.multiboot.data : 
 	{
 		__multiboot_data_start = .;
 		*(.multiboot.data)
 		__multiboot_data_end = .;
-	}
-	.multiboot.rodata : ALIGN(__align_size)
-	{
-		__multiboot_rodata_start = .;
-		*(.multiboot.rodata)
-		__multiboot_rodata_end = .;
 	}
 	
 	__multiboot_end = .;
@@ -48,32 +36,35 @@ SECTIONS
 	. += __kernel_virtual_memory_start;
 	__kernel_section_start = .;
 
-	.text ALIGN(4096) : AT(ADDR(.text) - 0xC0000000)
+	.text ALIGN(__align_size) : AT(ADDR(.text) - 0xC0000000)
 	{
 		__kernel_text_section_start = .;
-		*(.multiboot)
+		/* *(.multiboot) */
 		*(.text)
 		__kernel_text_section_end = .;
 	}
-	.rodata ALIGN(4096) : AT(ADDR(.rodata) - 0xC0000000)
+	.rodata ALIGN(__align_size) : AT(ADDR(.rodata) - 0xC0000000)
 	{
 		__kernel_rodata_section_start = .;
        *(.rodata*)
 		__kernel_rodata_section_end = .;
 	}
-	.data ALIGN (4096) : AT(ADDR(.data) - 0xC0000000)
+	.data ALIGN (__align_size) : AT(ADDR(.data) - 0xC0000000)
 	{
 		__kernel_data_section_start = .;
 		*(.data)
 		__kernel_data_section_end = .;
 	}
-	.bss ALIGN(4096) : AT(ADDR(.bss) - 0xC0000000)
+	.bss ALIGN(__align_size) : AT(ADDR(.bss) - 0xC0000000)
 	{
 		__kernel_bss_section_start = .;
 		*(COMMON)
 		*(.bss)
+		*(.bootstrap_stack)
 		__kernel_bss_section_end = .;
 	}
 
 	__kernel_section_end = .;
+	__kernel_virtual_memory_end = .;
+	__kernel_physical_memory_end = .;
 }

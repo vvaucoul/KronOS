@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 16:09:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/18 17:47:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,14 @@
 
 #include <memory/kheap.h>
 
+#include <system/pit.h>
+
 PageDirectory *__kernel_page_directory __attribute__((aligned(PAGE_SIZE))) = NULL;
 PageDirectory *__current_page_directory __attribute__((aligned(PAGE_SIZE))) = NULL;
 
 bool __paging_enabled = false;
+
+uint32_t *__kernel_page_memory = NULL;
 
 /* TMP */
 
@@ -34,7 +38,7 @@ bool __paging_enabled = false;
 //     for (uint32_t i = 0; i < PAGE_DIRECTORY_SIZE; i++)
 //     {
 //         __tmp_page_directory[i] = 0x00000002;
-//     }   
+//     }
 
 //     for (uint32_t i = 0; i < PAGE_TABLE_SIZE; i++)
 //     {
@@ -57,6 +61,82 @@ bool __paging_enabled = false;
 //     __UNUSED(size);
 // }
 
+/* Convert Virtual to Physical Address */
+__paging_data_t *virtual_to_phys(PageDirectory *dir, xvaddr_t *vaddr)
+{
+    if (__paging_enabled == false)
+        return ((__paging_data_t *)vaddr - KERNEL_VIRTUAL_BASE);
+    else
+    {
+        uint32_t page_directory_index = PAGE_DIRECTORY_INDEX(vaddr);
+        uint32_t page_table_index = PAGE_TABLE_INDEX(vaddr);
+        uint32_t page_frame_offset = PAGE_FRAME_INDEX(vaddr);
+
+        assert(dir->tables[page_directory_index] == NULL);
+
+        PageTable *table = dir->tables[page_directory_index];
+        assert(table->pages[page_table_index].present);
+
+        uint32_t frame = table->pages[page_table_index].frame;
+        uint32_t phys = (frame << 12) + page_frame_offset;
+        return ((__paging_data_t *)phys);
+    }
+}
+
+__paging_data_t *paging_malloc(uint32_t size, bool align)
+{
+    __paging_data_t *addr = __kernel_page_memory;
+
+    if (align && (IS_ALIGNED(addr) == false))
+        addr = (void *)ALIGN_PAGE(addr);
+    __kernel_page_memory += size;
+    return (addr);
+}
+
+void allocate_region(PageDirectory *dir, vaddr_t vaddr_start, vaddr_t vaddr_end, uint32_t hidden, bool is_kernel, bool is_writable)
+{
+    vaddr_t va_start = vaddr_start & VPAGE_MASK;
+    vaddr_t va_end = vaddr_end & VPAGE_MASK;
+
+    assert(va_start >= va_end);
+    while (va_start <= va_end)
+    {
+        if (hidden == true)
+            allocate_page(dir, va_start, va_start / PAGE_SIZE, is_kernel, is_writable);
+        else
+            allocate_page(dir, va_start, 0, is_kernel, is_writable);
+        va_start += PAGE_SIZE;
+    }
+}
+
+void allocate_page(PageDirectory *dir, vaddr_t vaddr, vaddr_t frame, bool is_kernel, bool is_writable)
+{
+    PageTable *table = NULL;
+
+    assert(dir == NULL);
+    uint32_t page_directory_index = PAGE_DIRECTORY_INDEX(vaddr);
+    uint32_t page_table_index = PAGE_TABLE_INDEX(vaddr);
+
+    table = dir->tables[page_directory_index];
+    if (table == NULL)
+    {
+        // Check Heap enabled or not
+        // if ()
+        // {
+        // }
+
+        table = kmalloc_a(sizeof(PageTable));
+        kmemset(table, 0, sizeof(PageTable));
+
+        uint32_t table_phys = (uint32_t)virtual_to_phys(__kernel_page_directory, table);
+        // dir->tables[page_directory_index]->pages.frame = table_phys >> 12;
+        // dir->tables[page_directory_index]->pages.present = 1;
+        // dir->tables[page_directory_index]->pages.rw = (is_writable) ? 1 : 0;
+        // dir->tables[page_directory_index]->pages.user = (is_kernel) ? 0 : 1;
+        // dir->tables[page_directory_index]->pages->pageSize =
+    }
+}
+
 Page *get_page(uint32_t addr, int make, PageDirectory *dir)
 {
     addr /= PAGE_SIZE;
@@ -73,16 +153,43 @@ Page *get_page(uint32_t addr, int make, PageDirectory *dir)
         dir->tablesPhysical[table_idx] = tmp | 0x7;
         return &dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE];
     }
-    return NULL;
+    return (NULL);
+}
+
+static void inline_enable_paging()
+{
+    uint32_t cr0;
+    uint32_t cr4;
+
+    asm volatile("mov %%cr4, %0"
+                 : "=r"(cr4));
+    CLEAR_PSEBIT(cr4);
+    asm volatile("mov %0, %%cr4" ::"r"(cr4));
+
+    asm volatile("mov %%cr0, %0"
+                 : "=r"(cr0));
+    SET_PGBIT(cr0);
+    asm volatile("mov %0, %%cr0" ::"r"(cr0));
+
+    __paging_enabled = true;
 }
 
 static void switch_page_directory(PageDirectory *dir)
 {
+    // __current_page_directory = dir;
+    // __load_page_directory(&dir->tablesPhysical);
+
+    uint32_t cr0 = 0;
+    uint32_t cr4 = 0;
+
     __current_page_directory = dir;
-    __load_page_directory(dir->tablesPhysical);
+    CLEAR_PSEBIT(cr4);
+    asm volatile("mov %0, %%cr3" ::"r"(&dir->tablesPhysical));
+    asm volatile("mov %%cr0, %0"
+                 : "=r"(cr0));
 }
 
-static void  __init()
+static void __init()
 {
     uint32_t end_mem = 0x1000000;
     __nframes = end_mem / PAGE_SIZE;
@@ -90,30 +197,40 @@ static void  __init()
     kmemset(__frames, 0, INDEX_FROM_BIT(__nframes));
 
     __kernel_page_directory = (PageDirectory *)kmalloc(sizeof(PageDirectory));
+    kmemset(__kernel_page_directory, 0, sizeof(PageDirectory));
     __current_page_directory = __kernel_page_directory;
 
     uint32_t i = 0;
     Page *__current_page = NULL;
 
-
     while (i < KHEAP_GET_PLACEMENT_ADDR())
     {
         __current_page = get_page(i, 1, __kernel_page_directory);
         assert(__current_page == NULL);
-        alloc_frame(__current_page, true, false);
-        // alloc_frame(get_page(i, 1, __kernel_page_directory), 0, 0);
+        alloc_frame(__current_page, false, false);
         i += PAGE_SIZE;
     }
     isr_register_interrupt_handler(14, __page_fault);
-    __load_page_directory((__current_page_directory->tablesPhysical));
-    __enable_paging();
-    // switch_page_directory(__current_page_directory);
+    // __load_page_directory((__current_page_directory->tablesPhysical));
+    // __enable_paging();
+    switch_page_directory(__current_page_directory);
     kpause();
     __paging_enabled = true;
 }
 
 static void __init_paging(void)
 {
+    __kernel_page_memory = __KERNEL_PAGE_MEMORY_INIT();
+    kprintf("Paging: Page Memory ADDR: 0x%x\n", __kernel_page_memory);
+    // __kernel_page_directory = paging_malloc(sizeof(PageDirectory), true);
+    // kmemset(__kernel_page_directory, 0, sizeof(PageDirectory));
+
+    // uint32_t i = 
+
+    // kpause();
+    // __init();
+    return;
+
     // __init_tmp_pages();
     // isr_register_interrupt_handler(14, __page_fault);
     // __paging_enabled = true;
@@ -122,8 +239,6 @@ static void __init_paging(void)
     // TO DO
 
     // __enable_paging();
-    __init();
-    return;
 
     /*
 
@@ -222,7 +337,7 @@ static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], str
         kmemjoin(buffer, PAGE_FAULT_PANIC_111, 0, kstrlen(PAGE_FAULT_PANIC_111));
     else
         kmemjoin(buffer, PAGE_FAULT_PANIC_UNKNOWN, 0, kstrlen(PAGE_FAULT_PANIC_UNKNOWN));
-    
+
     kmemjoin(buffer, "\n\tError: ", kstrlen(buffer), 9);
     if (us == false && rw == false && present == false)
         kmemjoin(buffer, "0 - 0 - 0", kstrlen(buffer), 9);

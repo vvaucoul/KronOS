@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:42:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 15:58:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:32:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,5 @@
 
 #define MEMORY_MAX (4 * 1024 * 1024 * 1024)
 #define MAX_PAGES (MEMORY_MAX / PAGE_SIZE)
-
-// extern uint32_t __placement_address;
-
-extern void init_kernel_memory(void);
 
 #endif

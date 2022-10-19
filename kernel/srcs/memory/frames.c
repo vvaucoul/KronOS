@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/13 14:01:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 16:07:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:27:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 uint32_t *__frames = NULL;
 uint32_t __nframes = 0;
-uint32_t __placement_address = 0;
 
 // Set a bit in the frames bitset
 void set_frame(uint32_t addr)
@@ -68,9 +67,7 @@ uint32_t get_first_frame()
 void alloc_frame(Page *page, bool is_kernel, bool is_writeable)
 {
     if (page->frame != 0)
-    {
         return;
-    }
     else
     {
         uint32_t idx = get_first_frame();
@@ -91,9 +88,7 @@ void free_frame(Page *page)
 {
     uint32_t frame;
     if (!(frame = page->frame))
-    {
         return;
-    }
     else
     {
         clear_frame(frame);

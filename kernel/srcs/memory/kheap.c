@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/16 12:16:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/18 16:33:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,53 +217,6 @@ static data_t *__kmalloc_kernel_heap(uint32_t size, bool align)
         }
     }
 }
-
-// static data_t *__kmalloc(uint32_t size)
-// {
-//     if (size <= 0)
-//         return (NULL);
-//     else
-//     {
-//         kprintf("Kmalloc %u bytes\n", size);
-//         if (kheap.root == NULL)
-//         {
-//             kprintf("- Init Heap\n");
-//             kheap.root = (HeapBlock *)__kbrk(sizeof(HeapBlock));
-//             kheap.root->metadata.size = size;
-//             kheap.root->metadata.state = HEAP_BLOCK_USED;
-//             kheap.root->next = NULL;
-//             kheap.root->data = (data_t *)__kbrk(size);
-//             return (kheap.root->data);
-//         }
-//         else
-//         {
-//             kprintf("- Get First Free Block\n");
-//             HeapBlock *block = __get_first_free_block(size);
-//             kprintf("- Block: 0x%x\n", block);
-
-//             if (block == NULL)
-//             {
-//                 kprintf("- Allocate New Block : %u bytes\n", size);
-//                 HeapBlock *new_block = __allocate_new_block(size);
-//                 kprintf("- New Block: 0x%x\n", new_block);
-//                 if (new_block == NULL)
-//                     return (NULL);
-//                 else
-//                 {
-//                     new_block->metadata.state = HEAP_BLOCK_USED;
-//                     new_block->metadata.size = size;
-//                     new_block->data = (data_t *)__kbrk(size);
-//                     return (new_block->data);
-//                 }
-//             }
-//             else
-//             {
-//                 block->metadata.state = HEAP_BLOCK_USED;
-//                 return (block->data);
-//             }
-//         }
-//     }
-// }
 
 static data_t *__kcalloc(uint32_t count, uint32_t size)
 {

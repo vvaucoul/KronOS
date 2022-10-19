@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 19:26:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/18 17:46:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,9 +129,6 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "PAGING");
     // kpause();
 
-    init_kernel_memory();
-    kernel_log_info("LOG", "KERNEL MEMORY");
-
     enable_fpu();
     kernel_log_info("LOG", "FPU");
     return (0);
@@ -153,6 +150,7 @@ int kmain(hex_t magic_number, hex_t addr)
         return (1);
     kprintf("\n");
     ASM_STI();
+    // kpause();
     // __PANIC("PANIC TEST");
 
     // kheap_test();

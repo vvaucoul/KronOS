@@ -20,7 +20,6 @@ SECTIONS
 		*(.multiboot.text)
 		__multiboot_text_end = .;
 	}
-
 	.multiboot.bss : ALIGN(__align_size)
 	{
 		__multiboot_bss_start = .;
@@ -39,10 +38,7 @@ SECTIONS
 		*(.multiboot.rodata)
 		__multiboot_rodata_end = .;
 	}
-
-	__multiboot_bss =  __multiboot_bss_start - __multiboot_start + 0x00100000;
-	__multiboot_end_addr = . - __multiboot_start + 0x00100000;
-	__multiboot_start_addr = __multiboot_start - __kernel_physical_memory_start + 0x00100000;
+	
 	__multiboot_end = .;
 
     /******************************************************************************
@@ -50,7 +46,7 @@ SECTIONS
     ******************************************************************************/
 
 	. += __kernel_virtual_memory_start;
-	__kernel_start = .;
+	__kernel_section_start = .;
 
 	.text ALIGN(4096) : AT(ADDR(.text) - 0xC0000000)
 	{
@@ -59,17 +55,17 @@ SECTIONS
 		*(.text)
 		__kernel_text_section_end = .;
 	}
-	.data ALIGN (4096) : AT(ADDR(.data) - 0xC0000000)
-	{
-		__kernel_data_section_start = .;
-		*(.data)
-		__kernel_data_section_end = .;
-	}
 	.rodata ALIGN(4096) : AT(ADDR(.rodata) - 0xC0000000)
 	{
 		__kernel_rodata_section_start = .;
        *(.rodata*)
 		__kernel_rodata_section_end = .;
+	}
+	.data ALIGN (4096) : AT(ADDR(.data) - 0xC0000000)
+	{
+		__kernel_data_section_start = .;
+		*(.data)
+		__kernel_data_section_end = .;
 	}
 	.bss ALIGN(4096) : AT(ADDR(.bss) - 0xC0000000)
 	{
@@ -79,8 +75,5 @@ SECTIONS
 		__kernel_bss_section_end = .;
 	}
 
-	__kernel_end = .;
-	__kernel_bss =  __kernel_bss_section_start - 0xC0000000 + 0x00100000;
-	__kernel_end_addr = . - 0xC0000000 + 0x00100000;
-	__kernel_start_addr = low_kernel_entry - __kernel_start + 0x00100000;
+	__kernel_section_end = .;
 }

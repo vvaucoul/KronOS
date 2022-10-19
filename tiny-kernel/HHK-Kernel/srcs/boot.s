@@ -4,7 +4,8 @@ extern _main
 MEMALIGN equ 1 << 0
 MEMINFO equ 1 << 1
 MEMVIDEO equ 1 << 2
-FLAGS equ 0x1BADB002
+FLAGS equ MEMALIGN | MEMINFO | MEMVIDEO
+MAGIC equ 0x1BADB002
 CHECKSUM equ -(MAGIC + FLAGS)
 
 KERNEL_VIRTUAL_BASE equ 0xC0000000
@@ -54,10 +55,12 @@ higher_half_kernel:
     
     push eax
     push ebx
-    call _kmain
+
+    extern kmain
+    call kmain
     hlt
 
-section .bss
+section .bsss
     align 32
 stack:
     resb STACK_SIZE

@@ -1,5 +1,5 @@
 OUTPUT_FORMAT(elf32-i386)
-ENTRY(lower_half_kernels)
+ENTRY(lower_half_kernel)
  
 SECTIONS {
     . = 0xC0100000;

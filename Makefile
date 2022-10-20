@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/20 13:42:43 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/10/20 15:43:31 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,11 +28,24 @@ include $(MK_INCLUDE_DIR)/ShellRules-Dependencies.mk
 #*                                     VAR                                     *
 #*******************************************************************************
 
+ifeq ($(CHECK_CLANG_INSTALL), false)
+	CLANG_INSTALLED	=	false
+else
+	CLANG_INSTALLED	=	true
+endif
+
 NAME				=	kfs
 ISO					=	$(NAME).iso
 LIBKFS				=	lkfs
 LIBKFS_A			=	libkfs/libkfs.a
-CC					=	clang
+
+# Todo: Check clang version / do not use gcc -> error
+ifeq ($(CLANG_INSTALLED), false)
+	CC					=	gcc
+else
+	CC					=	clang-12
+endif
+
 LD					=	ld
 INLCUDES_PATH		=	-I./kernel/includes/ \
 						-I./libkfs/includes/
@@ -97,7 +110,7 @@ $(NAME): ascii $(XORRISO) $(LIBKFS) $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BI
 	@true
 
 $(LIBKFS):
-	@make -s -C libkfs
+	@make -s -C libkfs CLANG_INSTALLED=$(CLANG_INSTALLED)
 	@printf "$(_LWHITE)- LIBKFS$(_END)$(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(BOOT): $(KBOOT_OBJS)

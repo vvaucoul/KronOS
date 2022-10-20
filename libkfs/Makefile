@@ -6,12 +6,18 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/13 12:16:35 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/10/20 15:42:29 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME 			= libkfs.a
-CC 				= clang
+
+ifeq ($(CLANG_INSTALLED), false)
+	CC 			= gcc
+else
+	CC 			= clang-12
+endif
+
 ASM 			= nasm
 INLCUDES_PATH 	= -I./includes/ \
 				-I./libs/

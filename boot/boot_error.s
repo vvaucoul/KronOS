@@ -1,8 +1,6 @@
-%define DEFAULT_MEMORY_PLACEMENT 0x000B8000
-
-section	.data
-ERROR_MSG db "Unknown error", 0
-FILE_MSG db "File not found", 0
+%define __VGA_MEMORY__ 0x000B8000
+%define __VGA_MEMORY_HHK__ 0xC00B8000
+IS_HIGHER_HALF_KERNEL equ 1
 
 section .text
 
@@ -10,27 +8,33 @@ extern bsod
 
 global display_error_msg
 display_error_msg:
-    ; Clear the screen
-    call __clear_screen
+    mov edi, __VGA_MEMORY__
 
-    ; Display the error message
-    mov edi, ERROR_MSG
-    mov esi, FILE_MSG
-    push esi
-    push edi
-    call bsod
-    pop edi
-    pop esi
+    ; Clear the screen
+    mov ecx, IS_HIGHER_HALF_KERNEL
+    cmp ecx, 0
+    je __clear_screen
+    jne __clear_screen_higher
     ret
+
+__display_bsod:
+    call bsod
+    ret
+
+__clear_screen_higher:
+    mov edi, __VGA_MEMORY_HHK__
+    jmp __clear_screen
 
 __clear_screen:
-    xor ecx, ecx
+    xor esi, esi
+
     .loop:
-        cmp ecx, 80 * 50
+        cmp esi, 80 * 50
         je .ret
-        mov dword [DEFAULT_MEMORY_PLACEMENT + ecx], 0x0000
-        add ecx, 2
+        mov dword [edi + esi], 0x0000
+        add esi, 2
         jmp .loop
-    ret
+    jmp .ret
 .ret:
+    call __display_bsod
     ret

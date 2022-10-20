@@ -1,5 +1,5 @@
 OUTPUT_FORMAT(elf32-i386)
-ENTRY(low_kernel_entry)
+ENTRY(lower_half_kernel)
 
 SECTIONS
 {
@@ -36,14 +36,14 @@ SECTIONS
 	. += __kernel_virtual_memory_start;
 	__kernel_section_start = .;
 
-	.text ALIGN(__align_size) : AT(ADDR(.text) - 0xC0000000)
+	.text : AT(ADDR(.text) - 0xC0000000)
 	{
 		__kernel_text_section_start = .;
 		/* *(.multiboot) */
 		*(.text)
 		__kernel_text_section_end = .;
 	}
-	.rodata ALIGN(__align_size) : AT(ADDR(.rodata) - 0xC0000000)
+	.rodata : AT(ADDR(.rodata) - 0xC0000000)
 	{
 		__kernel_rodata_section_start = .;
        *(.rodata*)
@@ -55,7 +55,7 @@ SECTIONS
 		*(.data)
 		__kernel_data_section_end = .;
 	}
-	.bss ALIGN(__align_size) : AT(ADDR(.bss) - 0xC0000000)
+	.bss : AT(ADDR(.bss) - 0xC0000000)
 	{
 		__kernel_bss_section_start = .;
 		*(COMMON)

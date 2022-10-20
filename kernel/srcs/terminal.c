@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/12 19:21:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/20 13:59:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,7 @@ void terminal_initialize(void)
     terminal_column = 0;
     terminal_screen = 0;
     terminal_color = VGA_ENTRY_COLOR(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-    if (__HIGHER_HALF_KERNEL__ == true)
-        terminal_buffer = __HIGHER_HALF_VGA_MEMORY__;
-    else
-        terminal_buffer = __VGA_MEMORY__;
+    terminal_buffer = __VGA_MEMORY__;
     for (size_t y = 0; y < VGA_HEIGHT; y++)
     {
         for (size_t x = 0; x < VGA_WIDTH; x++)

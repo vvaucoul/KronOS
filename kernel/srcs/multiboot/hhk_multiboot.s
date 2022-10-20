@@ -17,11 +17,12 @@ global BOOTLOADER_MAGIC
 ;*******************************************************************************
 
 bits 32
-global __init_multiboot
+global __hhk_multiboot
 
-section .multiboot.data
+__hhk_multiboot:
+section .text
 	align 4
-	__init_multiboot:
+    MultiBootHeader:
 	dd MAGIC
 	dd FLAGS
 	dd CHECKSUM

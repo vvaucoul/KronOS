@@ -5,7 +5,6 @@
 STACK_SIZE equ 0x19998 ; 1MB stack
 
 global __call_kmain
-extern BOOTLOADER_MAGIC
 extern display_error_msg
 extern hhk_loader
 
@@ -13,53 +12,50 @@ extern hhk_loader
 ;*                        HIGHER HALF KERNEL CONSTANTS                         *
 ;*******************************************************************************
 
-KERNEL_VIRTUAL_MEMORY equ 0xC0000000
-PDE_INDEX equ KERNEL_VIRTUAL_MEMORY >> 22
-PSE_BIT equ 0x00000010
-PG_BIT equ 0x80000000
+KERNEL_VIRTUAL_BASE equ 0xC0000000
+KERNEL_PHYSICAL_BASE equ 0x00100000
+KERNEL_PAGE_NUMBER equ (KERNEL_VIRTUAL_BASE) >> 22
+PSE_BIT equ 0x00000010 ; Page Size Extension bit
+PG_BIT equ 0x80000000 ; Page Global bit
 
 ;*******************************************************************************
 ;*                                  SECTIONS                                   *
 ;*******************************************************************************
 
-; Multiboot Section
-section .multiboot
-	extern __init_multiboot
-	align 4
-	call __init_multiboot
-
 ; Data Section
 section .data
-align 4096
-global __kernel_tmp_page_directory
-__kernel_tmp_page_directory:
-	dd 0x00000083 ; dd 4-byte constants
-	times(PDE_INDEX - 1) dd 0
-	dd 0x00000083
-	times(1024 - PDE_INDEX - 1) dd 0
+align 0x1000
+; global BootPageDirectory
+BootPageDirectory:
+	dd 0x00000083 ; 10000011 - dd: 4bytes constant
+    times (KERNEL_PAGE_NUMBER - 1) dd 0
+    dd 0x00000083 ; 10000011
+    times (1024 - KERNEL_PAGE_NUMBER - 1) dd 0
 
-; Stack Section
-section .bootstrap_stack, nobits
+; Multiboot Section
+extern __hhk_multiboot
+section .text
 	align 4
-	resb STACK_SIZE
-	stack_top:
+	call __hhk_multiboot
 
 ; Kernel Entry
 section .text
-global _higher_half_kernel
-global low_kernel_entry
+align 4
+global _lower_half_kernel
 
 extern kmain
 
-low_kernel_entry:
-	jmp _kernel_entry
-_kernel_entry:
+lower_half_kernel:
+global lower_half_kernel
+
+_lower_half_kernel:
+	cli
 	; Update Page Directory
-	mov ecx, (__kernel_tmp_page_directory - KERNEL_VIRTUAL_MEMORY)
+	mov ecx, (BootPageDirectory - KERNEL_VIRTUAL_BASE)
 	mov cr3, ecx
 
 	; Enable 4MB Pages
-	mov eax, cr4
+	mov ecx, cr4
 	mov ecx, PSE_BIT
 	mov cr4, ecx
 
@@ -69,18 +65,31 @@ _kernel_entry:
 	mov cr0, ecx
 
 	; Jump to higher half kernel (jump virtual memory)
-	lea ecx, [_higher_half_kernel]
+	lea ecx, [higher_half_kernel]
 	jmp ecx
 
-_higher_half_kernel:
+higher_half_kernel:
 	; Unmap the first 4MB of memory
-	mov dword[__kernel_tmp_page_directory], 0
+	mov dword[BootPageDirectory], 0
 	invlpg[0]
-	mov esp, stack_top
+
+	mov esp, stack + STACK_SIZE 
+
 	push ebx
-	call kmain
+	push eax
+
 	cli
+	call kmain
+	pop eax
+	cmp eax, 1
 	call display_error_msg
+	hlt
 .hang:
 	hlt
 	jmp .hang
+
+; Stack Section
+section .bss
+	align 32
+stack:
+	resb STACK_SIZE

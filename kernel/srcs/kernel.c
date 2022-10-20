@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/19 14:20:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/20 15:06:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <system/panic.h>
 #include <system/sections.h>
 #include <system/fpu.h>
+#include <system/bsod.h>
 
 #include <drivers/keyboard.h>
 #include <drivers/display.h>
@@ -62,29 +63,41 @@ void kernel_log_info(const char *part, const char *name)
         kprintf(COLOR_YELLOW "[%s] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "%s " COLOR_END "\n", part, name);
 }
 
+static void __hhk_log(void)
+{
+    if (__HIGHER_HALF_KERNEL__ == true)
+        kernel_log_info("LOG", "HHK: TRUE");
+    else
+        kernel_log_info("LOG", "HHK: FALSE");
+}
+
 static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
     ksh_header();
+    __hhk_log();
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
 
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
-        return (1);
+        return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
     else
     {
         __multiboot_info = (MultibootInfo *)(addr);
+        assert(__multiboot_info == NULL);
         if (__multiboot_info == NULL)
             __PANIC("Error: __multiboot struct is invalid");
         if (multiboot_init(__multiboot_info))
             __PANIC("Error: multiboot_init failed");
+        kpause();
         kernel_log_info("LOG", "MULTIBOOT");
         if (get_kernel_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
     }
+    kpause();
     gdt_install();
     kernel_log_info("LOG", "GDT");
     idt_install();
@@ -145,7 +158,6 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr)
 
 int kmain(hex_t magic_number, hex_t addr)
 {
-    return (0);
     ASM_CLI();
     if ((init_kernel(magic_number, addr)))
         return (1);

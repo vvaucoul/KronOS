@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 19:02:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/20 15:06:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,14 @@ bool multiboot_check_magic_number(hex_t magic_number)
 
 int multiboot_init(MultibootInfo *mboot_ptr)
 {
-    if (mboot_ptr->flags & 0)
+    kpause();
+    kprintf("mboot_ptr: %p\n", mboot_ptr);
+    if (CHECK_FLAG(mboot_ptr->flags, 0))
     {
         kprintf(COLOR_GREEN "[CHECK] FLAGS: " COLOR_RED "INVALID " COLOR_END "\n");
         return (1);
     }
+    kpause();
     if ((mboot_ptr->flags & MULTIBOOT_INFO_MEMORY) == 0)
     {
         kprintf(COLOR_GREEN "[CHECK] MEMORY: " COLOR_RED "INVALID " COLOR_END "\n");

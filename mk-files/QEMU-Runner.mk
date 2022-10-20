@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/12 20:17:06 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/10/20 13:52:46 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,7 @@ run-curses: $(NAME)
 
 run-debug: $(NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
-	@qemu-system-i386 $(GLOBAL_QEMU_FLAGS) --enable-kvm -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std
+	@qemu-system-i386 $(GLOBAL_QEMU_FLAGS) --enable-kvm -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -serial file:serial.log
 
 run-disk: $(NAME) $(DISK_NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"

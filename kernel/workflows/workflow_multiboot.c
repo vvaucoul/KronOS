@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/29 10:15:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/29 10:19:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 19:02:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <workflows/workflows.h>
-
 #include <multiboot/multiboot.h>
+#include <workflows/workflows.h>
+#include <memory/memory.h>
 
 void display_multiboot_infos(void)
 {
@@ -31,20 +31,23 @@ void display_multiboot_infos(void)
         kprintf("- " COLOR_CYAN "Memory Map:\n" COLOR_END);
     else
         kprintf("- " COLOR_CYAN "Memory Map: " COLOR_RED "none" COLOR_END "\n");
-    for (uint32_t i = 0; i < __multiboot_info->mmap_length; i += sizeof(MultibootMemoryMap))
-    {
-        MultibootMemoryMap *mmap = (MultibootMemoryMap *)(__multiboot_info->mmap_addr + i);
-        if (mmap->type == __MULTIBOOT_MEMORY_AVAILABLE)
-        {
-            kprintf("  - " COLOR_CYAN "size: " COLOR_GREEN "%u" COLOR_CYAN ", addr: " COLOR_GREEN "0x%x%x" COLOR_CYAN ", len: " COLOR_GREEN "%u%u" COLOR_CYAN ", type: " COLOR_YELLOW "%d" COLOR_CYAN "\n" COLOR_END,
-                    mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high, mmap->type);
-        }
-        else
-        {
-            kprintf("  - " COLOR_CYAN "size: " COLOR_GREEN "%u" COLOR_CYAN ", addr: " COLOR_GREEN "0x%x%x" COLOR_CYAN ", len: " COLOR_GREEN "%u%u" COLOR_CYAN ", type: " COLOR_GREEN "%u" COLOR_CYAN "\n" COLOR_END,
-                    mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high, mmap->type);
-        }
-    }
+    // kprintf("- " COLOR_CYAN "Start ADDR: 0x%x\n" COLOR_END, KMAP.available.start_addr);
+    
+    // todo !
+
+    // for (uint32_t i = 0; i < __multiboot_info->mmap_length + KERNEL_VIRTUAL_BASE; i += sizeof(MultibootMemoryMap))
+    // {
+    //     MultibootMemoryMap *mmap = (MultibootMemoryMap *)(__multiboot_info->mmap_addr + KERNEL_VIRTUAL_BASE + i);
+    //     if (mmap->type == __MULTIBOOT_MEMORY_AVAILABLE)
+    //     {
+    //         kprintf("  - " COLOR_CYAN "size: " COLOR_GREEN "%u" COLOR_CYAN ", addr: " COLOR_GREEN "0x%x%x" COLOR_CYAN ", len: " COLOR_GREEN "%u%u" COLOR_CYAN ", type: " COLOR_YELLOW "%d" COLOR_CYAN "\n" COLOR_END,
+    //                 mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high, mmap->type);
+    //     }
+    //     else
+    //     {
+    //         continue;
+    //     }
+    // }
     kprintf("\n" COLOR_END);
     return ;
     kprintf("- " COLOR_CYAN "vbe_control_info" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __multiboot_info->vbe_control_info);

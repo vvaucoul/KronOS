@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 13:08:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 18:49:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,10 +114,12 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 
     kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.start_addr);
     kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.end_addr);
-    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u)" COLOR_END "\n", KMAP.available.length, KMAP.available.length / 1024 / 1024);
+    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available.length, KMAP.available.length / 1024 / 1024);
 
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
+    pmm_test();
     kernel_log_info("LOG", "PMM");
+
 
     /*
     ** Init Kernel Heap with 8MB
@@ -125,7 +127,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     */
 
     void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
-    void *kheap_end_addr = (void *)(kheap_start_addr + (pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
+    void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
     if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
         __PANIC("Error: kheap_init failed");
     kernel_log_info("LOG", "KHEAP");
@@ -140,6 +142,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 
     enable_fpu();
     kernel_log_info("LOG", "FPU");
+    // kpause();
     return (0);
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr)

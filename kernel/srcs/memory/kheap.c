@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 16:33:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 18:44:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static int __expand_heap(uint32_t size)
     void *new_block = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
     if (new_block == NULL)
         return (1);
-    void *new_end_addr = (void *)(kheap.end_addr + (pmm_get_next_available_block() * (size)));
+    void *new_end_addr = (void *)(kheap.end_addr + ((uint32_t)pmm_get_next_available_block() * (size)));
     kheap.end_addr = new_end_addr;
     kheap.max_size = kheap.end_addr - kheap.start_addr;
     // kprintf(COLOR_GREEN "New Max Size: %u Ko\n" COLOR_END, kheap.max_size / 1024);

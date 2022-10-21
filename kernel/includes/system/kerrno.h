@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 15:44:01 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/10 11:55:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 17:57:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ typedef enum __e_kerrno_kernel_sector
     __KERRNO_SECTOR_ISR,
     __KERRNO_SECTOR_TSS,
     __KERRNO_SECTOR_SYSTEM,
+    __KERRNO_SECTOR_PMM,
     __KERRNO_SECTOR_MEMORY,
     __KERRNO_SECTOR_TERMINAL
 } __kerno_kernel_sector;

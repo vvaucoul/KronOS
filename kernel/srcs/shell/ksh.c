@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/13 17:40:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 18:55:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ size_t ksh_min_line = __HEADER_HEIGHT__;
 size_t ksh_current_line = __HEADER_HEIGHT__;
 size_t ksh_current_max_line = __HEADER_HEIGHT__;
 
-uint32_t *ksh_buffer = (uint32_t *)(0x00002000 + __HIGHER_HALF_KERNEL__ ? KERNEL_MEMORY_START : 0x0);
+uint32_t *ksh_buffer = (uint32_t *)(0x00002000 + __HIGHER_HALF_KERNEL__ ? KERNEL_MEMORY_START + 0x0000B000 : 0x0);
 
 void ksh_clear(void)
 {
@@ -51,6 +51,7 @@ void ksh_execute_command(void)
 
 void kronos_shell(void)
 {
+    kprintf("KSHBuffer ADDR : 0x%x\n", ksh_buffer);
     ksh_init();
     __ksh_init_builtins();
     kprintf("Welcome to " COLOR_RED "KSH" COLOR_END " !\n");

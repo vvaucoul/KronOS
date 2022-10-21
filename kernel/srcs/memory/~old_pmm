@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 12:06:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 18:47:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 13:41:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,93 +22,63 @@ PMM_INFO pmm_info;
 static int __pmm_init_blocks(uint32_t max_size)
 {
     uint32_t i;
-    PMM_BLOCK *tmp = NULL;
-    PMM_BLOCK *prev = NULL;
-
-    __PMM_GET_BLOCK(tmp);
 
     i = 0;
     while (i < max_size)
     {
-        tmp->addr = PMM_NULL_ADDR;
-        tmp->size = 0x0;
-        tmp->id = i;
-        tmp->state = PMM_BLOCK_FREE;
-        tmp->list.next = NULL;
-        tmp->list.prev = prev;
-
-        prev = tmp;
-        PMM_SHIFT_BLOCK(tmp);
-        prev->list.next = tmp;
+        pmm_info.blocks[i] = PMM_INIT_BLOCK();
         ++i;
     }
-    tmp->list.next = NULL;
-    tmp->list.prev = prev;
     return (0);
 }
 
-static uint32_t __pmm_get_last_addr(void)
+static int __pmm_get_first_free_block(void)
 {
-    PMM_BLOCK *tmp = NULL;
-    __PMM_GET_BLOCK(tmp);
+    uint32_t i;
 
-    assert(tmp == NULL);
-    while (tmp->list.next != NULL)
-        tmp = tmp->list.next;
-    return ((uint32_t)tmp);
-}
-
-static PMM_BLOCK *__pmm_get_first_free_block(void)
-{
-    PMM_BLOCK *tmp = NULL;
-    __PMM_GET_BLOCK(tmp);
-
-    while (tmp)
+    i = 0;
+    while (i < pmm_info.infos.max_blocks)
     {
-        if (tmp->state == PMM_BLOCK_FREE)
-            return (tmp);
-        tmp = tmp->list.next;
+        if (pmm_info.blocks[i].state == PMM_BLOCK_FREE)
+            return (i);
+        ++i;
     }
-    return (NULL);
+    return (PMM_ERR_NO_FREE_BLOCK);
 }
 
-static PMM_BLOCK *__pmm_get_first_free_block_by_size(uint32_t size)
+static int __pmm_get_first_free_block_by_size(uint32_t size)
 {
     if (size == 0)
-        return (NULL);
+        return (PMM_ERR_NO_FREE_BLOCK);
     else if (size == 1)
         return (__pmm_get_first_free_block());
     else
     {
-        PMM_BLOCK *tmp = NULL;
-
-        __PMM_GET_BLOCK(tmp);
-        while (tmp != NULL)
+        for (uint32_t i = 0; i < pmm_info.infos.max_blocks; ++i)
         {
-            if (tmp->state == PMM_BLOCK_FREE)
+            bool is_valid = true;
+            if (pmm_info.blocks[i].state != PMM_BLOCK_FREE)
+                continue;
+            for (uint32_t j = i; (i <= size) && (i + j < pmm_info.infos.max_blocks); j++)
             {
-                uint32_t i = 0;
-                while (tmp != NULL && i < size)
+                if (pmm_info.blocks[j].state != PMM_BLOCK_FREE)
                 {
-                    if (tmp->list.next->state != PMM_BLOCK_FREE)
-                        break;
-                    tmp = tmp->list.next;
-                    ++i;
+                    is_valid = false;
+                    break;
                 }
-                if (i == size)
-                    return (tmp);
             }
-            tmp = tmp->list.next;
+            if (is_valid)
+                return (i);
         }
     }
-    return (NULL);
+    return (PMM_ERR_NO_FREE_BLOCK);
 }
 
-static void __pmm_set_block(PMM_BLOCK *block, uint32_t size, enum e_pmm_block_state state)
+static void __pmm_set_block(uint32_t block_id, uint32_t size, enum e_pmm_block_state state)
 {
-    block->size = size;
-    block->state = state;
-    block->addr = (block->id * PMM_BLOCK_SIZE) + pmm_info.infos.memory_map_end;
+    pmm_info.blocks[block_id].size = size;
+    pmm_info.blocks[block_id].state = state;
+    pmm_info.blocks[block_id].addr = (block_id * PMM_BLOCK_SIZE) + pmm_info.infos.memory_map_end;
 }
 
 static void *__pmm_alloc_block(void)
@@ -117,15 +87,15 @@ static void *__pmm_alloc_block(void)
         return (NULL);
     else
     {
-        PMM_BLOCK *frame = __pmm_get_first_free_block();
+        int frame = __pmm_get_first_free_block();
 
-        if (frame == NULL)
+        if (frame == PMM_ERR_NO_FREE_BLOCK)
             return (NULL);
         else
         {
             __pmm_set_block(frame, 1, PMM_BLOCK_USED);
             ++pmm_info.infos.used_blocks;
-            return ((void *)frame->addr);
+            return ((void *)pmm_info.blocks[frame].addr);
         }
     }
     return (NULL);
@@ -137,20 +107,16 @@ static void *__pmm_alloc_blocks(uint32_t size)
         return (NULL);
     else
     {
-        PMM_BLOCK *frame = __pmm_get_first_free_block_by_size(size);
+        int frame = __pmm_get_first_free_block_by_size(size);
 
-        if (frame == NULL)
+        if (frame == PMM_ERR_NO_FREE_BLOCK)
             return (NULL);
         else
         {
-            PMM_BLOCK *tmp = frame;
             for (uint32_t i = 0; i <= size; i++)
-            {
-                __pmm_set_block(tmp, size, PMM_BLOCK_USED);
-                tmp = tmp->list.next;
-            }
+                __pmm_set_block(frame + i, 1, PMM_BLOCK_USED);
             pmm_info.infos.used_blocks += size;
-            return ((void *)frame->addr);
+            return ((void *)pmm_info.blocks[frame].addr);
         }
     }
     return (NULL);
@@ -158,48 +124,44 @@ static void *__pmm_alloc_blocks(uint32_t size)
 
 static void __pmm_free_block(void *addr)
 {
-    PMM_BLOCK *tmp = NULL;
+    uint32_t i;
 
-    __PMM_GET_BLOCK(tmp);
-    while (tmp != NULL)
+    i = 0;
+    while (i < pmm_info.infos.max_blocks)
     {
-        if (tmp->addr == (pmm_physical_addr_t)addr)
+        if (pmm_info.blocks[i].addr == (pmm_physical_addr_t)addr)
         {
-            __pmm_set_block(tmp, 0, PMM_BLOCK_FREE);
+            __pmm_set_block(i, 0, PMM_BLOCK_FREE);
             --pmm_info.infos.used_blocks;
             return;
         }
-        tmp = tmp->list.next;
+        ++i;
     }
 }
 
 static void __pmm_free_blocks(void *addr, uint32_t size)
 {
-    PMM_BLOCK *tmp = NULL;
+    uint32_t i;
 
-    __PMM_GET_BLOCK(tmp);
-    while (tmp != NULL)
+    i = 0;
+    while (i < pmm_info.infos.max_blocks)
     {
-        if (tmp->addr == (pmm_physical_addr_t)addr)
+        if (pmm_info.blocks[i].addr == (pmm_physical_addr_t)addr)
         {
-            for (uint32_t i = 0; i <= size; i++)
-            {
-                __pmm_set_block(tmp, 0, PMM_BLOCK_FREE);
-                tmp = tmp->list.next;
-            }
+            for (uint32_t j = 0; (j <= size) && (i + j < pmm_info.infos.max_blocks); j++)
+                __pmm_set_block(i + j, 0, PMM_BLOCK_FREE);
             pmm_info.infos.used_blocks -= size;
             return;
         }
-        tmp = tmp->list.next;
+        ++i;
     }
 }
 
-static void __pmm_swap_blocks(PMM_BLOCK *block1, PMM_BLOCK *block2)
+static void __pmm_swap_blocks(uint32_t block1, uint32_t block2)
 {
-    PMM_BLOCK tmp = *block1;
-
-    *block1 = *block2;
-    *block2 = tmp;
+    PMM_BLOCK tmp = pmm_info.blocks[block1];
+    pmm_info.blocks[block1] = pmm_info.blocks[block2];
+    pmm_info.blocks[block2] = tmp;
 }
 
 /*
@@ -207,26 +169,19 @@ static void __pmm_swap_blocks(PMM_BLOCK *block1, PMM_BLOCK *block2)
 */
 static void __pmm_defragment(void)
 {
-    PMM_BLOCK *tmp = NULL;
+    uint32_t i;
 
-    __PMM_GET_BLOCK(tmp);
-
-    while (tmp != NULL)
+    i = 0;
+    while (i < pmm_info.infos.max_blocks)
     {
-        if (tmp->state == PMM_BLOCK_FREE)
+        if (pmm_info.blocks[i].state == PMM_BLOCK_FREE && pmm_info.blocks[i + 1].state != PMM_BLOCK_FREE)
         {
-            PMM_BLOCK *tmp2 = tmp->list.next;
-            while (tmp2 != NULL)
-            {
-                if (tmp2->state == PMM_BLOCK_FREE)
-                {
-                    __pmm_swap_blocks(tmp, tmp2);
-                    break;
-                }
-                tmp2 = tmp2->list.next;
-            }
+            __pmm_swap_blocks(i, i + 1);
+            i = 0;
+            continue;
         }
-        tmp = tmp->list.next;
+        else
+            ++i;
     }
 }
 
@@ -239,24 +194,23 @@ int pmm_init(pmm_physical_addr_t bitmap, uint32_t total_memory_size)
 {
     /* INIT PMM INFO */
     pmm_info.infos.memory_size = total_memory_size;
-    pmm_info.infos.max_blocks = PMM_SIZE;
+    pmm_info.infos.max_blocks = total_memory_size / PMM_BLOCK_SIZE;
     pmm_info.infos.memory_map_start = bitmap;
-    pmm_info.infos.memory_map_length = PMM_END_ADDR - pmm_info.infos.memory_map_start;
+    pmm_info.infos.memory_map_end = PMM_END_ADDR;
+    pmm_info.infos.memory_map_length = pmm_info.infos.memory_map_end - pmm_info.infos.memory_map_start;
     pmm_info.infos.used_blocks = 0;
     pmm_info.blocks = (pmm_block_t *)bitmap;
 
     kprintf("PMM: Memory Size : %u Mo\n", pmm_info.infos.memory_size / 1024 / 1024);
     kprintf("PMM: Max Blocks : %u\n", pmm_info.infos.max_blocks);
     kprintf("PMM: Memory Map Start : 0x%x\n", pmm_info.infos.memory_map_start);
-    kprintf("PMM: End ADDR : 0x%x\n", PMM_END_ADDR);
-
-    /* INIT PMM BLOCKS */
-    __pmm_init_blocks(pmm_info.infos.max_blocks);
-    pmm_info.infos.memory_map_end = (pmm_physical_addr_t)__pmm_get_last_addr();
-    kprintf("PMM: Memory Map End : 0x%x\n", pmm_info.infos.memory_map_end);
-
+    kprintf("PMM: Memory Map End : 0x%x\n", pmm_info.infos.memory_map_start + pmm_info.infos.memory_map_length);
     kprintf("PMM: Bitmap 0x%x\n", bitmap);
     kprintf("PMM: blocks 0x%x\n", pmm_info.blocks);
+
+    /* INIT PMM BLOCKS */
+    __pmm_init_blocks(pmm_info.infos.max_blocks * sizeof(pmm_physical_addr_t));
+    kpause();
     return (0);
 }
 
@@ -282,12 +236,12 @@ void pmm_free_blocks(void *addr, uint32_t size)
 }
 
 /* Utils */
-PMM_BLOCK *pmm_get_next_available_block(void)
+int pmm_get_next_available_block(void)
 {
     return (__pmm_get_first_free_block());
 }
 
-PMM_BLOCK *pmm_get_next_available_blocks(uint32_t size)
+int pmm_get_next_available_blocks(uint32_t size)
 {
     return (__pmm_get_first_free_block_by_size(size));
 }

@@ -2,7 +2,7 @@
 ;*                                   DEFINES                                   *
 ;*******************************************************************************
 
-STACK_SIZE equ 0x19998 ; 1MB stack
+STACK_SIZE equ 0X4000 ; 16K stack size
 
 global __call_kmain
 extern display_error_msg

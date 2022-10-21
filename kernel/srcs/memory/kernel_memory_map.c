@@ -6,14 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 12:06:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 13:06:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 19:02:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multiboot/multiboot.h>
-#include <multiboot/multiboot.h>
 #include <memory/memory_map.h>
-#include <memory/paging.h>
+#include <memory/memory.h>
 
 KERNEL_MEMORY_MAP kernel_memory_map;
 

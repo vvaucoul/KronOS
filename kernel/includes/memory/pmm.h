@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 13:17:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 17:42:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 18:46:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define PMM_H
 
 #include <kernel.h>
+#include <system/kerrno.h>
 
 /*
 ** PMM: Physical Memory Manager
@@ -31,8 +32,16 @@
 */
 
 typedef uint32_t pmm_physical_addr_t;
+typedef uint32_t pmm_info_t;
 
 #define PMM_BLOCK_SIZE 4096
+#define PMM_SIZE 0x4000
+#define PMM_END_ADDR 0xFFFFFFFF - (__HIGHER_HALF_KERNEL__ == false ? 0xC0000000 : 0x0)
+
+#define PMM_NULL_ADDR 0xFFFFFFFF
+
+#define PMM_SHIFT_BLOCK(x) (x = (PMM_BLOCK *)((uint32_t)x + sizeof(PMM_BLOCK)))
+#define PMM_OUT_OF_MEMORY(pmm) (pmm.infos.used_blocks >= pmm.infos.max_blocks)
 
 enum e_pmm_block_state
 {
@@ -45,33 +54,45 @@ typedef struct s_pmm_block
     uint32_t size;
     enum e_pmm_block_state state;
     pmm_physical_addr_t addr;
-} pmm_block_t;
+    int id;
+
+    struct // Double linked list
+    {
+        struct s_pmm_block *next;
+        struct s_pmm_block *prev;
+    } list;
+} __attribute__((packed)) pmm_block_t;
 
 typedef struct s_pmm
 {
     struct
     {
-        uint32_t memory_size;
-        uint32_t max_blocks;
-        uint32_t used_blocks;
-        uint32_t memory_map_start;
-        uint32_t memory_map_end;
-        uint32_t memory_map_length;
+        pmm_info_t memory_size;
+        pmm_info_t max_blocks;
+        pmm_info_t used_blocks;
+        pmm_info_t memory_map_start;
+        pmm_info_t memory_map_end;
+        pmm_info_t memory_map_length;
     } infos;
 
     pmm_block_t *blocks;
-} t_pmm;
+} __attribute__((packed)) t_pmm;
 
 #define PMM_INFO t_pmm
 #define PMM_BLOCK pmm_block_t
 
-#define PMM_OUT_OF_MEMORY(pmm) (pmm.infos.used_blocks >= pmm.infos.max_blocks)
 #define PMM_ERR_NO_FREE_BLOCK -1
 #define PMM_ERR_NO_AVAILABLE_BLOCK -2
 
 extern PMM_INFO pmm_info;
 
 #define PMM_INIT_BLOCK() ((PMM_BLOCK){0, PMM_BLOCK_FREE, 0x00})
+
+#define __PMM_GET_BLOCK(x)   \
+    {                        \
+        x = pmm_info.blocks; \
+        assert(x == NULL);   \
+    }
 
 /*
 ** Init the Physical Memory Manager
@@ -101,24 +122,28 @@ extern void pmm_free_blocks(void *addr, uint32_t size);
 /*
 ** Get the next available block
 */
-extern int pmm_get_next_available_block(void);
+extern PMM_BLOCK *pmm_get_next_available_block(void);
 
 /*
 ** Get the next available blocks of size
 */
-extern int pmm_get_next_available_blocks(uint32_t size);
+extern PMM_BLOCK *pmm_get_next_available_blocks(uint32_t size);
+
+/*
+** Defragment PMM
+*/
+extern void pmm_defragment(void);
 
 /*******************************************************************************
  *                                  PMM UTILS                                  *
  ******************************************************************************/
 
-extern uint32_t pmm_get_max_blocks(void);
-extern uint32_t pmm_get_memory_size(void);
-extern uint32_t pmm_get_memory_map_start(void);
-extern uint32_t pmm_get_memory_map_end(void);
-extern uint32_t pmm_get_memory_map_length(void);
-extern uint32_t pmm_get_block_size(void);
-extern void pmm_defragment(void);
+extern pmm_info_t pmm_get_max_blocks(void);
+extern pmm_info_t pmm_get_memory_size(void);
+extern pmm_info_t pmm_get_memory_map_start(void);
+extern pmm_info_t pmm_get_memory_map_end(void);
+extern pmm_info_t pmm_get_memory_map_length(void);
+extern pmm_info_t pmm_get_block_size(void);
 
 /*******************************************************************************
  *                                  PMM TEST                                   *

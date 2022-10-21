@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/20 15:43:31 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/10/20 18:05:53 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,7 +43,7 @@ LIBKFS_A			=	libkfs/libkfs.a
 ifeq ($(CLANG_INSTALLED), false)
 	CC					=	gcc
 else
-	CC					=	clang-12
+	CC					=	clang
 endif
 
 LD					=	ld

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/19 19:11:04 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/20 00:10:31 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/10/20 19:00:06 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,5 +44,5 @@ clean:
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 fclean: clean
-	@rm -rf $(NAME).bin $(NAME).iso
+	@rm -rf $(NAME).bin $(NAME).iso isodir
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"

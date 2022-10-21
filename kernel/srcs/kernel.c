@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/20 15:06:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 13:07:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,19 +85,15 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
     else
     {
-        __multiboot_info = (MultibootInfo *)(addr);
+        __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr + KERNEL_VIRTUAL_BASE));
         assert(__multiboot_info == NULL);
-        if (__multiboot_info == NULL)
-            __PANIC("Error: __multiboot struct is invalid");
         if (multiboot_init(__multiboot_info))
             __PANIC("Error: multiboot_init failed");
-        kpause();
         kernel_log_info("LOG", "MULTIBOOT");
         if (get_kernel_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
     }
-    kpause();
     gdt_install();
     kernel_log_info("LOG", "GDT");
     idt_install();

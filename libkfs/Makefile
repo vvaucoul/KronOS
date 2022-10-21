@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/20 15:42:29 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/10/20 18:06:19 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ NAME 			= libkfs.a
 ifeq ($(CLANG_INSTALLED), false)
 	CC 			= gcc
 else
-	CC 			= clang-12
+	CC 			= clang
 endif
 
 ASM 			= nasm

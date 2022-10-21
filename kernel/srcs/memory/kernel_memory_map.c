@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 12:06:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/28 13:55:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 13:06:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multiboot/multiboot.h>
+#include <multiboot/multiboot.h>
 #include <memory/memory_map.h>
+#include <memory/paging.h>
 
 KERNEL_MEMORY_MAP kernel_memory_map;
 
@@ -44,9 +46,9 @@ int get_kernel_memory_map(MultibootInfo *multiboot_info)
 
     KMAP.total.total_memory_length = multiboot_info->mem_upper + multiboot_info->mem_lower;
 
-    for (uint32_t i = 0; i < multiboot_info->mmap_length; i += sizeof(MultibootMemoryMap))
+    for (uint32_t i = 0; i < multiboot_info->mmap_length + KERNEL_VIRTUAL_BASE; i += sizeof(MultibootMemoryMap))
     {
-        MultibootMemoryMap *mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + i);
+        MultibootMemoryMap *mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + KERNEL_VIRTUAL_BASE + i);
         if (mmap->type != __MULTIBOOT_MEMORY_AVAILABLE)
             continue;
         else

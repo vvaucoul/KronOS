@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/19 19:17:24 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/19 19:19:24 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/10/21 12:34:41 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,3 +24,5 @@ ASMFLAGS			=	-f elf32
 BOOT_DIR			=	boot
 
 LD					=	ld
+
+CC					=	clang

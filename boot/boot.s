@@ -34,9 +34,8 @@ BootPageDirectory:
 
 ; Multiboot Section
 extern __hhk_multiboot
-section .text
-	align 4
-	call __hhk_multiboot
+align 4
+call __hhk_multiboot
 
 ; Kernel Entry
 section .text

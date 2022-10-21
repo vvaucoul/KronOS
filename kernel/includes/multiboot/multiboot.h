@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/29 10:16:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 13:01:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@
 #define MULTIBOOT_INFO_MEMORY 0x00000001
 /* is there a boot device set? */
 #define MULTIBOOT_INFO_BOOTDEV 0x00000002
+/* is the ACPI_MEMORY defined? */
+#define MULTIBOOT_ACPI_MEMORY 0x00000003
 /* is the command-line defined? */
 #define MULTIBOOT_INFO_CMDLINE 0x00000004
 /* are there modules to do something with? */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 13:07:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 13:08:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 
     kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.start_addr);
     kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.end_addr);
-    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u)" COLOR_END "\n", KMAP.available.length, KMAP.available.length);
+    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u)" COLOR_END "\n", KMAP.available.length, KMAP.available.length / 1024 / 1024);
 
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
     kernel_log_info("LOG", "PMM");

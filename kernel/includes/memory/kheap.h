@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 19:15:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 19:12:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <memory/memory.h>
 #include <memory/pmm.h>
 #include <memory/memory_map.h>
-
 
 #define PHYSICAL_START KMAP.available.start_addr
 #define PHYSICAL_END KMAP.available.end_addr

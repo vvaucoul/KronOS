@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 18:44:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/22 14:01:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,11 @@ static int __init(data_t *start_addr, data_t *end_addr)
     else
     {
         kheap.start_addr = start_addr;
-        // kprintf("Start Addr : 0x%x\n", kheap.start_addr);
+        kprintf("KHEAP: Start Addr : 0x%x\n", kheap.start_addr);
         kheap.end_addr = end_addr;
-        // kprintf("End Addr : 0x%x\n", kheap.end_addr);
+        kprintf("KHEAP: End Addr : 0x%x\n", kheap.end_addr);
         kheap.max_size = (uint32_t)end_addr - (uint32_t)start_addr;
-        // kprintf("Max Size : %u\n", kheap.max_size);
+        kprintf("KHEAP: Max Size : %u octets\n", kheap.max_size);
         kheap.used_size = 0;
         kheap.allocated_blocks = PHYSICAL_MEMORY_BLOCKS;
         kheap.root = NULL;

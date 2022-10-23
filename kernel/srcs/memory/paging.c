@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 17:47:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 19:07:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -362,7 +362,7 @@ static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], str
 
     char __kitoa_buffer[__KITOA_BUFFER_LENGTH__];
     kbzero(__kitoa_buffer, __KITOA_BUFFER_LENGTH__);
-    kitoa(faulting_address, __kitoa_buffer);
+    kuitoa(faulting_address, __kitoa_buffer);
     kmemjoin(buffer, __kitoa_buffer, kstrlen(buffer), kstrlen(__kitoa_buffer));
     kmemjoin(buffer, "\n", kstrlen(buffer), 1);
 }

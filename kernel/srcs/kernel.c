@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 18:49:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/23 20:46:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         kernel_log_info("LOG", "MULTIBOOT");
         if (get_kernel_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
+        if (get_user_memory_map(__multiboot_info))
+            __PANIC("Error: user memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
     }
     gdt_install();
@@ -116,10 +118,19 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.end_addr);
     kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available.length, KMAP.available.length / 1024 / 1024);
 
+    kprintf("User start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", UMAP.available.start_addr);
+    kprintf("User end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", UMAP.available.end_addr);
+    kprintf("User length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", UMAP.available.length, UMAP.available.length / 1024 / 1024);
+
+    kpause();
+
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
+    // Alloc 4096 * 10 -> 40 Ko blocks of memory
+    pmm_init_region(KMAP.available.start_addr, PMM_BLOCK_SIZE * 10);
+    // kpause();
     pmm_test();
     kernel_log_info("LOG", "PMM");
-
+    kpause();
 
     /*
     ** Init Kernel Heap with 8MB
@@ -128,10 +139,16 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 
     void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
     void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
+
+    kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
+    kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
+
     if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
         __PANIC("Error: kheap_init failed");
+    kpause();
+    kheap_test();
+    kpause();
     kernel_log_info("LOG", "KHEAP");
-    // kpause();
 
     // kheap_test();
 

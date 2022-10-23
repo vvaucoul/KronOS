@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 16:05:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/22 14:16:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,11 @@
 #include "../libs/macros/macros.h"
 #include "../libs/bits/bits.h"
 #include "../libs/assert/assert.h"
+#include "../libs/convert/convert.h"
+#include "../libs/algorithms/algorithms.h"
 
 extern void kputs(const char *str);
 extern void kuputs(const uint8_t *str);
-extern int katoi(const char *str);
-extern void kftoa(char *buffer, float value);
-
-#define __KITOA_BUFFER_LENGTH__ 11
-extern int kitoa(int nbr, char str[__KITOA_BUFFER_LENGTH__]);
-extern int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__]);
 
 extern void kputchar(char c);
 extern void kputstr(const char *str);

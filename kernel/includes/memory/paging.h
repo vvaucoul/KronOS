@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 17:43:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/22 21:31:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ typedef void xvaddr_t;
 #define IS_ALIGNED(x) (((vaddr_t)x | VPAGE_MASK) == 0)
 #define ALIGN_PAGE(x) ((vaddr_t)x & VPAGE_MASK + PAGE_SIZE)
 
-#define __KERNEL_PAGE_MEMORY_INIT() ((uint32_t *)(&__kernel_end) + pmm_info.infos.max_blocks)
+#define __KERNEL_PAGE_MEMORY_INIT() ((uint32_t *)(&__kernel_end) + __pmm_info.infos.max_blocks)
 
 /*
 ** Bit Function

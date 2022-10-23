@@ -5,6 +5,17 @@ extern init_multiboot_kernel
 
 extern BOOTLOADER_MAGIC
 
+extern __kernel_section_start
+extern __kernel_text_section_start
+extern __kernel_text_section_end
+extern __kernel_data_section_start
+extern __kernel_data_section_end
+extern __kernel_rodata_section_start
+extern __kernel_rodata_section_end
+extern __kernel_bss_section_start
+extern __kernel_bss_section_end
+extern __kernel_section_end
+
 ; HHK: Higher Half Kernel
 global hhk_loader:function
 hhk_loader:

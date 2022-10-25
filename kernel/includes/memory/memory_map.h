@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 20:19:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 13:37:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/25 15:28:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@ extern uint8_t __kernel_section_end;
 */
 typedef struct s_kernel_memory_map
 {
+    /* Kernel Sections */
+    struct
+    {
     /* Kernel Section */
     struct
     {
@@ -74,6 +77,7 @@ typedef struct s_kernel_memory_map
         uint32_t bss_addr_end;
         uint32_t bss_length;
     } bss;
+    } sections;
 
     /* Kernel Length Section */
     struct
@@ -88,73 +92,30 @@ typedef struct s_kernel_memory_map
         uint32_t end_addr;
         uint32_t length;
     } available;
-} t_kernel_memory_map;
 
-/*
-** User Memory Map
-*/
-typedef struct s_user_memory_map
-{
-    /* User Section */
-    struct
-    {
-        uint32_t user_start;
-        uint32_t user_end;
-        uint32_t user_length;
-    } user;
-
-    /* User Text Section */
-    struct
-    {
-        uint32_t text_addr_start;
-        uint32_t text_addr_end;
-        uint32_t text_length;
-    } text;
-
-    /* User Rodata Section */
-    struct
-    {
-        uint32_t rodata_addr_start;
-        uint32_t rodata_addr_end;
-        uint32_t rodata_length;
-    } rodata;
-
-    /* User Data Section */
-    struct
-    {
-        uint32_t data_addr_start;
-        uint32_t data_addr_end;
-        uint32_t data_length;
-    } data;
-
-    /* User BSS Section */
-    struct
-    {
-        uint32_t bss_addr_start;
-        uint32_t bss_addr_end;
-        uint32_t bss_length;
-    } bss;
-
-    /* User Length Section */
-    struct
-    {
-        uint32_t total_memory_length;
-    } total;
-
-    /* User Available Section */
+    /* Kernel Available Extended Section */
     struct
     {
         uint32_t start_addr;
         uint32_t end_addr;
         uint32_t length;
-    } available;
-} t_user_memory_map;
+    } available_extended;
+} t_kernel_memory_map;
+
 
 #define MEMORY_MAP_GET_START_ADDR(x, i) (x[i].addr_low)
 #define MEMORY_MAP_GET_END_ADDR(x, i) (x[i].addr_low + x[i].len_low)
+#define MEMORY_MAP_ALIGN_ADDR(x, size) (x & ~(size - 1))
 
 #define __MEMORY_MAP_SIZE 7
-#define MEMORY_MAP_
+
+#define MEMORY_MAP_LOW_MEMORY 0
+#define MEMORY_MAP_LOW_UPPER_MEMORY 1
+#define MEMORY_MAP_HARDWARE_RESERVED 2
+#define MEMORY_MAP_AVAILABLE 3
+#define MEMORY_MAP_ISA_MEMORY_HOLE 4
+#define MEMORY_MAP_GRUB_RESERVED 5
+#define MEMORY_MAP_AVAILABLE_EXTENDED 6
 
 typedef struct __s_memory_map
 {
@@ -164,15 +125,12 @@ typedef struct __s_memory_map
 } __t_memory_map;
 
 #define KERNEL_MEMORY_MAP t_kernel_memory_map
-#define USER_MEMORY_MAP t_user_memory_map
 #define MEMORY_MAP __t_memory_map
 
 extern KERNEL_MEMORY_MAP kernel_memory_map;
-extern USER_MEMORY_MAP user_memory_map;
 extern MEMORY_MAP memory_map;
 
 #define KMAP kernel_memory_map
-#define UMAP user_memory_map
 #define MAP memory_map
 
 extern int get_kernel_memory_map(const MultibootInfo *multiboot_info);

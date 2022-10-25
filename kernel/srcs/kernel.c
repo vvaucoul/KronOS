@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/24 17:49:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/25 15:25:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,8 +92,6 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         kernel_log_info("LOG", "MULTIBOOT");
         if (get_kernel_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
-        if (get_user_memory_map(__multiboot_info))
-            __PANIC("Error: user memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
     }
     gdt_install();
@@ -118,10 +116,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.end_addr);
     kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available.length, KMAP.available.length / 1024 / 1024);
 
-    kprintf("User start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", UMAP.available.start_addr);
-    kprintf("User end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", UMAP.available.end_addr);
-    kprintf("User length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", UMAP.available.length, UMAP.available.length / 1024 / 1024);
-
+ 
     kprintf("\nLoader\n");
     pmm_loader_init(__multiboot_info);
     kprintf("\nLoader End\n");

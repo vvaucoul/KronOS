@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/23 20:46:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/24 17:49:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,11 +122,35 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kprintf("User end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", UMAP.available.end_addr);
     kprintf("User length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", UMAP.available.length, UMAP.available.length / 1024 / 1024);
 
+    kprintf("\nLoader\n");
+    pmm_loader_init(__multiboot_info);
+    kprintf("\nLoader End\n");
     kpause();
 
     pmm_init(KMAP.available.start_addr, KMAP.available.length);
+    // kpause();
     // Alloc 4096 * 10 -> 40 Ko blocks of memory
-    pmm_init_region(KMAP.available.start_addr, PMM_BLOCK_SIZE * 10);
+    // pmm_init_region(0x0, PMM_BLOCK_SIZE * 100); // 0 => TMP, le temps de trouver pourquoi...
+    // pmm_init_region((KMAP.available.start_addr - KERNEL_VIRTUAL_BASE), PMM_BLOCK_SIZE * 10);
+    kpause();
+
+    // uint32_t _i_block = pmm_get_next_available_block();
+    // kprintf("Next Block: %u\n", _i_block);
+
+    // void *block = pmm_alloc_block();
+    // kprintf("New Block: 0x%x\n", block);
+
+    // _i_block = pmm_get_next_available_block();
+    // kprintf("Next Block: %u\n", _i_block);
+
+    // void *blocks = pmm_alloc_blocks(5);
+    // for (uint32_t i = 0; i < 5; i ++)
+    // {
+    //     kprintf("New Block: 0x%x\n", blocks + (i * PMM_BLOCK_SIZE));
+    // }
+    // _i_block = pmm_get_next_available_block();
+    // kprintf("Next Block: %u\n", _i_block);
+
     // kpause();
     pmm_test();
     kernel_log_info("LOG", "PMM");

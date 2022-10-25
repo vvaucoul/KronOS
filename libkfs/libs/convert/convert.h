@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 12:56:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/22 13:47:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/24 17:18:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "../stdbool/stdbool.h"
 
 #define __KITOA_BUFFER_LENGTH__ 11
+#define __ASCII_BASE__ "0123456789ABCDEF"
 
 /*
 ** Convert Int To Ascii
@@ -32,6 +33,11 @@ extern int kuitoa(uint32_t nbr, char str[__KITOA_BUFFER_LENGTH__]);
 ** Convert Int to Ascii with base
 */
 extern int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__]);
+
+/*
+** Convert Unsigned Int to Ascii with base
+*/
+extern uint32_t kuitoa_base(uint32_t nbr, int base, char str[__KITOA_BUFFER_LENGTH__]);
 
 /*
 ** Convert Unsigned long to Ascii

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/29 10:22:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/23 20:35:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/24 15:37:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int pmm_test(void)
     pmm_display();
     kprintf("PMM Test: \n");
 
-    kprintf("[Kernel Region " COLOR_GREEN "0" COLOR_END "-" COLOR_GREEN "%u" COLOR_END "] - [" COLOR_GREEN "0x%x" COLOR_END "-" COLOR_GREEN "0x%x" COLOR_END "]\n", pmm_get_next_available_block() - 1, pmm_get_memory_map_start(), pmm_get_memory_map_end());
+    kprintf("[Kernel Region " COLOR_GREEN "0" COLOR_END "-" COLOR_GREEN "%u" COLOR_END "] - [" COLOR_GREEN "0x%x" COLOR_END "-" COLOR_GREEN "0x%x" COLOR_END ": " COLOR_GREEN "%u MB" COLOR_END "]\n", pmm_get_next_available_block() - 1, KMAP.available.start_addr, pmm_get_memory_map_end(), (pmm_get_memory_map_end() - KMAP.available.start_addr) / 1024);
 
     uint32_t *ptr1 = pmm_alloc_block();
     assert(ptr1 == NULL);
@@ -43,12 +43,17 @@ int pmm_test(void)
 
     uint32_t *ptr3 = pmm_alloc_block();
     assert(ptr3 == NULL);
+
     kprintf("Alloc Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%u" COLOR_END "\n", ptr3, pmm_get_next_available_block());
+
     uint32_t *ptr4 = pmm_alloc_blocks(5);
     assert(ptr4 == NULL);
+    
     kprintf("Alloc 5 Blocks at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%u" COLOR_END "\n", ptr4, pmm_get_next_available_block());
+    
     uint32_t *ptr5 = pmm_alloc_block();
     assert(ptr5 == NULL);
+    
     kprintf("Alloc Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at " COLOR_GREEN "%u" COLOR_END "\n", ptr5, pmm_get_next_available_block());
 
     return 0;

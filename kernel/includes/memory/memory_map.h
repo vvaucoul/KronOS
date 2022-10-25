@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 20:19:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/23 20:39:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/25 13:37:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,14 +150,30 @@ typedef struct s_user_memory_map
     } available;
 } t_user_memory_map;
 
+#define MEMORY_MAP_GET_START_ADDR(x, i) (x[i].addr_low)
+#define MEMORY_MAP_GET_END_ADDR(x, i) (x[i].addr_low + x[i].len_low)
+
+#define __MEMORY_MAP_SIZE 7
+#define MEMORY_MAP_
+
+typedef struct __s_memory_map
+{
+    MultibootMemoryMap map[__MEMORY_MAP_SIZE];
+    uint8_t count;
+    uint8_t max_size;
+} __t_memory_map;
+
 #define KERNEL_MEMORY_MAP t_kernel_memory_map
 #define USER_MEMORY_MAP t_user_memory_map
+#define MEMORY_MAP __t_memory_map
 
 extern KERNEL_MEMORY_MAP kernel_memory_map;
 extern USER_MEMORY_MAP user_memory_map;
+extern MEMORY_MAP memory_map;
 
 #define KMAP kernel_memory_map
 #define UMAP user_memory_map
+#define MAP memory_map
 
 extern int get_kernel_memory_map(const MultibootInfo *multiboot_info);
 extern int get_user_memory_map(const MultibootInfo *multiboot_info);

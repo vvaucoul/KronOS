@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 12:56:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/22 14:00:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/24 17:22:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,25 @@ static uint32_t __get_nbr_length(int64_t nbr)
     return (length);
 }
 
+uint32_t kuitoa_base(uint32_t nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
+{
+    int i;
+    int size;
+
+    size = __get_nbr_length(nbr);
+    if (!str)
+        return (1);
+    i = 3;
+    while (size - i >= 0)
+    {
+        str[size - i] = __ASCII_BASE__[nbr % base];
+        nbr /= base;
+        ++i;
+    }
+    str[size] = '\0';
+    return (0);
+}
+
 int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
 {
     int i;
@@ -39,7 +58,7 @@ int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
     i = (isneg ? 1 : 1);
     while (size - i >= 0)
     {
-        str[size - i] = nbr % base + 48;
+        str[size - i] = __ASCII_BASE__[nbr % base];
         nbr /= base;
         ++i;
     }
@@ -48,7 +67,6 @@ int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
     str[size] = '\0';
     return (0);
 }
-
 
 int katoi(const char *str)
 {
@@ -98,7 +116,7 @@ int kuitoa(uint32_t nbr, char str[__KITOA_BUFFER_LENGTH__])
 {
     int i = 1;
     int size = 0;
-    
+
     if (str == NULL)
         return (1);
     else

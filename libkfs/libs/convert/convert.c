@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 12:56:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/24 17:22:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/25 17:12:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,33 +14,51 @@
 #include "../string/string.h"
 #include "../../includes/kprintf.h"
 
-static uint32_t __get_nbr_length(int64_t nbr)
+static uint32_t __get_nbr_base_length(uint32_t nbr, uint32_t base)
 {
-    uint32_t length = 0;
-    while (nbr)
+    uint32_t length;
+
+    length = 0;
+    while (nbr >= base)
     {
-        nbr /= 10;
+        nbr /= base;
         ++length;
     }
-    return (length);
+    return (length + 1);
 }
+
+// static uint32_t __get_nbr_length(int64_t nbr)
+// {
+//     uint32_t length = 0;
+//     while (nbr)
+//     {
+//         nbr /= 10;
+//         ++length;
+//     }
+//     return (length);
+// }
 
 uint32_t kuitoa_base(uint32_t nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
 {
     int i;
     int size;
 
-    size = __get_nbr_length(nbr);
-    if (!str)
+    size = __get_nbr_base_length(nbr, base);
+    if (str == NULL)
         return (1);
-    i = 3;
+    else
+    {
+        kbzero(str, __KITOA_BUFFER_LENGTH__);
+        for (uint8_t i = 0; i < 8; ++i)
+            str[i] = '0';
+    }
+    i = -1;
     while (size - i >= 0)
     {
         str[size - i] = __ASCII_BASE__[nbr % base];
         nbr /= base;
         ++i;
     }
-    str[size] = '\0';
     return (0);
 }
 
@@ -50,7 +68,7 @@ int kitoa_base(int nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
     int size;
     int isneg;
 
-    size = __get_nbr_length(nbr);
+    size = __get_nbr_base_length(nbr, base);
     if (!str)
         return (1);
     if ((isneg = ((nbr >= -2147483647 && nbr < 0) ? 1 : 0)) == 1)

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 12:06:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 16:08:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/27 16:52:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,30 +31,18 @@ static MultibootMemoryMap __setup_memory_entry(MultibootMemoryType type, uint32_
 
 static void __fix_memory_entries()
 {
-    // Fix Kernel ADDR
-    memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low += KERNEL_VIRTUAL_BASE;
-    memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].len_low = 0xFFFFFFFF - memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low;
+    /* Fix Kernel ADDR */
+    // memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low += KERNEL_VIRTUAL_BASE;
+    memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low = KMAP.sections.kernel.kernel_end + 0x100000;
+    memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].len_low = 0xFFFFFFFF - memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low - 0x100000;
 
-    // Fix Grub Reserved Space
+    /* Fix Grub Reserved Space */
     memory_map.map[MEMORY_MAP_GRUB_RESERVED].len_low = 0xFFFFFFFF - memory_map.map[MEMORY_MAP_GRUB_RESERVED].addr_low;
 }
 
 static int __init_kernel_mmap(const MultibootInfo *multiboot_info)
 {
-    // for (uint32_t i = 0; i < multiboot_info->mmap_length + KERNEL_VIRTUAL_BASE; i += sizeof(MultibootMemoryMap))
-    // {
-    //     MultibootMemoryMap *mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + KERNEL_VIRTUAL_BASE + i);
-    //     if (mmap->type != __MULTIBOOT_MEMORY_AVAILABLE)
-    //         continue;
-    //     else
-    //     {
-    //         KMAP.available.start_addr = KMAP.kernel.kernel_end + 1024 * 1024;
-    //         KMAP.available.end_addr =  mmap->addr_low + mmap->len_low;
-    //         KMAP.available.length = KMAP.available.end_addr - KMAP.available.start_addr;
-    //         return (0);
-    //     }
-    // }
-
+    /* Setup Memory Map */
     memory_map.max_size = __MEMORY_MAP_SIZE;
     memory_map.count = 0;
     for (uint8_t i = 0; i < __MEMORY_MAP_SIZE; ++i)
@@ -67,52 +55,28 @@ static int __init_kernel_mmap(const MultibootInfo *multiboot_info)
         memory_map.map[i].len_high = 0x0;
     }
 
+    /* Assign Memory Map */
     MultibootMemoryMap *mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + (uint32_t)KERNEL_VIRTUAL_BASE);
     do
     {
         memory_map.map[memory_map.count] = __setup_memory_entry(mmap->type, mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high);
         ++memory_map.count;
         mmap = (MultibootMemoryMap *)((uint32_t)mmap + mmap->size + sizeof(mmap->size));
+        assert(mmap == NULL);
     } while ((uint32_t)mmap < multiboot_info->mmap_addr + multiboot_info->mmap_length + KERNEL_VIRTUAL_BASE);
 
     __fix_memory_entries();
 
-    for (uint8_t i = 0; i < memory_map.count; ++i)
-    {
-        // https://wiki.osdev.org/Memory_Map_(x86)
-        MultibootMemoryMap *mmap = &memory_map.map[i];
-        kprintf("Type: " COLOR_GREEN "%d" COLOR_END " | ", memory_map.map[i].type);
-
-        kprintf("" COLOR_CYAN "0x%x" COLOR_END " -> " COLOR_CYAN "0x%x" COLOR_END "", MEMORY_MAP_GET_START_ADDR(memory_map.map, i), MEMORY_MAP_GET_END_ADDR(memory_map.map, i));
-        kprintf(" | " COLOR_CYAN "%u" COLOR_END " - " COLOR_CYAN "%u" COLOR_END " - " COLOR_CYAN "%u" COLOR_END "\n", mmap->len_low, mmap->len_high, mmap->size);
-
-        if (mmap->type == __MULTIBOOT_MEMORY_AVAILABLE)
-        {
-            kprintf("Addr Memory: 0x%x - 0x%x\n", mmap->addr_low, mmap->addr_low + mmap->len_low);
-        }
-        else if (mmap->type == __MULTIBOOT_MEMORY_RESERVED)
-        {
-            kprintf("Addr Memory: 0x%x - 0x%x\n", mmap->addr_low, mmap->addr_low + mmap->len_low);
-        }
-        // else
-        // {
-        //     kprintf("Unknown Memory: %u\n", mmap->len_low);
-        // }
-    }
-
-    KMAP.available.start_addr = MEMORY_MAP_GET_START_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE);
-    KMAP.available.end_addr = MEMORY_MAP_ALIGN_ADDR(MEMORY_MAP_GET_END_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE), 0x1000);
+    /* Setup Kernel Available Memory */
+    KMAP.available.start_addr = MEMORY_MAP_GET_START_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE) + 1024 * 1024;
+    KMAP.available.end_addr = MEMORY_MAP_GET_END_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE);
     KMAP.available.length = KMAP.available.end_addr - KMAP.available.start_addr;
 
+    /* Setup Kernel Available Extended Memory */
     KMAP.available_extended.start_addr = MEMORY_MAP_GET_START_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE_EXTENDED);
-    KMAP.available_extended.end_addr = MEMORY_MAP_ALIGN_ADDR(MEMORY_MAP_GET_END_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE_EXTENDED), 0x1000);
+    KMAP.available_extended.end_addr = MEMORY_MAP_GET_END_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE_EXTENDED);
     KMAP.available_extended.length = KMAP.available_extended.end_addr - KMAP.available_extended.start_addr;
 
-    kprintf("Kernel End ADDR: 0x%x\n", KMAP.sections.kernel.kernel_end);
-    kprintf("Kernel Available Memory: 0x%x - 0x%x\n", KMAP.available.start_addr, KMAP.available.end_addr);
-    kprintf("Kernel Available Memory Length: 0x%x\n", KMAP.available.length);
-
-    kpause();
     return (0);
 }
 
@@ -144,6 +108,5 @@ int get_kernel_memory_map(const MultibootInfo *multiboot_info)
 
     if ((__init_kernel_mmap(multiboot_info)) == 1)
         return (1);
-    kpause();
     return (0);
 }

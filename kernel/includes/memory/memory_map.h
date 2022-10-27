@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/12 20:19:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 15:28:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/25 17:04:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,45 +38,45 @@ typedef struct s_kernel_memory_map
     /* Kernel Sections */
     struct
     {
-    /* Kernel Section */
-    struct
-    {
-        uint32_t kernel_start;
-        uint32_t kernel_end;
-        uint32_t kernel_length;
-    } kernel;
+        /* Kernel Section */
+        struct
+        {
+            uint32_t kernel_start;
+            uint32_t kernel_end;
+            uint32_t kernel_length;
+        } kernel;
 
-    /* Kernel Text Section */
-    struct
-    {
-        uint32_t text_addr_start;
-        uint32_t text_addr_end;
-        uint32_t text_length;
-    } text;
+        /* Kernel Text Section */
+        struct
+        {
+            uint32_t text_addr_start;
+            uint32_t text_addr_end;
+            uint32_t text_length;
+        } text;
 
-    /* Kernel Rodata Section */
-    struct
-    {
-        uint32_t rodata_addr_start;
-        uint32_t rodata_addr_end;
-        uint32_t rodata_length;
-    } rodata;
+        /* Kernel Rodata Section */
+        struct
+        {
+            uint32_t rodata_addr_start;
+            uint32_t rodata_addr_end;
+            uint32_t rodata_length;
+        } rodata;
 
-    /* Kernel Data Section */
-    struct
-    {
-        uint32_t data_addr_start;
-        uint32_t data_addr_end;
-        uint32_t data_length;
-    } data;
+        /* Kernel Data Section */
+        struct
+        {
+            uint32_t data_addr_start;
+            uint32_t data_addr_end;
+            uint32_t data_length;
+        } data;
 
-    /* Kernel BSS Section */
-    struct
-    {
-        uint32_t bss_addr_start;
-        uint32_t bss_addr_end;
-        uint32_t bss_length;
-    } bss;
+        /* Kernel BSS Section */
+        struct
+        {
+            uint32_t bss_addr_start;
+            uint32_t bss_addr_end;
+            uint32_t bss_length;
+        } bss;
     } sections;
 
     /* Kernel Length Section */
@@ -102,9 +102,9 @@ typedef struct s_kernel_memory_map
     } available_extended;
 } t_kernel_memory_map;
 
-
 #define MEMORY_MAP_GET_START_ADDR(x, i) (x[i].addr_low)
 #define MEMORY_MAP_GET_END_ADDR(x, i) (x[i].addr_low + x[i].len_low)
+#define MEMORY_MAP_GET_LENGTH(x, i) (x[i].len_low)
 #define MEMORY_MAP_ALIGN_ADDR(x, size) (x & ~(size - 1))
 
 #define __MEMORY_MAP_SIZE 7

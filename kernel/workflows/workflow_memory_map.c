@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:37:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 15:29:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/25 16:51:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,6 @@ void display_kernel_memory_map(void)
 
     /* Available */
     kprintf("- " COLOR_YELLOW "Available" COLOR_END " Start: " COLOR_GREEN "0x%x" COLOR_END " End: " COLOR_GREEN "0x%x" COLOR_END " Length: " COLOR_GREEN "0x%x " COLOR_END "(" COLOR_GREEN "%u" COLOR_END " KB)\n" COLOR_END, KMAP.available.start_addr, KMAP.available.end_addr, KMAP.available.length, KMAP.available.length / 1024);
+
+    kprintf("- " COLOR_YELLOW "Extended" COLOR_END " Start: " COLOR_GREEN "0x%x" COLOR_END " End: " COLOR_GREEN "0x%x" COLOR_END " Length: " COLOR_GREEN "0x%x " COLOR_END "(" COLOR_GREEN "%u" COLOR_END " KB)\n" COLOR_END, KMAP.available_extended.start_addr, KMAP.available_extended.end_addr, KMAP.available_extended.length, KMAP.available_extended.length / 1024);
 }

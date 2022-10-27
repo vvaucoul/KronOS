@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 15:25:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/27 18:00:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,12 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
 
+    // char buffer[PAGE_FAULT_BUFFER_SIZE];
+    // uint32_t faulting_address = 0x10000;
+    // kuitoa_base(faulting_address, 16, buffer);
+    // kprintf("Buffer: 0x%s\n", buffer);
+    // kpause();
+
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
@@ -112,44 +118,28 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     // kernel_log_info("LOG", "SMP");
     // kpause();
 
-    kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.start_addr);
-    kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available.end_addr);
-    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available.length, KMAP.available.length / 1024 / 1024);
+    kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.sections.kernel.kernel_end);
+    kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available_extended.end_addr);
+    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available_extended.length, KMAP.available_extended.length / 1024 / 1024);
 
- 
-    kprintf("\nLoader\n");
-    pmm_loader_init(__multiboot_info);
-    kprintf("\nLoader End\n");
-    kpause();
-
-    pmm_init(KMAP.available.start_addr, KMAP.available.length);
+    // kprintf("\nLoader\n");
+    // pmm_loader_init(__multiboot_info);
+    // kprintf("\nLoader End\n");
     // kpause();
-    // Alloc 4096 * 10 -> 40 Ko blocks of memory
-    // pmm_init_region(0x0, PMM_BLOCK_SIZE * 100); // 0 => TMP, le temps de trouver pourquoi...
-    // pmm_init_region((KMAP.available.start_addr - KERNEL_VIRTUAL_BASE), PMM_BLOCK_SIZE * 10);
-    kpause();
-
-    // uint32_t _i_block = pmm_get_next_available_block();
-    // kprintf("Next Block: %u\n", _i_block);
-
-    // void *block = pmm_alloc_block();
-    // kprintf("New Block: 0x%x\n", block);
-
-    // _i_block = pmm_get_next_available_block();
-    // kprintf("Next Block: %u\n", _i_block);
-
-    // void *blocks = pmm_alloc_blocks(5);
-    // for (uint32_t i = 0; i < 5; i ++)
-    // {
-    //     kprintf("New Block: 0x%x\n", blocks + (i * PMM_BLOCK_SIZE));
-    // }
-    // _i_block = pmm_get_next_available_block();
-    // kprintf("Next Block: %u\n", _i_block);
 
     // kpause();
-    pmm_test();
+    pmm_init(KMAP.available_extended.start_addr, KMAP.available_extended.length);
+    pmm_loader_init();
+    kpause();
+
+    kprintf("Alloc Region, start: " COLOR_GREEN "0x%x" COLOR_END ", end: " COLOR_GREEN "0x%x" COLOR_END ", length: " COLOR_GREEN "%u" COLOR_END "\n", KMAP.available.start_addr, KMAP.available.end_addr, KMAP.available.length);
+    // kpause();
+    // PMM_REGION *region = pmm_init_region(KMAP.available.start_addr, KMAP.available.length);
+    
+    // kpause();
+    // pmm_test();
     kernel_log_info("LOG", "PMM");
-    kpause();
+    // kpause();
 
     /*
     ** Init Kernel Heap with 8MB

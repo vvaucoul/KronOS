@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:31:39 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/24 18:00:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/27 18:07:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static void __pmm_loader_reset_bitmap(void)
 {
     for (uint32_t i = 0; i < pmm_get_max_blocks(); ++i)
     {
-        __pmm_info.blocks[i] = 0x0;
+        __pmm_info.blocks[i] = 0b00000000;
     }
 }
 
@@ -55,36 +55,59 @@ static void __pmm_loader_init_kernel_region(void)
     }
 }
 
-static void __pmm_loader_init_memory_regions(const MultibootInfo *multiboot_info)
+static void __pmm_loader_init_memory_regions()
 {
-    MultibootMemoryMap *mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + (uint32_t)KERNEL_VIRTUAL_BASE);
-
-    do
+    for (uint8_t i = 0; i < __MEMORY_MAP_SIZE; i++)
     {
-        mmap = (MultibootMemoryMap *)((uint32_t)mmap + mmap->size + sizeof(mmap->size));
+        const MultibootMemoryMap *current_map = &memory_map.map[i];
+        uint32_t addr = 0;
+        uint32_t length = 0;
 
-        kprintf("Mmap Type: %d\n", mmap->type);
-        if (mmap->type == __MULTIBOOT_MEMORY_AVAILABLE)
+        if (current_map->type != __MULTIBOOT_MEMORY_AVAILABLE)
+            continue;
+        else if (current_map->addr_low >= MEMORY_GRUB_RESERVED_SPACE)
+            continue;
+        else if ((uint64_t)current_map->addr_low + current_map->len_low >= (uint64_t)MEMORY_GRUB_RESERVED_SPACE)
+            continue;
+    
+        uint32_t __diff_addr = (uint32_t)current_map->addr_low % PMM_BLOCK_SIZE;
+
+        /* Align addr */
+        if (__diff_addr != 0)
         {
-            kprintf("Available Memory: %u - %u - %u\n", mmap->len_low, mmap->len_high, mmap->size);
-            kprintf("Addr Memory: 0x%x - 0x%x\n", mmap->addr_low, mmap->addr_high);
-        }
-        else if (mmap->type == __MULTIBOOT_MEMORY_RESERVED)
-        {
-            kprintf("Reserved Memory: %u - %u - %u\n", mmap->len_low, mmap->len_high, mmap->size);
-            kprintf("Addr Memory: 0x%x - 0x%x\n", mmap->addr_low, mmap->addr_high);
+            addr = (uint32_t)current_map->addr_low + __diff_addr;
+            length = (uint32_t)current_map->len_low - __diff_addr;
         }
         else
         {
-            kprintf("Unknown Memory: %u\n", mmap->len_low);
+            addr = (uint32_t)current_map->addr_low;
+            length = (uint32_t)current_map->len_low;
         }
-    } while ((uint32_t)mmap < multiboot_info->mmap_addr + multiboot_info->mmap_length + KERNEL_VIRTUAL_BASE);
+
+        uint32_t __diff_length = (uint32_t)current_map->len_low % PMM_BLOCK_SIZE;
+
+        /* Align length */
+        if (__diff_length != 0)
+        {
+            length = (uint32_t)current_map->len_low - __diff_length;
+        }
+
+        if (length < PMM_BLOCK_SIZE)
+            continue;
+
+        kprintf(" - Init memory region : "COLOR_GREEN"0x%x"COLOR_END" - "COLOR_GREEN"0x%x"COLOR_END" ("COLOR_GREEN"%u"COLOR_END" Kb)\n", addr, addr + length, length / 1024);
+        pmm_init_region(addr, length);
+    }
 }
 
-void pmm_loader_init(const MultibootInfo *multiboot_info)
+static void __pmm_loader_init(void)
 {
     __pmm_loader_reset_bitmap();
-    __pmm_loader_init_memory_regions(multiboot_info);
+    __pmm_loader_init_memory_regions();
     __pmm_loader_init_kernel_region();
-    // __pmm_loader_init_memory_bitmap(multiboot_info->mmap_addr, multiboot_info->mem_upper);
+}
+
+void pmm_loader_init(void)
+{
+    __pmm_loader_init();
 }

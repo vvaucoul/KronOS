@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 20:21:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/24 17:39:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/27 17:51:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #include <system/panic.h>
 
 PMM_INFO __pmm_info;
-PMM_REGION __pmm_region;
 
 static void pmm_set_block(pmm_physical_addr_t bit)
 {
@@ -67,22 +66,6 @@ static int64_t pmm_get_first_free_block_by_size(const uint32_t size)
         {
             if (__pmm_info.blocks[i] != PMM_DEFAULT_ADDR)
             {
-                // for (uint32_t j = 0; j < PMM_BITS_ALIGN; j++)
-                // {
-                //     uint32_t bit = 0x1 << j;
-                //     if ((__pmm_info.blocks[i] & bit) == 0)
-                //     {
-                //         uint32_t sBit = (i * PMM_BITS_ALIGN) + bit;
-                //         uint32_t free = 0;
-                //         for (uint32_t count = 0; count <= size; count++)
-                //         {
-                //             if (pmm_test_block(sBit + count) == 0)
-                //                 free++;
-                //             if (free == size)
-                //                 return (i * PMM_BITS_ALIGN + j);
-                //         }
-                //     }
-                // }
                 for (uint32_t j = 0; j < PMM_BITS_ALIGN; j++)
                 {
                     uint32_t bit = 1 << j;
@@ -115,7 +98,7 @@ static t_pmm_region *__pmm_init_region(const pmm_physical_addr_t base, const pmm
     // kpause();
     while (blocks >= 0)
     {
-        kprintf("Block: %u | Align: %u | Used Blocks: %u/%u\n", blocks, align, __pmm_info.infos.used_blocks, pmm_get_max_blocks());
+        // kprintf("Block: %u | Align: %u | Used Blocks: %u/%u\n", blocks, align, __pmm_info.infos.used_blocks, pmm_get_max_blocks());
         pmm_unset_block(align++);
         __pmm_info.infos.used_blocks--;
         blocks--;
@@ -230,19 +213,19 @@ static void __pmm_init_regions(const pmm_physical_addr_t bitmap, const uint32_t 
         current_region->end_addr = PMM_DEFAULT_ADDR;
         current_region->size = 0x0;
     }
-
+    
     __pmm_region.end_addr = __pmm_region.start_addr + (uint32_t)&__pmm_region.regions[__pmm_region.max_regions];
-    kprintf("  REGION: End: 0x%x\n", __pmm_region.end_addr);
-
-    // kpause();
 }
 
 static void __pmm_init(const pmm_physical_addr_t bitmap, const uint32_t total_memory_size)
 {
-    // uint32_t bitmap_aligned = bitmap + (PMM_BLOCK_SIZE - (bitmap % PMM_BLOCK_SIZE));
-    // __pmm_init_regions(bitmap_aligned, total_memory_size);
+    // uint32_t bitmap_aligned = bitmap + (PMM_BLOCK_SIZE - (bitmap % PMM_BLOCK_SIZE) + PMM_BLOCK_SIZE);
+    // kprintf("  PMM: Bitmap Aligned: 0x%x\n", bitmap_aligned);
+    // pmm_region_init_regions(bitmap_aligned, total_memory_size);
+    // kpause();
     // uint32_t bitmap_region = __pmm_region.end_addr ;
     // bitmap_region += (PMM_BLOCK_SIZE - (bitmap_region % PMM_BLOCK_SIZE));
+    // kpause();
 
     __pmm_info.infos.memory_size = total_memory_size;
     __pmm_info.infos.max_blocks = (pmm_get_memory_size()) / PMM_BLOCK_SIZE;
@@ -258,12 +241,10 @@ static void __pmm_init(const pmm_physical_addr_t bitmap, const uint32_t total_me
     uint32_t blocks_set = pmm_get_max_blocks() * sizeof(uint32_t);
 
     kmemset(__pmm_info.blocks, PMM_DEFAULT_ADDR, blocks_set);
-    // kpause();
 
     __pmm_info.infos.memory_map_end = (uint32_t)&__pmm_info.blocks[pmm_get_max_blocks()];
     __pmm_info.infos.memory_map_length = pmm_get_memory_map_end() - pmm_get_memory_map_start();
 
-   
     kprintf("PMM: Memory Map End: 0x%x\n", pmm_get_memory_map_end());
     kprintf("PMM: Memory Map Length: %u MB\n", pmm_get_memory_map_length() / 1024);
     kprintf("PMM: Memset Size %u Bytes with 0x%x\n", blocks_set, PMM_DEFAULT_ADDR);

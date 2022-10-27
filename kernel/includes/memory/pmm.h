@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 20:16:49 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/24 17:48:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/27 18:00:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,12 @@ typedef uint32_t pmm_info_t;
 #define PMM_GET_BITMAP_ADDR(x) ((uint32_t)x >> 15)
 #define PMM_ALIGN_PAGE_SIZE(x) ((x + PMM_BLOCK_ALIGN - 1) & ~(PMM_BLOCK_ALIGN - 1))
 
+/*******************************************************************************
+ *                                PMM - REGIONS                                *
+ ******************************************************************************/
+
+#define PMM_REGIONS_ERROR_CREATION "PMM_REGION: Can't create region, no more regions available"
+
 typedef struct s_pmm_region
 {
     struct __s_region
@@ -37,6 +43,7 @@ typedef struct s_pmm_region
         pmm_physical_addr_t start_addr;
         pmm_physical_addr_t end_addr;
         uint32_t size;
+        uint32_t index;
     } __attribute__((aligned(4))) region;
 
     struct __s_region *regions;
@@ -46,7 +53,30 @@ typedef struct s_pmm_region
     uint32_t max_regions;
 } __attribute__((packed)) t_pmm_region;
 
+#ifndef __PMM_REGION_C__
+#define __PMM_REGION_C__
+typedef struct __s_region pmm_region_t;
+#endif /* __PMM_REGION_C__ */
+
 #define __SizeofRegion() ((uint32_t)sizeof(struct __s_region))
+
+/*
+** PMM REGIONS
+*/
+extern void pmm_region_init_regions(const pmm_physical_addr_t regions_bitmap, const pmm_physical_addr_t total_memory);
+extern pmm_region_t *pmm_region_create_region(const pmm_physical_addr_t start, const pmm_physical_addr_t end);
+
+/*
+** PMM REGIONS - UTILS
+*/
+extern pmm_physical_addr_t pmm_region_get_start_addr(void);
+extern pmm_physical_addr_t pmm_region_get_end_addr(void);
+extern uint32_t pmm_region_get_count(void);
+extern uint32_t pmm_region_get_max_regions(void);
+
+/*******************************************************************************
+ *                                     PMM                                     *
+ ******************************************************************************/
 
 typedef struct s_pmm
 {
@@ -83,7 +113,7 @@ extern pmm_info_t pmm_get_memory_map_end(void);
 extern pmm_info_t pmm_get_memory_map_length(void);
 
 /*
-** PMM REGIONS
+** PMM -> REGIONS
 */
 extern t_pmm_region *pmm_init_region(const pmm_physical_addr_t base, const pmm_physical_addr_t size);
 extern t_pmm_region *pmm_deinit_region(const pmm_physical_addr_t base, const pmm_physical_addr_t size);
@@ -102,7 +132,7 @@ extern void pmm_free_blocks(void *ptr, const uint32_t size);
 /*
 ** PMM INIT
 */
-extern void pmm_loader_init();
+extern void pmm_loader_init(void);
 extern void pmm_init(const pmm_physical_addr_t bitmap, const uint32_t total_memory_size);
 
 #endif /* !PMM_H */

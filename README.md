@@ -129,7 +129,7 @@ This one can be managed by the kerrno library created to detect kernel errors fo
 RSOD and Kerrno / Kernel Panic both use **C** and **ASM**.
 
 <img align="left" src="https://user-images.githubusercontent.com/66129673/198574607-6e71d90d-fdce-47f9-9747-9b71b899de9b.png" width="45%"></img>
-<img src="https://user-images.githubusercontent.com/66129673/198574654-85cb3827-2052-4584-8c4b-3b99ab35170f.png" width="53%"></img>
+<img src="https://user-images.githubusercontent.com/66129673/198574654-85cb3827-2052-4584-8c4b-3b99ab35170f.png" width="50%"></img>
 
 > BSOD Like (Red Screen Of Death)
 

@@ -137,4 +137,13 @@ RSOD and Kerrno / Kernel Panic both use **C** and **ASM**.
 
 ---
 
+```mermaid
+flowchart LR
+   KERNEL --> Initialization --> Start --> ShellMode
+   Initialization --> Error --> Panic & RSOD
+
+```
+
+---
+
 🚧 ... redaction pending ...🚧

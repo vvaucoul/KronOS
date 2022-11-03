@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 17:06:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/03 13:59:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,12 +223,14 @@ static void __init_paging(void)
     __kernel_page_memory = __KERNEL_PAGE_MEMORY_INIT();
     kprintf("Paging: Page Memory ADDR: 0x%x\n", __kernel_page_memory);
     // __kernel_page_directory = paging_malloc(sizeof(PageDirectory), true);
-    // kmemset(__kernel_page_directory, 0, sizeof(PageDirectory));
+    __kernel_page_directory = kmalloc_a(sizeof(PageDirectory));
+    kmemset(__kernel_page_directory, 0, sizeof(PageDirectory));
+    __current_page_directory = __kernel_page_directory;
 
     // uint32_t i = 
 
     // kpause();
-    // __init();
+    __init();
     return;
 
     // __init_tmp_pages();

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 18:55:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/28 13:14:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void ksh_execute_command(void)
 
 void kronos_shell(void)
 {
-    kprintf("KSHBuffer ADDR : 0x%x\n", ksh_buffer);
+    // kprintf("KSHBuffer ADDR : 0x%x\n", ksh_buffer);
     ksh_init();
     __ksh_init_builtins();
     kprintf("Welcome to " COLOR_RED "KSH" COLOR_END " !\n");

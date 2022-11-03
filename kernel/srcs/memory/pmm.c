@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 20:21:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/27 17:51:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/03 14:21:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ static t_pmm_region *__pmm_init_region(const pmm_physical_addr_t base, const pmm
 {
     int64_t align = base / PMM_BLOCK_SIZE;
     int64_t blocks = size / PMM_BLOCK_SIZE;
-    // kprintf("Block: %u | Align: %u | Used Blocks: %u\n", blocks, align, __pmm_info.infos.used_blocks);
+    kprintf("Block: %u | Align: %u | Used Blocks: %u\n", blocks, align, __pmm_info.infos.used_blocks);
     // kpause();
     while (blocks >= 0)
     {
@@ -142,7 +142,7 @@ static void *__pmm_alloc_block(void)
     }
 
     pmm_set_block(frame);
-    pmm_physical_addr_t addr = frame * PMM_BLOCK_SIZE;
+    pmm_physical_addr_t addr = (frame * PMM_BLOCK_SIZE) + __pmm_info.infos.memory_map_end;
     __pmm_info.infos.used_blocks++;
     return ((void *)addr);
 }
@@ -150,7 +150,7 @@ static void *__pmm_alloc_block(void)
 static void __pmm_free_block(void *ptr)
 {
     pmm_physical_addr_t addr = (pmm_physical_addr_t)ptr;
-    // addr -= __pmm_info.infos.memory_map_end;
+    addr -= __pmm_info.infos.memory_map_end;
     uint32_t frame = addr / PMM_BLOCK_SIZE;
     pmm_unset_block(frame);
     __pmm_info.infos.used_blocks--;
@@ -173,17 +173,18 @@ static void *__pmm_alloc_blocks(const uint32_t size)
 
     for (uint32_t i = 0; i < size; i++)
     {
-        kprintf("Alloc Frame: %u | Used Blocks %u/%u\n", frame + i, __pmm_info.infos.used_blocks, pmm_get_max_blocks());
         pmm_set_block(frame + i);
         __pmm_info.infos.used_blocks++;
     }
-    pmm_physical_addr_t addr = frame * PMM_BLOCK_SIZE;
+    pmm_physical_addr_t addr = (frame * PMM_BLOCK_SIZE) + __pmm_info.infos.memory_map_end;
     return ((void *)addr);
 }
 
 static void __pmm_free_blocks(void *ptr, const uint32_t size)
 {
     pmm_physical_addr_t addr = (pmm_physical_addr_t)ptr;
+    addr -= __pmm_info.infos.memory_map_end;
+
     uint32_t frame = addr / PMM_BLOCK_SIZE;
 
     for (uint32_t i = 0; i < size; i++)

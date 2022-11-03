@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 13:02:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/28 13:35:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ bool multiboot_check_magic_number(hex_t magic_number)
         UPDATE_CURSOR();
         return (false);
     }
-    else
+    else if (__DISPLAY_INIT_LOG__)
         kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[CHK]  " COLOR_CYAN "MAGIC NUMBER IS VALID " COLOR_END "\n");
     return (true);
 }

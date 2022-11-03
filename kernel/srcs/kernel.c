@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/27 18:00:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/03 14:01:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,9 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "TIMER");
     keyboard_install();
     kernel_log_info("LOG", "KEYBOARD");
+    enable_fpu();
+    kernel_log_info("LOG", "FPU");
+    // kpause();
 
     // Require x64 Broadwell Intel (5th Gen) or higher
     // smp_init();
@@ -122,53 +125,34 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available_extended.end_addr);
     kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available_extended.length, KMAP.available_extended.length / 1024 / 1024);
 
-    // kprintf("\nLoader\n");
-    // pmm_loader_init(__multiboot_info);
-    // kprintf("\nLoader End\n");
-    // kpause();
-
-    // kpause();
     pmm_init(KMAP.available_extended.start_addr, KMAP.available_extended.length);
     pmm_loader_init();
+    kernel_log_info("LOG", "PMM");
+
+    pmm_test();
     kpause();
 
-    kprintf("Alloc Region, start: " COLOR_GREEN "0x%x" COLOR_END ", end: " COLOR_GREEN "0x%x" COLOR_END ", length: " COLOR_GREEN "%u" COLOR_END "\n", KMAP.available.start_addr, KMAP.available.end_addr, KMAP.available.length);
-    // kpause();
-    // PMM_REGION *region = pmm_init_region(KMAP.available.start_addr, KMAP.available.length);
-    
-    // kpause();
-    // pmm_test();
-    kernel_log_info("LOG", "PMM");
-    // kpause();
-
     /*
-    ** Init Kernel Heap with 8MB
-    - 20 * 4096 = 81920
+    ** Init Kernel Heap
     */
 
-    void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
+    void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS) + KERNEL_VIRTUAL_BASE;
     void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
-
+    
     kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
     kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
 
     if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
         __PANIC("Error: kheap_init failed");
-    kpause();
-    kheap_test();
-    kpause();
     kernel_log_info("LOG", "KHEAP");
 
-    // kheap_test();
-
-    // kpause();
+    /*
+    ** Init Kernel Paging
+    */
+    
     init_paging();
     kernel_log_info("LOG", "PAGING");
-    // kpause();
-
-    enable_fpu();
-    kernel_log_info("LOG", "FPU");
-    // kpause();
+    kpause();
     return (0);
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr)
@@ -186,7 +170,8 @@ int kmain(hex_t magic_number, hex_t addr)
     ASM_CLI();
     if ((init_kernel(magic_number, addr)))
         return (1);
-    kprintf("\n");
+    if (__DISPLAY_INIT_LOG__)
+        kprintf("\n");
     ASM_STI();
     // kpause();
     // __PANIC("PANIC TEST");
@@ -194,40 +179,42 @@ int kmain(hex_t magic_number, hex_t addr)
     // kheap_test();
     // kpause();
 
-    /*
-       uchar_t *ptr = kmalloc(1024);
-       ptr[0] = 'A';
-       ptr[1] = 'B';
-       ptr[2] = 'C';
-       kprintf("ptr = %s\n", ptr);
-       kfree(ptr);
+    uchar_t *ptr = kmalloc(4);
+    ptr[0] = 'A';
+    ptr[1] = 'B';
+    ptr[2] = 'C';
+    ptr[3] = 0;
+    kprintf("ptr = %s\n", ptr);
+    kfree(ptr);
 
-       uint32_t i = 0;
-       const uint32_t alloc_size = (1024);
+    uint32_t i = 0;
+    const uint32_t alloc_size = 1024;
 
-       while (i < 100)
-       {
-           ksh_clear();
-           kprintf("\n" COLOR_CYAN "[%d]" COLOR_END ", Alloc " COLOR_GREEN "%d" COLOR_END " bytes\n", i, alloc_size);
-           void *ptr = kmalloc(alloc_size);
+    while (i < 100)
+    {
+        ksh_clear();
+        kprintf("\n" COLOR_CYAN "[%d]" COLOR_END ", Alloc " COLOR_GREEN "%d" COLOR_END " bytes\n", i, alloc_size);
+        kprintf("Test: 1\n");
+        void *ptr = kmalloc(alloc_size);
+        kprintf("Test: 2\n");
 
-           if (ptr == NULL)
-           {
-               kprintf(COLOR_RED "Error: ptr is NULL\n" COLOR_END);
-               break;
-               return (0);
-           }
-           else
-           {
-               kbzero(ptr, alloc_size);
-               kprintf("ptr = " COLOR_GREEN "%p" COLOR_END "\n", ptr);
-           }
-           kprintf("Allocated " COLOR_GREEN "[%u]" COLOR_END " bytes\n", alloc_size);
-           ++i;
-           timer_wait(10);
-       }
-       */
+        if (ptr == NULL)
+        {
+            kprintf(COLOR_RED "Error: ptr is NULL\n" COLOR_END);
+            return (0);
+        }
+        else
+        {
+            kprintf("Test: 3\n");
+            kbzero(ptr, alloc_size);
+            kprintf("ptr = " COLOR_GREEN "%p" COLOR_END "\n", ptr);
+        }
+        kprintf("Allocated " COLOR_GREEN "[%u]" COLOR_END " bytes\n", alloc_size);
+        ++i;
+        timer_wait(10);
+    }
 
+    kpause();
     kronos_shell();
     return (0);
 }

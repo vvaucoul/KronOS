@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:31:39 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/27 18:07:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/03 14:08:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,13 @@ static void __pmm_loader_init_memory_bitmap(const pmm_physical_addr_t bitmap, co
 
 static void __pmm_loader_init_kernel_region(void)
 {
-    uint32_t __start = __kernel_section_start;
-    uint32_t __end = PMM_ALIGN_PAGE_SIZE(__kernel_section_end);
+    kprintf("Section start: 0x%x\n", (uint32_t)&__kernel_section_start);
+    kprintf("Section end: 0x%x\n", (uint32_t)&__kernel_section_end);
+
+    uint32_t __start = (uint32_t)&__kernel_section_start;
+    uint32_t __end = PMM_ALIGN_PAGE_SIZE((uint32_t)&__kernel_section_end);
+
+    kprintf(" - Init Kernel memory region : " COLOR_GREEN "0x%x" COLOR_END " - " COLOR_GREEN "0x%x" COLOR_END " (" COLOR_GREEN "%u" COLOR_END " Kb)\n", __start, __end, (__end - __start) / 1024);
     for (uint32_t i = __start; i < __end; i++)
     {
         __pmm_info.blocks[PMM_GET_BITMAP_ADDR(i)] |= (1 << (i % PMM_BLOCK_PER_BYTE));

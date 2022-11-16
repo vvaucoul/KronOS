@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/29 10:22:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/03 14:20:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/03 14:29:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ void pmm_display(void)
 
 int pmm_test(void)
 {
+    __WORKFLOW_HEADER();
     pmm_display();
     kprintf("PMM Test: \n");
 

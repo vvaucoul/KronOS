@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 20:16:49 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/27 18:00:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/04 12:56:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ extern PMM_REGION __pmm_region;
 ** PMM UTILS
 */
 extern pmm_info_t pmm_get_max_blocks(void);
-extern pmm_info_t pmm_get_used_blocks(void);
 extern pmm_info_t pmm_get_used_blocks(void);
 extern pmm_info_t pmm_get_free_blocks(void);
 extern pmm_info_t pmm_get_memory_size(void);

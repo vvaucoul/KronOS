@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/13 14:01:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 16:27:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/04 12:33:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/frames.h>
+#include <memory/kheap.h>
 #include <asm/asm.h>
 
 uint32_t *__frames = NULL;
@@ -50,17 +51,19 @@ uint32_t get_first_frame()
     {
         if (__frames[i] != 0xFFFFFFFF)
         {
-            for (uint32_t j = 0; j < 32; j++)
+            for (uint32_t j = 0; j < (sizeof(uint32_t) * 8); j++)
             {
                 uint32_t toTest = 0x1 << j;
-                if (!(__frames[i] & toTest))
+                if ((__frames[i] & toTest) == 0)
                 {
-                    return i * 32 + j;
+                    return (i * sizeof(uint32_t) * 8 + j);
                 }
             }
         }
+        else
+            continue;
     }
-    return 0;
+    return ((uint32_t)-1);
 }
 
 // Allocate a frame.
@@ -87,11 +90,20 @@ void alloc_frame(Page *page, bool is_kernel, bool is_writeable)
 void free_frame(Page *page)
 {
     uint32_t frame;
-    if (!(frame = page->frame))
+
+    if ((frame = page->frame) == 0)
         return;
     else
     {
         clear_frame(frame);
         page->frame = 0x0;
     }
+}
+
+void init_frames(void)
+{
+    __nframes = PHYSICAL_MEMORY_SIZE / PAGE_SIZE;
+    __frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(__nframes));
+    // __frames = (uint32_t *)kmalloc_paging(INDEX_FROM_BIT(__nframes), false, NULL);
+    kmemset(__frames, 0, INDEX_FROM_BIT(__nframes));
 }

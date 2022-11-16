@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 12:56:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 17:12:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/04 12:49:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,27 +16,14 @@
 
 static uint32_t __get_nbr_base_length(uint32_t nbr, uint32_t base)
 {
-    uint32_t length;
-
-    length = 0;
-    while (nbr >= base)
+    uint32_t length = 0;
+    while (nbr > 0)
     {
         nbr /= base;
-        ++length;
+        length++;
     }
-    return (length + 1);
+    return (length);
 }
-
-// static uint32_t __get_nbr_length(int64_t nbr)
-// {
-//     uint32_t length = 0;
-//     while (nbr)
-//     {
-//         nbr /= 10;
-//         ++length;
-//     }
-//     return (length);
-// }
 
 uint32_t kuitoa_base(uint32_t nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
 {
@@ -52,7 +39,7 @@ uint32_t kuitoa_base(uint32_t nbr, int base, char str[__KITOA_BUFFER_LENGTH__])
         for (uint8_t i = 0; i < 8; ++i)
             str[i] = '0';
     }
-    i = -1;
+    i = 1;
     while (size - i >= 0)
     {
         str[size - i] = __ASCII_BASE__[nbr % base];

@@ -6,14 +6,16 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/19 19:17:24 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/21 12:34:41 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/04 15:28:12 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
+INCLUDES			=	-I srcs
 
 CFLAGS				=	-Wall -Wextra -Wfatal-errors \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs \
-						-std=gnu99 -ffreestanding -O2
+						-std=gnu99 -ffreestanding -O2 $(INCLUDES)
 
 LDFLAGS				= 	-g3 -m32
 LD_FLAGS			=	-m elf_i386

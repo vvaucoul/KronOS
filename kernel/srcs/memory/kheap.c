@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/03 12:05:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/04 13:21:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ static int __init(data_t *start_addr, data_t *end_addr)
         kheap.max_size = (uint32_t)end_addr - (uint32_t)start_addr;
         kprintf("KHEAP: Max Size : %u octets\n", kheap.max_size);
         kheap.used_size = 0;
+        kheap.last_addr = KMAP.available_extended.start_addr;
         kheap.allocated_blocks = PHYSICAL_MEMORY_BLOCKS;
         kheap.root = NULL;
     }
@@ -176,10 +177,9 @@ static data_t *__kmalloc_kernel_heap(uint32_t size, bool align)
         return (NULL);
     else
     {
-        if (align == true && ((uint32_t)kheap.last_addr & 0xFFFFF000))
+        if (align == true && IS_ALIGNED(kheap.last_addr) == false)
         {
-            kheap.last_addr &= 0xFFFFF000;
-            kheap.last_addr += 0x1000;
+            ALIGN_PAGE(kheap.last_addr);
         }
         if (kheap.root == NULL)
         {
@@ -203,7 +203,16 @@ static data_t *__kmalloc_kernel_heap(uint32_t size, bool align)
                     if (block->data == NULL)
                         return (NULL);
                     else
+                    {
                         kheap.last_addr = (uint32_t)block->data;
+
+                        if (align == true && IS_ALIGNED(kheap.last_addr) == false)
+                        {
+                            ALIGN_PAGE(kheap.last_addr);
+                        }
+                    }
+                    kprintf("test 1\n");
+                    kprintf("Size: %d | Data: 0x%x\n", block->metadata.size, block->data);
                     return (block->data);
                 }
             }
@@ -212,6 +221,7 @@ static data_t *__kmalloc_kernel_heap(uint32_t size, bool align)
                 block->metadata.state = HEAP_BLOCK_USED;
                 block->metadata.size = size;
                 kheap.last_addr = (uint32_t)block->data;
+                kprintf("test 2\n");
                 return (block->data);
             }
         }

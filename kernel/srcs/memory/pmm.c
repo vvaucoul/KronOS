@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 20:21:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/03 14:21:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/04 13:08:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,8 @@ static int64_t pmm_get_first_free_block_by_size(const uint32_t size)
         return (pmm_get_first_free_block());
     else
     {
+        uint32_t free = 0;
+
         for (uint32_t i = 0; i < pmm_get_max_blocks(); i++)
         {
             if (__pmm_info.blocks[i] != PMM_DEFAULT_ADDR)
@@ -71,8 +73,6 @@ static int64_t pmm_get_first_free_block_by_size(const uint32_t size)
                     uint32_t bit = 1 << j;
                     if ((__pmm_info.blocks[i] & bit) == 0)
                     {
-                        // check no of bits(size) are free or not?
-                        uint32_t free = 0;
                         for (uint32_t k = j; k < PMM_BITS_ALIGN; k++)
                         {
                             bit = 1 << k;
@@ -80,7 +80,9 @@ static int64_t pmm_get_first_free_block_by_size(const uint32_t size)
                                 free++;
 
                             if (free == size)
-                                return i * PMM_BITS_ALIGN + j;
+                            {
+                                return (i * PMM_BITS_ALIGN + j);
+                            }
                         }
                     }
                 }
@@ -95,15 +97,12 @@ static t_pmm_region *__pmm_init_region(const pmm_physical_addr_t base, const pmm
     int64_t align = base / PMM_BLOCK_SIZE;
     int64_t blocks = size / PMM_BLOCK_SIZE;
     kprintf("Block: %u | Align: %u | Used Blocks: %u\n", blocks, align, __pmm_info.infos.used_blocks);
-    // kpause();
     while (blocks >= 0)
     {
-        // kprintf("Block: %u | Align: %u | Used Blocks: %u/%u\n", blocks, align, __pmm_info.infos.used_blocks, pmm_get_max_blocks());
         pmm_unset_block(align++);
         __pmm_info.infos.used_blocks--;
         blocks--;
     }
-    // pmm_set_block(0);
 }
 
 static t_pmm_region *__pmm_deinit_region(const pmm_physical_addr_t base, const pmm_physical_addr_t size)
@@ -209,12 +208,12 @@ static void __pmm_init_regions(const pmm_physical_addr_t bitmap, const uint32_t 
     for (uint32_t i = 0; i < __pmm_region.max_regions; i++)
     {
         struct __s_region *current_region = (struct __s_region *)(__pmm_region.start_addr + i);
-     
+
         current_region->start_addr = PMM_DEFAULT_ADDR;
         current_region->end_addr = PMM_DEFAULT_ADDR;
         current_region->size = 0x0;
     }
-    
+
     __pmm_region.end_addr = __pmm_region.start_addr + (uint32_t)&__pmm_region.regions[__pmm_region.max_regions];
 }
 

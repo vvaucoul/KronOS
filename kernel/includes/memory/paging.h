@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/22 21:31:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/04 13:19:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,13 @@
 #define PAGE_SIZE (1UL << PAGE_SHIFT) // 2^12 = 4096
 #define PAGE_MASK (~(PAGE_SIZE - 1))
 
+#define VPAGE_MASK 0xFFFFF000
+#define VPAGE_ALIGNED_MASK 0x00000FFF
+
 /* ADDRESS CALCULATION MACROS */
 #define PAGE_DIRECTORY_INDEX(x) (((uint32_t)x) >> 22)
 #define PAGE_TABLE_INDEX(x) ((((uint32_t)x) >> 12) & 0x03FF)
-#define PAGE_FRAME_INDEX(x) ((uint32_t)x & 0x00000FFF)
+#define PAGE_FRAME_INDEX(x) ((uint32_t)x & VPAGE_ALIGNED_MASK)
 
 /* PAGE REGIRSTER MANIPULATION MACROS */
 #define SET_PGBIT(cr0) (cr0 = cr0 | 0x80000000)
@@ -40,9 +43,8 @@ typedef void __paging_data_t;
 typedef uint32_t vaddr_t;
 typedef void xvaddr_t;
 
-#define VPAGE_MASK 0xFFFFF000
-#define IS_ALIGNED(x) (((vaddr_t)x | VPAGE_MASK) == 0)
-#define ALIGN_PAGE(x) ((vaddr_t)x & VPAGE_MASK + PAGE_SIZE)
+#define IS_ALIGNED(x) (((vaddr_t)x | VPAGE_ALIGNED_MASK) == 0)
+#define ALIGN_PAGE(x) (x = (uint32_t)(((vaddr_t)x & VPAGE_MASK) + PAGE_SIZE))
 
 #define __KERNEL_PAGE_MEMORY_INIT() ((uint32_t *)(&__kernel_end) + __pmm_info.infos.max_blocks)
 

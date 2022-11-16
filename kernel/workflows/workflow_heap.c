@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 19:22:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/03 14:35:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void kheap_test(void)
         kprintf("- PTR: [%s]\n", ptr);
     }
 
-    void *ptr_2 = kmalloc(1024);
+    void *ptr_2 = kmalloc(2048);
 
     if (ptr_2 == NULL)
         __PANIC("Invalid PTR");
@@ -70,6 +70,7 @@ void kheap_test(void)
     uint32_t i = 0;
     uint32_t alloc_size = 1024;
     uint32_t loops = max_heap_size / alloc_size / 2;
+    uint32_t total_alloc = 0;
 
     __UNUSED(start_addr);
 
@@ -82,13 +83,16 @@ void kheap_test(void)
     while (i <= loops)
     {
         void *ptr = kmalloc(alloc_size);
+        total_alloc += alloc_size;
         if (ptr == NULL)
             __PANIC("Invalid PTR");
         __UNUSED(ptr);
-        kprintf("[%d] Allocated %d bytes\n", i, alloc_size);
-        // timer_wait(100);
+        kprintf("[%d/%d] Allocated %d bytes\n", i, loops, alloc_size);
+        kfree(ptr);
+        ptr = NULL;
         i++;
     }
+    timer_wait(1000);
     kprintf("Do %d loops\n", loops * 4);
     timer_wait(1000);
 
@@ -96,23 +100,33 @@ void kheap_test(void)
     while (i <= (loops * 4))
     {
         void *ptr = kmalloc(alloc_size);
+        total_alloc += alloc_size;
         if (ptr == NULL)
             __PANIC("Invalid PTR");
         __UNUSED(ptr);
-        kprintf("[%d] Allocated %d bytes\n", i, alloc_size);
+        kprintf("[%d/%d] Allocated %d bytes\n", i, loops * 4, alloc_size);
+        kfree(ptr);
+        ptr = NULL;
         i++;
     }
+    timer_wait(1000);
+    kprintf("Do %d loops and assign\n", loops * 4);
     timer_wait(1000);
 
     i = 0;
     while (i <= (loops * 4))
     {
         char *ptr = kmalloc(alloc_size);
+        total_alloc += alloc_size;
         if (ptr == NULL)
             __PANIC("Invalid PTR");
         else
             kmemcpy(ptr, "Hello World !", 14);
         kprintf("[%d/%d] Allocated %d bytes [%s]\n", i, loops * 4, alloc_size, ptr);
+        kfree(ptr);
+        ptr = NULL;
         i++;
     }
+    timer_wait(1000);
+    kprintf("Total Allocated: %d (%d Ko) bytes\n", total_alloc, total_alloc / 1024);
 }

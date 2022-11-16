@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/03 13:59:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/04 13:22:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,13 +83,16 @@ __paging_data_t *virtual_to_phys(PageDirectory *dir, xvaddr_t *vaddr)
     }
 }
 
-__paging_data_t *paging_malloc(uint32_t size, bool align)
+__paging_data_t *kmalloc_paging(uint32_t size, bool align, void *phys)
 {
     __paging_data_t *addr = __kernel_page_memory;
 
+    if (phys != NULL)
+        phys = (void *)addr;
     if (align && (IS_ALIGNED(addr) == false))
         addr = (void *)ALIGN_PAGE(addr);
     __kernel_page_memory += size;
+    kprintf("Addr: 0x%x - Phys: 0x%x\n", addr, phys);
     return (addr);
 }
 
@@ -137,21 +140,52 @@ void allocate_page(PageDirectory *dir, vaddr_t vaddr, vaddr_t frame, bool is_ker
     }
 }
 
-Page *get_page(uint32_t addr, int make, PageDirectory *dir)
+// Page *get_page(uint32_t addr, bool make, PageDirectory *dir)
+// {
+//     static uint32_t i = 0;
+
+//     addr /= PAGE_SIZE;
+//     uint32_t table_idx = addr / PAGE_TABLE_SIZE;
+//     if (dir->tables[table_idx])
+//     {
+//         return (&dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE]);
+//     }
+//     else if (make)
+//     {
+//         kprintf("Create Page index: %d\n", i);
+//         uint32_t tmp;
+
+//         // dir->tables[table_idx] = (PageTable *)kmalloc_ap(sizeof(PageTable), &tmp);
+//         dir->tables[table_idx] = (PageTable *)kmalloc_paging(sizeof(PageTable), true, &tmp);
+//         kmemset(dir->tables[table_idx], 0, sizeof(PageTable));
+//         dir->tablesPhysical[table_idx] = tmp | PAGE_ATTRIBUTE_PRESENT | PAGE_ATTRIBUTE_READ_WRITE | PAGE_ATTRIBUTE_USER; // 0x7;
+//         return (&dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE]);
+//     }
+//     return (NULL);
+// }
+
+Page *create_page(uint32_t addr, PageDirectory *dir)
+{
+    uint32_t phys = 0;
+    uint32_t table_idx = 0;
+
+    addr /= PAGE_SIZE;
+    table_idx = addr / PAGE_TABLE_SIZE;
+    kprintf("Create Page index: %d\n", table_idx);
+    dir->tables[table_idx] = (PageTable *)kmalloc_ap(sizeof(PageTable), &phys);
+    kprintf("Test: 0x%x\n", phys);
+    kmemset(dir->tables[table_idx], 0, sizeof(PageTable));
+    dir->tablesPhysical[table_idx] = phys | PAGE_ATTRIBUTE_PRESENT | PAGE_ATTRIBUTE_READ_WRITE | PAGE_ATTRIBUTE_USER; // 0x7;
+    return (&dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE]);
+}
+
+Page *get_page(uint32_t addr, PageDirectory *dir)
 {
     addr /= PAGE_SIZE;
     uint32_t table_idx = addr / PAGE_TABLE_SIZE;
     if (dir->tables[table_idx])
     {
-        return &dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE];
-    }
-    else if (make)
-    {
-        uint32_t tmp;
-        dir->tables[table_idx] = (PageTable *)kmalloc_ap(sizeof(PageTable), &tmp);
-        kmemset(dir->tables[table_idx], 0, sizeof(PageTable));
-        dir->tablesPhysical[table_idx] = tmp | 0x7;
-        return &dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE];
+        return (&dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE]);
     }
     return (NULL);
 }
@@ -191,6 +225,7 @@ static void switch_page_directory(PageDirectory *dir)
 
 static void __init()
 {
+    /*
     uint32_t end_mem = 0x1000000;
     __nframes = end_mem / PAGE_SIZE;
     __frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(__nframes));
@@ -203,7 +238,7 @@ static void __init()
     uint32_t i = 0;
     Page *__current_page = NULL;
 
-    while (i < KHEAP_GET_PLACEMENT_ADDR())
+    while (i < PAGE_DIRECTORY_SIZE * PAGE_SIZE)
     {
         __current_page = get_page(i, 1, __kernel_page_directory);
         assert(__current_page == NULL);
@@ -216,18 +251,119 @@ static void __init()
     switch_page_directory(__current_page_directory);
     kpause();
     __paging_enabled = true;
+    */
+
+    /*
+      // set all page directory read/write & user access
+    for (i = 0; i < 1024; i++) {
+        g_page_directory[i].read_write = 1;
+        g_page_directory[i].user = 1;
+    }
+
+    // fill all the entries in page table to map all 4MB memory
+    for (i = 0; i < 1024; i++) {
+        g_page_tables[i].present = 1;
+        g_page_tables[i].read_write = 1;
+        g_page_tables[i].user = 1;
+        g_page_tables[i].frame = (i * PAGE_SIZE) >> 12;
+    }
+
+    // set first page directory to be accessed with frame 0x11a(kernel region address)
+    g_page_directory[0].present = 1;
+    g_page_directory[0].accessed = 0;
+    g_page_directory[0].user = 1;
+    g_page_directory[0].frame = 0x11a;
+    */
+
+    uint32_t i = 0;
+    Page *__current_page = NULL;
+
+    __kernel_page_memory = __KERNEL_PAGE_MEMORY_INIT();
+    kprintf("Kernel Page Memory: 0x%x\n", __kernel_page_memory);
+    init_frames();
+    __kernel_page_directory = (PageDirectory *)kmalloc_a(sizeof(PageDirectory));
+    kmemset(__kernel_page_directory, 0, sizeof(PageDirectory));
+    __current_page_directory = __kernel_page_directory;
+
+    /*
+    ** Map pages for kernel
+    */
+
+    const uint32_t __start_addr = (uint32_t)KMAP.available_extended.start_addr;
+    const uint32_t __heap_size = PHYSICAL_MEMORY_SIZE;
+
+    kprintf("Kernel Heap Size: %u\n", __heap_size);
+    kprintf("Kernel Heap Start Address: 0x%x\n", __start_addr);
+
+    // kpause();
+
+    i = __start_addr;
+    uint32_t j = 0;
+    while (i < (__start_addr + __heap_size))
+    {
+        kprintf("Allocating page for address: 0x%x [%d/%d]\n", i, j++, __heap_size / PAGE_SIZE);
+        __current_page = create_page(i, __kernel_page_directory);
+        assert(__current_page == NULL);
+        i += PAGE_SIZE;
+    }
+    kprintf("Create %u pages for kernel heap\n", __heap_size  / PAGE_SIZE);
+    kpause();
+
+    /*
+    ** Allocate frames
+    */
+
+    display_kernel_memory_map();
+    // kpause();
+
+    // KMAP.available.end_addr;
+
+    i = 0;
+    // kprintf("Placement addr: 0x%x\n", ((uint32_t)KMAP.available.end_addr + PAGE_SIZE));
+    while (i < PAGE_TABLE_SIZE)
+    {
+        __current_page = get_page(i, __kernel_page_directory);
+        if (__current_page == NULL)
+            __current_page = create_page(i, __kernel_page_directory);
+        alloc_frame(__current_page, false, false);
+        i += PAGE_SIZE;
+    }
+
+    /*
+    ** Allocate frames for kernel heap
+    */
+
+    i = __start_addr;
+    while (i < (__start_addr + __heap_size))
+    {
+        __current_page = get_page(i, __kernel_page_directory);
+        if (__current_page == NULL)
+            __current_page = create_page(i, __kernel_page_directory);
+        alloc_frame(__current_page, false, false);
+        i += PAGE_SIZE;
+    }
+
+    isr_register_interrupt_handler(14, __page_fault);
+    kpause();
+    __load_page_directory((__current_page_directory->tablesPhysical));
+    // kpause();
+    // switch_page_directory(__current_page_directory);
+    __paging_enabled = true;
 }
 
 static void __init_paging(void)
 {
-    __kernel_page_memory = __KERNEL_PAGE_MEMORY_INIT();
-    kprintf("Paging: Page Memory ADDR: 0x%x\n", __kernel_page_memory);
-    // __kernel_page_directory = paging_malloc(sizeof(PageDirectory), true);
-    __kernel_page_directory = kmalloc_a(sizeof(PageDirectory));
-    kmemset(__kernel_page_directory, 0, sizeof(PageDirectory));
-    __current_page_directory = __kernel_page_directory;
+    // __kernel_page_memory = __KERNEL_PAGE_MEMORY_INIT();
+    // kprintf("Paging: Page Memory ADDR: 0x%x\n", __kernel_page_memory);
+    // // __kernel_page_directory = kmalloc_paging(sizeof(PageDirectory), true);
+    // kprintf("Alloc Aligned %u bytes for Page Directory\n", sizeof(PageDirectory));
+    // __kernel_page_directory = kmalloc_a(sizeof(PageDirectory));
+    // kprintf("Paging: Page Directory ADDR: 0x%x\n", __kernel_page_directory);
+    // kmemset(__kernel_page_directory, 0, sizeof(PageDirectory));
+    // kpause();
+    // __current_page_directory = __kernel_page_directory;
 
-    // uint32_t i = 
+    // uint32_t i =
 
     // kpause();
     __init();
@@ -364,9 +500,10 @@ static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], str
 
     char __kitoa_buffer[__KITOA_BUFFER_LENGTH__];
     kbzero(__kitoa_buffer, __KITOA_BUFFER_LENGTH__);
-    kuitoa_base(faulting_address, 16,__kitoa_buffer);
+    kuitoa_base(faulting_address, 16, __kitoa_buffer);
     kmemjoin(buffer, __kitoa_buffer, kstrlen(buffer), kstrlen(__kitoa_buffer));
     kmemjoin(buffer, "\n", kstrlen(buffer), 1);
+    kprintf("Addr error: 0x%x\n", faulting_address);
 }
 
 void __page_fault(struct regs *r)

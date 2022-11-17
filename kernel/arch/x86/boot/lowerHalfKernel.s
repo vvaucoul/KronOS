@@ -13,16 +13,21 @@ extern BOOTLOADER_MAGIC
 extern display_error_msg
 
 section .data
-	align 4096
+	align 0x1000
+
+; Multiboot Section
+extern __lhk_multiboot
+align 4
+call __lhk_multiboot
 
 section .initial_stack, nobits
     align 4
 
 section .bss
-	align 16
-	stack_bottom:
+	align 32
+stack_bottom:
 	resb STACK_SIZE
-	stack_top:
+stack_top:
 
 section .text
 	global _start:function (_start.end - _start)
@@ -30,12 +35,14 @@ section .text
 
 _start:
 	mov esp, stack_top
-	mov eax, BOOTLOADER_MAGIC
 	push ebx
 	push eax
-	call kmain
+	
 	cli
-	call display_error_msg
+	call kmain
+	pop eax
+	cmp eax, 1
+	jmp display_error_msg
 .hang:
 	hlt
 	jmp .hang

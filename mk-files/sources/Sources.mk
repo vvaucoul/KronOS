@@ -1,21 +1,25 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    ShellRules-Dependencies.mk                         :+:      :+:    :+:    #
+#    Sources.mk                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/09/02 13:18:04 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/20 15:31:09 by vvaucoul         ###   ########.fr        #
+#    Created: 2022/06/27 17:35:59 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/17 01:09:09 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SCRIPTS_DIR = scripts
-
 #*******************************************************************************
-#*                      SHELL RULES / KERNEL DEPENDENCIES                      *
+#*                                    SRCS                                     *
 #*******************************************************************************
 
-CHECK_HIGHER_HALF_KERNEL = $(shell sh $(SCRIPTS_DIR)/isHigherHalfKernel.sh)
-CHECK_XORRISO_INSTALL = $(shell sh $(SCRIPTS_DIR)/checkXorriso.sh)
-CHECK_CLANG_INSTALL = $(shell sh $(SCRIPTS_DIR)/checkClang.sh)
+KSRCS		=	$(shell find kernel/srcs -name '*.c')
+KOBJS		=	$(KSRCS:.c=.o)
+
+#*******************************************************************************
+#*                                   SRCSXX                                    *
+#*******************************************************************************
+
+KSRCSXX		=	$(shell find kernel/srcs -name '*.cpp')
+KOBJSXX		=	$(KSRCSXX:.cpp=.o)

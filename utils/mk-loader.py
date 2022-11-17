@@ -1,18 +1,24 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Sources.mk                                         :+:      :+:    :+:    #
+#    mk-loader.py                                       :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/06/27 17:35:59 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/09/13 12:21:15 by vvaucoul         ###   ########.fr        #
+#    Created: 2022/11/17 00:52:26 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/17 00:56:36 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-#*******************************************************************************
-#*                                    SRCS                                     *
-#*******************************************************************************
+import sys
 
-KSRCS		=	$(shell find kernel/srcs -name '*.c')
-KOBJS		=	$(KSRCS:.c=.o)
+def __main__():
+    if len(sys.argv) != 3:
+        print("Usage: python mk-loader.py <file> <count>")
+        return
+    file = sys.argv[1]
+    nb_files = int(sys.argv[2])
+    print(file)
+
+if __name__ == "__main__":
+    __main__()

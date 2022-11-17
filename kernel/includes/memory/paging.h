@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/16 14:56:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/04 13:19:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 02:05:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ static inline uint32_t __get_cr2(void)
 }
 #endif
 
-#define KERNEL_VIRTUAL_BASE (__HIGHER_HALF_KERNEL__ ? 0xC0000000 : 0x80000000)
+#define KERNEL_VIRTUAL_BASE (__HIGHER_HALF_KERNEL__ ? 0xC0000000 : 0x00000000)
 
 #define PAGE_FAULT_BUFFER_SIZE 256
 #define PAGE_FAULT_ADDR(x) x = __get_cr2()

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/22 13:20:14 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/17 00:58:39 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,7 +57,7 @@ DEPENDS_CPP	=	$(OBJS_CPP:.o=.d)
 #*                                  INLCUDES                                   *
 #*******************************************************************************
 
-include ../$(MK_INCLUDE_DIR)/Colors.mk
+include ../$(MK_INCLUDE_DIR)/utils/Colors.mk
 
 %.o: %.cpp
 	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 

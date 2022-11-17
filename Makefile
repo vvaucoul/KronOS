@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/10/20 18:05:53 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/17 01:44:15 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,13 +16,16 @@
 
 MK_INCLUDE_DIR	=	mk-files
 
-include $(MK_INCLUDE_DIR)/Colors.mk
-include $(MK_INCLUDE_DIR)/Sources-Boot.mk
-include $(MK_INCLUDE_DIR)/Sources.mk
-include $(MK_INCLUDE_DIR)/Sources-Workflows.mk
-include $(MK_INCLUDE_DIR)/Sources-ASM.mk
-include $(MK_INCLUDE_DIR)/Headers.mk
-include $(MK_INCLUDE_DIR)/ShellRules-Dependencies.mk
+include $(MK_INCLUDE_DIR)/utils/Colors.mk
+include $(MK_INCLUDE_DIR)/dependencies/ShellRules-Dependencies.mk
+include $(MK_INCLUDE_DIR)/rules/Rules.mk
+
+include $(MK_INCLUDE_DIR)/includes/Headers.mk
+
+include $(MK_INCLUDE_DIR)/sources/Sources-Boot.mk
+include $(MK_INCLUDE_DIR)/sources/Sources.mk
+include $(MK_INCLUDE_DIR)/sources/Sources-Workflows.mk
+include $(MK_INCLUDE_DIR)/sources/Sources-ASM.mk
 
 #*******************************************************************************
 #*                                     VAR                                     *
@@ -41,9 +44,9 @@ LIBKFS_A			=	libkfs/libkfs.a
 
 # Todo: Check clang version / do not use gcc -> error
 ifeq ($(CLANG_INSTALLED), false)
-	CC					=	gcc
+	CC				=	gcc
 else
-	CC					=	clang
+	CC				=	clang
 endif
 
 LD					=	ld
@@ -62,24 +65,10 @@ DEPENDS_DIR			=	depends
 ASM					=	nasm
 ASMFLAGS			=	-f elf32
 
-BOOT_DIR			=	boot
-
-ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)
-	BOOT			=	$(BOOT_DIR)/lowerHalfKernel
-else
-	BOOT			=	$(BOOT_DIR)/boot
-endif
-
 KDSRCS				=	srcs/kernel
 HEADERS_DIR			=	kernel/includes/
 BIN					=	kernel.bin
 BIN_DIR				=	bin
-
-ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)
-	LINKER			=	$(LINKER_DIR)/linker.ld
-else
-	LINKER			=	$(LINKER_DIR)/HigherHalfLinker.ld
-endif
 
 XORRISO				=	xorriso-1.4.6
 XORRISO_INSTALLED	=	$(CHECK_XORRISO_INSTALL)
@@ -93,11 +82,11 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 #*******************************************************************************
 
 %.o: %.c
-	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.c=.o}
 
 %.o: %.s
-	@printf "$(_LWHITE)    $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
 
 #*******************************************************************************
@@ -153,11 +142,11 @@ ascii:
 helper:
 	@printf "\n$(_LWHITE)- Now you use: '$(_LYELLOW)make run$(_END)$(_LWHITE)' or '$(_LYELLOW)make run-iso$(_END)$(_LWHITE)' to start the kernel !$(_END)\n"
 
-include $(MK_INCLUDE_DIR)/QEMU-Runner.mk
-include $(MK_INCLUDE_DIR)/Docker.mk
-include $(MK_INCLUDE_DIR)/Kernel-Maker.mk
-include $(MK_INCLUDE_DIR)/Dependencies.mk
-include $(MK_INCLUDE_DIR)/tiny-kernels.mk
+include $(MK_INCLUDE_DIR)/kernel-starter/QEMU-Runner.mk
+include $(MK_INCLUDE_DIR)/docker/Docker.mk
+include $(MK_INCLUDE_DIR)/kernel-maker/Kernel-Maker.mk
+include $(MK_INCLUDE_DIR)/dependencies/Dependencies.mk
+include $(MK_INCLUDE_DIR)/tiny-kernels/tiny-kernels.mk
 
 -include $(DEPENDS)
 -include $(WDEPENDS)

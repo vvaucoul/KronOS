@@ -67,4 +67,6 @@ SECTIONS
 	__kernel_section_end = .;
 	__kernel_virtual_memory_end = .;
 	__kernel_physical_memory_end = .;
+
+	. = ASSERT(__kernel_section_end - __kernel_section_start <= __kernel_physical_memory_start, "Kernel size too large");
 }

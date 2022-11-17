@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 02:08:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 12:06:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     enable_fpu();
     kernel_log_info("LOG", "FPU");
     // kpause();
-
+    return (0);
     // Require x64 Broadwell Intel (5th Gen) or higher
     // smp_init();
     // kernel_log_info("LOG", "SMP");
@@ -128,7 +128,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     pmm_init(KMAP.available_extended.start_addr, KMAP.available_extended.length);
     pmm_loader_init();
     kernel_log_info("LOG", "PMM");
-
+    
     // pmm_test();
 
     /*
@@ -136,33 +136,33 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     ** 20 * 4096 = 81920 = 80 Ko
     */
 
-   kprintf("PMM Blocks: %u\n", pmm_get_max_blocks());
-   kprintf("PMM Used Blocks: %u\n", pmm_get_used_blocks());
-   kprintf("PMM Size: %u Mo\n", pmm_get_memory_size() / 1024 / 1024);
+    kprintf("PMM Blocks: %u\n", pmm_get_max_blocks());
+    kprintf("PMM Used Blocks: %u\n", pmm_get_used_blocks());
+    kprintf("PMM Size: %u Mo\n", pmm_get_memory_size() / 1024 / 1024);
 
-   void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
-   void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
+    void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
+    void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
 
-   kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
-   kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
-   kprintf("Kernel Heap Size: " COLOR_GREEN "%u (%u Ko)" COLOR_END "\n", (uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr, ((uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr) / 1024);
+    kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
+    kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
+    kprintf("Kernel Heap Size: " COLOR_GREEN "%u (%u Ko)" COLOR_END "\n", (uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr, ((uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr) / 1024);
 
-   if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
-       __PANIC("Error: kheap_init failed");
-   kernel_log_info("LOG", "KHEAP");
+    if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
+        __PANIC("Error: kheap_init failed");
+    kernel_log_info("LOG", "KHEAP");
 
-   // kheap_test();
+    // kheap_test();
 
-   /*
-   ** Init Kernel Paging
-   */
+    /*
+    ** Init Kernel Paging
+    */
 
-  kprintf("Ok\n");
-   init_paging();
-   kpause();
-   kernel_log_info("LOG", "PAGING");
-   kpause();
-   return (0);
+    kprintf("Ok\n");
+    init_paging();
+    kpause();
+    kernel_log_info("LOG", "PAGING");
+    kpause();
+    return (0);
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr)
 {
@@ -186,7 +186,7 @@ int kmain(hex_t magic_number, hex_t addr)
     // __PANIC("PANIC TEST");
 
     // kheap_test();
-    // kpause();
+    kpause();
 
     uchar_t *ptr = kmalloc(4);
     ptr[0] = 'A';

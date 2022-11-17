@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 01:12:43 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/17 02:39:14 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ GRUB_CONFIG_DIR = kernel/arch/x86/config
 LINKER_DIR = kernel/arch/x86/linkers
 
 ifeq ($(CHECK_XORRISO_INSTALL), false)
-	XORRISO_PATH = $(shell pwd)/$(XORRISO)/xorriso/xorriso
+	XORRISO_PATH = $(shell pwd)/dependencies/$(XORRISO)/xorriso/xorriso
 else
 	XORRISO_PATH = /bin/xorriso
 endif

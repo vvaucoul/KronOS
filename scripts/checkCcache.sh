@@ -1,27 +1,24 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Rules.mk                                           :+:      :+:    :+:    #
+#    checkCcache.sh                                     :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 02:39:48 by vvaucoul         ###   ########.fr        #
+#    Created: 2022/11/17 02:37:55 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/17 12:02:16 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-KERNEL_DIR				=	kernel
+#!/bin/sh
 
-KERNEL_X86_DIR			=	$(KERNEL_DIR)/arch/x86
+ls /usr/bin/ccache > /dev/null 2>&1
+output=$?
 
-KERNEL_BOOT_DIR			=	$(KERNEL_X86_DIR)/boot
-KERNEL_CONFIG_DIR		=	$(KERNEL_X86_DIR)/config
-KERNEL_LINKERS_DIR		=	$(KERNEL_X86_DIR)/linkers
-
-KERNEL_SRCS_DIR			=	$(KERNEL_DIR)/srcs
-KERNEL_INCLUDES_DIR		=	$(KERNEL_DIR)/includes
-KERNEL_WORKFLOWS_DIR	=	$(KERNEL_DIR)/workflows
-
-LIBKFS_DIR				=	libkfs
-
-DEPENDENCIES_DIR		=	dependencies
+if [ $output -ne 0 ]; then
+    echo "false"
+    exit 1
+else
+    echo "true"
+    exit 0
+fi

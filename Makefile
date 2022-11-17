@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 01:44:15 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/17 12:00:20 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,13 +42,6 @@ ISO					=	$(NAME).iso
 LIBKFS				=	lkfs
 LIBKFS_A			=	libkfs/libkfs.a
 
-# Todo: Check clang version / do not use gcc -> error
-ifeq ($(CLANG_INSTALLED), false)
-	CC				=	gcc
-else
-	CC				=	clang
-endif
-
 LD					=	ld
 INLCUDES_PATH		=	-I./kernel/includes/ \
 						-I./libkfs/includes/
@@ -73,6 +66,22 @@ BIN_DIR				=	bin
 XORRISO				=	xorriso-1.4.6
 XORRISO_INSTALLED	=	$(CHECK_XORRISO_INSTALL)
 
+CCACHE_INSTALLED	=	$(CHECK_CCACHE_INSTALL)
+CCACHE_DIR			=	ccache
+
+ifeq ($(CCACHE_INSTALLED), false)
+	CCACHE			=	./$(DEPENDENCIES_DIR)/$(CCACHE_DIR)/ccache
+else
+	CCACHE 			=	ccache
+endif
+
+# Todo: Check clang version / do not use gcc -> error
+ifeq ($(CLANG_INSTALLED), false)
+	CC				=	$(CCACHE) gcc
+else
+	CC				=	$(CCACHE) clang
+endif
+
 DEPENDS				=	$(KOBJS:.o=.d)
 WDEPENDS			=	$(WOBJS:.o=.d)
 DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
@@ -95,7 +104,7 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
 all: $(NAME)
 
-$(NAME): ascii $(XORRISO) $(LIBKFS) $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) helper
+$(NAME): ascii $(XORRISO) $(CCACHE) $(LIBKFS) $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) helper
 	@true
 
 $(LIBKFS):
@@ -111,6 +120,9 @@ $(KDSRCS): $(KOBJS) $(KOBJS_ASM) $(WOBJS)
 $(XORRISO):
 	@sh $(SCRIPTS_DIR)/installXorriso.sh
 
+$(CCACHE):
+	@sh $(SCRIPTS_DIR)/installCcache.sh
+
 check:
 	@grub-file --is-x86-multiboot $(BIN_DIR)/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"
 	printf "$(_END)$(_DIM) -> ISO CHECKER $(_END)\n"
@@ -123,7 +135,7 @@ clean:
 
 fclean: clean docker-clear
 	@make -s -C libkfs fclean
-	@rm -rf $(XORRISO) $(BIN_DIR)
+	@rm -rf $(DEPENDENCIES_DIR)/$(XORRISO) $(BIN_DIR) $(DEPENDENCIES_DIR)/$(CCACHE_DIR)
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 re: clean

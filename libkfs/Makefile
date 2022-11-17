@@ -6,16 +6,16 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 00:58:39 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/17 02:35:24 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME 			= libkfs.a
 
 ifeq ($(CLANG_INSTALLED), false)
-	CC 			= gcc
+	CC 			= ccache gcc
 else
-	CC 			= clang
+	CC 			= ccache clang
 endif
 
 CXX 			= clang++
@@ -28,7 +28,8 @@ CXXFLAGS		= -Wall -Wextra -Werror -std=c++11 -Wall -Wextra -Werror -Wfatal-error
 
 ASM 			= nasm
 INLCUDES_PATH 	= -I./includes/ \
-				-I./libs/
+				-I./libs
+
 CFLAGS 			= -Wall -Wextra -Werror -Wfatal-errors \
 				-fno-builtin -fno-exceptions -fno-stack-protector \
 				-nostdlib -nodefaultlibs \

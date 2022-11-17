@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 02:02:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 02:08:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
    ** Init Kernel Paging
    */
 
+  kprintf("Ok\n");
    init_paging();
    kpause();
    kernel_log_info("LOG", "PAGING");

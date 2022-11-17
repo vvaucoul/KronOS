@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/04 15:27:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/04 17:46:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 02:09:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,5 @@ void init_paging(void)
             page = __create_page(i, kernel_directory);
         alloc_frame(page, 0, 0);
     }
-
     enable_paging(kernel_directory->tablesPhysical);
 }

@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/17 16:48:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 16:04:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 02:18:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef _ASSERT_H
 #define _ASSERT_H
 
-#include "../../includes/kprintf.h"
-#include "../libs/stddef/stddef.h"
+#include <kprintf.h>
+#include <stddef.h>
 
 typedef unsigned short __assert_t;
 

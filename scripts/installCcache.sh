@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    installXorriso.sh                                  :+:      :+:    :+:    #
+#    installCcache.sh                                   :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/09/02 13:23:58 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 02:42:19 by vvaucoul         ###   ########.fr        #
+#    Created: 2022/11/17 02:48:22 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/17 12:02:01 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,22 +53,21 @@ _DIM='\033[2m'
 _CLEAR_LINE='\033[K'
 
 pwd=$(pwd)
-xorriso_dir=dependencies
-xorriso=xorriso-1.4.6
-xorriso_installed=$(sh scripts/checkXorriso.sh)
+ccache_dir=dependencies
+ccache=ccache-4.7.3-linux-x86_64.tar.xz
+ccache_installed=$(sh scripts/checkCcache.sh)
 
-printf "$_LWHITE- Check package $_LYELLOW[XORRISO] $_LYELLOW> $_END$_DIM$xorriso or latest version$_END$_LYELLOW <$_END\n"
+printf "$_LWHITE- Check package $_LYELLOW[CCACHE] $_LYELLOW> $_END$_DIM$ccache or latest version$_END$_LYELLOW <$_END\n"
 
-if [ $xorriso_installed = "true" ]; then
-    printf "$_LWHITE-$_LYELLOW [XORRISO]$_LGREEN already installed $_END$_DIM---------$_END $_LGREEN[$_LWHITE✓$_LGREEN]$_END\n\n"
+if [ "$ccache_installed" = "true" ]; then
+    printf "$_LWHITE-$_LYELLOW [CCACHE]$_LGREEN already installed $_END$_DIM----------$_END $_LGREEN[$_LWHITE✓$_LGREEN]$_END\n\n"
     exit 0
 else
-    printf "$_LWHITE-$_LYELLOW [XORRISO]$_LRED not installed $_LRED[$_LWHITE✗$_LRED]$_END\n\n"
+    printf "$_LWHITE-$_LYELLOW [CCACHE]$_LRED not installed $_LRED[$_LWHITE✗$_LRED]$_END\n\n"
     sleep 1
-    printf "$_LWHITE-$_END$_DIM Compiling$_END$_LYELLOW [XORRISO] $_END$_DIM---$_END $_LYELLOW[$_LWHITE⚠️ $_LYELLOW]$_END $_LYELLOW> $_END$_DIM$pwd/$xorriso/$_END$_LYELLOW <$_END\n"
-    tar xf $xorriso_dir/$xorriso.tar.gz -C $xorriso_dir
-    cd $xorriso_dir/$xorriso && ./configure --prefix=/usr > /dev/null 2>&1 && make -j$(nproc) > /dev/null 2>&1
-    printf "$_LWHITE- $xorriso $_END$_DIM---------$_END $_LGREEN[$_LWHITE✓$_LGREEN]$_END\n"
-    sleep 1
+    printf "$_LWHITE-$_END$_DIM Compiling$_END$_LYELLOW [CCACHE] $_END$_DIM---$_END $_LYELLOW[$_LWHITE⚠️ $_LYELLOW]$_END $_LYELLOW> $_END$_DIM$pwd/$ccache/$_END$_LYELLOW <$_END\n"
+    tar xf $ccache_dir/$ccache -C $ccache_dir
+    mv $ccache_dir/ccache-4.7.3-linux-x86_64 $ccache_dir/ccache
+    printf "$_LWHITE- $ccache $_END$_DIM----$_END $_LGREEN[$_LWHITE✓$_LGREEN]$_END\n"
     exit 0
 fi

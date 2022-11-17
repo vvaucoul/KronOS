@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/21 21:08:53 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 02:35:24 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/17 12:09:08 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,6 @@ CXXFLAGS		= -Wall -Wextra -Werror -std=c++11 -Wall -Wextra -Werror -Wfatal-error
 				-nostdlib -nodefaultlibs \
 				-ffreestanding -O2 \
 				-fno-builtin -fno-rtti
-
 
 ASM 			= nasm
 INLCUDES_PATH 	= -I./includes/ \

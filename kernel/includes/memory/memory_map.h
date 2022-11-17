@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/12 20:19:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/25 17:04:16 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/11/17 14:16:30 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/11/17 17:32:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,8 @@
 
 #include <kernel.h>
 #include <multiboot/multiboot.h>
+#include <system/sections.h>
 
-#define MEMORY_GRUB_RESERVED_SPACE 0xFFFFC000
-#define MEMORY_PAGE_SCALABILITY 0x300
-
-extern uint8_t __kernel_section_start;
-extern uint8_t __kernel_text_section_start;
-extern uint8_t __kernel_text_section_end;
-extern uint8_t __kernel_data_section_start;
-extern uint8_t __kernel_data_section_end;
-extern uint8_t __kernel_rodata_section_start;
-extern uint8_t __kernel_rodata_section_end;
-extern uint8_t __kernel_bss_section_start;
-extern uint8_t __kernel_bss_section_end;
-extern uint8_t __kernel_section_end;
-
-/*
-** Kernel Memory Map
-*/
 typedef struct s_kernel_memory_map
 {
     /* Kernel Sections */
@@ -84,56 +68,30 @@ typedef struct s_kernel_memory_map
     {
         uint32_t total_memory_length;
     } total;
+} kernel_memory_map_t;
 
-    /* Kernel Available Section */
-    struct
-    {
-        uint32_t start_addr;
-        uint32_t end_addr;
-        uint32_t length;
-    } available;
-
-    /* Kernel Available Extended Section */
-    struct
-    {
-        uint32_t start_addr;
-        uint32_t end_addr;
-        uint32_t length;
-    } available_extended;
-} t_kernel_memory_map;
-
-#define MEMORY_MAP_GET_START_ADDR(x, i) (x[i].addr_low)
-#define MEMORY_MAP_GET_END_ADDR(x, i) (x[i].addr_low + x[i].len_low)
-#define MEMORY_MAP_GET_LENGTH(x, i) (x[i].len_low)
-#define MEMORY_MAP_ALIGN_ADDR(x, size) (x & ~(size - 1))
-
-#define __MEMORY_MAP_SIZE 7
-
-#define MEMORY_MAP_LOW_MEMORY 0
-#define MEMORY_MAP_LOW_UPPER_MEMORY 1
-#define MEMORY_MAP_HARDWARE_RESERVED 2
-#define MEMORY_MAP_AVAILABLE 3
-#define MEMORY_MAP_ISA_MEMORY_HOLE 4
-#define MEMORY_MAP_GRUB_RESERVED 5
-#define MEMORY_MAP_AVAILABLE_EXTENDED 6
-
-typedef struct __s_memory_map
+typedef struct s_memory_map
 {
-    MultibootMemoryMap map[__MEMORY_MAP_SIZE];
-    uint8_t count;
-    uint8_t max_size;
-} __t_memory_map;
+    MultibootMemoryType type;
+    uint32_t size;
+    uint32_t addr_low;
+    uint32_t addr_high;
+    uint32_t len_low;
+    uint32_t len_high;
+} memory_map_t;
 
-#define KERNEL_MEMORY_MAP t_kernel_memory_map
-#define MEMORY_MAP __t_memory_map
+#define MMAP_SIZE 0x7
+#define MMAP_MIN_TYPE 0x0
+#define MMAP_MAX_TYPE 0x5
 
-extern KERNEL_MEMORY_MAP kernel_memory_map;
-extern MEMORY_MAP memory_map;
+extern kernel_memory_map_t kernel_memory_map;
+extern memory_map_t memory_map[MMAP_SIZE];
 
-#define KMAP kernel_memory_map
-#define MAP memory_map
+#define KMAP_SECTIONS kernel_memory_map.sections
+#define KMAP_TOTAL kernel_memory_map.total
 
-extern int get_kernel_memory_map(const MultibootInfo *multiboot_info);
-extern int get_user_memory_map(const MultibootInfo *multiboot_info);
+#define MEMORY_MAP_AVAILABLE_MEMORY_INDEX 0X4
+
+extern int get_memory_map(MultibootInfo *multiboot_info);
 
 #endif /* !MEMORY_MAP_H */

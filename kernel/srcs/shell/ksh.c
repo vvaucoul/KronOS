@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/28 13:14:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 14:09:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ size_t ksh_min_line = __HEADER_HEIGHT__;
 size_t ksh_current_line = __HEADER_HEIGHT__;
 size_t ksh_current_max_line = __HEADER_HEIGHT__;
 
-uint32_t *ksh_buffer = (uint32_t *)(0x00002000 + __HIGHER_HALF_KERNEL__ ? KERNEL_MEMORY_START + 0x0000B000 : 0x0);
+uint32_t *ksh_buffer = (uint32_t *)0x0000B000;
+// (uint32_t *)(0x00002000 + __HIGHER_HALF_KERNEL__ ? KERNEL_MEMORY_START + 0x0000B000 : 0x0);
 
 void ksh_clear(void)
 {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 12:06:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 17:38:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,11 @@
 
 #include <memory/memory.h>
 #include <memory/memory_map.h>
-#include <memory/pmm.h>
 #include <memory/kheap.h>
-#include <memory/smp.h>
+#include <memory/paging.h>
+
+// #include <memory/pmm.h>
+// #include <memory/smp.h>
 
 #include <workflows/workflows.h>
 
@@ -91,12 +93,12 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
     else
     {
-        __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr + KERNEL_VIRTUAL_BASE));
+        __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr)); // + KERNEL_VIRTUAL_BASE
         assert(__multiboot_info == NULL);
         if (multiboot_init(__multiboot_info))
             __PANIC("Error: multiboot_init failed");
         kernel_log_info("LOG", "MULTIBOOT");
-        if (get_kernel_memory_map(__multiboot_info))
+        if (get_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
     }
@@ -115,41 +117,51 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     enable_fpu();
     kernel_log_info("LOG", "FPU");
     // kpause();
-    return (0);
     // Require x64 Broadwell Intel (5th Gen) or higher
     // smp_init();
     // kernel_log_info("LOG", "SMP");
     // kpause();
 
-    kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.sections.kernel.kernel_end);
-    kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available_extended.end_addr);
-    kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available_extended.length, KMAP.available_extended.length / 1024 / 1024);
+    // display_kernel_memory_map();
 
-    pmm_init(KMAP.available_extended.start_addr, KMAP.available_extended.length);
-    pmm_loader_init();
-    kernel_log_info("LOG", "PMM");
-    
+    // kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.sections.kernel.kernel_end);
+    // kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available_extended.end_addr);
+    // kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available_extended.length, KMAP.available_extended.length / 1024 / 1024);
+
+    // pmm_init(KMAP.available.start_addr, KMAP.available.length);
+    // pmm_init(KMAP.available.start_addr, KMAP.available.length + KMAP.available_extended.length);
+
+    // Todo: Fix memory map & pmm & multiboot kernel memory map
+
+    // pmm_loader_init();
+    // pmm_init_region(KMAP.available.start_addr, PMM_BLOCK_SIZE * 10);
+
+    // kernel_log_info("LOG", "PMM");
     // pmm_test();
+    // kpause();
 
     /*
     ** Init Kernel Heap
-    ** 20 * 4096 = 81920 = 80 Ko
+    ** 20 * 4096 = 80 Ko
     */
 
-    kprintf("PMM Blocks: %u\n", pmm_get_max_blocks());
-    kprintf("PMM Used Blocks: %u\n", pmm_get_used_blocks());
-    kprintf("PMM Size: %u Mo\n", pmm_get_memory_size() / 1024 / 1024);
+    // kprintf("PMM Blocks: %u\n", pmm_get_max_blocks());
+    // kprintf("PMM Used Blocks: %u\n", pmm_get_used_blocks());
+    // kprintf("PMM Size: %u Mo\n", pmm_get_memory_size() / 1024 / 1024);
 
-    void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
-    void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
+    // void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
+    // void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
 
-    kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
-    kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
-    kprintf("Kernel Heap Size: " COLOR_GREEN "%u (%u Ko)" COLOR_END "\n", (uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr, ((uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr) / 1024);
+    // kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
+    // kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
+    // kprintf("Kernel Heap Size: " COLOR_GREEN "%u (%u Ko)" COLOR_END "\n", (uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr, ((uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr) / 1024);
+    // kpause();
+    // kheap_test();
+    // kpause();
 
-    if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
-        __PANIC("Error: kheap_init failed");
-    kernel_log_info("LOG", "KHEAP");
+    // if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
+    //     __PANIC("Error: kheap_init failed");
+    // kernel_log_info("LOG", "KHEAP");
 
     // kheap_test();
 
@@ -157,9 +169,9 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     ** Init Kernel Paging
     */
 
-    kprintf("Ok\n");
+    display_sections();
+
     init_paging();
-    kpause();
     kernel_log_info("LOG", "PAGING");
     kpause();
     return (0);
@@ -186,43 +198,6 @@ int kmain(hex_t magic_number, hex_t addr)
     // __PANIC("PANIC TEST");
 
     // kheap_test();
-    kpause();
-
-    uchar_t *ptr = kmalloc(4);
-    ptr[0] = 'A';
-    ptr[1] = 'B';
-    ptr[2] = 'C';
-    ptr[3] = 0;
-    kprintf("ptr = %s\n", ptr);
-    kfree(ptr);
-
-    uint32_t i = 0;
-    const uint32_t alloc_size = 1024;
-
-    while (i < 100)
-    {
-        ksh_clear();
-        kprintf("\n" COLOR_CYAN "[%d]" COLOR_END ", Alloc " COLOR_GREEN "%d" COLOR_END " bytes\n", i, alloc_size);
-        kprintf("Test: 1\n");
-        void *ptr = kmalloc(alloc_size);
-        kprintf("Test: 2\n");
-
-        if (ptr == NULL)
-        {
-            kprintf(COLOR_RED "Error: ptr is NULL\n" COLOR_END);
-            return (0);
-        }
-        else
-        {
-            kprintf("Test: 3\n");
-            kbzero(ptr, alloc_size);
-            kprintf("ptr = " COLOR_GREEN "%p" COLOR_END "\n", ptr);
-        }
-        kprintf("Allocated " COLOR_GREEN "[%u]" COLOR_END " bytes\n", alloc_size);
-        ++i;
-        timer_wait(10);
-    }
-
     kpause();
     kronos_shell();
     return (0);

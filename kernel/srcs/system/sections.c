@@ -6,41 +6,45 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:18:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 02:28:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 15:14:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/sections.h>
 
-uint8_t __kernel_start;
-uint8_t __kernel_end;
-uint8_t __kernel_text_section_start;
-uint8_t __kernel_text_section_end;
-uint8_t __kernel_data_section_start;
-uint8_t __kernel_data_section_end;
-uint8_t __kernel_rodata_section_start;
-uint8_t __kernel_rodata_section_end;
-uint8_t __kernel_bss_section_start;
-uint8_t __kernel_bss_section_end;
-uint8_t __kernel_virtual_memory_start;
-uint8_t __kernel_physical_memory_start;
-uint8_t __multiboot_start;
-uint8_t __multiboot_end;
+uint32_t __kernel_section_start;
+uint32_t __kernel_text_section_start;
+uint32_t __kernel_text_section_end;
+uint32_t __kernel_data_section_start;
+uint32_t __kernel_data_section_end;
+uint32_t __kernel_rodata_section_start;
+uint32_t __kernel_rodata_section_end;
+uint32_t __kernel_bss_section_start;
+uint32_t __kernel_bss_section_end;
+uint32_t __kernel_section_end;
 
-static void __print_single_section(const char *__section_name, uint8_t *_addr, bool __nl)
+uint32_t __multiboot_start;
+uint32_t __multiboot_end;
+
+uint32_t __kernel_physical_memory_start;
+uint32_t __kernel_physical_memory_end;
+uint32_t __kernel_virtual_memory_start;
+uint32_t __kernel_virtual_memory_end;
+
+static void __print_single_section(const char *__section_name, uint32_t *_addr, bool __nl)
 {
-    kprintf(""COLOR_CYAN"%s\n"COLOR_END, __section_name);
-    kprintf("- START: "COLOR_GREEN"0x%x"COLOR_END"\n", _addr);
-       if (__nl)
+    kprintf("" COLOR_CYAN "%s\n" COLOR_END, __section_name);
+    kprintf("- START: " COLOR_GREEN "0x%x" COLOR_END "\n", _addr);
+    if (__nl)
         kprintf("\n");
 }
 
-static void __print_section(const char *__section_name, uint8_t *_addr_start, uint8_t *_addr_end, bool __nl)
+static void __print_section(const char *__section_name, uint32_t *_addr_start, uint32_t *_addr_end, bool __nl)
 {
     const uint32_t __res = ((uint32_t)_addr_end - (uint32_t)_addr_start);
 
-    kprintf(""COLOR_CYAN"%s\n"COLOR_END, __section_name);
-    kprintf("- START: "COLOR_GREEN"0x%x"COLOR_END" | END: "COLOR_GREEN"0x%x"COLOR_END" | TOTAL: "COLOR_GREEN"0x%x"COLOR_END" - "COLOR_GREEN"%d"COLOR_END" Bytes\n", _addr_start, _addr_end, __res, __res);
+    kprintf("" COLOR_CYAN "%s\n" COLOR_END, __section_name);
+    kprintf("- START: " COLOR_GREEN "0x%x" COLOR_END " | END: " COLOR_GREEN "0x%x" COLOR_END " | TOTAL: " COLOR_GREEN "0x%x" COLOR_END " - " COLOR_GREEN "%d" COLOR_END " Bytes\n", _addr_start, _addr_end, __res, __res);
     if (__nl)
         kprintf("\n");
 }
@@ -48,7 +52,7 @@ static void __print_section(const char *__section_name, uint8_t *_addr_start, ui
 void display_sections(void)
 {
     kprintf(COLOR_GREEN "[SECTIONS]\n" COLOR_END);
-    __print_section("KERNEL", &__kernel_start, &__kernel_end, false);
+    __print_section("KERNEL", &__kernel_section_start, &__kernel_section_end, false);
     __print_section("KERNEL_TEXT", &__kernel_text_section_start, &__kernel_text_section_end, false);
     __print_section("KERNEL_DATA", &__kernel_data_section_start, &__kernel_data_section_end, false);
     __print_section("KERNEL_RODATA", &__kernel_rodata_section_start, &__kernel_rodata_section_end, false);

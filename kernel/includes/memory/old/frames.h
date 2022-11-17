@@ -5,25 +5,29 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/17 14:39:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 14:42:44 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/10/13 14:01:57 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/11/03 18:48:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FRAMES_H
-#define FRAMES_H
+#ifndef _FRAMES_H
+#define _FRAMES_H
 
-#include <kernel.h>
 #include <memory/paging.h>
 
-extern uint32_t n_frames;
-extern uint32_t *frames;
+#define INDEX_FROM_BIT(a) (a / (8 * sizeof(a)))
+#define OFFSET_FROM_BIT(a) (a % (8 * sizeof(a)))
 
-#define INDEX_FROM_BIT(a) (a / (8 * 4))
-#define OFFSET_FROM_BIT(a) (a % (8 * 4))
+extern void set_frame(uint32_t addr);
+extern void clear_frame(uint32_t addr);
+extern uint32_t check_frame(uint32_t addr);
+extern uint32_t get_first_frame();
+extern void alloc_frame(Page *page, bool is_kernel, bool is_writeable);
+extern void free_frame(Page *page);
+extern void init_frames(void);
 
-extern void alloc_frame(page_t *page, int is_kernel, int is_writeable);
-extern void free_frame(page_t *page);
-extern void init_frames(uint32_t mem_size);
+extern uint32_t *__frames;
+extern uint32_t __nframes;
+extern uint32_t __placement_address;
 
-#endif /* !FRAMES_H */
+#endif /* !_FRAMES_H */

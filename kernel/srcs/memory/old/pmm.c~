@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 20:21:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/04 13:08:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 13:46:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,6 +237,7 @@ static void __pmm_init(const pmm_physical_addr_t bitmap, const uint32_t total_me
     kprintf("PMM: Max Blocks: %u Blocks\n", pmm_get_max_blocks());
     kprintf("PMM: Used Blocks: %u Blocks\n", pmm_get_used_blocks());
     kprintf("PMM: Memory Map Start: 0x%x\n", pmm_get_memory_map_start());
+    // kpause();
 
     uint32_t blocks_set = pmm_get_max_blocks() * sizeof(uint32_t);
 

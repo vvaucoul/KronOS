@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/04 12:38:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 14:53:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,8 +134,8 @@ void isr_register_interrupt_handler(int num, ISR handler)
 void fault_handler(struct regs *r)
 {
     KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
-    if (r->int_no == 14)
-        __page_fault(r);
+    // if (r->int_no == 14)
+    //     __page_fault(r);
     if (r->int_no < 32)
     {
         __PANIC_MULTISTR(((const char *[3]){

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/22 21:40:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 14:08:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #include <system/gdt.h>
 #include <multiboot/multiboot.h>
 #include <system/sections.h>
-#include <memory/memory_map.h>
-#include <memory/pmm.h>
+// #include <memory/memory_map.h>
+// #include <memory/pmm.h>
 
 #include <workflows/workflows.h>
 
@@ -62,9 +62,9 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &display_multiboot_infos);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"help", ""}, &__ksh_help);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm", "pmm-info"}, &pmm_display);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm-test", ""}, &pmm_test);
+    // __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
+    // __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm", "pmm-info"}, &pmm_display);
+    // __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pmm-test", ""}, &pmm_test);
 }
 
 void __ksh_execute_builtins(const char *name)

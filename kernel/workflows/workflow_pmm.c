@@ -6,16 +6,17 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/29 10:22:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/03 14:29:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 15:10:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <workflows/workflows.h>
-#include <memory/pmm.h>
-#include <memory/memory_map.h>
+// #include <memory/pmm.h>
+// #include <memory/memory_map.h>
 
 void pmm_display(void)
 {
+    /*
     kprintf("PMM INFO:\n");
     kprintf("- " COLOR_YELLOW "Memory Size" COLOR_END ": " COLOR_GREEN "%u" COLOR_END " | " COLOR_GREEN "0x%x\n" COLOR_END, __pmm_info.infos.memory_size, __pmm_info.infos.memory_size);
     kprintf("- " COLOR_YELLOW "Max Blocks" COLOR_END ": " COLOR_GREEN "%u\n" COLOR_END, __pmm_info.infos.max_blocks);
@@ -23,10 +24,13 @@ void pmm_display(void)
     kprintf("- " COLOR_YELLOW "Memory Map End" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __pmm_info.infos.memory_map_end);
     kprintf("- " COLOR_YELLOW "Memory Map Length" COLOR_END ": " COLOR_GREEN "%u\n" COLOR_END, __pmm_info.infos.memory_map_length);
     kprintf("- " COLOR_YELLOW "Blocks" COLOR_END ": " COLOR_GREEN "0x%x\n" COLOR_END, __pmm_info.blocks);
+    */
 }
 
 int pmm_test(void)
 {
+    return (0);
+    /*
     __WORKFLOW_HEADER();
     pmm_display();
     kprintf("PMM Test: \n");
@@ -49,12 +53,12 @@ int pmm_test(void)
 
     uint32_t *ptr4 = pmm_alloc_blocks(5);
     assert(ptr4 == NULL);
-    
+
     kprintf("Alloc 5 Blocks at " COLOR_GREEN "0x%x" COLOR_END ", next available block at index " COLOR_GREEN "%u" COLOR_END "\n", ptr4, (uint32_t)pmm_get_next_available_block());
-    
+
     uint32_t *ptr5 = pmm_alloc_block();
     assert(ptr5 == NULL);
-    
+
     kprintf("Alloc Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at index " COLOR_GREEN "%u" COLOR_END "\n", ptr5, (uint32_t)pmm_get_next_available_block());
 
     kprintf("\n");
@@ -90,6 +94,7 @@ int pmm_test(void)
     kprintf("Free Block at " COLOR_GREEN "0x%x" COLOR_END ", next available block at index " COLOR_GREEN "%u" COLOR_END "\n", ptr1, pmm_get_next_available_block());
     kprintf("\nNext Available block " COLOR_GREEN "%u" COLOR_END "\n", pmm_get_next_available_block());
     return (0);
+    */
 }
 
 // int pmm_defragment_test(void)

@@ -5,77 +5,80 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 14:52:30 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/10/13 14:01:28 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/11/17 14:01:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/frames.h>
 #include <memory/kheap.h>
+#include <asm/asm.h>
 
-#include <system/panic.h>
+uint32_t *__frames = NULL;
+uint32_t __nframes = 0;
 
-uint32_t n_frames = 0;
-uint32_t *frames = NULL;
-
-static void set_frame(uint32_t frame_addr)
+// Set a bit in the frames bitset
+void set_frame(uint32_t addr)
 {
-    uint32_t frame = frame_addr / 0x1000;
+    uint32_t frame = addr / PAGE_SIZE;
     uint32_t idx = INDEX_FROM_BIT(frame);
     uint32_t off = OFFSET_FROM_BIT(frame);
-    frames[idx] |= (0x1 << off);
+    __frames[idx] |= (0x1 << off);
 }
 
-static void clear_frame(uint32_t frame_addr)
+// Clear a bit in the frames bitset
+void clear_frame(uint32_t addr)
 {
-    uint32_t frame = frame_addr / 0x1000;
+    uint32_t frame = addr / PAGE_SIZE;
     uint32_t idx = INDEX_FROM_BIT(frame);
     uint32_t off = OFFSET_FROM_BIT(frame);
-    frames[idx] &= ~(0x1 << off);
+    __frames[idx] &= ~(0x1 << off);
 }
 
-static uint32_t test_frame(uint32_t frame_addr)
+// Test if a bit is set.
+uint32_t check_frame(uint32_t addr)
 {
-    uint32_t frame = frame_addr / 0x1000;
+    uint32_t frame = addr / PAGE_SIZE;
     uint32_t idx = INDEX_FROM_BIT(frame);
     uint32_t off = OFFSET_FROM_BIT(frame);
-    return (frames[idx] & (0x1 << off));
+    return (__frames[idx] & (0x1 << off));
 }
 
-static uint32_t first_frame(void)
+// Find the first free frame.
+uint32_t get_first_frame()
 {
-    uint32_t i, j;
-    for (i = 0; i < INDEX_FROM_BIT(n_frames); i++)
+    for (uint32_t i = 0; i < INDEX_FROM_BIT(__nframes); i++)
     {
-        if (frames[i] != 0xFFFFFFFF)
+        if (__frames[i] != 0xFFFFFFFF)
         {
-            for (j = 0; j < 32; j++)
+            for (uint32_t j = 0; j < (sizeof(uint32_t) * 8); j++)
             {
                 uint32_t toTest = 0x1 << j;
-                if (!(frames[i] & toTest))
+                if ((__frames[i] & toTest) == 0)
                 {
-                    return i * 4 * 8 + j;
+                    return (i * sizeof(uint32_t) * 8 + j);
                 }
             }
         }
+        else
+            continue;
     }
-    return (-1);
+    return ((uint32_t)-1);
 }
 
-void alloc_frame(page_t *page, int is_kernel, int is_writeable)
+// Allocate a frame.
+void alloc_frame(Page *page, bool is_kernel, bool is_writeable)
 {
     if (page->frame != 0)
-    {
         return;
-    }
     else
     {
-        uint32_t idx = first_frame();
+        uint32_t idx = get_first_frame();
         if (idx == (uint32_t)-1)
         {
             __PANIC("No free frames!");
         }
-        set_frame(idx * 0x1000);
+        set_frame(idx * PAGE_SIZE);
         page->present = 1;
         page->rw = (is_writeable) ? 1 : 0;
         page->user = (is_kernel) ? 0 : 1;
@@ -83,13 +86,13 @@ void alloc_frame(page_t *page, int is_kernel, int is_writeable)
     }
 }
 
-void free_frame(page_t *page)
+// Free a frame.
+void free_frame(Page *page)
 {
     uint32_t frame;
-    if (!(frame = page->frame))
-    {
+
+    if ((frame = page->frame) == 0)
         return;
-    }
     else
     {
         clear_frame(frame);
@@ -97,11 +100,9 @@ void free_frame(page_t *page)
     }
 }
 
-void init_frames(uint32_t mem_size)
+void init_frames(void)
 {
-    n_frames = mem_size / 0x1000;
-    frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames));
-    kmemset(frames, 0, INDEX_FROM_BIT(n_frames));
-    
-    __UNUSED(test_frame(0));
+    __nframes = PHYSICAL_MEMORY_SIZE / PAGE_SIZE;
+    __frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(__nframes));
+    kmemset(__frames, 0, INDEX_FROM_BIT(__nframes));
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 12:06:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/27 16:52:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 13:44:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ MEMORY_MAP memory_map;
 static MultibootMemoryMap __setup_memory_entry(MultibootMemoryType type, uint32_t size, uint32_t addr_low, uint32_t addr_high, uint32_t len_low, uint32_t len_high)
 {
     MultibootMemoryMap mmap;
+
     mmap.type = type;
     mmap.size = size;
     mmap.addr_low = addr_low;
@@ -31,50 +32,54 @@ static MultibootMemoryMap __setup_memory_entry(MultibootMemoryType type, uint32_
 
 static void __fix_memory_entries()
 {
-    /* Fix Kernel ADDR */
-    // memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low += KERNEL_VIRTUAL_BASE;
-    memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low = KMAP.sections.kernel.kernel_end + 0x100000;
-    memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].len_low = 0xFFFFFFFF - memory_map.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low - 0x100000;
+    kprintf(" - Fixing memory entries...\n");
 
     /* Fix Grub Reserved Space */
-    memory_map.map[MEMORY_MAP_GRUB_RESERVED].len_low = 0xFFFFFFFF - memory_map.map[MEMORY_MAP_GRUB_RESERVED].addr_low;
+    MAP.map[MEMORY_MAP_GRUB_RESERVED].len_low = 0xFFFFFFFF - MAP.map[MEMORY_MAP_GRUB_RESERVED].addr_low;
+
+    /* Fix Kernel ADDR */
+
+    // MAP.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low = KMAP.sections.kernel.kernel_end + 0x100000;
+    MAP.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low = MAP.map[MEMORY_MAP_AVAILABLE].len_low + MAP.map[MEMORY_MAP_AVAILABLE].addr_low + 0x100000;
+    MAP.map[MEMORY_MAP_AVAILABLE_EXTENDED].len_low = 0xFFFFFFFF - MAP.map[MEMORY_MAP_GRUB_RESERVED].addr_low - 0x100000;
+    // MAP.map[MEMORY_MAP_AVAILABLE_EXTENDED].len_low = 0xFFFFFFFF - MAP.map[MEMORY_MAP_AVAILABLE_EXTENDED].addr_low - 0x100000;
 }
 
 static int __init_kernel_mmap(const MultibootInfo *multiboot_info)
 {
     /* Setup Memory Map */
-    memory_map.max_size = __MEMORY_MAP_SIZE;
-    memory_map.count = 0;
+    MAP.max_size = __MEMORY_MAP_SIZE;
+    MAP.count = 0;
     for (uint8_t i = 0; i < __MEMORY_MAP_SIZE; ++i)
     {
-        memory_map.map[i].type = 0x0;
-        memory_map.map[i].size = 0x0;
-        memory_map.map[i].addr_low = 0x0;
-        memory_map.map[i].addr_high = 0x0;
-        memory_map.map[i].len_low = 0x0;
-        memory_map.map[i].len_high = 0x0;
+        MAP.map[i].type = 0x0;
+        MAP.map[i].size = 0x0;
+        MAP.map[i].addr_low = 0x0;
+        MAP.map[i].addr_high = 0x0;
+        MAP.map[i].len_low = 0x0;
+        MAP.map[i].len_high = 0x0;
     }
 
     /* Assign Memory Map */
     MultibootMemoryMap *mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + (uint32_t)KERNEL_VIRTUAL_BASE);
     do
     {
-        memory_map.map[memory_map.count] = __setup_memory_entry(mmap->type, mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high);
-        ++memory_map.count;
+        MAP.map[MAP.count] = __setup_memory_entry(mmap->type, mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high);
+        ++MAP.count;
         mmap = (MultibootMemoryMap *)((uint32_t)mmap + mmap->size + sizeof(mmap->size));
         assert(mmap == NULL);
-    } while ((uint32_t)mmap < multiboot_info->mmap_addr + multiboot_info->mmap_length + KERNEL_VIRTUAL_BASE);
+    } while ((uint32_t)mmap < multiboot_info->mmap_addr + multiboot_info->mmap_length + (uint32_t)KERNEL_VIRTUAL_BASE);
 
     __fix_memory_entries();
 
     /* Setup Kernel Available Memory */
-    KMAP.available.start_addr = MEMORY_MAP_GET_START_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE) + 1024 * 1024;
-    KMAP.available.end_addr = MEMORY_MAP_GET_END_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE);
+    KMAP.available.start_addr = MEMORY_MAP_GET_START_ADDR(MAP.map, MEMORY_MAP_AVAILABLE) + 1024 * 1024;
+    KMAP.available.end_addr = MEMORY_MAP_GET_END_ADDR(MAP.map, MEMORY_MAP_AVAILABLE);
     KMAP.available.length = KMAP.available.end_addr - KMAP.available.start_addr;
 
     /* Setup Kernel Available Extended Memory */
-    KMAP.available_extended.start_addr = MEMORY_MAP_GET_START_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE_EXTENDED);
-    KMAP.available_extended.end_addr = MEMORY_MAP_GET_END_ADDR(memory_map.map, MEMORY_MAP_AVAILABLE_EXTENDED);
+    KMAP.available_extended.start_addr = MEMORY_MAP_GET_START_ADDR(MAP.map, MEMORY_MAP_AVAILABLE_EXTENDED);
+    KMAP.available_extended.end_addr = MEMORY_MAP_GET_END_ADDR(MAP.map, MEMORY_MAP_AVAILABLE_EXTENDED);
     KMAP.available_extended.length = KMAP.available_extended.end_addr - KMAP.available_extended.start_addr;
 
     return (0);

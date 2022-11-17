@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/03 14:35:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 14:10:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <workflows/workflows.h>
 
-#include <memory/kheap.h>
+// #include <memory/kheap.h>
 
 #include <kernel.h>
 #include <system/panic.h>
@@ -25,6 +25,7 @@
 
 void kheap_test(void)
 {
+    /*
     __WORKFLOW_HEADER();
 
     void *ptr = kmalloc(sizeof(char) * 15);
@@ -129,4 +130,5 @@ void kheap_test(void)
     }
     timer_wait(1000);
     kprintf("Total Allocated: %d (%d Ko) bytes\n", total_alloc, total_alloc / 1024);
+    */
 }

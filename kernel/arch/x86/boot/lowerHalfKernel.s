@@ -20,21 +20,18 @@ extern __lhk_multiboot
 align 4
 call __lhk_multiboot
 
-section .initial_stack, nobits
-    align 4
-
 section .bss
 	align 32
-stack_bottom:
+stack:
 	resb STACK_SIZE
-stack_top:
 
 section .text
 	global _start:function (_start.end - _start)
 	extern kmain
 
 _start:
-	mov esp, stack_top
+	xor ebp, ebp
+	mov esp, stack + STACK_SIZE 
 	push ebx
 	push eax
 	

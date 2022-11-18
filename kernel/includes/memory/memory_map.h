@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:16:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 17:32:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 00:50:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,6 @@ extern memory_map_t memory_map[MMAP_SIZE];
 
 #define KMAP_SECTIONS kernel_memory_map.sections
 #define KMAP_TOTAL kernel_memory_map.total
-
-#define MEMORY_MAP_AVAILABLE_MEMORY_INDEX 0X4
 
 extern int get_memory_map(MultibootInfo *multiboot_info);
 

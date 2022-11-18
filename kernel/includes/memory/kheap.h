@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 17:36:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 00:29:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,32 @@
 #include <memory/memory.h>
 #include <memory/memory_map.h>
 
-#define KHEAP_START 0xBFFE0000
+#define KHEAP_START 0xC0000000
+#define KHEAP_MAX_SIZE 0xCFFFF000
 #define KHEAP_INITIAL_SIZE 0x100000
+#define PHYSICAL_MEMORY_SIZE 0x1000000
+
+enum kheap_block_status
+{
+    FREE,
+    USED
+};
+
+typedef struct s_heap_node
+{
+    struct s_heap_node *parent;
+    struct s_heap_node *left;
+    struct s_heap_node *right;
+    enum kheap_block_status status;
+    uint32_t size;
+} heap_node_t;
 
 typedef struct s_heap
 {
-    int test;
+    heap_node_t *root;
+    uint32_t start_address;
+    uint32_t end_address;
+    uint32_t max_address;
 } t_heap;
 
 typedef t_heap heap_t;

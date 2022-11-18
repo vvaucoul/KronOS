@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:18:24 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 17:35:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 00:50:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,37 +35,25 @@ static void __fix_memory_entry(memory_map_t *__memory_map)
 
 static int __init_memory_map(MultibootInfo *multiboot_info)
 {
-    MultibootMemoryMap *mmap = (MultibootMemoryMap *)multiboot_info->mmap_addr;
+    MultibootMemoryMap *mmap = NULL;
 
-    uint32_t index = 0;
+    uint32_t i = 0;
     uint32_t mmap_index = 0;
 
     do
     {
+        mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + i);
         assert(mmap == NULL);
+
         if (mmap->type > MMAP_MIN_TYPE && mmap->type <= MMAP_MAX_TYPE)
         {
             memory_map[mmap_index] = __setup_memory_entry(mmap->type, mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high);
             __fix_memory_entry(&memory_map[mmap_index]);
-            kprintf("Add Memory map [%u] -> %u\n", mmap_index, mmap->type);
             ++mmap_index;
         }
-        mmap = (MultibootMemoryMap *)(uint32_t)multiboot_info->mmap_addr + index;
-        index++;
-    } while ((uint32_t)index < multiboot_info->mmap_length);
 
-    for (uint32_t i = 0; i < MMAP_SIZE; i++)
-    {
-        const memory_map_t mmap = memory_map[i];
-        kprintf("MMAP [%u]", i);
-        kprintf(" |: [%d]", mmap.type);
-        kprintf(" |: 0x%x", mmap.addr_low);
-        kprintf(" |: 0x%x", mmap.addr_high);
-        kprintf(" |: %u", mmap.len_low);
-        kprintf(" |: %u", mmap.len_high);
-        kprintf(" | Total: %u", mmap.addr_low + mmap.len_low);
-        kprintf("\n");
-    }
+        i += sizeof(MultibootMemoryMap);
+    } while (i < multiboot_info->mmap_length);
 
     return (0);
 }

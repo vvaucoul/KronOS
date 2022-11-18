@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 14:52:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 23:53:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,11 +97,13 @@ void free_frame(page_t *page)
     }
 }
 
-void init_frames(uint32_t mem_size)
+void init_frames()
 {
-    n_frames = mem_size / 0x1000;
+    n_frames = PHYSICAL_MEMORY_SIZE / PAGE_SIZE;
     frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames));
     kmemset(frames, 0, INDEX_FROM_BIT(n_frames));
+
+    kprintf("Frames initialized...\n");
     
     __UNUSED(test_frame(0));
 }

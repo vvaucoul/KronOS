@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 15:00:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 01:01:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <asm/asm.h>
 #include <system/pit.h>
 
-#define PAGE_SIZE 4096
+#define PAGE_SIZE 0x1000
 #define PAGE_TABLE_SIZE 1024
 
 #define MEMORY_END_PAGE 0x1000000 // 16MB
@@ -50,5 +50,9 @@ extern page_directory_t *kernel_directory;
 extern void init_paging(void);
 extern page_t *get_page(uint32_t address, page_directory_t *dir);
 extern void page_fault(struct regs *r);
+
+extern void enable_paging(page_directory_t *dir);
+
+extern bool paging_enabled;
 
 #endif /* !PAGING_H */

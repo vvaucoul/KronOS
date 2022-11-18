@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 17:38:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 01:07:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,18 +82,12 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
 
-    // char buffer[PAGE_FAULT_BUFFER_SIZE];
-    // uint32_t faulting_address = 0x10000;
-    // kuitoa_base(faulting_address, 16, buffer);
-    // kprintf("Buffer: 0x%s\n", buffer);
-    // kpause();
-
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
     else
     {
-        __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr)); // + KERNEL_VIRTUAL_BASE
+        __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr));
         assert(__multiboot_info == NULL);
         if (multiboot_init(__multiboot_info))
             __PANIC("Error: multiboot_init failed");
@@ -116,6 +110,10 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "KEYBOARD");
     enable_fpu();
     kernel_log_info("LOG", "FPU");
+    init_paging();
+    kernel_log_info("LOG", "PAGING");
+
+
     // kpause();
     // Require x64 Broadwell Intel (5th Gen) or higher
     // smp_init();
@@ -168,12 +166,6 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     /*
     ** Init Kernel Paging
     */
-
-    display_sections();
-
-    init_paging();
-    kernel_log_info("LOG", "PAGING");
-    kpause();
     return (0);
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr)
@@ -194,11 +186,10 @@ int kmain(hex_t magic_number, hex_t addr)
     if (__DISPLAY_INIT_LOG__)
         kprintf("\n");
     ASM_STI();
-    // kpause();
+    kpause();
     // __PANIC("PANIC TEST");
 
     // kheap_test();
-    kpause();
     kronos_shell();
     return (0);
 }

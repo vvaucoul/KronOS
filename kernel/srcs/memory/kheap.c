@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 15:04:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 01:07:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/kheap.h>
 #include <memory/paging.h>
 
-uint32_t placement_addr = (uint32_t)&__kernel_section_end;
+uint32_t placement_addr = (uint32_t)(&__kernel_section_end);
 heap_t *kheap = NULL;
 
 static void *__kbrk(uint32_t size, uint8_t align)
@@ -23,6 +23,7 @@ static void *__kbrk(uint32_t size, uint8_t align)
 
 static uint32_t __kmalloc_int(uint32_t size, int align, uint32_t *phys)
 {
+    /* If Heap exists -> Virtual Memory */
     if (kheap)
     {
         void *addr = __kbrk(size, (uint8_t)align);
@@ -33,6 +34,7 @@ static uint32_t __kmalloc_int(uint32_t size, int align, uint32_t *phys)
         }
         return (uint32_t)addr;
     }
+    /* Either, use physical Memory */
     else
     {
         if (align && (placement_addr & 0xFFFFF000))
@@ -70,7 +72,15 @@ static void __kfree(void *ptr)
 
 static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly)
 {
-    return (0);
+    kprintf("KHEAP : Initializing kernel heap\n");
+    heap_t *heap = (heap_t *)__kmalloc_int(sizeof(heap_t), 0, 0);
+    kprintf("Heap : 0x%x\n", heap);
+    heap->start_address = start_addr;
+    kpause();
+    heap->end_address = end_addr;
+    heap->max_address = max_addr;
+    heap->root = NULL;
+    return (heap);
 }
 
 /*******************************************************************************

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/15 15:44:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 15:47:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,15 @@
 
 #include <kernel.h>
 
-#define __WORKFLOW_HEADER() \
-    kprintf(COLOR_END "Starting workflow: " COLOR_CYAN "%s\n" COLOR_END, __FUNCTION__);
+#define WORKFLOW_CHAR '='
+
+#define __WORKFLOW_HEADER() workflow_header(__FUNCTION__)
+
+#define __WORKFLOW_FOOTER() workflow_footer();
+
+/* Workflow Utils */
+extern void workflow_header(const char *function_name);
+extern void workflow_footer(void);
 
 /* Kernel Memory Map */
 extern void display_kernel_memory_map(void);

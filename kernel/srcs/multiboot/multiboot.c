@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 12:50:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 18:56:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,11 @@ int multiboot_init(MultibootInfo *mboot_ptr)
         kprintf(COLOR_GREEN "[CHECK] BOOTDEV: " COLOR_RED "INVALID " COLOR_END "\n");
         return (1);
     }
-    if (CHECK_FLAG(mboot_ptr->flags, MULTIBOOT_ACPI_MEMORY) == false)
-    {
-        kprintf(COLOR_GREEN "[CHECK] ACPI_MEMORY: " COLOR_RED "INVALID " COLOR_END "\n");
-        return (1);
-    }
+    // if (CHECK_FLAG(mboot_ptr->flags, MULTIBOOT_ACPI_MEMORY) == false)
+    // {
+    //     kprintf(COLOR_GREEN "[CHECK] ACPI_MEMORY: " COLOR_RED "INVALID " COLOR_END "\n");
+    //     return (1);
+    // }
     if (CHECK_FLAG(mboot_ptr->flags, MULTIBOOT_INFO_DEVICE) == false)
     {
         kprintf(COLOR_GREEN "[CHECK] DEVICE: " COLOR_RED "INVALID " COLOR_END "\n");

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:18:24 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/18 00:50:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 12:50:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,12 +43,18 @@ static int __init_memory_map(MultibootInfo *multiboot_info)
     do
     {
         mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + i);
-        assert(mmap == NULL);
+        assert(mmap != NULL);
 
         if (mmap->type > MMAP_MIN_TYPE && mmap->type <= MMAP_MAX_TYPE)
         {
             memory_map[mmap_index] = __setup_memory_entry(mmap->type, mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high);
             __fix_memory_entry(&memory_map[mmap_index]);
+
+            if (mmap_index == 5)
+            {
+                memory_map[mmap_index].len_low = 0xFFFFFFFF - memory_map[mmap_index].addr_low;
+            }
+
             ++mmap_index;
         }
 
@@ -60,7 +66,7 @@ static int __init_memory_map(MultibootInfo *multiboot_info)
 
 int get_memory_map(MultibootInfo *multiboot_info)
 {
-    assert(multiboot_info == NULL);
+    assert(multiboot_info != NULL);
 
     KMAP_SECTIONS.kernel.kernel_start = (uint32_t)&__kernel_section_start;
     KMAP_SECTIONS.kernel.kernel_end = (uint32_t)&__kernel_section_end;

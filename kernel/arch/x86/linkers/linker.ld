@@ -33,7 +33,7 @@ SECTIONS
      *                               KERNEL SECTIONS                               *
      ******************************************************************************/
 
-	. = __kernel_physical_memory_start + __multiboot_end;
+	. = __multiboot_end;
 	__kernel_section_start = .;
 
     .text BLOCK(4K) : ALIGN(4K)

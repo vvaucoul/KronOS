@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 18:33:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 23:57:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 15:31:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,22 @@ int kstrncmp(const char *s1, const char *s2, size_t length)
     return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
+size_t knbr_base_len(const uint32_t nbr, const uint8_t base)
+{
+    size_t len;
+    uint32_t n_nbr = nbr;
+
+    len = 0;
+    if (n_nbr == 0)
+        return (1);
+    while (n_nbr)
+    {
+        n_nbr /= base;
+        ++len;
+    }
+    return (len);
+}
+
 size_t knbrlen(const int nbr)
 {
     size_t i = 0;
@@ -49,6 +65,8 @@ size_t knbrlen(const int nbr)
 
     if (nbr < 0)
         i++;
+    if (nbr == 0)
+        return (1);
     while (nb != 0)
     {
         nb /= 10;

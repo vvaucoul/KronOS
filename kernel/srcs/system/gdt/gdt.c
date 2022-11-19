@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 02:51:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 20:13:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,7 @@
 #include <system/kerrno.h>
 
 GDTEntry *gdt = (GDTEntry *)__GDT_ADDR;
-
-/*
-GDTEntry gdt[__GDT_SIZE] = {
-        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO, GDT_ENTRY_FLAG_ZERO),   // NULL Segment, required
-        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE),       // kernel code segment
-        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE),       // kernel data segment
-        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_LIMIT, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE),      // Kernel stack segment
-        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_CODE_PL3), GDT_ENTRY_FLAG_BASE),  // user code segment
-        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE),  // user data segment
-        GDT_ENTRY(GDT_ENTRY_FLAG_ZERO, __GDT_USER_LIMIT, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE), // user stack segment
-};
-*/
-
-GDTPtr gp; //= (GDTPtr *)__GDT_ADDR;
+GDTPtr gp;
 
 void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity)
 {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/18 01:07:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 13:23:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 
 #include <drivers/keyboard.h>
 #include <drivers/display.h>
+#include <drivers/vbe.h>
 
 #include <multiboot/multiboot.h>
 
@@ -88,13 +89,14 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     else
     {
         __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr));
-        assert(__multiboot_info == NULL);
+        assert(__multiboot_info != NULL);
         if (multiboot_init(__multiboot_info))
             __PANIC("Error: multiboot_init failed");
         kernel_log_info("LOG", "MULTIBOOT");
         if (get_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
+        display_multiboot_infos();
     }
     gdt_install();
     kernel_log_info("LOG", "GDT");
@@ -110,9 +112,22 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "KEYBOARD");
     enable_fpu();
     kernel_log_info("LOG", "FPU");
+
+    {
+        // WIP
+        // init_vbe_mode();
+        // kpause();
+        // Init VBE if video mode is VBE (0)
+    }
+
+    display_kernel_memory_map();
+
+    // display_sections();
+    // kprintf("End addr: 0x%x\n", &__kernel_section_end);
+    // kpause();
+
     init_paging();
     kernel_log_info("LOG", "PAGING");
-
 
     // kpause();
     // Require x64 Broadwell Intel (5th Gen) or higher
@@ -186,9 +201,35 @@ int kmain(hex_t magic_number, hex_t addr)
     if (__DISPLAY_INIT_LOG__)
         kprintf("\n");
     ASM_STI();
-    kpause();
-    // __PANIC("PANIC TEST");
 
+    kprintf("Heap Test\n");
+
+    char *str = (char *)kmalloc(13);
+    kbzero(str, 13);
+    kmemcpy(str, "Hello World!", 12);
+    kprintf("str: %s\n", str);
+    kprintf("Size: %u\n", ksize(str));
+    // kfree(str);
+
+    // kmalloc(2);
+    // kprintf("End\n");
+    // kpause();
+
+    uint32_t i = 0;
+    const uint32_t alloc_size = 13;
+    while (1)
+    {
+        char *str = kmalloc(alloc_size);
+        kbzero(str, alloc_size);
+        kmemcpy(str, "Hello World!", 12);
+        kprintf("[%u | %u (%uMo)] str: %s | 0x%08x 0x%x\n", i, i * alloc_size, i * alloc_size / 1024 / 1024, str, str, get_physical_address(str));
+        // kfree(str);
+        i++;
+        // timer_wait(150);
+    }
+    kprintf("Size: %u\n", ksize(str));
+
+    kpause();
     // kheap_test();
     kronos_shell();
     return (0);

@@ -23,17 +23,17 @@ __lhk_multiboot:
 section .multiboot.data
 	align 4
     MultiBootHeader:
-	dd MAGIC
-	dd FLAGS
-	dd CHECKSUM
+	dd MAGIC		; Magic number
+	dd FLAGS		; Flags
+	dd CHECKSUM		; Checksum
 
-	dd 0
-	dd 0
-	dd 0
-	dd 0
-	dd 0
+	dd 0			; Header address
+	dd 0			; Load address
+	dd 0			; Load end address
+	dd 0			; BSS end address
+	dd 0			; Entry address
 
-	dd 1
-	dd 800
-	dd 400
-	dd 32
+	dd 1			; Mode type
+	dd 640			; Width
+	dd 480			; Height
+	dd 16			; Depth

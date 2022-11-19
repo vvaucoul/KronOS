@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:06:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/12 19:22:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 12:49:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,15 @@ static int kprint_mod(const char *format, size_t i)
     }
     else
         _g_kprintf.__is_neg_space = false;
+
+    if (format[i] == SPE_DEL_ZERO)
+    {
+        _g_kprintf.__use_zero = true;
+        ++i;
+    }
+    else
+        _g_kprintf.__use_zero = false;
+
     int nbr = 0;
     while (isdigit(format[i]))
     {
@@ -145,9 +154,11 @@ int kprintf(const char *format, ...)
 
     _g_kprintf.__is_neg_space = false;
     _g_kprintf.__space = 0;
+    _g_kprintf.__use_zero = false;
 
     va_start(_g_kprintf.args, format);
     ret = kprintf_loop(format);
     va_end(_g_kprintf.args);
+    UPDATE_CURSOR();
     return (ret);
 }

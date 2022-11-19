@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 13:52:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/22 14:16:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 15:18:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,12 @@ static inline void kputnbr_bin(int n)
  *                            UNSIGNED PUTNBR - HEX                            *
  ******************************************************************************/
 
-static inline void kputunbr_hex(unsigned int n)
+static inline void kputunbr_hex(uint32_t n)
 {
     kputunbr_base(n, 16);
 }
 
-static inline void kputunbr_bin(unsigned int n)
+static inline void kputunbr_bin(uint32_t n)
 {
     kputunbr_base(n, 2);
 }

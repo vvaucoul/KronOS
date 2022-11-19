@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:59:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 15:01:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 01:18:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ void page_fault(struct regs *r)
 
     uint32_t faulting_address;
 
-    asm volatile("mov %%cr2, %0"
-                 : "=r"(faulting_address));
+    faulting_address = get_cr2();
 
     int present = !(r->err_code & 0x1);
     int rw = r->err_code & 0x2;
@@ -38,7 +37,8 @@ void page_fault(struct regs *r)
     int reserved = r->err_code & 0x8;
     int id = r->err_code & 0x10;
 
-    kprintf("Page fault! ( ");
+    kprintf(_RED "Page fault! "_END
+                 "( ");
     if (present)
         kprintf("present ");
     if (rw)
@@ -47,8 +47,12 @@ void page_fault(struct regs *r)
         kprintf("user-mode ");
     if (reserved)
         kprintf("reserved ");
-    kprintf(") at 0x");
-    kprintf("0x%x\n", faulting_address);
+    if (id)
+        kprintf("instruction fetch ");
+    kprintf(") at ");
+    kprintf(_RED "0x%08x"_END
+                 "\n",
+            faulting_address);
     kprintf("");
     __PANIC("Page fault");
 }

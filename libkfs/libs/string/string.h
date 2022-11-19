@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 18:32:03 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/26 17:51:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 15:31:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 extern size_t kstrlen(const char *str);
 extern size_t knbrlen(const int nbr);
+extern size_t knbr_base_len(const uint32_t nbr, const uint8_t base);
 extern int kstrcmp(const char *s1, const char *s2);
 extern int kstrncmp(const char *s1, const char *s2, size_t length);
 extern char *kstrtrunc(char *str, size_t length);

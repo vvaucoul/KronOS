@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 13:23:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 14:03:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,27 +209,13 @@ int kmain(hex_t magic_number, hex_t addr)
     kmemcpy(str, "Hello World!", 12);
     kprintf("str: %s\n", str);
     kprintf("Size: %u\n", ksize(str));
-    // kfree(str);
+    kfree(str);
 
-    // kmalloc(2);
-    // kprintf("End\n");
+    kmalloc(2);
+    kprintf("End\n");
     // kpause();
 
-    uint32_t i = 0;
-    const uint32_t alloc_size = 13;
-    while (1)
-    {
-        char *str = kmalloc(alloc_size);
-        kbzero(str, alloc_size);
-        kmemcpy(str, "Hello World!", 12);
-        kprintf("[%u | %u (%uMo)] str: %s | 0x%08x 0x%x\n", i, i * alloc_size, i * alloc_size / 1024 / 1024, str, str, get_physical_address(str));
-        // kfree(str);
-        i++;
-        // timer_wait(150);
-    }
-    kprintf("Size: %u\n", ksize(str));
-
-    kpause();
+    // kpause();
     // kheap_test();
     kronos_shell();
     return (0);

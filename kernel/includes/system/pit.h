@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:06:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/08 18:20:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 13:07:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ extern void timer_install();
 extern void timer_handler(struct regs *r);
 extern void timer_wait(int ticks);
 extern void ksleep(int seconds);
+extern void kpause(void);
 
 extern int timer_ticks;
 extern int timer_seconds;

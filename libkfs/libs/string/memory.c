@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   kmemory.c                                          :+:      :+:    :+:   */
+/*   memory.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 11:56:45 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 16:44:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/17 12:22:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,4 +80,14 @@ int kmemcmp(const void *s1, const void *s2, size_t n)
         else
             ++tmp, ++tmp2;
     return (0);
+}
+
+void *kmemjoin(void *s1, const void *s2, size_t n1, size_t n2)
+{
+    unsigned char *tmp = (unsigned char *)s1;
+    unsigned char *tmp2 = (unsigned char *)s2;
+
+    while (n2--)
+        *(tmp + n1++) = *(tmp2++);
+    return (s1);
 }

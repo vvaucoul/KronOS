@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:54:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 21:01:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 15:32:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,23 @@ void __kpf_manage_nbr()
 void __kpf_manage_str()
 {
     char *str = va_arg(_g_kprintf.args, char *);
-    __kpf_manage_space_front(kstrlen(str));
-    kputstr(str);
-    __kpf_manage_space_back(kstrlen(str));
+
+    if (str == NULL)
+    {
+        char __str[7];
+
+        kbzero(__str, 7);
+        kmemcpy(__str, "(null)", 6);
+        __kpf_manage_space_front(kstrlen(__str));
+        kputstr(__str);
+        __kpf_manage_space_back(kstrlen(__str));
+    }
+    else
+    {
+        __kpf_manage_space_front(kstrlen(str));
+        kputstr(str);
+        __kpf_manage_space_back(kstrlen(str));
+    }
 }
 
 void __kpf_manage_ptr()
@@ -58,16 +72,24 @@ void __kpf_manage_ptr()
 
 void __kpf_manage_hexa()
 {
-    unsigned int nbr = va_arg(_g_kprintf.args, unsigned int);
-    __kpf_manage_space_front(knbrlen(nbr));
-    kputnbr_hex(nbr);
-    __kpf_manage_space_back(knbrlen(nbr));
+    hex_t nbr = va_arg(_g_kprintf.args, hex_t);
+    __kpf_manage_space_front(knbr_base_len(nbr, 16));
+    kputunbr_hex(nbr);
+    __kpf_manage_space_back(knbr_base_len(nbr, 16));
 }
 
 void __kpf_manage_unsigned()
 {
-    unsigned int nbr = va_arg(_g_kprintf.args, unsigned int);
+    uint32_t nbr = va_arg(_g_kprintf.args, uint32_t);
     __kpf_manage_space_front(knbrlen(nbr));
-    kputnbr(nbr);
+    kputunbr(nbr);
+    __kpf_manage_space_back(knbrlen(nbr));
+}
+
+void __kpf_manage_float()
+{
+    double nbr = va_arg(_g_kprintf.args, double);
+    __kpf_manage_space_front(knbrlen(nbr));
+    kputf(nbr);
     __kpf_manage_space_back(knbrlen(nbr));
 }

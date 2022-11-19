@@ -6,13 +6,23 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 15:06:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 21:01:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 12:49:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kprintf.h>
 
 t_kprintf _g_kprintf;
+
+static int check_special_strings(const char *str)
+{
+    if (kstrncmp(str, CURSOR_MOVE_UP, kstrlen(CURSOR_MOVE_UP)) == 0)
+    {
+        terminal_move_cursor_up();
+        return (kstrlen(CURSOR_MOVE_UP));
+    }
+    return (0);
+}
 
 static int check_colors(const char *str)
 {
@@ -51,7 +61,6 @@ static int check_colors(const char *str)
         terminal_setcolor(VGA_COLOR_CYAN);
         return (kstrlen(COLOR_CYAN));
     }
-
     return (0);
 }
 
@@ -68,6 +77,15 @@ static int kprint_mod(const char *format, size_t i)
     }
     else
         _g_kprintf.__is_neg_space = false;
+
+    if (format[i] == SPE_DEL_ZERO)
+    {
+        _g_kprintf.__use_zero = true;
+        ++i;
+    }
+    else
+        _g_kprintf.__use_zero = false;
+
     int nbr = 0;
     while (isdigit(format[i]))
     {
@@ -92,6 +110,8 @@ static int kprint_mod(const char *format, size_t i)
         __kpf_manage_unsigned();
     else if (format[i] == DEL_X)
         __kpf_manage_hexa();
+    else if (format[i] == DEL_F)
+        __kpf_manage_float();
     return (i);
 }
 
@@ -103,6 +123,11 @@ static int kprintf_loop(const char *format)
     while (format[i])
     {
         if ((ret = (check_colors(format + i))) != 0)
+        {
+            i += ret;
+            continue;
+        }
+        else if ((ret = (check_special_strings(format + i))) != 0)
         {
             i += ret;
             continue;
@@ -129,9 +154,11 @@ int kprintf(const char *format, ...)
 
     _g_kprintf.__is_neg_space = false;
     _g_kprintf.__space = 0;
+    _g_kprintf.__use_zero = false;
 
     va_start(_g_kprintf.args, format);
     ret = kprintf_loop(format);
     va_end(_g_kprintf.args);
+    UPDATE_CURSOR();
     return (ret);
 }

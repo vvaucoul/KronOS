@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 18:35:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/18 20:13:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <kernel.h>
 #include <asm/asm.h>
+#include <memory/memory.h>
 
 #define SEG_DESCTYPE(x) ((x) << 0x04)
 #define SEG_PRES(x) ((x) << 0x07)
@@ -74,7 +75,7 @@
 #define GDT_ENTRY_FLAG_BASE 0xCF
 #define GDT_ENTRY_FLAG_ZERO 0x0
 
-#define __GDT_ADDR 0x00000800
+#define __GDT_ADDR (0x00000800) //+ (__HIGHER_HALF_KERNEL__ == true ? KERNEL_MEMORY_START : 0x0))
 #define __GDT_SIZE 0x07
 
 #define __GDT_LIMIT (uint16_t)0xFFFFF
@@ -135,13 +136,17 @@ typedef struct s_gdt_ptr
 
 #define GDTPtr t_gdt_ptr
 
-extern GDTEntry gdt[__GDT_SIZE];
-extern GDTPtr *gp;
+extern GDTEntry *gdt;
+extern GDTPtr gp;
+
+#define __GDT_LOGS__ false
 
 extern void gdt_flush(uint32_t gdt_ptr);
 extern void gdt_install(void);
 extern void print_stack(void);
 extern void print_gdt(void);
 extern void gdt_test(void);
+
+extern void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity);
 
 #endif

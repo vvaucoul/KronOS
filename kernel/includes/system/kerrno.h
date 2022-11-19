@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 15:44:01 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 18:18:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/21 17:57:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ typedef enum __e_kerrno_kernel_sector
     __KERRNO_SECTOR_ISR,
     __KERRNO_SECTOR_TSS,
     __KERRNO_SECTOR_SYSTEM,
+    __KERRNO_SECTOR_PMM,
     __KERRNO_SECTOR_MEMORY,
     __KERRNO_SECTOR_TERMINAL
 } __kerno_kernel_sector;
@@ -95,6 +96,12 @@ extern char __kerrno_function_name[__KERRNO_FUNCTION_SIZE];
 extern void init_kerrno(void);
 extern int kerrno_assign_error(__KerrnoSector sector, int error_code, char *file_name, const char function_name[]);
 extern void __kerrno_sectors(void);
+
+/*******************************************************************************
+ *                                KERRNO MACROS                                *
+ ******************************************************************************/
+
+#define KERNO_ASSIGN_ERROR(sector, error_code) kerrno_assign_error(sector, error_code, __FILE_NAME__, __FUNCTION__)
 
 /*******************************************************************************
  *                                KERRNO ERRORS                                *

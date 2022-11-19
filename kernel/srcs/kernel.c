@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/01 18:30:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 13:23:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,28 @@
 #include <system/pit.h>
 #include <system/kerrno.h>
 #include <system/serial.h>
+#include <system/panic.h>
+#include <system/sections.h>
+#include <system/fpu.h>
+#include <system/bsod.h>
 
 #include <drivers/keyboard.h>
+#include <drivers/display.h>
+#include <drivers/vbe.h>
+
+#include <multiboot/multiboot.h>
 
 #include <memory/memory.h>
+#include <memory/memory_map.h>
+#include <memory/kheap.h>
+#include <memory/paging.h>
+
+// #include <memory/pmm.h>
+// #include <memory/smp.h>
+
+#include <workflows/workflows.h>
+
+MultibootInfo *__multiboot_info = NULL;
 
 static inline void ksh_header(void)
 {
@@ -42,83 +60,177 @@ static inline void ksh_header(void)
     kprintf("\n");
 }
 
-static void init_kernel(void)
+void kernel_log_info(const char *part, const char *name)
+{
+    if (__DISPLAY_INIT_LOG__)
+        kprintf(COLOR_YELLOW "[%s] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "%s " COLOR_END "\n", part, name);
+}
+
+static void __hhk_log(void)
+{
+    if (__HIGHER_HALF_KERNEL__ == true)
+        kernel_log_info("LOG", "HHK: TRUE");
+    else
+        kernel_log_info("LOG", "HHK: FALSE");
+}
+
+static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
     ksh_header();
+    __hhk_log();
+    kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KERRNO " COLOR_END "\n");
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "TERMINAL " COLOR_END "\n");
+    kernel_log_info("LOG", "KERRNO");
+
+    /* Check Magic Number and assign multiboot info */
+    if (multiboot_check_magic_number(magic_number) == false)
+        return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
+    else
+    {
+        __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr));
+        assert(__multiboot_info != NULL);
+        if (multiboot_init(__multiboot_info))
+            __PANIC("Error: multiboot_init failed");
+        kernel_log_info("LOG", "MULTIBOOT");
+        if (get_memory_map(__multiboot_info))
+            __PANIC("Error: kernel memory map failed");
+        kernel_log_info("LOG", "KERNEL MEMORY MAP");
+        display_multiboot_infos();
+    }
     gdt_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "GDT " COLOR_END "\n");
+    kernel_log_info("LOG", "GDT");
     idt_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IDT " COLOR_END "\n");
+    kernel_log_info("LOG", "IDT");
     isrs_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "ISR " COLOR_END "\n");
+    kernel_log_info("LOG", "ISRS");
     irq_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "IRQ " COLOR_END "\n");
+    kernel_log_info("LOG", "IRQ");
     timer_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "PIT " COLOR_END "\n");
+    kernel_log_info("LOG", "TIMER");
     keyboard_install();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "KEYBOARD " COLOR_END "\n");
-    init_kernel_memory();
-    if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[LOG] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "MEMORY " COLOR_END "\n");
+    kernel_log_info("LOG", "KEYBOARD");
+    enable_fpu();
+    kernel_log_info("LOG", "FPU");
+
+    {
+        // WIP
+        // init_vbe_mode();
+        // kpause();
+        // Init VBE if video mode is VBE (0)
+    }
+
+    display_kernel_memory_map();
+
+    // display_sections();
+    // kprintf("End addr: 0x%x\n", &__kernel_section_end);
+    // kpause();
+
+    init_paging();
+    kernel_log_info("LOG", "PAGING");
+
+    // kpause();
+    // Require x64 Broadwell Intel (5th Gen) or higher
+    // smp_init();
+    // kernel_log_info("LOG", "SMP");
+    // kpause();
+
+    // display_kernel_memory_map();
+
+    // kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.sections.kernel.kernel_end);
+    // kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available_extended.end_addr);
+    // kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available_extended.length, KMAP.available_extended.length / 1024 / 1024);
+
+    // pmm_init(KMAP.available.start_addr, KMAP.available.length);
+    // pmm_init(KMAP.available.start_addr, KMAP.available.length + KMAP.available_extended.length);
+
+    // Todo: Fix memory map & pmm & multiboot kernel memory map
+
+    // pmm_loader_init();
+    // pmm_init_region(KMAP.available.start_addr, PMM_BLOCK_SIZE * 10);
+
+    // kernel_log_info("LOG", "PMM");
+    // pmm_test();
+    // kpause();
+
+    /*
+    ** Init Kernel Heap
+    ** 20 * 4096 = 80 Ko
+    */
+
+    // kprintf("PMM Blocks: %u\n", pmm_get_max_blocks());
+    // kprintf("PMM Used Blocks: %u\n", pmm_get_used_blocks());
+    // kprintf("PMM Size: %u Mo\n", pmm_get_memory_size() / 1024 / 1024);
+
+    // void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
+    // void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
+
+    // kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
+    // kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
+    // kprintf("Kernel Heap Size: " COLOR_GREEN "%u (%u Ko)" COLOR_END "\n", (uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr, ((uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr) / 1024);
+    // kpause();
+    // kheap_test();
+    // kpause();
+
+    // if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
+    //     __PANIC("Error: kheap_init failed");
+    // kernel_log_info("LOG", "KHEAP");
+
+    // kheap_test();
+
+    /*
+    ** Init Kernel Paging
+    */
+    return (0);
+}
+int init_multiboot_kernel(hex_t magic_number, hex_t addr)
+{
+    __UNUSED(magic_number);
+    __UNUSED(addr);
+    // if (multiboot_check_magic_number(magic_number) == false)
+    //     return (1);
+    // __multiboot_info = (MultibootInfo *)(addr);
+    return (0);
 }
 
-void kmain(void)
+int kmain(hex_t magic_number, hex_t addr)
 {
-
     ASM_CLI();
-    init_kernel();
+    if ((init_kernel(magic_number, addr)))
+        return (1);
     if (__DISPLAY_INIT_LOG__)
         kprintf("\n");
-    // khexdump(0x00000800 - 64, 142);
-    if (__DISPLAY_INIT_LOG__)
-        kprintf("\n");
-    qemu_printf("Salut !\n");
     ASM_STI();
 
-    // kprintf("\n");
-    // kprintf("Test Alloc: \n");
-    // char *str = kmalloc(4);
+    kprintf("Heap Test\n");
 
-    // kbzero(str, 4);
-    // str[0] = 'A';
-    // str[1] = 'B';
-    // str[2] = 'C';
+    char *str = (char *)kmalloc(13);
+    kbzero(str, 13);
+    kmemcpy(str, "Hello World!", 12);
+    kprintf("str: %s\n", str);
+    kprintf("Size: %u\n", ksize(str));
+    // kfree(str);
 
-    // kprintf("str = %s\n", str);
+    // kmalloc(2);
+    // kprintf("End\n");
+    // kpause();
 
-    // char *str2 = kmalloc(4);
+    uint32_t i = 0;
+    const uint32_t alloc_size = 13;
+    while (1)
+    {
+        char *str = kmalloc(alloc_size);
+        kbzero(str, alloc_size);
+        kmemcpy(str, "Hello World!", 12);
+        kprintf("[%u | %u (%uMo)] str: %s | 0x%08x 0x%x\n", i, i * alloc_size, i * alloc_size / 1024 / 1024, str, str, get_physical_address(str));
+        // kfree(str);
+        i++;
+        // timer_wait(150);
+    }
+    kprintf("Size: %u\n", ksize(str));
 
-    // kbzero(str2, 4);
-    // str2[0] = 'F';   
-    // str2[1] = 'G';
-    // str2[2] = 'H';
-
-    // kprintf("str = %s\n", str);
-    // kprintf("str2 = %s\n", str2);
-
-    // kprintf("\n");
-
-    // kprintf("str addr: %p\n", str);
-    // kprintf("str 2 addr: %p\n", str2);
-
-    // str[3] = 'D';
-    // str[4] = 'E';
-    // str[5] = 0;
-
-    // kprintf("str = %s\n", str);
-    // kprintf("str2 = %s\n", str2);
-
+    kpause();
+    // kheap_test();
     kronos_shell();
+    return (0);
 }

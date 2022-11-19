@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 12:30:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/10/20 14:01:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,8 @@ enum vga_color
 #define VGA_ENTRY(uc, color) (((unsigned char)uc) | ((uint8_t)color) << 8)
 #define VGA_ENTRY_COLOR(fg, bg) (((enum vga_color)fg) | ((enum vga_color)bg) << 4)
 #define VGA_OUTPUT(uc, color) (uc & 0xFF) | ((color & 0xFF) << 8)
-#define __VGA_MEMORY__ (uint16_t *)0xB8000
+
+#define __VGA_MEMORY__ (uint16_t *)(__HIGHER_HALF_KERNEL__ == true ? (0xC00B8000) : (0x000B8000))
 
 #define __MAX_SCREEN_SUPPORTED__ (size_t)3
 
@@ -111,6 +112,42 @@ static inline void terminal_clear_screen(void)
     }
     terminal_column = 0;
     terminal_row = 0;
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_left(void)
+{
+    if (terminal_column > 0)
+    {
+        terminal_column--;
+    }
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_right(void)
+{
+    if (terminal_column < VGA_WIDTH)
+    {
+        terminal_column++;
+    }
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_up(void)
+{
+    if (terminal_row > 0)
+    {
+        terminal_row--;
+    }
+    UPDATE_CURSOR();
+}
+
+static inline void terminal_move_cursor_down(void)
+{
+    if (terminal_row < VGA_HEIGHT)
+    {
+        terminal_row++;
+    }
     UPDATE_CURSOR();
 }
 

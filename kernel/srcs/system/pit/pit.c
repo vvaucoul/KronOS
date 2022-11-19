@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:10:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/09/30 13:08:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/pit.h>
+#include <asm/asm.h>
 
 void speaker_phase(int hz)
 {
@@ -75,6 +76,13 @@ void timer_wait(int ticks)
     while (timer_ticks < eticks)
         asm volatile("sti\n\thlt\n\tcld");
     asm volatile("sti");
+}
+
+void kpause(void)
+{
+    ASM_CLI();
+    while (1)
+        ;
 }
 
 void ksleep(int seconds)

@@ -1,102 +1,181 @@
 <!-- <center>
 <img
     style="display: block; margin-left: none; margin-right: none; width: 75%"
-    src="assets/KronOS-Logo.png"
+    src="https://user-images.githubusercontent.com/66129673/198560670-53f699ea-2ca4-4604-ab33-3eafbb0869da.png"
 img/>
 </center> -->
 
 # Kronos
 
-<strong>KronOS</strong> is a lightweight Unix-like kernel writen in C and ASM.
-This is the result of the <strong>KFS</strong> projects of School 42.
-The kernel is currently not finished. I will make improvements as I go along
+ **KronOS** is a lightweight Unix-like kernel writen in C and ASM.<br>
+This is the result of the **KFS** projects available at School 42.
+The kernel is currently not finished. I will make major improvements as soon as possible.
 
 ---
 
-### Prerequisites
+### Requirements
 
-* <strong>GCC</strong> (https://gcc.gnu.org/)
-* <strong>CLANG</strong> (https://clang.llvm.org/)
-* <strong>KVM</strong> (https://www.linux-kvm.org/)
-* <strong>QEMU</strong> (https://qemu.org/)
+* <strong>GCC</strong> (<https://gcc.gnu.org/>)
+* <strong>CLANG</strong> (<https://clang.llvm.org/>)
+* <strong>KVM</strong> (<https://www.linux-kvm.org/>)
+* <strong>QEMU</strong> (<https://qemu.org/>)
+
+### Setup
+
+* Clone Kernel Repository
+
+```bash
+git clone https://github.com/vvaucoul/KronOS && cd KronOS
+```
+
+* Install dependencies
+
+```bash
+make install-dependencies
+```
+
+* Compiling Kernel
+
+```bash
+make 
+```
+
+* Start the Kernel
+
+```bash
+make run / make run-iso / make run-sdl / make run-curses / make run-debug
+```
 
 ---
 
 ### KFS - SERIES
 
-- [x] <strong>KFS-1</strong> : Grub / Boot and Screen
-- [x] <strong>KFS-2</strong> : GDT & Stack
-- [ ] <strong>KFS-3</strong> : Memory
-- [ ] <strong>KFS-4</strong> : Interrupts
-- [ ] <strong>KFS-5</strong> : Processes
-- [ ] <strong>KFS-6</strong> : Filesystem
-- [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
-- [ ] <strong>KFS-8</strong> : Kernel Modules
-- [ ] <strong>KFS-9</strong> : ELF Parser
-- [ ] <strong>KFS-X</strong> : Complete Unix System
+* [x] <strong>KFS-1</strong> : Grub / Boot and Screen
+* [x] <strong>KFS-2</strong> : GDT & Stack
+* [ ] <strong>KFS-3</strong> : Memory -----------> ***Almost Done***
+* [ ] <strong>KFS-4</strong> : Interrupts
+* [ ] <strong>KFS-5</strong> : Processes
+* [ ] <strong>KFS-6</strong> : Filesystem
+* [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
+* [ ] <strong>KFS-8</strong> : Kernel Modules
+* [ ] <strong>KFS-9</strong> : ELF Parser
+* [ ] <strong>KFS-X</strong> : Complete Unix System
 
 ##### Documentation
 
-- <strong>[WIKI OSDEV](https://wiki.osdev.org/Expanded_Main_Page)</strong>
-- <strong>[OSDEVER](http://www.osdever.net/bkerndev/Docs/title.htm)</strong>
+* <strong>[WIKI OSDEV](https://wiki.osdev.org/Expanded_Main_Page)</strong>
+* <strong>[OSDEVER](http://www.osdever.net/bkerndev/Docs/title.htm)</strong>
+* <strong>[PAGING](http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html)</strong>
+* <strong>[CODE PROJECT](https://www.codeproject.com/Articles/1225196/Create-Your-Own-Kernel-In-C-2)</strong>
+* <strong>[MEMORY MANAGMENT](https://www.reddit.com/r/osdev/comments/v97asm/memory_management/)</strong>
 
 ---
 
 ### Compilation
 
 ```bash
-$ make
+make
 ```
 
 ### Running
 
 ```bash
-$ make run
-$ make run-iso
+make run
+make run-iso
 ```
 
 ### Features
 
-- [x] Basic Kernel System
-- [x] Boot via Grub 2
-- [x] ASM Bootable base
-- [x] Kernel Library with basics functions and types 
-- [x] Keyboard Support
-- [x] VGA Support
-- [x] Scroll and Cursor support
-- [x] Colors support
-- [x] A Complete GDT system
+* [x] Basic Kernel System
+* [x] Boot via Grub 2
+* [x] ASM Bootable base
+* [x] Kernel Library with basics functions and types
+* [x] Keyboard Support
+* [x] VGA Support
+* [x] Scroll and Cursor support
+* [x] Colors support
+* [x] A Complete GDT system
 
-### GRUB 2
+### GRUB 2 with Multiboot 1
 
-🚧 ... redaction pending ...🚧
-<p align="center">
-<kbd>
-<img src="https://user-images.githubusercontent.com/66129673/176182052-630d5111-d968-4858-b01f-0a9beee57b4a.png" width="80%"></img>
-</kbd>
-</p>
+> Grub 2 Usage: [OSDEV](https://wiki.osdev.org/GRUB)<br>
+> Multiboot 1 Usage: [GNU](https://www.gnu.org/software/grub/manual/multiboot/multiboot.html)
+
+> Magic Number: **0x1BADB002**<br>
+> Magic Bootloader Number: **0x2BADB002**
+
+### Boot Sequence
+
+```mermaid
+graph TD;
+    BIOS-->GRUB
+    GRUB-->BOOT_LOADER
+    
+    BOOT_LOADER-->MAGIC_NUMBER
+    BOOT_LOADER-->MULTIBOOT_HEADER
+    
+    MAGIC_NUMBER-->KERNEL
+    MULTIBOOT_HEADER-->KERNEL
+```
+
+<img align="left" src="https://user-images.githubusercontent.com/66129673/198562944-1d61d857-288e-4281-a794-f47d584b7e50.png" width="45%"></img>
+<img src="https://user-images.githubusercontent.com/66129673/198573314-759806d5-f5ab-4cf2-b4b2-e7a606d66893.png" width="45%"></img>
+
+---
 
 ### The KERNEL itself
 
-🚧 ... redaction pending ...🚧
-<p align="center">
-<kbd>
-<img src="https://user-images.githubusercontent.com/66129673/176182166-39fc1c60-7502-4f3a-878e-e8c7e3babe74.png" width="80%"></img>
-</kbd>
-</p>
+When the kernel is launched, it will initialize each element and test them to validate the kernel launch correctly.<br>
+Otherwise, a pretty red death screen will appear or a simple kernel panic.<br>
 
-### GDT
+This one can be managed by the kerrno library created to detect kernel errors for each element.<br>
+RSOD and Kerrno / Kernel Panic both use **C** and **ASM**.
 
-🚧 ... redaction pending ...🚧
+<img align="left" src="https://user-images.githubusercontent.com/66129673/198574607-6e71d90d-fdce-47f9-9747-9b71b899de9b.png" width="45%"></img>
+<img src="https://user-images.githubusercontent.com/66129673/198574654-85cb3827-2052-4584-8c4b-3b99ab35170f.png" width="50%"></img>
 
-- Kernel GDT
-![image](https://user-images.githubusercontent.com/66129673/178467131-f02fd993-e9b6-497a-a2ce-cc615e5d0f5f.png)
-![image](https://user-images.githubusercontent.com/66129673/178347667-2f4433ee-97e3-4cd6-9471-3bea19b7deb8.png)
+> BSOD Like (Red Screen Of Death)
 
-- GDT - TEST
-![image](https://user-images.githubusercontent.com/66129673/178347721-22271cd3-8d49-42c3-96c6-679c556e85e6.png)
-![image](https://user-images.githubusercontent.com/66129673/178347760-4edac329-18af-428f-94be-5aa1255ceec6.png)
+<img src="https://user-images.githubusercontent.com/66129673/198575486-620fb72c-07e2-4421-a66c-4cee3b3e3f48.png" width="50%"></img>
 
-- STACK
-![image](https://user-images.githubusercontent.com/66129673/178347873-5b58e8a6-f70f-45e0-b537-42edf01be889.png)
+---
 
+```mermaid
+flowchart LR
+   KERNEL --> Initialization --> Start --> ShellMode
+   Initialization --> Error --> Panic & RSOD
+
+```
+
+---
+
+### Panic
+
+> Panic Examples:
+
+<img align="left" src="https://user-images.githubusercontent.com/66129673/198578135-22a31ce5-4818-48a5-aa49-10b455246907.png" width="45%"></img>
+<img src="https://user-images.githubusercontent.com/66129673/198578277-04a26731-7116-47b8-9308-1e8927d388cd.png" width="45%"></img>
+
+---
+
+### WIP
+
+- Enable memory paging.
+- Code a memory structure that handle paging and memory rights.
+- Define Kernel and User space memory.
+- Functions to create / get memory pages.
+- Functions to allocate, free and get size of a variable. (Physical and Virtual)
+  - kmalloc
+  - kfree
+  - ksize
+  - kbrk
+  - vmalloc
+  - vfree
+  - vsize
+  - vbrk
+- Handle "Kernel Panic"
+- Read and Write on memory.
+
+
+
+🚧 ... Next redaction pending ...🚧

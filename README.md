@@ -156,6 +156,8 @@ flowchart LR
 <img align="left" src="https://user-images.githubusercontent.com/66129673/198578135-22a31ce5-4818-48a5-aa49-10b455246907.png" width="45%"></img>
 <img src="https://user-images.githubusercontent.com/66129673/198578277-04a26731-7116-47b8-9308-1e8927d388cd.png" width="45%"></img>
 
+---
+
 ### WIP
 
 - Enable memory paging.

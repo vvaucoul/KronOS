@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/07 01:22:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:55:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@
 #include "ksh_buffer.h"
 #include "ksh_builtins.h"
 
-#define __PROMPT__ COLOR_END "KSH" COLOR_GREEN " $> " COLOR_END
+#define __PROMPT__ _END "KSH" _GREEN " $> " _END
 #define __PROMPT_LEN__ (sizeof(__PROMPT__) - 1)
 #define __PROMPT_ASCII_LEN__ (size_t)(7)
 
 #define __HEADER_WIDTH__ (size_t)(VGA_WIDTH)
 #define __HEADER_HEIGHT__ (size_t)(11)
 
-#define DISPLAY_PROMPT() kprintf(__PROMPT__)
+#define DISPLAY_PROMPT() printk(__PROMPT__)
 #define KSH_CHAR(x, y) ksh_buffer[(y)*VGA_WIDTH + (x)]
 #define KSH_LINE(y) (ksh_buffer + (y)*VGA_WIDTH)
 

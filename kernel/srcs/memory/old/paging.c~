@@ -1,14 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   paging.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 14:02:03 by vvaucoul         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    paging.c~                                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/08/16 15:46:16 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/20 14:02:41 by vvaucoul         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 #include <memory/paging.h>
 #include <memory/frames.h>
@@ -32,8 +32,8 @@ uint32_t *__kernel_page_memory = NULL;
 
 // static void __init_tmp_pages()
 // {
-//     kmemset(__tmp_page_directory, 0, PAGE_DIRECTORY_SIZE * sizeof(unsigned int));
-//     kmemset(__tmp_page_table, 0, PAGE_TABLE_SIZE * sizeof(unsigned int));
+//     memset(__tmp_page_directory, 0, PAGE_DIRECTORY_SIZE * sizeof(unsigned int));
+//     memset(__tmp_page_table, 0, PAGE_TABLE_SIZE * sizeof(unsigned int));
 
 //     for (uint32_t i = 0; i < PAGE_DIRECTORY_SIZE; i++)
 //     {
@@ -92,7 +92,7 @@ __paging_data_t *kmalloc_paging(uint32_t size, bool align, void *phys)
     if (align && (IS_ALIGNED(addr) == false))
         addr = (void *)ALIGN_PAGE(addr);
     __kernel_page_memory += size;
-    kprintf("Addr: 0x%x - Phys: 0x%x\n", addr, phys);
+    printk("Addr: 0x%x - Phys: 0x%x\n", addr, phys);
     return (addr);
 }
 
@@ -129,7 +129,7 @@ void allocate_page(PageDirectory *dir, vaddr_t vaddr, vaddr_t frame, bool is_ker
         // }
 
         table = kmalloc_a(sizeof(PageTable));
-        kmemset(table, 0, sizeof(PageTable));
+        memset(table, 0, sizeof(PageTable));
 
         uint32_t table_phys = (uint32_t)virtual_to_phys(__kernel_page_directory, table);
         // dir->tables[page_directory_index]->pages.frame = table_phys >> 12;
@@ -152,12 +152,12 @@ void allocate_page(PageDirectory *dir, vaddr_t vaddr, vaddr_t frame, bool is_ker
 //     }
 //     else if (make)
 //     {
-//         kprintf("Create Page index: %d\n", i);
+//         printk("Create Page index: %d\n", i);
 //         uint32_t tmp;
 
 //         // dir->tables[table_idx] = (PageTable *)kmalloc_ap(sizeof(PageTable), &tmp);
 //         dir->tables[table_idx] = (PageTable *)kmalloc_paging(sizeof(PageTable), true, &tmp);
-//         kmemset(dir->tables[table_idx], 0, sizeof(PageTable));
+//         memset(dir->tables[table_idx], 0, sizeof(PageTable));
 //         dir->tablesPhysical[table_idx] = tmp | PAGE_ATTRIBUTE_PRESENT | PAGE_ATTRIBUTE_READ_WRITE | PAGE_ATTRIBUTE_USER; // 0x7;
 //         return (&dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE]);
 //     }
@@ -171,10 +171,10 @@ Page *create_page(uint32_t addr, PageDirectory *dir)
 
     addr /= PAGE_SIZE;
     table_idx = addr / PAGE_TABLE_SIZE;
-    kprintf("Create Page index: %d\n", table_idx);
+    printk("Create Page index: %d\n", table_idx);
     dir->tables[table_idx] = (PageTable *)kmalloc_ap(sizeof(PageTable), &phys);
-    kprintf("Test: 0x%x\n", phys);
-    kmemset(dir->tables[table_idx], 0, sizeof(PageTable));
+    printk("Test: 0x%x\n", phys);
+    memset(dir->tables[table_idx], 0, sizeof(PageTable));
     dir->tablesPhysical[table_idx] = phys | PAGE_ATTRIBUTE_PRESENT | PAGE_ATTRIBUTE_READ_WRITE | PAGE_ATTRIBUTE_USER; // 0x7;
     return (&dir->tables[table_idx]->pages[addr % PAGE_TABLE_SIZE]);
 }
@@ -247,8 +247,8 @@ static void __init_paging(void)
 
     /*
 
-        kmemset(__page_directory.pages, 0, sizeof(Page) * PAGE_DIRECTORY_SIZE);
-        kmemset(__page_table.pages, 0, sizeof(Page) * PAGE_TABLE_SIZE);
+        memset(__page_directory.pages, 0, sizeof(Page) * PAGE_DIRECTORY_SIZE);
+        memset(__page_table.pages, 0, sizeof(Page) * PAGE_TABLE_SIZE);
 
         // set all page directory read/write & user access
         for (uint32_t i = 0; i < PAGE_DIRECTORY_SIZE; i++)
@@ -318,59 +318,59 @@ static void __generate_page_fault_panic(char buffer[PAGE_FAULT_BUFFER_SIZE], str
 
     // 0 - 0 - 0
     if (us == false && rw == false && present == false)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_000, 0, kstrlen(PAGE_FAULT_PANIC_000));
+        memjoin(buffer, PAGE_FAULT_PANIC_000, 0, strlen(PAGE_FAULT_PANIC_000));
     // 0 - 0 - 1
     else if (us == false && rw == false && present == true)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_001, 0, kstrlen(PAGE_FAULT_PANIC_001));
+        memjoin(buffer, PAGE_FAULT_PANIC_001, 0, strlen(PAGE_FAULT_PANIC_001));
     // 0 - 1 - 0
     else if (us == false && rw == true && present == false)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_010, 0, kstrlen(PAGE_FAULT_PANIC_010));
+        memjoin(buffer, PAGE_FAULT_PANIC_010, 0, strlen(PAGE_FAULT_PANIC_010));
     // 0 - 1 - 1
     else if (us == false && rw == true && present == true)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_011, 0, kstrlen(PAGE_FAULT_PANIC_011));
+        memjoin(buffer, PAGE_FAULT_PANIC_011, 0, strlen(PAGE_FAULT_PANIC_011));
     // 1 - 0 - 0
     else if (us == true && rw == false && present == false)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_100, 0, kstrlen(PAGE_FAULT_PANIC_100));
+        memjoin(buffer, PAGE_FAULT_PANIC_100, 0, strlen(PAGE_FAULT_PANIC_100));
     // 1 - 0 - 1
     else if (us == true && rw == false && present == true)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_101, 0, kstrlen(PAGE_FAULT_PANIC_101));
+        memjoin(buffer, PAGE_FAULT_PANIC_101, 0, strlen(PAGE_FAULT_PANIC_101));
     // 1 - 1 - 0
     else if (us == true && rw == true && present == false)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_110, 0, kstrlen(PAGE_FAULT_PANIC_110));
+        memjoin(buffer, PAGE_FAULT_PANIC_110, 0, strlen(PAGE_FAULT_PANIC_110));
     // 1 - 1 - 1
     else if (us == true && rw == true && present == true)
-        kmemjoin(buffer, PAGE_FAULT_PANIC_111, 0, kstrlen(PAGE_FAULT_PANIC_111));
+        memjoin(buffer, PAGE_FAULT_PANIC_111, 0, strlen(PAGE_FAULT_PANIC_111));
     else
-        kmemjoin(buffer, PAGE_FAULT_PANIC_UNKNOWN, 0, kstrlen(PAGE_FAULT_PANIC_UNKNOWN));
+        memjoin(buffer, PAGE_FAULT_PANIC_UNKNOWN, 0, strlen(PAGE_FAULT_PANIC_UNKNOWN));
 
-    kmemjoin(buffer, "\n\tError: ", kstrlen(buffer), 9);
+    memjoin(buffer, "\n\tError: ", strlen(buffer), 9);
     if (us == false && rw == false && present == false)
-        kmemjoin(buffer, "0 - 0 - 0", kstrlen(buffer), 9);
+        memjoin(buffer, "0 - 0 - 0", strlen(buffer), 9);
     else if (us == false && rw == false && present == true)
-        kmemjoin(buffer, "0 - 0 - 1", kstrlen(buffer), 9);
+        memjoin(buffer, "0 - 0 - 1", strlen(buffer), 9);
     else if (us == false && rw == true && present == false)
-        kmemjoin(buffer, "0 - 1 - 0", kstrlen(buffer), 9);
+        memjoin(buffer, "0 - 1 - 0", strlen(buffer), 9);
     else if (us == false && rw == true && present == true)
-        kmemjoin(buffer, "0 - 1 - 1", kstrlen(buffer), 9);
+        memjoin(buffer, "0 - 1 - 1", strlen(buffer), 9);
     else if (us == true && rw == false && present == false)
-        kmemjoin(buffer, "1 - 0 - 0", kstrlen(buffer), 9);
+        memjoin(buffer, "1 - 0 - 0", strlen(buffer), 9);
     else if (us == true && rw == false && present == true)
-        kmemjoin(buffer, "1 - 0 - 1", kstrlen(buffer), 9);
+        memjoin(buffer, "1 - 0 - 1", strlen(buffer), 9);
     else if (us == true && rw == true && present == false)
-        kmemjoin(buffer, "1 - 1 - 0", kstrlen(buffer), 9);
+        memjoin(buffer, "1 - 1 - 0", strlen(buffer), 9);
     else if (us == true && rw == true && present == true)
-        kmemjoin(buffer, "1 - 1 - 1", kstrlen(buffer), 9);
+        memjoin(buffer, "1 - 1 - 1", strlen(buffer), 9);
     else
-        kmemjoin(buffer, "Unknown error", kstrlen(buffer), 13);
+        memjoin(buffer, "Unknown error", strlen(buffer), 13);
 
-    kmemjoin(buffer, "\n\tFaulting address: 0x", kstrlen(buffer), 22);
+    memjoin(buffer, "\n\tFaulting address: 0x", strlen(buffer), 22);
 
     char __kitoa_buffer[__KITOA_BUFFER_LENGTH__];
-    kbzero(__kitoa_buffer, __KITOA_BUFFER_LENGTH__);
+    bzero(__kitoa_buffer, __KITOA_BUFFER_LENGTH__);
     kuitoa_base(faulting_address, 16, __kitoa_buffer);
-    kmemjoin(buffer, __kitoa_buffer, kstrlen(buffer), kstrlen(__kitoa_buffer));
-    kmemjoin(buffer, "\n", kstrlen(buffer), 1);
-    kprintf("Addr error: 0x%x\n", faulting_address);
+    memjoin(buffer, __kitoa_buffer, strlen(buffer), strlen(__kitoa_buffer));
+    memjoin(buffer, "\n", strlen(buffer), 1);
+    printk("Addr error: 0x%x\n", faulting_address);
 }
 
 void __page_fault(struct regs *r)
@@ -389,7 +389,7 @@ void __page_fault(struct regs *r)
 
     char buffer[PAGE_FAULT_BUFFER_SIZE];
 
-    kbzero(buffer, PAGE_FAULT_BUFFER_SIZE);
+    bzero(buffer, PAGE_FAULT_BUFFER_SIZE);
     __generate_page_fault_panic(buffer, r);
     __PANIC(buffer);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 23:53:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,9 +101,9 @@ void init_frames()
 {
     n_frames = PHYSICAL_MEMORY_SIZE / PAGE_SIZE;
     frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames));
-    kmemset(frames, 0, INDEX_FROM_BIT(n_frames));
+    memset(frames, 0, INDEX_FROM_BIT(n_frames));
 
-    kprintf("Frames initialized...\n");
+    printk("Frames initialized...\n");
     
     __UNUSED(test_frame(0));
 }

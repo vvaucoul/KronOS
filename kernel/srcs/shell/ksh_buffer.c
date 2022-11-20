@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:18:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:13:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:29:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@ size_t ksh_line_index = 0;
 extern void ksh_buffer_add_char(char c)
 {
     ksh_line_buffer[ksh_line_index] = c;
-    ksh_line_buffer[ksh_line_index + 1] = CHAR_ENDLINE;
+    ksh_line_buffer[ksh_line_index + 1] = 0x0;
     ksh_line_index++;
 }
 
 extern void ksh_update_buffer(const char *str, size_t length)
 {
-    kbzero(ksh_line_buffer, __KSH_INPUT_BUFFER_SIZE__);
+    bzero(ksh_line_buffer, __KSH_INPUT_BUFFER_SIZE__);
 
     if (length > __KSH_INPUT_BUFFER_SIZE__)
         length = __KSH_INPUT_BUFFER_SIZE__;
@@ -60,19 +60,19 @@ extern void ksh_buffer_delete_last_char(void)
 {
     if (ksh_line_index > 0 && ksh_line_index < __KSH_INPUT_BUFFER_SIZE__)
     {
-        ksh_line_buffer[ksh_line_index] = CHAR_ENDLINE;
+        ksh_line_buffer[ksh_line_index] = 0x0;
         ksh_line_index--;
     }
 }
 
 extern void ksh_buffer_clear(void)
 {
-    kbzero(ksh_line_buffer, __KSH_INPUT_BUFFER_SIZE__);
+    bzero(ksh_line_buffer, __KSH_INPUT_BUFFER_SIZE__);
     ksh_line_index = 0;
 }
 
 extern void ksh_buffer_init(void)
 {
-    kbzero(ksh_line_buffer, __KSH_INPUT_BUFFER_SIZE__);
+    bzero(ksh_line_buffer, __KSH_INPUT_BUFFER_SIZE__);
     ksh_line_index = 0;
 }

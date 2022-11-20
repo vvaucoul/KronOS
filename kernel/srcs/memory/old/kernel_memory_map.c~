@@ -1,14 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   kernel_memory_map.c                                :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/13 12:06:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 13:44:17 by vvaucoul         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    kernel_memory_map.c~                               :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/09/13 12:06:57 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/20 13:55:38 by vvaucoul         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 #include <multiboot/multiboot.h>
 #include <memory/memory_map.h>
@@ -32,7 +32,7 @@ static MultibootMemoryMap __setup_memory_entry(MultibootMemoryType type, uint32_
 
 static void __fix_memory_entries()
 {
-    kprintf(" - Fixing memory entries...\n");
+    printk(" - Fixing memory entries...\n");
 
     /* Fix Grub Reserved Space */
     MAP.map[MEMORY_MAP_GRUB_RESERVED].len_low = 0xFFFFFFFF - MAP.map[MEMORY_MAP_GRUB_RESERVED].addr_low;

@@ -1,14 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   kheap.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/04 13:21:54 by vvaucoul         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    kheap.c~                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/09/14 00:33:38 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 #include <memory/kheap.h>
 
@@ -22,14 +22,14 @@ Heap kheap;
 
 static int __expand_heap(uint32_t size)
 {
-    // kprintf(COLOR_YELLOW "Expand BLOCK\n" COLOR_END);
+    // printk(COLOR_YELLOW "Expand BLOCK\n" COLOR_END);
     void *new_block = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
     if (new_block == NULL)
         return (1);
     void *new_end_addr = (void *)(kheap.end_addr + ((uint32_t)pmm_get_next_available_block() * (size)));
     kheap.end_addr = new_end_addr;
     kheap.max_size = kheap.end_addr - kheap.start_addr;
-    // kprintf(COLOR_GREEN "New Max Size: %u Ko\n" COLOR_END, kheap.max_size / 1024);
+    // printk(COLOR_GREEN "New Max Size: %u Ko\n" COLOR_END, kheap.max_size / 1024);
     // timer_wait(1000);
     return (0);
 }
@@ -40,14 +40,14 @@ static HeapBlock *__get_first_free_block(uint32_t size)
 
     while (block != NULL)
     {
-        // kprintf("- Check Block : 0x%x | State: %d | B-Size: %d >= Size: %d = Valid: %d\n", block, block->metadata.state, block->metadata.size, size, block->metadata.state == HEAP_BLOCK_FREE && block->metadata.size >= size);
+        // printk("- Check Block : 0x%x | State: %d | B-Size: %d >= Size: %d = Valid: %d\n", block, block->metadata.state, block->metadata.size, size, block->metadata.state == HEAP_BLOCK_FREE && block->metadata.size >= size);
 
         if (block->metadata.state == HEAP_BLOCK_FREE && block->metadata.size >= size)
             return (block);
         else
             block = block->next;
     }
-    // kprintf("No free block found\n");
+    // printk("No free block found\n");
     return (NULL);
 }
 
@@ -60,11 +60,11 @@ static int __init(data_t *start_addr, data_t *end_addr)
     else
     {
         kheap.start_addr = start_addr;
-        kprintf("KHEAP: Start Addr : 0x%x\n", kheap.start_addr);
+        printk("KHEAP: Start Addr : 0x%x\n", kheap.start_addr);
         kheap.end_addr = end_addr;
-        kprintf("KHEAP: End Addr : 0x%x\n", kheap.end_addr);
+        printk("KHEAP: End Addr : 0x%x\n", kheap.end_addr);
         kheap.max_size = (uint32_t)end_addr - (uint32_t)start_addr;
-        kprintf("KHEAP: Max Size : %u octets\n", kheap.max_size);
+        printk("KHEAP: Max Size : %u octets\n", kheap.max_size);
         kheap.used_size = 0;
         kheap.last_addr = KMAP.available_extended.start_addr;
         kheap.allocated_blocks = PHYSICAL_MEMORY_BLOCKS;
@@ -92,15 +92,15 @@ static data_t *__kbrk(uint32_t size)
 
     if (kheap.used_size + size >= PHYSICAL_LENGTH)
     {
-        kprintf("Not enough memory to allocate %d bytes !\n", size);
-        kprintf("Used Size: %d | Size: %d | Max Size: %d\n", kheap.used_size, size, kheap.max_size);
+        printk("Not enough memory to allocate %d bytes !\n", size);
+        printk("Used Size: %d | Size: %d | Max Size: %d\n", kheap.used_size, size, kheap.max_size);
         return (NULL);
     }
     else if (kheap.used_size + size >= kheap.max_size)
     {
         if (__expand_heap(PHYSICAL_EXPAND_HEAP_SIZE) == 1)
         {
-            kprintf("Not enough memory to expand heap !\n");
+            printk("Not enough memory to expand heap !\n");
             return (NULL);
         }
     }
@@ -211,8 +211,8 @@ static data_t *__kmalloc_kernel_heap(uint32_t size, bool align)
                             ALIGN_PAGE(kheap.last_addr);
                         }
                     }
-                    kprintf("test 1\n");
-                    kprintf("Size: %d | Data: 0x%x\n", block->metadata.size, block->data);
+                    printk("test 1\n");
+                    printk("Size: %d | Data: 0x%x\n", block->metadata.size, block->data);
                     return (block->data);
                 }
             }
@@ -221,7 +221,7 @@ static data_t *__kmalloc_kernel_heap(uint32_t size, bool align)
                 block->metadata.state = HEAP_BLOCK_USED;
                 block->metadata.size = size;
                 kheap.last_addr = (uint32_t)block->data;
-                kprintf("test 2\n");
+                printk("test 2\n");
                 return (block->data);
             }
         }
@@ -238,7 +238,7 @@ static data_t *__kcalloc(uint32_t count, uint32_t size)
         data_t *addr = __kmalloc_kernel_heap(count * size, false);
         if (addr == NULL)
             return (NULL);
-        kmemset(addr, 0, count * size);
+        memset(addr, 0, count * size);
         return (addr);
     }
 }
@@ -266,7 +266,7 @@ static data_t *__krealloc(data_t *addr, uint32_t size)
                         return (NULL);
                     else
                     {
-                        kmemcpy(new_addr, addr, block->metadata.size);
+                        memcpy(new_addr, addr, block->metadata.size);
                         block->data = new_addr;
                         block->metadata.size = size;
                         return (new_addr);

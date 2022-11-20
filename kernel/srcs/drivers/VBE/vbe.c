@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 18:33:27 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 12:58:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:55:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,14 @@ static int get_vbe_info(void)
 
 void init_vbe_mode(void)
 {
-    kprintf("Initializing VBE Mode\n");
+    printk("Initializing VBE Mode\n");
     init_bios32();
 
     const bool vbe_info = get_vbe_info();
 
     if (!vbe_info)
     {
-        kprintf("VESA VBE 2.0 Mode not supported\n");
+        printk("VESA VBE 2.0 Mode not supported\n");
         return;
     }
 

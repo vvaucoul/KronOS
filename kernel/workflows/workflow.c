@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 15:40:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 01:07:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:15:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,24 @@
 
 void workflow_header(const char *function_name)
 {
-    const uint32_t len = kstrlen(function_name);
+    const uint32_t len = strlen(function_name);
     const uint32_t len_line = 80;
     const uint32_t len_line_start = (len_line - len) / 2 - 1;
     const uint32_t len_line_end = len_line - len - len_line_start - 2;
 
-    kprintf("\n"_GREEN);
+    printk("\n"_GREEN);
     for (uint32_t i = 0; i < len_line_start; ++i)
-        kputchar(WORKFLOW_CHAR);
-    kprintf(_END " %s "_GREEN, function_name);
+        putchar(WORKFLOW_CHAR);
+    printk(_END " %s "_GREEN, function_name);
     for (uint32_t i = 0; i < len_line_end; ++i)
-        kputchar(WORKFLOW_CHAR);
-    kprintf(_END "\n\n");
+        putchar(WORKFLOW_CHAR);
+    printk(_END "\n\n");
 }
 
 void workflow_footer(void)
 {
-    kprintf(_GREEN "\n");
+    printk(_GREEN "\n");
     for (uint32_t i = 0; i < 80; ++i)
-        kputchar(WORKFLOW_CHAR);
-    kprintf(_END "\n\n");
+        putchar(WORKFLOW_CHAR);
+    printk(_END "\n\n");
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 16:38:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/19 17:52:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,21 +49,16 @@ enum kheap_block_status
     FREE
 };
 
-enum kheap_block_size
-{
-    LOW,
-    MEDIUM,
-    HIGH
-};
-
-/* Magic Number: Sentinel Number 
+/* Magic Number: Sentinel Number
 ** --> 0x123890AB
 */
+
+typedef void *data_t;
 
 typedef struct s_heap_header
 {
     uint32_t magic;
-    enum kheap_block_status status;
+    enum kheap_block_status state;
     uint32_t size;
 } heap_header_t;
 
@@ -73,52 +68,42 @@ typedef struct s_heap_footer
     heap_header_t *header;
 } heap_footer_t;
 
-// typedef struct s_heap_node
-// {
-//     struct
-//     {
-//         struct s_heap_node *parent;
-//         struct s_heap_node *left;
-//         struct s_heap_node *right;
-//     } tree;
+typedef bool (*heap_node_predicate_t)(data_t *, data_t *);
 
-//     struct
-//     {
-//         uint32_t addr;
-//         enum kheap_block_status status;
-//         enum kheap_block_size block_size;
-//         uint32_t size;
-//     } infos;
-
-//     void *data;
-// } heap_node_t;
-
-// typedef struct s_heap
-// {
-//     heap_node_t *root;
-//     struct
-//     {
-//         uint32_t start_address;
-//         uint32_t end_address;
-//         uint32_t max_address;
-//     } addr;
-
-//     struct
-//     {
-//         uint32_t max_blocks;
-//         uint32_t used_blocks;
-//     } blocks;
-// } heap_t;
+typedef struct s_heap_array
+{
+    data_t *array;
+    uint32_t size;
+    uint32_t max_size;
+    heap_node_predicate_t predicate;
+} heap_array_t;
 
 typedef struct s_heap
 {
-    ordered_array_t index;
-    uint32_t start_address;
-    uint32_t end_address;
-    uint32_t max_address;
-    uint8_t supervisor;
-    uint8_t readonly;
+    heap_array_t array;
+    struct
+    {
+        uint32_t start_address;
+        uint32_t end_address;
+        uint32_t max_address;
+    } addr;
+
+    struct
+    {
+        uint8_t supervisor;
+        uint8_t readonly;
+    } flags;
 } heap_t;
+
+// typedef struct s_heap
+// {
+//     ordered_array_t index;
+//     uint32_t start_address;
+//     uint32_t end_address;
+//     uint32_t max_address;
+//     uint8_t supervisor;
+//     uint8_t readonly;
+// } heap_t;
 
 extern heap_t *kheap;
 extern uint32_t placement_addr;
@@ -144,11 +129,26 @@ extern uint32_t ksize(void *ptr);
 
 extern void init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly);
 
-extern void *alloc(uint32_t size, uint8_t align, heap_t *heap);
-extern void free(void *p, heap_t *heap);
+extern data_t kheap_alloc(uint32_t size, bool align, heap_t *heap);
+extern void kheap_free(void *ptr, heap_t *heap);
+extern uint32_t kheap_get_ptr_size(void *ptr, heap_t *heap);
 
-// extern void *kheap_tree_alloc_memory(uint32_t size);
-// extern void kheap_tree_delete_node(void *ptr);
-// extern uint32_t kheap_tree_get_node_size(void *ptr);
+extern void *vmalloc(uint32_t size);
+extern void *vfree(void *addr);
+extern void *vrealloc(void *addr, uint32_t size);
+extern void *vcalloc(uint32_t size);
+extern uint32_t vsize(void *addr);
+
+/*******************************************************************************
+ *                                 HEAP ARRAY                                  *
+ ******************************************************************************/
+
+extern heap_array_t heap_array_create(void *addr, uint32_t max_size, heap_node_predicate_t predicate);
+extern void heap_array_insert_element(data_t data, heap_array_t *array);
+extern data_t heap_array_get_element(uint32_t index, heap_array_t *array);
+extern void heap_array_remove_element(uint32_t index, heap_array_t *array);
+
+// extern void *alloc(uint32_t size, uint8_t align, heap_t *heap);
+// extern void free(void *p, heap_t *heap);
 
 #endif /* !KHEAP_H */

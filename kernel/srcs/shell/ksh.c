@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 14:09:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:02:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void ksh_execute_command(void)
 {
     /* SIMPLE COMMAND EXECUTOR */
     char __formated_command[128];
-    kstrclr(__formated_command, ksh_line_buffer);
+    strclr(__formated_command, ksh_line_buffer);
     if (__formated_command[0] != 0)
     {
         __ksh_execute_builtins(__formated_command);
@@ -52,10 +52,10 @@ void ksh_execute_command(void)
 
 void kronos_shell(void)
 {
-    // kprintf("KSHBuffer ADDR : 0x%x\n", ksh_buffer);
+    // printk("KSHBuffer ADDR : 0x%x\n", ksh_buffer);
     ksh_init();
     __ksh_init_builtins();
-    kprintf("Welcome to " COLOR_RED "KSH" COLOR_END " !\n");
+    printk("Welcome to " _RED "KSH" _END " !\n");
     DISPLAY_PROMPT();
     UPDATE_CURSOR();
 

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 23:30:01 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/20 15:49:55 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,12 +39,10 @@ endif
 
 NAME				=	kfs
 ISO					=	$(NAME).iso
-LIBKFS				=	lkfs
-LIBKFS_A			=	libkfs/libkfs.a
 
 LD					=	ld
 INLCUDES_PATH		=	-I./kernel/includes/ \
-						-I./libkfs/includes/
+						-I./$(LIBKFS_DIR)/$(LIBKFS_DIR)/
 CFLAGS				=	-Wall -Wextra -Wfatal-errors \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs \
@@ -108,7 +106,7 @@ $(NAME): ascii $(XORRISO) $(CCACHE) $(LIBKFS) $(BOOT) $(KDSRCS) $(HEADERS) $(BIN
 	@true
 
 $(LIBKFS):
-	@make -s -C libkfs CLANG_INSTALLED=$(CLANG_INSTALLED)
+	@make -s -C $(LIBKFS_DIR) CLANG_INSTALLED=$(CLANG_INSTALLED) CCACHE_INSTALLED=$(CCACHE_INSTALLED)
 	@printf "$(_LWHITE)- LIBKFS$(_END)$(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(BOOT): $(KBOOT_OBJS)
@@ -128,19 +126,19 @@ check:
 	printf "$(_END)$(_DIM) -> ISO CHECKER $(_END)\n"
 
 clean:
-	@make -s -C libkfs clean
+	@make -s -C $(LIBKFS_DIR) clean
 	@make -s -C . clean-disk
 	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM)
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 fclean: clean docker-clear
-	@make -s -C libkfs fclean
+	@make -s -C $(LIBKFS_DIR) fclean
 	@rm -rf $(DEPENDENCIES_DIR)/$(XORRISO) $(BIN_DIR) $(DEPENDENCIES_DIR)/$(CCACHE_DIR)
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 re: clean
 	@rm -rf $(BIN_DIR)
-	@make -s -C libkfs re > /dev/null 2>&1
+	@make -s -C $(LIBKFS_DIR) re > /dev/null 2>&1
 	@make -s -C . all
 
 ascii:

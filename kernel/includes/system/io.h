@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:32:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/11 12:27:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:53:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef IO_H
 #define IO_H
 
-#include "../../../libkfs/libs/stddef/stddef.h"
+#include <kernel.h>
 
 extern uint8_t inportb(uint16_t _port);
 extern void outportb(uint16_t _port, uint8_t _data);

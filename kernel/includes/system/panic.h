@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/28 13:36:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:04:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,25 +18,24 @@
 
 #define __USE_KERRNO_HELPER__ false
 
-#define __PANIC_HEADER__ (const char *)(COLOR_RED "KERNEL - PANIC: " COLOR_END)
+#define __PANIC_HEADER__ (const char *)(_RED "KERNEL - PANIC: " _END)
 
 /*******************************************************************************
  *                                PANIC MACROS                                 *
  ******************************************************************************/
 
 static bool __panic_handler = false;
-#define __DISPLAY_HEADER__()           \
-    {                                  \
-        if (__panic_handler == false)  \
-        {                              \
-            __panic_handler = true;    \
-            kprintf(__PANIC_HEADER__); \
-        }                              \
+#define __DISPLAY_HEADER__()          \
+    {                                 \
+        if (__panic_handler == false) \
+        {                             \
+            __panic_handler = true;   \
+            printk(__PANIC_HEADER__); \
+        }                             \
     }
 
 #define __PANIC_LOOP_HANDLER__() \
     {                            \
-        UPDATE_CURSOR();         \
         while (1)                \
         {                        \
             ;                    \

@@ -1,14 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   frames.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/13 14:01:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 14:01:58 by vvaucoul         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    frames.c~                                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/10/13 14:01:28 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/20 13:28:19 by vvaucoul         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 #include <memory/frames.h>
 #include <memory/kheap.h>
@@ -104,5 +104,5 @@ void init_frames(void)
 {
     __nframes = PHYSICAL_MEMORY_SIZE / PAGE_SIZE;
     __frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(__nframes));
-    kmemset(__frames, 0, INDEX_FROM_BIT(__nframes));
+    memset(__frames, 0, INDEX_FROM_BIT(__nframes));
 }

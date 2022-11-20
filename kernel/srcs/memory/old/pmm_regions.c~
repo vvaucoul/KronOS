@@ -1,14 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   pmm_regions.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/25 17:28:49 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/27 11:30:07 by vvaucoul         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    pmm_regions.c~                                     :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2022/10/25 17:28:49 by vvaucoul          #+#    #+#              #
+#    Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 #include <kernel.h>
 #include <memory/pmm.h>
@@ -18,7 +18,7 @@ PMM_REGION __pmm_region;
 
 static void __pmm_region_init_regions(const pmm_physical_addr_t regions_bitmap, const pmm_physical_addr_t total_memory)
 {
-    kprintf("PMM: Init Regions: 0x%x | %u\n", regions_bitmap, total_memory);
+    printk("PMM: Init Regions: 0x%x | %u\n", regions_bitmap, total_memory);
 
     __pmm_region.regions = (struct __s_region *)regions_bitmap;
     __pmm_region.count = 0;
@@ -34,11 +34,11 @@ static void __pmm_region_init_regions(const pmm_physical_addr_t regions_bitmap, 
     }
     __pmm_region.end_addr = __pmm_region.start_addr + (uint32_t)&__pmm_region.regions[__pmm_region.max_regions];
 
-    kprintf("PMM_REGION: 0x%x\n", __pmm_region.regions);
-    kprintf("PMM_REGION: 0x%x\n", __pmm_region.start_addr);
-    kprintf("PMM_REGION: 0x%x\n", __pmm_region.end_addr);
-    kprintf("PMM_REGION - Count: %u\n", __pmm_region.count);
-    kprintf("PMM_REGION - MaxRegions: %u\n", __pmm_region.max_regions);
+    printk("PMM_REGION: 0x%x\n", __pmm_region.regions);
+    printk("PMM_REGION: 0x%x\n", __pmm_region.start_addr);
+    printk("PMM_REGION: 0x%x\n", __pmm_region.end_addr);
+    printk("PMM_REGION - Count: %u\n", __pmm_region.count);
+    printk("PMM_REGION - MaxRegions: %u\n", __pmm_region.max_regions);
 }
 
 static pmm_region_t *__pmm_region_create_region(const pmm_physical_addr_t start, const pmm_physical_addr_t end)

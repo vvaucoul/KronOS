@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/21 12:15:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/21 21:27:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,6 @@
 #include <memory/memory_map.h>
 #include <memory/kheap.h>
 #include <memory/paging.h>
-
-// #include <memory/pmm.h>
-// #include <memory/smp.h>
 
 #include <workflows/workflows.h>
 
@@ -78,20 +75,6 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
     ksh_header();
-
-    // while (1)
-    // {
-    // printk("length: %u - ", __strlen("Hello World!"));
-    // printk("%u - %u - %u\n", __nbrlen(42), __nbrlen_base(420, 10), __strcmp("Hello", "Hello"));
-    // }
-
-    // printk("Strncmp: %d -> %d\n", strncmp("Hello", "Hezo", 5), __strncmp("Hello", "Hezo", 5));
-    // printk("Strncmp: %d -> %d\n", strncmp("Hezo", "Hello", 6), __strncmp("Hezo", "Hello", 6));
-    // printk("Strncmp: %d -> %d\n", strncmp("Hello", "Hello", 1), __strncmp("Hello", "Hello", 1));
-    // printk("Strncmp: %d -> %d\n", strncmp("42", "42", 1023), __strncmp("42", "42", 1023));
-    // printk("Strncmp: %d -> %d\n", strncmp("toto", "tota", 2), __strncmp("toto", "tota", 2));
-
-    // kpause();
     __hhk_log();
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
@@ -140,7 +123,8 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     // printk("End addr: 0x%x\n", &__kernel_section_end);
     // kpause();
 
-    init_paging();
+    // Todo: Tmp le temps de test les algos
+    // init_paging();
     kernel_log_info("LOG", "PAGING");
 
     // kpause();
@@ -216,28 +200,85 @@ int kmain(hex_t magic_number, hex_t addr)
         printk("\n");
     ASM_STI();
 
-    printk("Heap Test\n");
+    // printk("Heap Test\n");
 
-    char *str = (char *)kmalloc(13);
-    bzero(str, 13);
-    memcpy(str, "Hello World!", 12);
+    // char *str = (char *)kmalloc(13);
+    // bzero(str, 13);
+    // memcpy(str, "Hello World!", 12);
 
-    printk("str: %s\n", str);
-    printk("Size: %u\n", ksize(str));
-    kfree(str);
+    // printk("str: %s\n", str);
+    // printk("Size: %u\n", ksize(str));
+    // kfree(str);
 
-    void *ptr = kmalloc(2);
-    printk("ptr: 0x%08x\n", ptr);
-    printk("Size: %u\n", ksize(ptr));
+    printk("Algorithms Array test:\n");
 
-    printk("vaddr: 0x%08x\n", (&ptr));
-    // printk("Size: %u\n", vsize(vaddr));
+    array_t *array = array_create(2);
+    uint32_t size = 0, length = 0;
 
+    printk("Array 0x%x\n", array);
+
+    array_add(array, (char *)"Hello");
+    array_add(array, (char *)"World");
+    array_add(array, (char *)"!");
+    array_add(array, (char *)"42");
+    array_add(array, (char *)"Born");
+    array_add(array, (char *)"2");
+    array_add(array, (char *)"Code");
+
+    array_add(array, (char *)"Add expand");
+
+    size = array_size(array);
+    length = array_length(array);
+
+    printk(_GREEN "\nArray (length: %u) (size: %u):\n"_END, length, size);
+
+    printk(_GREEN "\nArray:\n"_END);
+    for (uint32_t i = 0; i < size; i++)
+    {
+        printk("Array[%u]: %s\n", i, (char *)array_get(array, i));
+    }
+
+    array_insert(array, (char *)"Insert", 0);
+
+    size = array_size(array);
+    length = array_length(array);
+
+    printk(_GREEN "\nArray (length: %u) (size: %u):\n"_END, length, size);
+
+    printk(_GREEN "\nArray:\n"_END);
+    for (uint32_t i = 0; i < size; i++)
+    {
+        printk("Array[%u]: %s\n", i, (char *)array_get(array, i));
+    }
+
+    // kpause();
+    array_remove(array, 0);
+    array_remove(array, 5);
+
+    array_resize(array, 6);
+
+    size = array_size(array);
+    length = array_length(array);
+
+    printk(_GREEN "\nArray (length: %u) (size: %u):\n"_END, length, size);
+
+    printk(_GREEN "\nArray:\n"_END);
+    for (uint32_t i = 0; i < size; i++)
+    {
+        printk("Array[%u]: %s\n", i, (char *)array_get(array, i));
+    }
+
+    void *ptr = NULL;
+    // while (1)
+    // {
+    //     ptr = kmalloc(200);
+    //     printk("ptr: 0x%08x\n", ptr);
+    //     printk("Size: %u\n", ksize(ptr));
+    // }
+
+    printk("vaddr: 0x%08x\n", (ptr));
     printk("End\n");
-    // kpause();
 
-    // kpause();
-    // kheap_test();
     kronos_shell();
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 17:49:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/21 19:27:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,8 @@ void *kmalloc(uint32_t size)
 
 void kfree(void *ptr)
 {
-    __kfree(ptr);
+    // Todo : Free memory
+    // __kfree(ptr);
 }
 
 void *krealloc(void *ptr, uint32_t size)

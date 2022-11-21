@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/21 12:20:54 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/21 12:32:16 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/21 12:34:47 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,19 +60,19 @@ Hephaistos=Hephaistos
 HephaistosURL="https://github.com/vvaucoul/Hephaistos.git"
 Hephaistos_installed=$(sh scripts/checkHephaistos.sh)
 
-printf "$_LWHITE- Check library $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM$ccache or latest version$_END$_LYELLOW <$_END\n"
+printf "$_LWHITE- Check library $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END\n"
 
 if [ "$Hephaistos_installed" = "false" ]; then
-    printf "$_LWHITE- Install $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM$ccache or latest version$_END$_LYELLOW <$_END\n"
+    printf "$_LWHITE- Install $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END\n"
     if [ ! -d "$Hephaistos_dir" ]; then
-        mkdir $Hephaistos_dir
+        mkdir $Hephaistos_dir > /dev/null 2>&1
     fi
-    cd $Hephaistos_dir
-    git clone $HephaistosURL
-    cd $Hephaistos
-    make
-    cd $pwd
-    printf "$_LWHITE- $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM$ccache or latest version$_END$_LYELLOW <$_END$_LWHITE installed$_END\n"
+    cd $Hephaistos_dir > /dev/null
+    git clone $HephaistosURL > /dev/null 2>&1
+    cd $Hephaistos > /dev/null 2>&1
+    make > /dev/null 2>&1
+    cd $pwd > /dev/null 2>&1
+    printf "$_LWHITE- $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END$_LWHITE installed$_END\n"
 else
-    printf "$_LWHITE- $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM$ccache or latest version$_END$_LYELLOW <$_END$_LWHITE already installed$_END\n"
+    printf "$_LWHITE- $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END$_LWHITE already installed$_END\n"
 fi

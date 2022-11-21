@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 18:36:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/21 12:15:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,21 @@ static void __hhk_log(void)
 static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
-    // printk(_RED "Red: Test <0x%08x>\n", &magic_number, 8);
     ksh_header();
+
+    // while (1)
+    // {
+    // printk("length: %u - ", __strlen("Hello World!"));
+    // printk("%u - %u - %u\n", __nbrlen(42), __nbrlen_base(420, 10), __strcmp("Hello", "Hello"));
+    // }
+
+    // printk("Strncmp: %d -> %d\n", strncmp("Hello", "Hezo", 5), __strncmp("Hello", "Hezo", 5));
+    // printk("Strncmp: %d -> %d\n", strncmp("Hezo", "Hello", 6), __strncmp("Hezo", "Hello", 6));
+    // printk("Strncmp: %d -> %d\n", strncmp("Hello", "Hello", 1), __strncmp("Hello", "Hello", 1));
+    // printk("Strncmp: %d -> %d\n", strncmp("42", "42", 1023), __strncmp("42", "42", 1023));
+    // printk("Strncmp: %d -> %d\n", strncmp("toto", "tota", 2), __strncmp("toto", "tota", 2));
+
+    // kpause();
     __hhk_log();
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
@@ -217,7 +230,7 @@ int kmain(hex_t magic_number, hex_t addr)
     printk("ptr: 0x%08x\n", ptr);
     printk("Size: %u\n", ksize(ptr));
 
-    printk("vaddr: 0x%08x\n", (&ptr) + 0xC0000000);
+    printk("vaddr: 0x%08x\n", (&ptr));
     // printk("Size: %u\n", vsize(vaddr));
 
     printk("End\n");

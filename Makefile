@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/20 15:49:55 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/20 23:45:47 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -102,12 +102,14 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
 all: $(NAME)
 
-$(NAME): ascii $(XORRISO) $(CCACHE) $(LIBKFS) $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) helper
+$(NAME): ascii $(XORRISO) $(CCACHE) lkfs $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) helper
 	@true
 
-$(LIBKFS):
+lkfs:
 	@make -s -C $(LIBKFS_DIR) CLANG_INSTALLED=$(CLANG_INSTALLED) CCACHE_INSTALLED=$(CCACHE_INSTALLED)
 	@printf "$(_LWHITE)- LIBKFS$(_END)$(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+
+.PHONY: lkfs
 
 $(BOOT): $(KBOOT_OBJS)
 	@printf "$(_LWHITE)- ASM BOOT $(_END)$(_DIM)--------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
@@ -138,7 +140,7 @@ fclean: clean docker-clear
 
 re: clean
 	@rm -rf $(BIN_DIR)
-	@make -s -C $(LIBKFS_DIR) re > /dev/null 2>&1
+	@make -s -C $(LIBKFS_DIR) re #> /dev/null 2>&1
 	@make -s -C . all
 
 ascii:

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/20 23:45:47 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/21 12:32:56 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -105,7 +105,11 @@ all: $(NAME)
 $(NAME): ascii $(XORRISO) $(CCACHE) lkfs $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) helper
 	@true
 
-lkfs:
+lkfs-install:
+	@printf "$(_LWHITE)- Check Library: $(_END)$(_DIM)--------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "[Hephaistos]"
+	@sh $(SCRIPTS_DIR)/checkHephaistos.sh || sh $(SCRIPTS_DIR)/installHephaistos.sh
+
+lkfs: lkfs-install
 	@make -s -C $(LIBKFS_DIR) CLANG_INSTALLED=$(CLANG_INSTALLED) CCACHE_INSTALLED=$(CCACHE_INSTALLED)
 	@printf "$(_LWHITE)- LIBKFS$(_END)$(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 

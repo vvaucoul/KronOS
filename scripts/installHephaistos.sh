@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/21 12:20:54 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/21 12:34:47 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/21 12:43:04 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,14 +56,15 @@ _CLEAR_LINE='\033[K'
 
 pwd=$(pwd)
 Hephaistos_dir=.
-Hephaistos=Hephaistos
+Hephaistos="Hephaistos"
 HephaistosURL="https://github.com/vvaucoul/Hephaistos.git"
 Hephaistos_installed=$(sh scripts/checkHephaistos.sh)
 
-printf "$_LWHITE- Check library $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END\n"
+printf "$_LWHITE- Check library $_LYELLOW[HEPHAISTOS] $_LYELLOW>$_END$_DIM latest version$_END$_LYELLOW <$_END\n"
 
 if [ "$Hephaistos_installed" = "false" ]; then
-    printf "$_LWHITE- Install $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END\n"
+    printf "$_LWHITE- Installing $_LYELLOW[HEPHAISTOS]$_END$_DIM ......... $_END\n"
+    sleep 1
     if [ ! -d "$Hephaistos_dir" ]; then
         mkdir $Hephaistos_dir > /dev/null 2>&1
     fi
@@ -72,7 +73,8 @@ if [ "$Hephaistos_installed" = "false" ]; then
     cd $Hephaistos > /dev/null 2>&1
     make > /dev/null 2>&1
     cd $pwd > /dev/null 2>&1
-    printf "$_LWHITE- $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END$_LWHITE installed$_END\n"
+    printf "\n$_LWHITE- $Hephaistos $_END$_DIM----------------$_END $_LGREEN[$_LWHITE✓$_LGREEN]$_END\n"
 else
-    printf "$_LWHITE- $_LYELLOW[HEPHAISTOS] $_LYELLOW> $_END$_DIM for latest version$_END$_LYELLOW <$_END$_LWHITE already installed$_END\n"
+    printf "$_LWHITE-$_LYELLOW [HEPHAISTOS]$_LGREEN already installed $_END$_DIM------$_END $_LGREEN[$_LWHITE✓$_LGREEN]$_END\n\n"
+    exit 0
 fi

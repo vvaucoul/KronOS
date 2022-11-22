@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/21 21:27:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/22 01:34:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,72 +212,35 @@ int kmain(hex_t magic_number, hex_t addr)
 
     printk("Algorithms Array test:\n");
 
-    array_t *array = array_create(2);
-    uint32_t size = 0, length = 0;
+    uint32_t array[1024] = {0};
 
-    printk("Array 0x%x\n", array);
+    bzero(array, 1024 * sizeof(uint32_t));
 
-    array_add(array, (char *)"Hello");
-    array_add(array, (char *)"World");
-    array_add(array, (char *)"!");
-    array_add(array, (char *)"42");
-    array_add(array, (char *)"Born");
-    array_add(array, (char *)"2");
-    array_add(array, (char *)"Code");
+    array[0] = 10;
+    array[1] = 5;
+    array[2] = 2;
+    array[3] = 11;
+    array[4] = 1;
+    array[5] = 23;
+    array[6] = 31;
+    array[7] = 72;
+    array[8] = 24;
+    array[9] = 42;
 
-    array_add(array, (char *)"Add expand");
+    for (uint32_t i = 9; i < 1024; i++)
+        array[i] = 10;
 
-    size = array_size(array);
-    length = array_length(array);
+    counter_t counter;
+    
+    counter_start(&counter);
+    radix_sort(array, 1024, cmp_int);
+    counter_stop(&counter);
+    printk("Bubble sort: %u ms\n", counter_get_time(&counter));
 
-    printk(_GREEN "\nArray (length: %u) (size: %u):\n"_END, length, size);
-
-    printk(_GREEN "\nArray:\n"_END);
-    for (uint32_t i = 0; i < size; i++)
-    {
-        printk("Array[%u]: %s\n", i, (char *)array_get(array, i));
-    }
-
-    array_insert(array, (char *)"Insert", 0);
-
-    size = array_size(array);
-    length = array_length(array);
-
-    printk(_GREEN "\nArray (length: %u) (size: %u):\n"_END, length, size);
-
-    printk(_GREEN "\nArray:\n"_END);
-    for (uint32_t i = 0; i < size; i++)
-    {
-        printk("Array[%u]: %s\n", i, (char *)array_get(array, i));
-    }
-
-    // kpause();
-    array_remove(array, 0);
-    array_remove(array, 5);
-
-    array_resize(array, 6);
-
-    size = array_size(array);
-    length = array_length(array);
-
-    printk(_GREEN "\nArray (length: %u) (size: %u):\n"_END, length, size);
-
-    printk(_GREEN "\nArray:\n"_END);
-    for (uint32_t i = 0; i < size; i++)
-    {
-        printk("Array[%u]: %s\n", i, (char *)array_get(array, i));
-    }
-
-    void *ptr = NULL;
-    // while (1)
-    // {
-    //     ptr = kmalloc(200);
-    //     printk("ptr: 0x%08x\n", ptr);
-    //     printk("Size: %u\n", ksize(ptr));
-    // }
-
-    printk("vaddr: 0x%08x\n", (ptr));
-    printk("End\n");
+    printk("Array: ");
+    for (uint32_t i = 0; i < 1024; i++)
+        printk("%u ", array[i]);
+    printk("\n");
 
     kronos_shell();
     return (0);

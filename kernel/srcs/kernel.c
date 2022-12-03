@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/22 01:34:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/03 23:39:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,6 +191,11 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr)
     return (0);
 }
 
+static void print_list(void *data)
+{
+    printk("Data: %s\n", data);
+}
+
 int kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
@@ -200,47 +205,32 @@ int kmain(hex_t magic_number, hex_t addr)
         printk("\n");
     ASM_STI();
 
-    // printk("Heap Test\n");
-
-    // char *str = (char *)kmalloc(13);
-    // bzero(str, 13);
-    // memcpy(str, "Hello World!", 12);
-
-    // printk("str: %s\n", str);
-    // printk("Size: %u\n", ksize(str));
-    // kfree(str);
-
-    printk("Algorithms Array test:\n");
-
-    uint32_t array[1024] = {0};
-
-    bzero(array, 1024 * sizeof(uint32_t));
-
-    array[0] = 10;
-    array[1] = 5;
-    array[2] = 2;
-    array[3] = 11;
-    array[4] = 1;
-    array[5] = 23;
-    array[6] = 31;
-    array[7] = 72;
-    array[8] = 24;
-    array[9] = 42;
-
-    for (uint32_t i = 9; i < 1024; i++)
-        array[i] = 10;
-
-    counter_t counter;
+    printk("Algorithms List test:\n");
+    list_t *list = list_create();
     
-    counter_start(&counter);
-    radix_sort(array, 1024, cmp_int);
-    counter_stop(&counter);
-    printk("Bubble sort: %u ms\n", counter_get_time(&counter));
+    list_add_back(list, (char *)"!"); // [2]
+    list_add_front(list, (char *)"Hello"); // [0]
+    list_insert(list, (char *)"World", 1); // [1]
 
-    printk("Array: ");
-    for (uint32_t i = 0; i < 1024; i++)
-        printk("%u ", array[i]);
-    printk("\n");
+    printk("List size: %u\n", list_size(list));
+    list_iterate(list, print_list);
+
+    list_clear(list);
+    list_iterate(list, print_list);
+    printk("Is Empty: %s\n", list_is_empty(list) ? "true" : "false");
+    list_destroy(list);
+
+    list = list_create();
+    list_add_back(list, (char *)"World");
+    list_add_back(list, (char *)"Hello");
+    list_add_back(list, (char *)"!");
+    list_sort(list, cmp_string);
+    list_iterate(list, print_list);
+    printk("List %d = %s\n", 1, list_get(list, 1));
+
+    printk("End of list\n");
+
+    kpause();
 
     kronos_shell();
     return (0);

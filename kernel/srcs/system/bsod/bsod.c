@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/11 20:57:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/20 14:51:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/bsod.h>
+#include <terminal.h>
 
 uint16_t *g_bsod_buffer = BSOD_MEMORY;
 char __bsod_error[__BSOD_BUFFER__] = {0};
@@ -50,7 +51,7 @@ static void __bsod_content(const char *error, const char *file)
 
 void bsod(const char *error, const char *file)
 {
-    kprintf("test");
+    printk("test");
     __bsod_background();
     __UNUSED(error);
     __UNUSED(file);

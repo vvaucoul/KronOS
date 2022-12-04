@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:59:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 01:18:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,22 +37,22 @@ void page_fault(struct regs *r)
     int reserved = r->err_code & 0x8;
     int id = r->err_code & 0x10;
 
-    kprintf(_RED "Page fault! "_END
+    printk(_RED "Page fault! "_END
                  "( ");
     if (present)
-        kprintf("present ");
+        printk("present ");
     if (rw)
-        kprintf("read-only ");
+        printk("read-only ");
     if (us)
-        kprintf("user-mode ");
+        printk("user-mode ");
     if (reserved)
-        kprintf("reserved ");
+        printk("reserved ");
     if (id)
-        kprintf("instruction fetch ");
-    kprintf(") at ");
-    kprintf(_RED "0x%08x"_END
+        printk("instruction fetch ");
+    printk(") at ");
+    printk(_RED "0x%08x"_END
                  "\n",
             faulting_address);
-    kprintf("");
+    printk("");
     __PANIC("Page fault");
 }

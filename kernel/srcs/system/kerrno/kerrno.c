@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 16:12:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/17 18:34:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:29:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,11 @@ void init_kerrno(void)
     __kerrno_segment = __KERRNO_DEFAULT_SEGMENT;
     __kerrno_error_code = 0;
     __kerrno_file_name = NULL;
-    kbzero(__kerrno_function_name, __KERRNO_FUNCTION_SIZE);
-    kmemset(__kerrno_table, 0, sizeof(__kerrno_table));
+    bzero(__kerrno_function_name, __KERRNO_FUNCTION_SIZE);
+    memset(__kerrno_table, 0, sizeof(__kerrno_table));
     for (size_t i = 0; i < __KERRNO_SECTOR_SIZE; i ++)
     {
-        kmemset(__kerrno_table[i], 0, sizeof(__kerrno_table));
+        memset(__kerrno_table[i], 0, sizeof(__kerrno_table));
     }
     __kerrno_sectors();
 }
@@ -47,7 +47,7 @@ int kerrno_assign_error(__KerrnoSector sector, int error_code, char *file_name, 
         __kerrno_segment = __kerrno_table[sector][error_code];
         __kerrno_error_code = error_code;
         __kerrno_file_name = file_name;
-        kmemcpy(__kerrno_function_name, function_name, __KERRNO_FUNCTION_SIZE - 1);
+        memcpy(__kerrno_function_name, function_name, __KERRNO_FUNCTION_SIZE - 1);
     }
     return (0);
 }

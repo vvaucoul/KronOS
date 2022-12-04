@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/18 20:13:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ void gdt_install(void)
 {
     if (__GDT_LOGS__)
     {
-        kprintf("(0x00000800 + 0xC0000000): %p\n", (0x00000800 + 0xC0000000));
-        kprintf("__GDT_ADDR HEXA: %u\n", __GDT_ADDR);
-        kprintf("__GDT_ADDR PTR: %p\n", gdt);
+        printk("(0x00000800 + 0xC0000000): %p\n", (0x00000800 + 0xC0000000));
+        printk("__GDT_ADDR HEXA: %u\n", __GDT_ADDR);
+        printk("__GDT_ADDR PTR: %p\n", gdt);
     }
 
     gdt_add_entry(0, 0, 0, 0, 0);
@@ -59,15 +59,15 @@ void gdt_install(void)
 
     if (__GDT_LOGS__)
     {
-        kprintf("__GDT: Limit: %u\n", gp.limit);
-        kprintf("__GDT Base: %u\n", gp.base);
-        kprintf("__GDT ADDR : %p\n", __GDT_ADDR);
+        printk("__GDT: Limit: %u\n", gp.limit);
+        printk("__GDT Base: %u\n", gp.base);
+        printk("__GDT ADDR : %p\n", __GDT_ADDR);
     }
 
     /* Flush the GDT */
     gdt_flush((uint32_t)(&gp));
     if (__GDT_LOGS__)
-        kprintf("Flush GDT SUCCESS !\n");
+        printk("Flush GDT SUCCESS !\n");
 }
 
 /*
@@ -79,29 +79,29 @@ void gdt_install(void)
 
 extern void print_gdt(void)
 {
-    kprintf("%8%% GDT Entry: " COLOR_GREEN "%p\n" COLOR_END, __GDT_ADDR);
-    kprintf("%8%% GDT Base: " COLOR_GREEN "%p\n" COLOR_END, gp.base);
-    kprintf("%8%% GDT Limit: " COLOR_GREEN "%u\n" COLOR_END, gp.limit);
+    printk("%8%% GDT Entry: " _GREEN "%p\n" _END, __GDT_ADDR);
+    printk("%8%% GDT Base: " _GREEN "%p\n" _END, gp.base);
+    printk("%8%% GDT Limit: " _GREEN "%u\n" _END, gp.limit);
 
-    kprintf(COLOR_YELLOW "\n%8%% BASE LOW | BASE MIDDLE | BASE HIGH | LIMIT LOW | GRAN | ACCESS\n" COLOR_END);
+    printk(_YELLOW "\n%8%% BASE LOW | BASE MIDDLE | BASE HIGH | LIMIT LOW | GRAN | ACCESS\n" _END);
 
-    kprintf("%8%% 0x%x ", gdt[0].base_low);
-    kprintf("   \t0x%x ", gdt[0].base_middle);
-    kprintf("  \t\t0x%x ", gdt[0].base_high);
-    kprintf("    \t0x%x ", gdt[0].limit_low);
-    kprintf("    \t0x%x ", gdt[0].granularity);
-    kprintf("   0x%x ", gdt[0].access);
-    kprintf("\n");
+    printk("%8%% 0x%x ", gdt[0].base_low);
+    printk("   \t0x%x ", gdt[0].base_middle);
+    printk("  \t\t0x%x ", gdt[0].base_high);
+    printk("    \t0x%x ", gdt[0].limit_low);
+    printk("    \t0x%x ", gdt[0].granularity);
+    printk("   0x%x ", gdt[0].access);
+    printk("\n");
 
     for (size_t i = 1; i < __GDT_SIZE; i++)
     {
-        kprintf("%8%% 0x%x ", gdt[i].base_low);
-        kprintf("   \t0x%x ", gdt[i].base_middle);
-        kprintf("  \t\t0x%x ", gdt[i].base_high);
-        kprintf("    \t0x%x ", gdt[i].limit_low);
-        kprintf(" \t0x%x ", gdt[i].granularity);
-        kprintf("  0x%x ", gdt[i].access);
-        kprintf("\n");
+        printk("%8%% 0x%x ", gdt[i].base_low);
+        printk("   \t0x%x ", gdt[i].base_middle);
+        printk("  \t\t0x%x ", gdt[i].base_high);
+        printk("    \t0x%x ", gdt[i].limit_low);
+        printk(" \t0x%x ", gdt[i].granularity);
+        printk("  0x%x ", gdt[i].access);
+        printk("\n");
     }
 }
 
@@ -111,10 +111,10 @@ extern void gdt_test(void)
     uint32_t esp;
 
     char tmp[13];
-    kbzero(tmp, 13);
-    kmemcpy(tmp, "Hello World!", 12);
-    kprintf("%8%% Add to stack PTR[13]: " COLOR_GREEN "'Hello World!'\n" COLOR_END);
-    kprintf("%8%% TMP: " COLOR_GREEN "0x%u\n\n" COLOR_END, tmp);
+    bzero(tmp, 13);
+    memcpy(tmp, "Hello World!", 12);
+    printk("%8%% Add to stack PTR[13]: " _GREEN "'Hello World!'\n" _END);
+    printk("%8%% TMP: " _GREEN "0x%u\n\n" _END, tmp);
 
     GET_EBP(ebp);
     GET_ESP(esp);
@@ -126,16 +126,16 @@ extern void gdt_test(void)
     {
         if (ebp == (uint32_t)tmp)
         {
-            kprintf("\n%8%% PTR Found: " COLOR_GREEN "[EBP: 0x%u]\n" COLOR_END, ebp);
-            kprintf("%8%% TMP " COLOR_GREEN "[PTR: 0x%u]\n\n" COLOR_END, (int32_t *)&tmp);
-            kprintf("%8%% 0x%u[0]: " COLOR_GREEN "%c\n" COLOR_END, ebp, (char)(*(char *)ebp));
-            kprintf("%8%% 0x%u: " COLOR_GREEN "%s\n\n" COLOR_END, ebp, ((char *)ebp));
+            printk("\n%8%% PTR Found: " _GREEN "[EBP: 0x%u]\n" _END, ebp);
+            printk("%8%% TMP " _GREEN "[PTR: 0x%u]\n\n" _END, (int32_t *)&tmp);
+            printk("%8%% 0x%u[0]: " _GREEN "%c\n" _END, ebp, (char)(*(char *)ebp));
+            printk("%8%% 0x%u: " _GREEN "%s\n\n" _END, ebp, ((char *)ebp));
             khexdump(ebp - 32, 80);
             return;
         }
         else if ((char)(*(char *)ebp) > 0)
         {
-            kprintf(COLOR_CYAN "0x%u <==> 0x%u: " COLOR_END "%2%% %s: %s\n" COLOR_END, ebp, (char)(*(char *)ebp), ebp, tmp);
+            printk(_CYAN "0x%u <==> 0x%u: " _END "%2%% %s: %s\n" _END, ebp, (char)(*(char *)ebp), ebp, tmp);
         }
         ebp += 1;
         ++i;

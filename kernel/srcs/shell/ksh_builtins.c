@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 14:08:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:02:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,17 @@ static uint8_t __current_index = 0;
 
 static void __ksh_help(void)
 {
-    kprintf("KSH builtins:\n");
-    kprintf("- " COLOR_GREEN "help" COLOR_END ": display this help\n");
-    kprintf("- " COLOR_GREEN "clear" COLOR_END ": clear the screen\n");
-    kprintf("- " COLOR_GREEN "reboot" COLOR_END ": reboot kernel\n");
-    kprintf("- " COLOR_GREEN "poweroff" COLOR_END "/" COLOR_GREEN "halt" COLOR_END "/" COLOR_GREEN "shutdown" COLOR_END ": shutdown kernel\n");
-    kprintf("- " COLOR_GREEN "stack" COLOR_END "/" COLOR_GREEN "print-stack" COLOR_END ": display kernel stack (gdt)\n");
-    kprintf("- " COLOR_GREEN "sections" COLOR_END ": display kernel sections\n");
-    kprintf("- " COLOR_GREEN "mboot" COLOR_END "/" COLOR_GREEN "multiboot" COLOR_END ": display multiboot info\n");
-    kprintf("- " COLOR_GREEN "kmmap" COLOR_END ": display kernel memory info\n");
-    kprintf("- " COLOR_GREEN "pmm" COLOR_END "/" COLOR_GREEN "pmm-info" COLOR_END ": display physical memory managment infos\n");
-    kprintf("- " COLOR_GREEN "pmm-test" COLOR_END ": test physical memory managment\n");
+    printk("KSH builtins:\n");
+    printk("- " _GREEN "help" _END ": display this help\n");
+    printk("- " _GREEN "clear" _END ": clear the screen\n");
+    printk("- " _GREEN "reboot" _END ": reboot kernel\n");
+    printk("- " _GREEN "poweroff" _END "/" _GREEN "halt" _END "/" _GREEN "shutdown" _END ": shutdown kernel\n");
+    printk("- " _GREEN "stack" _END "/" _GREEN "print-stack" _END ": display kernel stack (gdt)\n");
+    printk("- " _GREEN "sections" _END ": display kernel sections\n");
+    printk("- " _GREEN "mboot" _END "/" _GREEN "multiboot" _END ": display multiboot info\n");
+    printk("- " _GREEN "kmmap" _END ": display kernel memory info\n");
+    printk("- " _GREEN "pmm" _END "/" _GREEN "pmm-info" _END ": display physical memory managment infos\n");
+    printk("- " _GREEN "pmm-test" _END ": test physical memory managment\n");
 }
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -44,7 +44,7 @@ static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
     {
         if (names[i][0] == 0)
             break;
-        kmemcpy(__ksh_builtins[__current_index].names[i], names[i], kstrlen(names[i]));
+        memcpy(__ksh_builtins[__current_index].names[i], names[i], strlen(names[i]));
     }
     __ksh_builtins[__current_index].function = fn;
     ++__current_index;
@@ -80,12 +80,12 @@ void __ksh_execute_builtins(const char *name)
         {
             if (__ksh_builtins[i].names[j] == NULL)
                 continue;
-            if (kstrcmp(name, __ksh_builtins[i].names[j]) == 0)
+            if (strcmp(name, __ksh_builtins[i].names[j]) == 0)
             {
                 __ksh_builtins[i].function();
                 return;
             }
         }
     }
-    kprintf("       Unknown command: %s\n", name);
+    printk("       Unknown command: %s\n", name);
 }

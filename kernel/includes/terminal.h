@@ -6,17 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/20 14:01:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:53:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#include "kernel.h"
-#include "system/io.h"
-
-#include "../../libkfs/libs/stdbool/stdbool.h"
+#include <kernel.h>
+#include <system/io.h>
 
 /* Hardware text mode color constants. */
 enum vga_color

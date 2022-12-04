@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 13:13:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/03 23:52:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ page_t *create_page(uint32_t address, page_directory_t *dir)
     uint32_t table_idx = address / 1024;
 
     dir->tables[table_idx] = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &dir->tablesPhysical[table_idx]);
-    kmemset(dir->tables[table_idx], 0, PAGE_SIZE);
+    memset(dir->tables[table_idx], 0, PAGE_SIZE);
     dir->tablesPhysical[table_idx] |= PAGE_PRESENT | PAGE_WRITE | PAGE_USER;
     return (&dir->tables[table_idx]->pages[address % 1024]);
 }
@@ -73,8 +73,8 @@ void init_paging(void)
     init_frames();
 
     kernel_directory = (page_directory_t *)kmalloc_a(sizeof(page_directory_t));
-    kmemset(kernel_directory, 0, sizeof(page_directory_t));
-    // kernel_directory->physicalAddr = (uint32_t)kernel_directory->tablesPhysical;
+    memset(kernel_directory, 0, sizeof(page_directory_t));
+    kernel_directory->physicalAddr = (uint32_t)kernel_directory->tablesPhysical;
     current_directory = kernel_directory;
 
     /* Map Kernel Heap Area */

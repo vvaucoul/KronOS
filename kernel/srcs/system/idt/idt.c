@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:09:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:12:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:29:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void idt_install()
     idtp.base = (unsigned int)&idt;
 
     /* Clear out the entire IDT, initializing it to zeros */
-    kmemset(&idt, 0, sizeof(struct idt_entry) * 256);
+    memset(&idt, 0, sizeof(struct idt_entry) * 256);
 
     /* Add any new ISRs to the IDT here using idt_set_gate */
 

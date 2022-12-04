@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 12:50:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 15:29:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,15 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
     /* If Heap exists -> Heap Algorithm with Virtual Memory */
     if (kheap)
     {
-
         // void *addr = kheap_tree_alloc_memory(size);
-        void *addr = alloc(size, align, kheap);
+        void *addr = kheap_alloc(size, align, kheap);
         if (phys)
         {
             page_t *page = get_page((uint32_t)addr, kernel_directory);
-            *phys = page->frame * PAGE_SIZE + ((uint32_t)addr & 0xFFF);
+            if (!page)
+                *phys = 0;
+            else
+                *phys = page->frame * PAGE_SIZE + ((uint32_t)addr & 0xFFF);
         }
         return (addr);
     }
@@ -66,23 +68,40 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
 
 static uint32_t __ksize(void *ptr)
 {
-    // if (kheap)
-    // return (kheap_tree_get_node_size(ptr));
+    return (kheap_get_ptr_size(ptr));
 }
 
 static void *__krealloc(void *ptr, uint32_t size)
 {
-    return (0);
+    void *new_ptr = NULL;
+
+    if (ptr == NULL)
+        return (NULL);
+    else
+    {
+        new_ptr = kmalloc(size);
+        if (new_ptr == NULL)
+            return (NULL);
+        memcpy(new_ptr, ptr, size);
+        kfree(ptr);
+    }
+    return (new_ptr);
 }
 
-static void *__kcalloc(void *ptr, uint32_t size)
+static void *__kcalloc(uint32_t count, uint32_t size)
 {
-    return (0);
+    void *ptr = kmalloc(count * size);
+
+    if (ptr == NULL)
+        return (NULL);
+    memset(ptr, 0, count * size);
+    return (ptr);
 }
 
 static void __kfree(void *ptr)
 {
-    free(ptr, kheap);
+    if (kheap)
+        kheap_free(ptr, kheap);
 }
 
 static uint8_t header_t_less_than(void *a, void *b)
@@ -100,9 +119,9 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
 
     heap_t *heap = (heap_t *)kmalloc(sizeof(heap_t));
 
-    heap->index = place_ordered_array((void *)start_addr, HEAP_INDEX_SIZE, &header_t_less_than);
+    heap->array = heap_array_create((void *)start_addr, HEAP_INDEX_SIZE, &header_t_less_than);
 
-    start_addr += sizeof(type_t) * HEAP_INDEX_SIZE;
+    start_addr += sizeof(data_t) * HEAP_INDEX_SIZE;
 
     if (start_addr & 0xFFFFF000)
     {
@@ -110,72 +129,21 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
         start_addr += 0x1000;
     }
 
-    heap->start_address = start_addr;
-    heap->end_address = end_addr;
-    heap->max_address = max_addr;
-    heap->supervisor = supervisor;
-    heap->readonly = readonly;
+    heap->addr.start_address = start_addr;
+    heap->addr.end_address = end_addr;
+    heap->addr.max_address = max_addr;
+    heap->flags.supervisor = supervisor;
+    heap->flags.readonly = readonly;
 
     heap_header_t *hole = (heap_header_t *)start_addr;
     hole->size = end_addr - start_addr;
     hole->magic = KHEAP_MAGIC;
-    hole->status = FREE;
-    insert_ordered_array((void *)hole, &heap->index);
+    hole->state = FREE;
+    heap_array_insert_element((void *)hole, &heap->array);
 
-    return (heap);
-
-    // kprintf("KHEAP : Initializing kernel heap\n");
-    // heap_t *heap = (heap_t *)__kmalloc_int(sizeof(heap_t), 0, 0);
-    // kprintf("Create Heaps at : 0x%x\n", heap);
-
-    // heap->root = NULL;
-    // heap->addr.start_address = start_addr;
-    // heap->addr.end_address = end_addr;
-    // heap->addr.max_address = max_addr;
-
-    // heap->blocks.max_blocks = 0;
-    // heap->blocks.used_blocks = 0;
-
-    // TMP le temps de debug
-
-    // const uint32_t heap_size = end_addr - start_addr;
-    // const uint32_t heap_size_low = KHEAP_SIZE_LOW;
-    // const uint32_t heap_size_medium = KHEAP_SIZE_MEDIUM;
-    // const uint32_t heap_size_high = KHEAP_SIZE_HIGH;
-
-    // const uint32_t start_address_low = start_addr;
-    // const uint32_t end_address_low = start_address_low + heap_size_low;
-    // const uint32_t start_address_medium = end_address_low;
-    // const uint32_t end_address_medium = start_address_medium + heap_size_medium;
-    // const uint32_t start_address_high = end_address_medium;
-    // const uint32_t end_address_high = start_address_high + heap_size_high;
-
-    // heap[KHEAP_INDEX_LOW].addr.start_address = start_address_low;
-    // heap[KHEAP_INDEX_LOW].addr.end_address = end_address_low;
-    // heap[KHEAP_INDEX_LOW].addr.max_address = end_address_low;
-    // heap[KHEAP_INDEX_LOW].blocks.max_blocks = heap_size_low / KHEAP_BLOCK_SIZE_LOW;
-    // heap[KHEAP_INDEX_LOW].blocks.used_blocks = 0;
-    // heap[KHEAP_INDEX_LOW].root = NULL;
-
-    // heap[KHEAP_INDEX_MEDIUM].addr.start_address = start_address_medium;
-    // heap[KHEAP_INDEX_MEDIUM].addr.end_address = end_address_medium;
-    // heap[KHEAP_INDEX_MEDIUM].addr.max_address = end_address_medium;
-    // heap[KHEAP_INDEX_MEDIUM].blocks.max_blocks = heap_size_medium / KHEAP_BLOCK_SIZE_MEDIUM;
-    // heap[KHEAP_INDEX_MEDIUM].blocks.used_blocks = 0;
-    // heap[KHEAP_INDEX_MEDIUM].root = NULL;
-
-    // heap[KHEAP_INDEX_HIGH].addr.start_address = start_address_high;
-    // heap[KHEAP_INDEX_HIGH].addr.end_address = end_address_high;
-    // heap[KHEAP_INDEX_HIGH].addr.max_address = end_address_high;
-    // heap[KHEAP_INDEX_HIGH].blocks.max_blocks = heap_size_high / KHEAP_BLOCK_SIZE_HIGH;
-    // heap[KHEAP_INDEX_HIGH].blocks.used_blocks = 0;
-    // heap[KHEAP_INDEX_HIGH].root = NULL;
-
-    // kprintf("Heap start 0x%08x, end 0x%08x, max 0x%08x\n", start_addr, end_addr, max_addr);
-    // kprintf("Heap Size : %u Ko\n", heap_size / 1024);
-    // kprintf("Heap Size Low : %u\n", heap_size_low);
-    // kprintf("Heap Size Medium : %u\n", heap_size_medium);
-    // kprintf("Heap Size High : %u\n", heap_size_high);
+    printk("KHEAP : Heap created at 0x%x\n", start_addr);
+    printk("KHEAP : Heap Start size : 0x%x (%u Octets)\n", end_addr - start_addr, end_addr - start_addr);
+    printk("KHEAP : Heap max size : 0x%x (%u Mo)\n", max_addr - start_addr, max_addr - start_addr / 1024 / 1024);
 
     return (heap);
 }
@@ -225,9 +193,9 @@ void *krealloc(void *ptr, uint32_t size)
     return (__krealloc(ptr, size));
 }
 
-void *kcalloc(void *ptr, uint32_t size)
+void *kcalloc(uint32_t count, uint32_t size)
 {
-    return (__kcalloc(ptr, size));
+    return (__kcalloc(count, size));
 }
 
 void *kbrk(uint32_t size)

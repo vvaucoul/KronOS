@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 09:57:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 12:59:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 00:20:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ ordered_array_t create_ordered_array(uint32_t max_size, lessthan_predicate_t les
 {
     ordered_array_t to_ret;
     to_ret.array = (void *)kmalloc(max_size * sizeof(type_t));
-    kmemset(to_ret.array, 0, max_size * sizeof(type_t));
+    memset(to_ret.array, 0, max_size * sizeof(type_t));
     to_ret.size = 0;
     to_ret.max_size = max_size;
     to_ret.less_than = less_than;
@@ -33,7 +33,7 @@ ordered_array_t place_ordered_array(void *addr, uint32_t max_size, lessthan_pred
 {
     ordered_array_t to_ret;
     to_ret.array = (type_t *)addr;
-    kmemset(to_ret.array, 0, max_size * sizeof(type_t));
+    memset(to_ret.array, 0, max_size * sizeof(type_t));
     to_ret.size = 0;
     to_ret.max_size = max_size;
     to_ret.less_than = less_than;
@@ -51,7 +51,7 @@ void insert_ordered_array(type_t item, ordered_array_t *array)
     uint32_t iterator = 0;
     while (iterator < array->size && array->less_than(array->array[iterator], item))
         iterator++;
-    if (iterator == array->size) // just add at the end of the array.
+    if (iterator == array->size)
         array->array[array->size++] = item;
     else
     {
@@ -83,4 +83,3 @@ void remove_ordered_array(uint32_t i, ordered_array_t *array)
     }
     array->size--;
 }
-

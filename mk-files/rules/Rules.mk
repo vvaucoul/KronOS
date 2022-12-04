@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 02:39:48 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/11/20 12:18:28 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ KERNEL_SRCS_DIR			=	$(KERNEL_DIR)/srcs
 KERNEL_INCLUDES_DIR		=	$(KERNEL_DIR)/includes
 KERNEL_WORKFLOWS_DIR	=	$(KERNEL_DIR)/workflows
 
-LIBKFS_DIR				=	libkfs
+LIBKFS_DIR				=	Hephaistos
+LIBKFS					=	$(LIBKFS_DIR)/Hephaistos.a
 
 DEPENDENCIES_DIR		=	dependencies

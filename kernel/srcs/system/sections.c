@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:18:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 15:14:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,25 +33,25 @@ uint32_t __kernel_virtual_memory_end;
 
 static void __print_single_section(const char *__section_name, uint32_t *_addr, bool __nl)
 {
-    kprintf("" COLOR_CYAN "%s\n" COLOR_END, __section_name);
-    kprintf("- START: " COLOR_GREEN "0x%x" COLOR_END "\n", _addr);
+    printk("" _CYAN "%s\n" _END, __section_name);
+    printk("- START: " _GREEN "0x%x" _END "\n", _addr);
     if (__nl)
-        kprintf("\n");
+        printk("\n");
 }
 
 static void __print_section(const char *__section_name, uint32_t *_addr_start, uint32_t *_addr_end, bool __nl)
 {
     const uint32_t __res = ((uint32_t)_addr_end - (uint32_t)_addr_start);
 
-    kprintf("" COLOR_CYAN "%s\n" COLOR_END, __section_name);
-    kprintf("- START: " COLOR_GREEN "0x%x" COLOR_END " | END: " COLOR_GREEN "0x%x" COLOR_END " | TOTAL: " COLOR_GREEN "0x%x" COLOR_END " - " COLOR_GREEN "%d" COLOR_END " Bytes\n", _addr_start, _addr_end, __res, __res);
+    printk("" _CYAN "%s\n" _END, __section_name);
+    printk("- START: " _GREEN "0x%x" _END " | END: " _GREEN "0x%x" _END " | TOTAL: " _GREEN "0x%x" _END " - " _GREEN "%d" _END " Bytes\n", _addr_start, _addr_end, __res, __res);
     if (__nl)
-        kprintf("\n");
+        printk("\n");
 }
 
 void display_sections(void)
 {
-    kprintf(COLOR_GREEN "[SECTIONS]\n" COLOR_END);
+    printk(_GREEN "[SECTIONS]\n" _END);
     __print_section("KERNEL", &__kernel_section_start, &__kernel_section_end, false);
     __print_section("KERNEL_TEXT", &__kernel_text_section_start, &__kernel_text_section_end, false);
     __print_section("KERNEL_DATA", &__kernel_data_section_start, &__kernel_data_section_end, false);

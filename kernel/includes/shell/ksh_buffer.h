@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:17:50 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/05 13:12:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:19:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KSH_BUFFER_H
 #define KSH_BUFFER_H
 
-#include "../kernel.h"
+#include <kernel.h>
 
 #define __KSH_INPUT_BUFFER_SIZE__ (size_t)(128)
 

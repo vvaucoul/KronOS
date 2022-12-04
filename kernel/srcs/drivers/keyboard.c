@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/08/29 14:52:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:55:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void keyboard_handler(struct regs *r)
 
     /* Read from the keyboard's data buffer */
     scancode = inportb(0x60);
-    // kprintf("%d\n", scancode);
+    // printk("%d\n", scancode);
 
     /* If the top bit of the byte we read from the keyboard is
      *  set, that means that a key has just been released */
@@ -120,7 +120,7 @@ void keyboard_handler(struct regs *r)
     {
         /* You can use this one to see if the user released the
          *  shift, alt, or control keys... */
-        // kprintf("Keyboard: Release %c\n", kbdus[scancode & 0x7F]);
+        // printk("Keyboard: Release %c\n", kbdus[scancode & 0x7F]);
 
         switch (scancode & 0x7F)
         {

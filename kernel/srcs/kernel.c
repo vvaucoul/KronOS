@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 13:23:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 15:32:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,16 +36,13 @@
 #include <memory/kheap.h>
 #include <memory/paging.h>
 
-// #include <memory/pmm.h>
-// #include <memory/smp.h>
-
 #include <workflows/workflows.h>
 
 MultibootInfo *__multiboot_info = NULL;
 
 static inline void ksh_header(void)
 {
-    kprintf(COLOR_RED "\n \
+    printk(_RED "\n \
    \t\t\t\t\t\t\t##   ###   ##  \n \
    \t\t\t\t\t\t\t ##  ###  ##   \n \
    \t\t\t\t\t\t\t  ## ### ##    \n \
@@ -53,17 +50,17 @@ static inline void ksh_header(void)
    \t\t\t\t\t\t\t  ## ### ##    \n \
    \t\t\t\t\t\t\t ##  ###  ##   \n \
    \t\t\t\t\t\t\t##   ###   ##  \n \
-    \n" COLOR_END);
-    kprintf(COLOR_RED);
+    \n" _END);
+    printk(_RED);
     terminal_write_n_char('#', VGA_WIDTH);
-    kprintf(COLOR_END);
-    kprintf("\n");
+    printk(_END);
+    printk("\n");
 }
 
 void kernel_log_info(const char *part, const char *name)
 {
     if (__DISPLAY_INIT_LOG__)
-        kprintf(COLOR_YELLOW "[%s] " COLOR_END "- " COLOR_GREEN "[INIT] " COLOR_CYAN "%s " COLOR_END "\n", part, name);
+        printk(_YELLOW "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n", part, name);
 }
 
 static void __hhk_log(void)
@@ -96,7 +93,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         if (get_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
-        display_multiboot_infos();
+        // display_multiboot_infos();
     }
     gdt_install();
     kernel_log_info("LOG", "GDT");
@@ -112,84 +109,23 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "KEYBOARD");
     enable_fpu();
     kernel_log_info("LOG", "FPU");
-
-    {
-        // WIP
-        // init_vbe_mode();
-        // kpause();
-        // Init VBE if video mode is VBE (0)
-    }
-
-    display_kernel_memory_map();
-
-    // display_sections();
-    // kprintf("End addr: 0x%x\n", &__kernel_section_end);
-    // kpause();
-
     init_paging();
     kernel_log_info("LOG", "PAGING");
 
+    // SMP -> Wait KFS -> Threads, processus
     // kpause();
     // Require x64 Broadwell Intel (5th Gen) or higher
     // smp_init();
     // kernel_log_info("LOG", "SMP");
     // kpause();
 
-    // display_kernel_memory_map();
-
-    // kprintf("Kernel start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.sections.kernel.kernel_end);
-    // kprintf("Kernel end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", KMAP.available_extended.end_addr);
-    // kprintf("Kernel length: " COLOR_GREEN "0x%x (%u Mo)" COLOR_END "\n", KMAP.available_extended.length, KMAP.available_extended.length / 1024 / 1024);
-
-    // pmm_init(KMAP.available.start_addr, KMAP.available.length);
-    // pmm_init(KMAP.available.start_addr, KMAP.available.length + KMAP.available_extended.length);
-
-    // Todo: Fix memory map & pmm & multiboot kernel memory map
-
-    // pmm_loader_init();
-    // pmm_init_region(KMAP.available.start_addr, PMM_BLOCK_SIZE * 10);
-
-    // kernel_log_info("LOG", "PMM");
-    // pmm_test();
-    // kpause();
-
-    /*
-    ** Init Kernel Heap
-    ** 20 * 4096 = 80 Ko
-    */
-
-    // kprintf("PMM Blocks: %u\n", pmm_get_max_blocks());
-    // kprintf("PMM Used Blocks: %u\n", pmm_get_used_blocks());
-    // kprintf("PMM Size: %u Mo\n", pmm_get_memory_size() / 1024 / 1024);
-
-    // void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
-    // void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
-
-    // kprintf("Kernel Heap start addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_start_addr);
-    // kprintf("Kernel Heap end addr: " COLOR_GREEN "0x%x" COLOR_END "\n", kheap_end_addr);
-    // kprintf("Kernel Heap Size: " COLOR_GREEN "%u (%u Ko)" COLOR_END "\n", (uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr, ((uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr) / 1024);
-    // kpause();
-    // kheap_test();
-    // kpause();
-
-    // if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
-    //     __PANIC("Error: kheap_init failed");
-    // kernel_log_info("LOG", "KHEAP");
-
-    // kheap_test();
-
-    /*
-    ** Init Kernel Paging
-    */
     return (0);
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr)
 {
-    __UNUSED(magic_number);
     __UNUSED(addr);
-    // if (multiboot_check_magic_number(magic_number) == false)
-    //     return (1);
-    // __multiboot_info = (MultibootInfo *)(addr);
+    if (multiboot_check_magic_number(magic_number) == false)
+        return (1);
     return (0);
 }
 
@@ -199,38 +135,11 @@ int kmain(hex_t magic_number, hex_t addr)
     if ((init_kernel(magic_number, addr)))
         return (1);
     if (__DISPLAY_INIT_LOG__)
-        kprintf("\n");
+        printk("\n");
     ASM_STI();
 
-    kprintf("Heap Test\n");
-
-    char *str = (char *)kmalloc(13);
-    kbzero(str, 13);
-    kmemcpy(str, "Hello World!", 12);
-    kprintf("str: %s\n", str);
-    kprintf("Size: %u\n", ksize(str));
-    // kfree(str);
-
-    // kmalloc(2);
-    // kprintf("End\n");
-    // kpause();
-
-    uint32_t i = 0;
-    const uint32_t alloc_size = 13;
-    while (1)
-    {
-        char *str = kmalloc(alloc_size);
-        kbzero(str, alloc_size);
-        kmemcpy(str, "Hello World!", 12);
-        kprintf("[%u | %u (%uMo)] str: %s | 0x%08x 0x%x\n", i, i * alloc_size, i * alloc_size / 1024 / 1024, str, str, get_physical_address(str));
-        // kfree(str);
-        i++;
-        // timer_wait(150);
-    }
-    kprintf("Size: %u\n", ksize(str));
-
-    kpause();
     // kheap_test();
+
     kronos_shell();
     return (0);
 }

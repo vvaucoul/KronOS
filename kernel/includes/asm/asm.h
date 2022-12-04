@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:06:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/18 16:45:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/21 21:01:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@
  *                               INTERRUPT FLAG                                *
  ******************************************************************************/
 
-#define ASM_STI() asm volatile("sti") // Set Interrupt Flag
-#define ASM_CLI() asm volatile("cli") // Clear Interrupt Flag
+#define ASM_STI() __asm__ volatile("sti") // Set Interrupt Flag
+#define ASM_CLI() __asm__ volatile("cli") // Clear Interrupt Flag
 
 #endif /* ASM_H */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/03 23:39:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 15:32:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         if (get_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
-        display_multiboot_infos();
+        // display_multiboot_infos();
     }
     gdt_install();
     kernel_log_info("LOG", "GDT");
@@ -109,91 +109,24 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "KEYBOARD");
     enable_fpu();
     kernel_log_info("LOG", "FPU");
-
-    {
-        // WIP
-        // init_vbe_mode();
-        // kpause();
-        // Init VBE if video mode is VBE (0)
-    }
-
-    display_kernel_memory_map();
-
-    // display_sections();
-    // printk("End addr: 0x%x\n", &__kernel_section_end);
-    // kpause();
-
-    // Todo: Tmp le temps de test les algos
-    // init_paging();
+    init_paging();
     kernel_log_info("LOG", "PAGING");
 
+    // SMP -> Wait KFS -> Threads, processus
     // kpause();
     // Require x64 Broadwell Intel (5th Gen) or higher
     // smp_init();
     // kernel_log_info("LOG", "SMP");
     // kpause();
 
-    // display_kernel_memory_map();
-
-    // printk("Kernel start addr: " _GREEN "0x%x" _END "\n", KMAP.sections.kernel.kernel_end);
-    // printk("Kernel end addr: " _GREEN "0x%x" _END "\n", KMAP.available_extended.end_addr);
-    // printk("Kernel length: " _GREEN "0x%x (%u Mo)" _END "\n", KMAP.available_extended.length, KMAP.available_extended.length / 1024 / 1024);
-
-    // pmm_init(KMAP.available.start_addr, KMAP.available.length);
-    // pmm_init(KMAP.available.start_addr, KMAP.available.length + KMAP.available_extended.length);
-
-    // Todo: Fix memory map & pmm & multiboot kernel memory map
-
-    // pmm_loader_init();
-    // pmm_init_region(KMAP.available.start_addr, PMM_BLOCK_SIZE * 10);
-
-    // kernel_log_info("LOG", "PMM");
-    // pmm_test();
-    // kpause();
-
-    /*
-    ** Init Kernel Heap
-    ** 20 * 4096 = 80 Ko
-    */
-
-    // printk("PMM Blocks: %u\n", pmm_get_max_blocks());
-    // printk("PMM Used Blocks: %u\n", pmm_get_used_blocks());
-    // printk("PMM Size: %u Mo\n", pmm_get_memory_size() / 1024 / 1024);
-
-    // void *kheap_start_addr = pmm_alloc_blocks(PHYSICAL_MEMORY_BLOCKS);
-    // void *kheap_end_addr = (void *)(kheap_start_addr + ((uint32_t)pmm_get_next_available_block() * (PMM_BLOCK_SIZE)));
-
-    // printk("Kernel Heap start addr: " _GREEN "0x%x" _END "\n", kheap_start_addr);
-    // printk("Kernel Heap end addr: " _GREEN "0x%x" _END "\n", kheap_end_addr);
-    // printk("Kernel Heap Size: " _GREEN "%u (%u Ko)" _END "\n", (uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr, ((uint32_t)kheap_end_addr - (uint32_t)kheap_start_addr) / 1024);
-    // kpause();
-    // kheap_test();
-    // kpause();
-
-    // if ((kheap_init(kheap_start_addr, kheap_end_addr)) == 1)
-    //     __PANIC("Error: kheap_init failed");
-    // kernel_log_info("LOG", "KHEAP");
-
-    // kheap_test();
-
-    /*
-    ** Init Kernel Paging
-    */
     return (0);
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr)
 {
-    __UNUSED(magic_number);
     __UNUSED(addr);
-    // if (multiboot_check_magic_number(magic_number) == false)
-    //     return (1);
-    // __multiboot_info = (MultibootInfo *)(addr);
+    if (multiboot_check_magic_number(magic_number) == false)
+        return (1);
     return (0);
-}
-
-static void print_list(void *data)
-{
-    printk("Data: %s\n", data);
 }
 
 int kmain(hex_t magic_number, hex_t addr)
@@ -205,32 +138,7 @@ int kmain(hex_t magic_number, hex_t addr)
         printk("\n");
     ASM_STI();
 
-    printk("Algorithms List test:\n");
-    list_t *list = list_create();
-    
-    list_add_back(list, (char *)"!"); // [2]
-    list_add_front(list, (char *)"Hello"); // [0]
-    list_insert(list, (char *)"World", 1); // [1]
-
-    printk("List size: %u\n", list_size(list));
-    list_iterate(list, print_list);
-
-    list_clear(list);
-    list_iterate(list, print_list);
-    printk("Is Empty: %s\n", list_is_empty(list) ? "true" : "false");
-    list_destroy(list);
-
-    list = list_create();
-    list_add_back(list, (char *)"World");
-    list_add_back(list, (char *)"Hello");
-    list_add_back(list, (char *)"!");
-    list_sort(list, cmp_string);
-    list_iterate(list, print_list);
-    printk("List %d = %s\n", 1, list_get(list, 1));
-
-    printk("End of list\n");
-
-    kpause();
+    // kheap_test();
 
     kronos_shell();
     return (0);

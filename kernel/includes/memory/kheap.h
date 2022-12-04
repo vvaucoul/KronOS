@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 17:52:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 13:39:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ typedef struct s_heap_footer
     heap_header_t *header;
 } heap_footer_t;
 
-typedef bool (*heap_node_predicate_t)(data_t *, data_t *);
+typedef bool (*heap_node_predicate_t)(data_t, data_t);
 
 typedef struct s_heap_array
 {
@@ -95,16 +95,6 @@ typedef struct s_heap
     } flags;
 } heap_t;
 
-// typedef struct s_heap
-// {
-//     ordered_array_t index;
-//     uint32_t start_address;
-//     uint32_t end_address;
-//     uint32_t max_address;
-//     uint8_t supervisor;
-//     uint8_t readonly;
-// } heap_t;
-
 extern heap_t *kheap;
 extern uint32_t placement_addr;
 
@@ -119,7 +109,7 @@ extern void *kmalloc_ap(uint32_t size, uint32_t *phys);
 
 extern void *kmalloc(uint32_t size);
 extern void *krealloc(void *ptr, uint32_t size);
-extern void *kcalloc(void *ptr, uint32_t size);
+extern void *kcalloc(uint32_t count, uint32_t size);
 
 extern void kfree(void *ptr);
 
@@ -131,10 +121,11 @@ extern void init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr,
 
 extern data_t kheap_alloc(uint32_t size, bool align, heap_t *heap);
 extern void kheap_free(void *ptr, heap_t *heap);
-extern uint32_t kheap_get_ptr_size(void *ptr, heap_t *heap);
+extern uint32_t kheap_get_ptr_size(void *ptr);
 
 extern void *vmalloc(uint32_t size);
-extern void *vfree(void *addr);
+extern void *vbrk(uint32_t size);
+extern void vfree(void *addr);
 extern void *vrealloc(void *addr, uint32_t size);
 extern void *vcalloc(uint32_t size);
 extern uint32_t vsize(void *addr);
@@ -147,8 +138,7 @@ extern heap_array_t heap_array_create(void *addr, uint32_t max_size, heap_node_p
 extern void heap_array_insert_element(data_t data, heap_array_t *array);
 extern data_t heap_array_get_element(uint32_t index, heap_array_t *array);
 extern void heap_array_remove_element(uint32_t index, heap_array_t *array);
-
-// extern void *alloc(uint32_t size, uint8_t align, heap_t *heap);
-// extern void free(void *p, heap_t *heap);
+extern void heap_destroy(heap_array_t *array);
+extern bool heap_predicate(data_t a, data_t b);
 
 #endif /* !KHEAP_H */

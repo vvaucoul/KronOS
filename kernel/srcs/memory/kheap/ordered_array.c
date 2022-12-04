@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 09:57:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:28:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 00:20:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void insert_ordered_array(type_t item, ordered_array_t *array)
     uint32_t iterator = 0;
     while (iterator < array->size && array->less_than(array->array[iterator], item))
         iterator++;
-    if (iterator == array->size) // just add at the end of the array.
+    if (iterator == array->size)
         array->array[array->size++] = item;
     else
     {
@@ -83,4 +83,3 @@ void remove_ordered_array(uint32_t i, ordered_array_t *array)
     }
     array->size--;
 }
-

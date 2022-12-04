@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:28:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/03 23:52:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void init_paging(void)
 
     kernel_directory = (page_directory_t *)kmalloc_a(sizeof(page_directory_t));
     memset(kernel_directory, 0, sizeof(page_directory_t));
-    // kernel_directory->physicalAddr = (uint32_t)kernel_directory->tablesPhysical;
+    kernel_directory->physicalAddr = (uint32_t)kernel_directory->tablesPhysical;
     current_directory = kernel_directory;
 
     /* Map Kernel Heap Area */

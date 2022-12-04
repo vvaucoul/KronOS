@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/21 19:27:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 15:29:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,10 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
         if (phys)
         {
             page_t *page = get_page((uint32_t)addr, kernel_directory);
-            *phys = page->frame * PAGE_SIZE + ((uint32_t)addr & 0xFFF);
+            if (!page)
+                *phys = 0;
+            else
+                *phys = page->frame * PAGE_SIZE + ((uint32_t)addr & 0xFFF);
         }
         return (addr);
     }
@@ -65,22 +68,40 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
 
 static uint32_t __ksize(void *ptr)
 {
-    return (kheap_get_ptr_size(ptr, kheap));
+    return (kheap_get_ptr_size(ptr));
 }
 
 static void *__krealloc(void *ptr, uint32_t size)
 {
-    return (0);
+    void *new_ptr = NULL;
+
+    if (ptr == NULL)
+        return (NULL);
+    else
+    {
+        new_ptr = kmalloc(size);
+        if (new_ptr == NULL)
+            return (NULL);
+        memcpy(new_ptr, ptr, size);
+        kfree(ptr);
+    }
+    return (new_ptr);
 }
 
-static void *__kcalloc(void *ptr, uint32_t size)
+static void *__kcalloc(uint32_t count, uint32_t size)
 {
-    return (0);
+    void *ptr = kmalloc(count * size);
+
+    if (ptr == NULL)
+        return (NULL);
+    memset(ptr, 0, count * size);
+    return (ptr);
 }
 
 static void __kfree(void *ptr)
 {
-    kheap_free(ptr, kheap);
+    if (kheap)
+        kheap_free(ptr, kheap);
 }
 
 static uint8_t header_t_less_than(void *a, void *b)
@@ -100,7 +121,7 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
 
     heap->array = heap_array_create((void *)start_addr, HEAP_INDEX_SIZE, &header_t_less_than);
 
-    start_addr += sizeof(type_t) * HEAP_INDEX_SIZE;
+    start_addr += sizeof(data_t) * HEAP_INDEX_SIZE;
 
     if (start_addr & 0xFFFFF000)
     {
@@ -119,6 +140,10 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
     hole->magic = KHEAP_MAGIC;
     hole->state = FREE;
     heap_array_insert_element((void *)hole, &heap->array);
+
+    printk("KHEAP : Heap created at 0x%x\n", start_addr);
+    printk("KHEAP : Heap Start size : 0x%x (%u Octets)\n", end_addr - start_addr, end_addr - start_addr);
+    printk("KHEAP : Heap max size : 0x%x (%u Mo)\n", max_addr - start_addr, max_addr - start_addr / 1024 / 1024);
 
     return (heap);
 }
@@ -160,8 +185,7 @@ void *kmalloc(uint32_t size)
 
 void kfree(void *ptr)
 {
-    // Todo : Free memory
-    // __kfree(ptr);
+    __kfree(ptr);
 }
 
 void *krealloc(void *ptr, uint32_t size)
@@ -169,9 +193,9 @@ void *krealloc(void *ptr, uint32_t size)
     return (__krealloc(ptr, size));
 }
 
-void *kcalloc(void *ptr, uint32_t size)
+void *kcalloc(uint32_t count, uint32_t size)
 {
-    return (__kcalloc(ptr, size));
+    return (__kcalloc(count, size));
 }
 
 void *kbrk(uint32_t size)

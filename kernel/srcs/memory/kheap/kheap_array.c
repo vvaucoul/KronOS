@@ -6,11 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 16:47:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/21 14:09:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/04 14:12:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/kheap.h>
+
+bool heap_predicate(data_t a, data_t b)
+{
+    return (a < b) ? true : false;
+}
 
 heap_array_t heap_array_create(void *addr, uint32_t max_size, heap_node_predicate_t predicate)
 {
@@ -18,10 +23,9 @@ heap_array_t heap_array_create(void *addr, uint32_t max_size, heap_node_predicat
 
     heap_array.array = (data_t *)addr;
     memset(heap_array.array, 0, max_size * sizeof(data_t));
-    heap_array.max_size = max_size;
     heap_array.size = 0;
+    heap_array.max_size = max_size;
     heap_array.predicate = predicate;
-
     return (heap_array);
 }
 
@@ -32,14 +36,13 @@ void heap_array_insert_element(data_t data, heap_array_t *array)
     uint32_t index = 0;
 
     /* Find the right place to insert the data */
-    while (index < array->size && array->predicate(array->array[index], data) == 1)
+    while (index < array->size && array->predicate(array->array[index], data))
         index++;
 
     /* If the index is at the end of the array, just add the data at the end */
     if (index == array->size)
     {
-        array->array[array->size] = data;
-        array->size++;
+        array->array[array->size++] = data;
     }
     /* Else, we need to shift the array to the right */
     else
@@ -61,13 +64,13 @@ void heap_array_insert_element(data_t data, heap_array_t *array)
 
 data_t heap_array_get_element(uint32_t index, heap_array_t *array)
 {
-    assert(index < array->size);
+    assert(index <= array->size);
     return (array->array[index]);
 }
 
 void heap_array_remove_element(uint32_t index, heap_array_t *array)
 {
-    assert(index < array->size);
+    assert(index <= array->size);
 
     /* Shift all the elements after the index to the left */
     while (index < array->size)
@@ -76,4 +79,9 @@ void heap_array_remove_element(uint32_t index, heap_array_t *array)
         index++;
     }
     array->size--;
+}
+
+void heap_destroy(heap_array_t *array)
+{
+    kfree(array->array);
 }

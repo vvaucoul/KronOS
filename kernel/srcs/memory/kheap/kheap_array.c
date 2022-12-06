@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 16:47:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/04 14:12:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 12:10:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,22 +35,18 @@ void heap_array_insert_element(data_t data, heap_array_t *array)
 
     uint32_t index = 0;
 
-    /* Find the right place to insert the data */
     while (index < array->size && array->predicate(array->array[index], data))
         index++;
 
-    /* If the index is at the end of the array, just add the data at the end */
     if (index == array->size)
     {
         array->array[array->size++] = data;
     }
-    /* Else, we need to shift the array to the right */
     else
     {
         data_t tmp = array->array[index];
         array->array[index] = data;
 
-        /* Move all the elements after the index */
         while (index < array->size)
         {
             index++;
@@ -72,7 +68,6 @@ void heap_array_remove_element(uint32_t index, heap_array_t *array)
 {
     assert(index <= array->size);
 
-    /* Shift all the elements after the index to the left */
     while (index < array->size)
     {
         array->array[index] = array->array[index + 1];

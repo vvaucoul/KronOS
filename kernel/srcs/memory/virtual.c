@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:49:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/04 15:32:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 12:53:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,37 +14,28 @@
 
 void *vmalloc(uint32_t size)
 {
-    uint32_t phys = 0;
-    void *addr = kmalloc_ap(size, &phys);
-
-    if (!addr)
-        return (NULL);
-    return (addr);
-    // else if (!phys)
-    //     return (NULL);
-    // return ((void *)phys);
+    return (kmalloc_v(size));
 }
 
 void vfree(void *addr)
 {
-    kfree(addr);
+    kfree_v(addr);
 }
 
 void *vrealloc(void *addr, uint32_t size)
 {
     void *new_addr = vmalloc(size);
-    void *old_addr = get_physical_address(addr);
 
     if (!new_addr)
         return (NULL);
-    memcpy(new_addr, old_addr, size);
-    kfree(old_addr);
+    memcpy(new_addr, addr, size);
+    kfree(addr);
     return (new_addr);
 }
 
-void *vcalloc(uint32_t size)
+void *vcalloc(uint32_t count, uint32_t size)
 {
-    void *addr = vmalloc(size);
+    void *addr = vmalloc(count * size);
 
     if (!addr)
         return (NULL);

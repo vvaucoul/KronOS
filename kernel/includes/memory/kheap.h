@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/04 13:39:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 12:51:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,12 +106,15 @@ extern void *kmalloc_int(uint32_t size, bool align, uint32_t *phys);
 extern void *kmalloc_a(uint32_t size);
 extern void *kmalloc_p(uint32_t size, uint32_t *phys);
 extern void *kmalloc_ap(uint32_t size, uint32_t *phys);
+extern void *kmalloc_v(uint32_t size);
 
 extern void *kmalloc(uint32_t size);
 extern void *krealloc(void *ptr, uint32_t size);
 extern void *kcalloc(uint32_t count, uint32_t size);
 
 extern void kfree(void *ptr);
+extern void kfree_v(void *ptr);
+extern void kfree_p(void *ptr);
 
 extern void *kbrk(uint32_t size);
 
@@ -127,7 +130,7 @@ extern void *vmalloc(uint32_t size);
 extern void *vbrk(uint32_t size);
 extern void vfree(void *addr);
 extern void *vrealloc(void *addr, uint32_t size);
-extern void *vcalloc(uint32_t size);
+extern void *vcalloc(uint32_t count, uint32_t size);
 extern uint32_t vsize(void *addr);
 
 /*******************************************************************************

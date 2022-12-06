@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/04 15:29:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 12:48:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
     /* If Heap exists -> Heap Algorithm with Virtual Memory */
     if (kheap)
     {
-        // void *addr = kheap_tree_alloc_memory(size);
         void *addr = kheap_alloc(size, align, kheap);
         if (phys)
         {
@@ -181,6 +180,21 @@ void *kmalloc_ap(uint32_t size, uint32_t *phys)
 void *kmalloc(uint32_t size)
 {
     return (__kmalloc_int(size, 0, 0));
+}
+
+void *kmalloc_v(uint32_t size)
+{
+    return (__kmalloc_int(size, 0, 0));
+}
+
+void kfree_v(void *ptr)
+{
+    __kfree(ptr);
+}
+
+void kfree_p(void *ptr)
+{
+    __kfree(get_virtual_address(ptr));
 }
 
 void kfree(void *ptr)

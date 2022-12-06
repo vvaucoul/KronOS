@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:37:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 18:36:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 12:08:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@ void display_kernel_memory_map(void)
     {
         printk(_GREEN "[%u]"_END
                       ": "_CYAN
-                      "0x%08x"_END
+                      "0x%x"_END
                       " - "_CYAN
-                      "0x%08x"_END
+                      "0x%x"_END
                       " ["_GREEN
                       "%uKo"_END
                       "] ("_CYAN

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/04 15:32:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 13:03:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,8 @@ int kmain(hex_t magic_number, hex_t addr)
     if (__DISPLAY_INIT_LOG__)
         printk("\n");
     ASM_STI();
+
+    // kpause();
 
     // kheap_test();
 

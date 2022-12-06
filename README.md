@@ -95,6 +95,9 @@ make run-iso
 * [x] Scroll and Cursor support
 * [x] Colors support
 * [x] A Complete GDT system
+* [x] A Complete Memory system
+* [x] Kernel Heap
+* [x] Physical and Virtual Memory
 
 ### GRUB 2 with Multiboot 1
 

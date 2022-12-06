@@ -52,7 +52,7 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 
 * [x] <strong>KFS-1</strong> : Grub / Boot and Screen
 * [x] <strong>KFS-2</strong> : GDT & Stack
-* [ ] <strong>KFS-3</strong> : Memory -----------> ***Almost Done***
+* [x] <strong>KFS-3</strong> : Memory
 * [ ] <strong>KFS-4</strong> : Interrupts
 * [ ] <strong>KFS-5</strong> : Processes
 * [ ] <strong>KFS-6</strong> : Filesystem
@@ -160,22 +160,8 @@ flowchart LR
 
 ### WIP
 
-- Enable memory paging.
-- Code a memory structure that handle paging and memory rights.
-- Define Kernel and User space memory.
-- Functions to create / get memory pages.
-- Functions to allocate, free and get size of a variable. (Physical and Virtual)
-  - kmalloc
-  - kfree
-  - ksize
-  - kbrk
-  - vmalloc
-  - vfree
-  - vsize
-  - vbrk
-- Handle "Kernel Panic"
-- Read and Write on memory.
-
+- IDT
+- Save stack and clear memory when kernel panic !
 
 
 🚧 ... Next redaction pending ...🚧

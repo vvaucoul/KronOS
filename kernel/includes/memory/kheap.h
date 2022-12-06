@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 12:51:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 13:06:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@
 #include <memory/memory.h>
 #include <memory/memory_map.h>
 
-#include <memory/ordered_array.h>
-
 #define KHEAP_START 0xC0000000
 #define KHEAP_MAX_SIZE 0xCFFFF000
 #define KHEAP_INITIAL_SIZE 0x100000
@@ -27,21 +25,6 @@
 #define HEAP_INDEX_SIZE 0x20000
 #define HEAP_MIN_SIZE 0x70000
 #define PHYSICAL_MEMORY_SIZE 0x1000000
-
-/* Split blocks into 3 heaps */
-#define KHEAP_SIZE_LOW 0x1000
-#define KHEAP_SIZE_MEDIUM 0x10000
-#define KHEAP_SIZE_HIGH 0x100000
-
-#define KHEAP_BLOCK_SIZE_LOW (KHEAP_SIZE_LOW / 32)
-#define KHEAP_BLOCK_SIZE_MEDIUM (KHEAP_SIZE_MEDIUM / 32)
-#define KHEAP_BLOCK_SIZE_HIGH (KHEAP_SIZE_HIGH / 32)
-
-#define KHEAP_INDEX_LOW 0x0
-#define KHEAP_INDEX_MEDIUM 0x1
-#define KHEAP_INDEX_HIGH 0x2
-
-#define KHEAP_SIZE 0x3
 
 enum kheap_block_status
 {

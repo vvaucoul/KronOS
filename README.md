@@ -15,30 +15,33 @@ The kernel is currently not finished. I will make major improvements as soon as 
 
 ### Requirements
 
-* <strong>GCC</strong> (https://gcc.gnu.org/)
-* <strong>CLANG</strong> (https://clang.llvm.org/)
-* <strong>KVM</strong> (https://www.linux-kvm.org/)
-* <strong>QEMU</strong> (https://qemu.org/)
+* <strong>GCC</strong> (<https://gcc.gnu.org/>)
+* <strong>CLANG</strong> (<https://clang.llvm.org/>)
+* <strong>KVM</strong> (<https://www.linux-kvm.org/>)
+* <strong>QEMU</strong> (<https://qemu.org/>)
 
 ### Setup
 
-- Clone Kernel Repository
+* Clone Kernel Repository
+
 ```bash
 git clone https://github.com/vvaucoul/KronOS && cd KronOS
 ```
 
-- Install dependencies
+* Install dependencies
+
 ```bash
 make install-dependencies
 ```
 
-- Compiling Kernel
+* Compiling Kernel
 
 ```bash
 make 
 ```
 
-- Start the Kernel
+* Start the Kernel
+
 ```bash
 make run / make run-iso / make run-sdl / make run-curses / make run-debug
 ```
@@ -47,51 +50,51 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 
 ### KFS - SERIES
 
-- [x] <strong>KFS-1</strong> : Grub / Boot and Screen
-- [x] <strong>KFS-2</strong> : GDT & Stack
-- [ ] <strong>KFS-3</strong> : Memory -----------> ***Almost Done***
-- [ ] <strong>KFS-4</strong> : Interrupts
-- [ ] <strong>KFS-5</strong> : Processes
-- [ ] <strong>KFS-6</strong> : Filesystem
-- [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
-- [ ] <strong>KFS-8</strong> : Kernel Modules
-- [ ] <strong>KFS-9</strong> : ELF Parser
-- [ ] <strong>KFS-X</strong> : Complete Unix System
+* [x] <strong>KFS-1</strong> : Grub / Boot and Screen
+* [x] <strong>KFS-2</strong> : GDT & Stack
+* [x] <strong>KFS-3</strong> : Memory
+* [ ] <strong>KFS-4</strong> : Interrupts
+* [ ] <strong>KFS-5</strong> : Processes
+* [ ] <strong>KFS-6</strong> : Filesystem
+* [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
+* [ ] <strong>KFS-8</strong> : Kernel Modules
+* [ ] <strong>KFS-9</strong> : ELF Parser
+* [ ] <strong>KFS-X</strong> : Complete Unix System
 
 ##### Documentation
 
-- <strong>[WIKI OSDEV](https://wiki.osdev.org/Expanded_Main_Page)</strong>
-- <strong>[OSDEVER](http://www.osdever.net/bkerndev/Docs/title.htm)</strong>
-- <strong>[PAGING](http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html)</strong>
-- <strong>[CODE PROJECT](https://www.codeproject.com/Articles/1225196/Create-Your-Own-Kernel-In-C-2)</strong>
-- <strong>[MEMORY MANAGMENT](https://www.reddit.com/r/osdev/comments/v97asm/memory_management/)</strong>
+* <strong>[WIKI OSDEV](https://wiki.osdev.org/Expanded_Main_Page)</strong>
+* <strong>[OSDEVER](http://www.osdever.net/bkerndev/Docs/title.htm)</strong>
+* <strong>[PAGING](http://www.jamesmolloy.co.uk/tutorial_html/6.-Paging.html)</strong>
+* <strong>[CODE PROJECT](https://www.codeproject.com/Articles/1225196/Create-Your-Own-Kernel-In-C-2)</strong>
+* <strong>[MEMORY MANAGMENT](https://www.reddit.com/r/osdev/comments/v97asm/memory_management/)</strong>
 
 ---
 
 ### Compilation
 
 ```bash
-$ make
+make
 ```
 
 ### Running
 
 ```bash
-$ make run
-$ make run-iso
+make run
+make run-iso
 ```
 
 ### Features
 
-- [x] Basic Kernel System
-- [x] Boot via Grub 2
-- [x] ASM Bootable base
-- [x] Kernel Library with basics functions and types 
-- [x] Keyboard Support
-- [x] VGA Support
-- [x] Scroll and Cursor support
-- [x] Colors support
-- [x] A Complete GDT system
+* [x] Basic Kernel System
+* [x] Boot via Grub 2
+* [x] ASM Bootable base
+* [x] Kernel Library with basics functions and types
+* [x] Keyboard Support
+* [x] VGA Support
+* [x] Scroll and Cursor support
+* [x] Colors support
+* [x] A Complete GDT system
 
 ### GRUB 2 with Multiboot 1
 
@@ -152,6 +155,13 @@ flowchart LR
 
 <img align="left" src="https://user-images.githubusercontent.com/66129673/198578135-22a31ce5-4818-48a5-aa49-10b455246907.png" width="45%"></img>
 <img src="https://user-images.githubusercontent.com/66129673/198578277-04a26731-7116-47b8-9308-1e8927d388cd.png" width="45%"></img>
+
+---
+
+### WIP
+
+- IDT
+- Save stack and clear memory when kernel panic !
 
 
 🚧 ... Next redaction pending ...🚧

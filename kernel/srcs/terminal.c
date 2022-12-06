@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:10:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:02:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ static void terminal_write(const char *data, size_t size)
 
 void terminal_writestring(const char *data)
 {
-    terminal_write(data, kstrlen(data));
+    terminal_write(data, strlen(data));
 }
 
 void terminal_writestring_location(const char *data, size_t x, size_t y)
@@ -90,7 +90,7 @@ void terminal_writestring_location(const char *data, size_t x, size_t y)
     size_t ux = x;
     size_t uy = y;
 
-    for (size_t i = 0; i < kstrlen(data); i++)
+    for (size_t i = 0; i < strlen(data); i++)
     {
         char c = data[i];
         terminal_putentryat(c, terminal_color, ux, uy);

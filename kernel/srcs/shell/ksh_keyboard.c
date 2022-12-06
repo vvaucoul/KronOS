@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 22:55:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:13:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void ksh_update_terminal_shell_buffer(void)
     for (size_t y = __terminal_row; y < VGA_HEIGHT; y++)
     {
         DISPLAY_PROMPT();
-        kprintf("%s\n", KSH_LINE(y));
+        printk("%s\n", KSH_LINE(y));
     }
 }
 
@@ -54,7 +54,7 @@ void ksh_move_buffer_offset_down(size_t offset)
 {
     (void)offset;
     KSH_CLR_TERM_SH();
-    kprintf("Update buffer down\n");
+    printk("Update buffer down\n");
     // KSH_UPDATE_TERM_SH();
     // terminal_row = VGA_HEIGHT - 1;
     // terminal_column = __PROMPT_ASCII_LEN__;

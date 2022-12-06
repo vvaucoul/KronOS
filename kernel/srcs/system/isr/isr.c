@@ -6,11 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:11:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 20:58:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/isr.h>
+#include <system/panic.h>
+#include <memory/memory.h>
+
+ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS] = {0};
 
 extern void isr0();  // Division By Zero Exception
 extern void isr1();  // Debug Exception
@@ -119,13 +123,28 @@ void isrs_install()
     idt_set_gate(31, (unsigned)isr31, 0x08, 0x8E);
 }
 
+void isr_register_interrupt_handler(int num, ISR handler)
+{
+    if (num < NB_INTERRUPT_HANDLERS)
+        idt_set_gate(num, (unsigned)handler, 0x08, 0x8E);
+    // g_interrupt_handlers[num] = handler;
+}
+
 void fault_handler(struct regs *r)
 {
+    KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
+    // if (r->int_no == 14)
+    //     __page_fault(r);
     if (r->int_no < 32)
     {
-        kuputs(exception_messages[r->int_no]);
-        kputs(" Exception. System Halted!\n");
-        for (;;)
-            ;
+        __PANIC_MULTISTR(((const char *[3]){
+                             (const char *)(exception_messages[r->int_no]),
+                             (const char *)("Exception. System Halted !"),
+                             NULL}),
+                         2);
+    }
+    else
+    {
+        __PANIC("Unknown Interrupt. System Halted !");
     }
 }

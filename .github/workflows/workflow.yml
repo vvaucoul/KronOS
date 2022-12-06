@@ -1,0 +1,17 @@
+name: Kronos Kernel Workflow
+
+on:
+  push:
+    branches: [ "main", "memory-system", "work-in-progress" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Installing dependencies
+      run : make install-dependencies
+    - name: Compiling Kernel
+      run: make

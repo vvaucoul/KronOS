@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 12:48:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 20:57:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,11 +139,6 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
     hole->magic = KHEAP_MAGIC;
     hole->state = FREE;
     heap_array_insert_element((void *)hole, &heap->array);
-
-    printk("KHEAP : Heap created at 0x%x\n", start_addr);
-    printk("KHEAP : Heap Start size : 0x%x (%u Octets)\n", end_addr - start_addr, end_addr - start_addr);
-    printk("KHEAP : Heap max size : 0x%x (%u Mo)\n", max_addr - start_addr, max_addr - start_addr / 1024 / 1024);
-
     return (heap);
 }
 

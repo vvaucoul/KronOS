@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 20:58:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,6 @@ void isrs_install()
 
 void isr_register_interrupt_handler(int num, ISR handler)
 {
-    printk("IRQ %d registered\n", num);
     if (num < NB_INTERRUPT_HANDLERS)
         idt_set_gate(num, (unsigned)handler, 0x08, 0x8E);
     // g_interrupt_handlers[num] = handler;

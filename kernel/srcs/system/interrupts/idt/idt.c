@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:09:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 20:56:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 00:47:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/idt.h>
+#include <system/isr.h>
 
 struct idt_entry idt[IDT_SIZE];
 struct idt_ptr idtp;
@@ -29,11 +30,12 @@ void idt_set_gate(unsigned char num, unsigned long base, unsigned short sel, uns
 void idt_install()
 {
     /* Sets the special IDT pointer up, just like in 'gdt.c' */
-    idtp.limit = (sizeof(struct idt_entry) * 256) - 1;
+    idtp.limit = (sizeof(struct idt_entry) * IDT_SIZE) - 1;
     idtp.base = (unsigned int)&idt;
 
     /* Clear out the entire IDT, initializing it to zeros */
-    memset(&idt, 0, sizeof(struct idt_entry) * 256);
+    memset(&idt, 0, sizeof(struct idt_entry) * IDT_SIZE);
 
+    /* Load IDT */
     idt_load();
 }

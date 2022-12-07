@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/07/09 12:11:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 00:56:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,16 +46,23 @@ void irq_uninstall_handler(int irq)
 
 void irq_remap(void)
 {
-    outportb(0x20, 0x11);
-    outportb(0xA0, 0x11);
-    outportb(0x21, 0x20);
-    outportb(0xA1, 0x28);
-    outportb(0x21, 0x04);
-    outportb(0xA1, 0x02);
-    outportb(0x21, 0x01);
-    outportb(0xA1, 0x01);
-    outportb(0x21, 0x0);
-    outportb(0xA1, 0x0);
+    uint32_t master_mask = inb(MASTER_DATA);
+    uint32_t slave_mask = inb(SLAVE_DATA);
+
+    outportb(MASTER_PIC, ICW1_INIT | ICW1_ICW4);
+    outportb(SLAVE_PIC, ICW1_INIT | ICW1_ICW4);
+
+    outportb(MASTER_DATA, MASTER_OFFSET);
+    outportb(SLAVE_DATA, SLAVE_OFFSET);
+
+    outportb(MASTER_DATA, ICW3_MASTER);
+    outportb(SLAVE_DATA, ICW3_SLAVE);
+
+    outportb(MASTER_DATA, ICW4_8086);
+    outportb(SLAVE_DATA, ICW4_8086);
+
+    outportb(MASTER_DATA, master_mask);
+    outportb(SLAVE_DATA, slave_mask);
 }
 
 void irq_install()
@@ -86,11 +93,15 @@ void irq_handler(struct regs *r)
     handler = irq_routines[r->int_no - 32];
     if (handler)
     {
-        handler(r);
+        /* Call the handler. */
+        if (handler)
+            handler(r);
     }
     if (r->int_no >= 40)
     {
-        outportb(0xA0, 0x20);
+        /* Send reset signal to slave. */
+        outportb(SLAVE_PIC, IRQ_EOI);
     }
-    outportb(0x20, 0x20);
+    /* Send reset signal to master. (As well as slave, if necessary). */
+    outportb(MASTER_PIC, IRQ_EOI);
 }

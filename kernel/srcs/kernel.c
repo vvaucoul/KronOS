@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 20:50:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 11:39:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,8 @@ int kmain(hex_t magic_number, hex_t addr)
     if (__DISPLAY_INIT_LOG__)
         printk("\n");
     ASM_STI();
+
+    // interrupts_test();
 
     kronos_shell();
     return (0);

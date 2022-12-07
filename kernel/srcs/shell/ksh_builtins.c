@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 12:09:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 23:49:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #include <system/gdt.h>
 #include <multiboot/multiboot.h>
 #include <system/sections.h>
-// #include <memory/memory_map.h>
-// #include <memory/pmm.h>
+
+#include <drivers/keyboard.h>
 
 #include <workflows/workflows.h>
 
@@ -34,6 +34,8 @@ static void __ksh_help(void)
     printk("- " _GREEN "sections" _END ": display kernel sections\n");
     printk("- " _GREEN "mboot" _END "/" _GREEN "multiboot" _END ": display multiboot info\n");
     printk("- " _GREEN "kmmap" _END ": display kernel memory info\n");
+    printk("- " _GREEN "kbdfr" _END ": set keyboard to french layout\n");
+    printk("- " _GREEN "kbdus" _END ": set keyboard to english layout\n");
 }
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -61,6 +63,8 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"help", ""}, &__ksh_help);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kbdfr", ""}, &set_keyboard_lang);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kbdus", ""}, &set_keyboard_lang);
 }
 
 void __ksh_execute_builtins(const char *name)

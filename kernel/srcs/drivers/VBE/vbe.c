@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 18:33:27 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:55:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 11:09:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ static int get_vbe_info(void)
     regs_in.ax = 0x4F00;
     regs_in.di = BIOS_MEMORY;
     int86(0x10, &regs_in, &regs_out);
-    return (0);
+    memcpy(&vbe, (void *)BIOS_MEMORY, sizeof(vbe_t));
+    return (regs_out.ax == 0x004F);
 }
 
 void init_vbe_mode(void)
@@ -54,6 +55,9 @@ void init_vbe_mode(void)
         printk("VESA VBE 2.0 Mode not supported\n");
         return;
     }
+    else
+        printk("VESA VBE 2.0 Mode supported\n");
+    kpause();
 
     vbe_enable_cursor(0, 15);
     vbe_update_cursor(0, 0);

@@ -6,15 +6,46 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 20:58:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 11:24:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/isr.h>
-#include <system/panic.h>
 #include <memory/memory.h>
+#include <system/kerrno.h>
 
 ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS] = {0};
+panic_t exceptions_errors[32] = {
+    FAULT,     // Divide-by-zero
+    FAULT,     // Debug
+    INTERRUPT, // Non-maskable
+    TRAP,      // Breakpoint
+    TRAP,      // Overflow
+    FAULT,     // Bound Range Exceed
+    FAULT,     // Invalid Opcode
+    FAULT,     // Device Not
+    ABORT,     // Double Fault
+    FAULT,     // Coprocessor
+    FAULT,     // Invalid TSS
+    FAULT,     // Segment Not
+    FAULT,     // Stack-Segment
+    FAULT,     // General Protection
+    FAULT,     // Page Fault
+    FAULT,     // Unknown Interrupt
+    FAULT,     // x87 FPU Floating-Point
+    FAULT,     // Alignment Check
+    ABORT,     // Machine Check
+    FAULT,     // SIMD Floating-Point
+    FAULT,     // Virtualization
+    FAULT,     // Control Protection
+    FAULT,     // Reserved
+    FAULT,     // Hypervisor
+    FAULT,     // VMM Communication
+    FAULT,     // Security
+    FAULT,     // Reserved
+    FAULT,     // Triple Fault
+    INTERRUPT  // FPU Error Interrupt
+};
 
 extern void isr0();  // Division By Zero Exception
 extern void isr1();  // Debug Exception
@@ -88,7 +119,6 @@ unsigned char *exception_messages[ISR_MAX_COUNT] =
 
 void isrs_install()
 {
-
     idt_set_gate(0, (unsigned)isr0, 0x08, 0x8E);
     idt_set_gate(1, (unsigned)isr1, 0x08, 0x8E);
     idt_set_gate(2, (unsigned)isr2, 0x08, 0x8E);
@@ -127,24 +157,34 @@ void isr_register_interrupt_handler(int num, ISR handler)
 {
     if (num < NB_INTERRUPT_HANDLERS)
         idt_set_gate(num, (unsigned)handler, 0x08, 0x8E);
-    // g_interrupt_handlers[num] = handler;
 }
 
 void fault_handler(struct regs *r)
 {
     KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
-    // if (r->int_no == 14)
-    //     __page_fault(r);
+
     if (r->int_no < 32)
     {
-        __PANIC_MULTISTR(((const char *[3]){
-                             (const char *)(exception_messages[r->int_no]),
-                             (const char *)("Exception. System Halted !"),
-                             NULL}),
-                         2);
+        panic_t error = exceptions_errors[r->int_no];
+
+        switch (error)
+        {
+        case ABORT:
+            __PANIC((const char *)exception_messages[r->int_no]);
+            break;
+        case FAULT:
+            __FAULT((const char *)exception_messages[r->int_no]);
+            break;
+        case TRAP:
+            __TRAP((const char *)exception_messages[r->int_no]);
+            break;
+        case INTERRUPT:
+            __INTERRUPT((const char *)exception_messages[r->int_no]);
+            break;
+        }
     }
     else
     {
-        __PANIC("Unknown Interrupt. System Halted !");
+        __FAULT((const char *)exception_messages[r->int_no]);
     }
 }

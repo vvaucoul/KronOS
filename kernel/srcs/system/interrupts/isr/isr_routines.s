@@ -253,25 +253,42 @@ isr31:
 extern fault_handler
 
 isr_common_stub:
+    ; Save the registers
     pusha
+
+    ; Save the segment registers
     push ds
     push es
     push fs
     push gs
+
+    ; Set the data segment to 0x10
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
+
+    ; Save the stack pointer
     mov eax, esp
     push eax
+
+    ; Call the fault handler
     mov eax, fault_handler
     call eax
+
+    ; Restore the stack pointer
     pop eax
     pop gs
     pop fs
     pop es
     pop ds
+    
+    ; Restore the registers
     popa
+
+    ; Restore the stack
     add esp, 8
+
+    ; Restore the interrupt flag
     iret

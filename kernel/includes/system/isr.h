@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/18 19:53:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/06 22:11:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,4 @@ extern ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS];
 void isrs_install();
 void isr_register_interrupt_handler(int num, ISR handler);
 
-#endif // !ISR_H
+#endif /* !ISR_H */

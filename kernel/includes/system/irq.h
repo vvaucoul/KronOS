@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:54:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 22:58:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 18:48:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,19 @@
 +--------------------+------------+------------+------------+-------+
 */
 
+typedef uint8_t irq_code_t;
+
+typedef struct s_irqs
+{
+    char *name;
+    irq_code_t code;
+    panic_t type;
+    char *exception;
+    bool zero;
+} __attribute__((packed)) irqs_t;
+
+extern irqs_t g_irqs[ISR_MAX_COUNT];
+
 /* PICS */
 #define MASTER_PIC 0x20
 #define SLAVE_PIC 0xA0
@@ -80,7 +93,7 @@
 #define ICW3_SLAVE 0x02  /* IRQ2 <- connection from master */
 
 #define MASTER_OFFSET 0x20 /* IRQ0-7 mapped to 0x20-0x27 */
-#define SLAVE_OFFSET 0x28 /* IRQ8-15 mapped to 0x28-0x2F */
+#define SLAVE_OFFSET 0x28  /* IRQ8-15 mapped to 0x28-0x2F */
 
 /* End of Interrupt */
 #define IRQ_EOI 0x20
@@ -89,6 +102,6 @@ void irq_install();
 void irq_handler(struct regs *r);
 void irq_install_handler(int irq, void (*handler)(struct regs *r));
 
-extern panic_t exceptions_errors[32];
+extern panic_t exceptions_errors[ISR_MAX_COUNT];
 
 #endif /* !IRQ_H */

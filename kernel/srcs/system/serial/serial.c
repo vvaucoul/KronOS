@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/01 16:14:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/21 13:53:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 18:25:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ static int __is_transmit_empty(void)
 
 static void __write_serial(const char c)
 {
-    while (__is_transmit_empty() == false);
+    while (__is_transmit_empty() == false)
+        ;
     outportb(PORT_COM1, c);
 }
 

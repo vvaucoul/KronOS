@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/07 11:39:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/07 18:59:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <system/isr.h>
 #include <system/irq.h>
 #include <system/pit.h>
+#include <system/tss.h>
 #include <system/kerrno.h>
 #include <system/serial.h>
 #include <system/panic.h>
@@ -97,12 +98,17 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     }
     gdt_install();
     kernel_log_info("LOG", "GDT");
+
+    tss_init(5, 0x10, 0x0);
+    kernel_log_info("LOG", "TSS");
+
     idt_install();
     kernel_log_info("LOG", "IDT");
     isrs_install();
     kernel_log_info("LOG", "ISRS");
     irq_install();
     kernel_log_info("LOG", "IRQ");
+    
     timer_install();
     kernel_log_info("LOG", "TIMER");
     keyboard_install();

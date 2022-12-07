@@ -114,25 +114,36 @@ irq15:
 extern irq_handler
 
 irq_common_stub:
+	; save registers
     pusha
     push ds
     push es
     push fs
     push gs
+
+	; set data segment
     mov ax, 0x10
+
+	; set all segments to data segment
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov eax, esp
     push eax
+
+	; call irq handler
     mov eax, irq_handler
     call eax
+
+	; restore registers
     pop eax
     pop gs
     pop fs
     pop es
     pop ds
     popa
+
+	; send EOI
     add esp, 8
     iret

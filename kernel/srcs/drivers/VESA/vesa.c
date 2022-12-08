@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vbe.c                                              :+:      :+:    :+:   */
+/*   vesa.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 18:33:27 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/07 11:09:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 16:24:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/bios.h>
 #include <system/isr.h>
 
-#include <drivers/vbe.h>
+#include <drivers/vesa.h>
 
-vbe_t vbe;
+vesa_t vesa;
 
 unsigned int *screen = (unsigned int *)0xA0000;
 
@@ -37,9 +37,10 @@ static int get_vbe_info(void)
     regs16_t regs_out;
 
     regs_in.ax = 0x4F00;
-    regs_in.di = BIOS_MEMORY;
+    regs_in.di = 0x9500;
     int86(0x10, &regs_in, &regs_out);
-    memcpy(&vbe, (void *)BIOS_MEMORY, sizeof(vbe_t));
+    kpause();
+    memcpy(&vesa, (void *)0x9500, sizeof(vesa_t));
     return (regs_out.ax == 0x004F);
 }
 

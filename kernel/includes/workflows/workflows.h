@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 22:00:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 13:06:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,5 +41,8 @@ extern void kheap_test(void);
 
 /* Interrupts test */
 extern void interrupts_test(void);
+
+/* Process test */
+extern void process_test(void);
 
 #endif /* !__WORKFLOWS_H */

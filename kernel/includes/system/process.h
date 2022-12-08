@@ -1,21 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   memory.h                                           :+:      :+:    :+:   */
+/*   process.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/17 14:07:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 12:48:02 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/12/08 12:11:06 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/12/08 12:21:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef PROCESS_H
+#define PROCESS_H
 
-#include <memory/paging.h>
-#include <memory/kheap.h>
-#include <memory/frames.h>
-#include <memory/memory_map.h>
+#include <kernel.h>
 
-#endif /* MEMORY_H */
+typedef enum e_process_state
+{
+    PROCESS_STATE_RUNNING,
+    PROCESS_STATE_ZOMBIE,
+    PROCESS_STATE_THREAD,
+} process_state_t;
+
+typedef struct s_process
+{
+    uint32_t pid;
+    process_state_t state;
+    
+    struct s_process *father;
+    struct s_process *children;
+
+    
+
+} process_t;
+
+#endif /* !PROCESS_H */

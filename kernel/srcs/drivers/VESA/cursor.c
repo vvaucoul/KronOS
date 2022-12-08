@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 18:23:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/18 19:02:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 16:19:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <drivers/vbe.h>
+#include <drivers/vesa.h>
 #include <system/io.h>
 #include <terminal.h>
 

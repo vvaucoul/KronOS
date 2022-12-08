@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 13:08:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 12:53:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ typedef struct s_page_directory
 } page_directory_t;
 
 extern page_directory_t *kernel_directory;
+extern page_directory_t *current_directory;
 
 extern void init_paging(void);
 extern page_t *get_page(uint32_t address, page_directory_t *dir);
@@ -72,6 +73,10 @@ extern uint32_t get_cr2(void);
 
 extern void *get_physical_address(void *addr);
 extern void *get_virtual_address(void *addr);
+
+extern void switch_page_directory(page_directory_t *dir);
+
+extern page_t *create_user_page(uint32_t address, uint32_t end_addr,  page_directory_t *dir);
 
 extern bool paging_enabled;
 

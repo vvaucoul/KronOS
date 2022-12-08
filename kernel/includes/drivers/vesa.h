@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vbe.h                                              :+:      :+:    :+:   */
+/*   vesa.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 18:32:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/18 19:54:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 16:19:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef VBE_H
-# define VBE_H
+#ifndef VESA_H
+# define VESA_H
 
 # include <kernel.h>
 
@@ -22,12 +22,12 @@
 **  - VESA = Video Electronics Standards Association
 */
 
-typedef struct s_vbe
+typedef struct s_vesa
 {
 
-} vbe_t;
+} vesa_t;
 
-extern vbe_t vbe;
+extern vesa_t vesa;
 
 extern void vbe_enable_cursor(uint8_t start, uint8_t end);
 extern void vbe_disable_cursor();
@@ -36,4 +36,4 @@ extern uint8_t vbe_get_cursor_position();
 
 extern void init_vbe_mode(void);
 
-#endif /* !VBE_H */
+#endif /* !VESA_H */

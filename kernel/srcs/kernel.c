@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/07 18:59:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 16:20:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,11 @@
 #include <system/sections.h>
 #include <system/fpu.h>
 #include <system/bsod.h>
+#include <system/scheduler.h>
 
 #include <drivers/keyboard.h>
 #include <drivers/display.h>
-#include <drivers/vbe.h>
+#include <drivers/vesa.h>
 
 #include <multiboot/multiboot.h>
 
@@ -108,7 +109,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "ISRS");
     irq_install();
     kernel_log_info("LOG", "IRQ");
-    
+
     timer_install();
     kernel_log_info("LOG", "TIMER");
     keyboard_install();
@@ -144,7 +145,11 @@ int kmain(hex_t magic_number, hex_t addr)
         printk("\n");
     ASM_STI();
 
+    init_vbe_mode();
+
     // interrupts_test();
+
+    // process_test();
 
     kronos_shell();
     return (0);

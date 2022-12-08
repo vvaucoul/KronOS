@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/07 18:58:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 21:55:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,8 @@ void fault_handler(struct regs *r)
     {
         panic_t error = g_irqs[r->int_no].type;
 
+        printk("Error Code: %u\n", r->err_code);
+
         switch (error)
         {
         case ABORT:
@@ -223,11 +225,9 @@ void fault_handler(struct regs *r)
             __INTERRUPT((const char *)exception_messages[r->int_no]);
             break;
         }
-        // if (r->int_no == 0xA)
-            // kpause();
     }
     else
     {
-        __FAULT((const char *)exception_messages[r->int_no]);
+        __PANIC((const char *)exception_messages[r->int_no]);
     }
 }

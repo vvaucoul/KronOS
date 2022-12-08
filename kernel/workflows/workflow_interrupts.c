@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/06 21:57:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/07 18:59:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 20:45:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,17 @@ void interrupts_test(void)
     /* Coprocessor Segment Overrun */
     __asm__ volatile("int $0x9");
 
+    /* Invalid TSS */
+    __asm__ volatile("int $0x0a");
+
+    /* Segment Not Present */
+    __asm__ volatile("int $0x0b");
+
     /* PANICS */
 
     /* Double Fault */
     __asm__ volatile("int $0x8");
+
+    /* Page Fault */
+    __asm__ volatile("int $0x0e");
 }

@@ -160,8 +160,12 @@ flowchart LR
 
 ### WIP
 
-- IDT
-- Save stack and clear memory when kernel panic !
+- [x] Create an Interrupts Descriptor Table, fill it and register it
+- [x] A signal-callback system on your Kernel API
+- [x] An interface to schedule signals
+- [ ] An interface to clean registers before a panic / halt ----------> **halt**
+- [x] An interface to save the stack before a panic
+
 
 
 🚧 ... Next redaction pending ...🚧

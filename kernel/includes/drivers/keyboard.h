@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:34:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 00:22:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,15 +48,15 @@
 
 typedef enum e_kbd_lang
 {
-    KBD_LANG_FR,
-    KBD_LANG_US
+    KEYBOARD_LAYOUT_FR,
+    KEYBOARD_LAYOUT_EN
 } kbd_lang_t;
 
 extern kbd_lang_t __keyboard_lang;
 
 extern void keyboard_handler(struct regs *r);
 extern void keyboard_install();
-extern void set_keyboard_lang(kbd_lang_t lang);
+extern void keyboard_set_layout(kbd_lang_t lang);
 
 extern bool __keyboard_uppercase;
 

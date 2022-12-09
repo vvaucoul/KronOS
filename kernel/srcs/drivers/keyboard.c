@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 23:45:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 00:27:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <shell/ksh_termcaps.h>
 
 bool __keyboard_uppercase = false;
-kbd_lang_t __keyboard_lang = KBD_LANG_US;
+kbd_lang_t __keyboard_lang = KEYBOARD_LAYOUT_EN;
 
 unsigned char kbdus[128] =
     {
@@ -104,15 +104,19 @@ static uint8_t __get_keyboard_lang(void)
 
 static unsigned char *__get_keyboard_codes(void)
 {
-    if (__keyboard_lang == KBD_LANG_US)
+    if (__keyboard_lang == KEYBOARD_LAYOUT_EN)
         return (kbdus);
     else
         return (kbdfr);
 }
 
-void set_keyboard_lang(kbd_lang_t lang)
+void keyboard_set_layout(kbd_lang_t lang)
 {
     __keyboard_lang = lang;
+    printk("\t   Keyboard layout set to "_GREEN
+           "%s"_END
+           "\n",
+           lang == KEYBOARD_LAYOUT_EN ? "EN" : "FR");
 }
 
 static bool scancode_handler(unsigned char scancode)

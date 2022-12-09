@@ -6,23 +6,22 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 14:02:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 00:17:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <shell/ksh.h>
 #include <shell/ksh_builtins.h>
-#include <system/gdt.h>
-#include <multiboot/multiboot.h>
-#include <system/sections.h>
+#include <shell/ksh_args.h>
 
-size_t ksh_max_line = VGA_HEIGHT - __HEADER_HEIGHT__;
-size_t ksh_min_line = __HEADER_HEIGHT__;
-size_t ksh_current_line = __HEADER_HEIGHT__;
-size_t ksh_current_max_line = __HEADER_HEIGHT__;
+#include <memory/kheap.h>
+
+uint32_t ksh_max_line = VGA_HEIGHT - __HEADER_HEIGHT__;
+uint32_t ksh_min_line = __HEADER_HEIGHT__;
+uint32_t ksh_current_line = __HEADER_HEIGHT__;
+uint32_t ksh_current_max_line = __HEADER_HEIGHT__;
 
 uint32_t *ksh_buffer = (uint32_t *)0x0000B000;
-// (uint32_t *)(0x00002000 + __HIGHER_HALF_KERNEL__ ? KERNEL_MEMORY_START + 0x0000B000 : 0x0);
 
 void ksh_clear(void)
 {
@@ -37,11 +36,15 @@ void ksh_execute_command(void)
 {
     /* SIMPLE COMMAND EXECUTOR */
     char __formated_command[128];
+
+    bzero(__formated_command, 128);
     strclr(__formated_command, ksh_line_buffer);
     if (__formated_command[0] != 0)
     {
-        __ksh_execute_builtins(__formated_command);
+        const ksh_args_t *args = ksh_parse_args(__formated_command);
+        __ksh_execute_builtins(args);
         ksh_add_line_history(__formated_command);
+        ksh_free_args(args);
     }
     ksh_buffer_clear();
     terminal_column = 0;

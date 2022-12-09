@@ -15,7 +15,9 @@ clean_registers:
     mov fs, ax
     mov gs, ax
 
-    ; Do stuff
+    ; Call the function
+    mov eax, [esp + 4]
+    call eax
 
     pop gs
     pop fs

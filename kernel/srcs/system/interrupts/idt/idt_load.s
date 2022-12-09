@@ -3,5 +3,6 @@
 global idt_load
 extern idtp
 idt_load:
-    lidt [idtp] ; Load IDT
+    mov eax, [esp + 4]
+    lidt [eax] ; Load IDT
     ret

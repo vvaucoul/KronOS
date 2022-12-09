@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 22:22:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 22:17:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ typedef enum e_panic_type
 
 #define __USE_KERRNO_HELPER__ false
 
-#define __PANIC_HEADER__ (const char *)(_RED "KERNEL - PANIC: " _END)
-#define __FAULT_HEADER__ (const char *)(_RED "KERNEL - FAULT: " _END)
-#define __TRAP_HEADER__ (const char *)(_RED "KERNEL - TRAP: " _END)
-#define __INTERRUPT_HEADER__ (const char *)(_RED "KERNEL - INTERRUPT: " _END)
+#define __PANIC_HEADER__ (const char *)(_RED "KERNEL "_END"-"_RED" PANIC: " _END)
+#define __FAULT_HEADER__ (const char *)(_RED "KERNEL "_END"- "_YELLOW"FAULT: " _END)
+#define __TRAP_HEADER__ (const char *)(_RED "KERNEL "_END"- "_YELLOW"TRAP: " _END)
+#define __INTERRUPT_HEADER__ (const char *)(_RED "KERNEL "_END"- "_YELLOW"INTERRUPT: " _END)
 
 /*******************************************************************************
  *                                PANIC MACROS                                 *
@@ -75,7 +75,7 @@ static bool __panic_handler = false;
 extern void kernel_panic(const char *str);
 extern void kernel_fault(const char *str);
 extern void kernel_trap(const char *str);
-extern void kernel_interrupt(const char *str);
+extern void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code);
 extern void kernel_panic_multistr(const char *str[], size_t count);
 
 /*******************************************************************************
@@ -86,8 +86,6 @@ extern void kernel_panic_multistr(const char *str[], size_t count);
 #define __PANIC(str) __kernel_panic(str)
 #define __PANIC_MULTISTR(str, count) kernel_panic_multistr(str, count)
 
-#define __FAULT(str) kernel_fault(str)
-#define __TRAP(str) kernel_trap(str)
-#define __INTERRUPT(str) kernel_interrupt(str)
+#define __PANIC_INTERRUPT(str, index, fault, code) kernel_panic_interrupt(str, index, fault, code)
 
 #endif /* PANIC_H */

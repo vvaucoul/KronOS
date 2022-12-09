@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:27:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 22:46:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 22:17:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,8 +144,30 @@ void kernel_trap(const char *str)
     printk(_YELLOW "%s\n" _END, str);
 }
 
-void kernel_interrupt(const char *str)
+void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code)
 {
-    __DISPLAY_HEADER_INTERRUPT__();
-    printk(_YELLOW "%s\n" _END, str);
+    if (__USE_KERRNO_HELPER__)
+        __panic_kerrno();
+
+    switch (fault)
+    {
+    case ABORT:
+        __DISPLAY_HEADER__();
+        printk(_RED "%s\n" _END, str);
+        break;
+    case FAULT:
+        __DISPLAY_HEADER_FAULT__();
+        printk(_END "%s\n" _END, str);
+        break;
+    case TRAP:
+        __DISPLAY_HEADER_TRAP__();
+        printk(_CYAN "%s\n" _END, str);
+        break;
+    case INTERRUPT:
+        __DISPLAY_HEADER_INTERRUPT__();
+        printk(_YELLOW "%s\n" _END, str);
+        break;
+    }
+    if (fault == ABORT)
+        __PANIC_LOOP_HANDLER__();
 }

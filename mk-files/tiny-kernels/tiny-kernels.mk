@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/19 19:09:22 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/04 15:25:10 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/12/09 00:05:17 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -74,3 +74,24 @@ tiny-memory-run-iso: tiny-memory
 
 tiny-memory-clear:
 	@make -s -C $(TINY_DIR)/Memory fclean
+
+#*******************************************************************************
+#*                                  TINY IDT                                   *
+#*******************************************************************************
+
+tiny-idt: fclean
+	@printf "$(_LWHITE)- COMPILING TINY-IDT $(_END)$(_END)$(_DIM)----$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@make -s -C $(TINY_DIR)/IDT all
+	@printf "$(_LWHITE)- TINY-IDT COMPILED $(_END)$(_END)$(_DIM)-----$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@printf "\n$(_LWHITE)- Now you use: '$(_LYELLOW)make tiny-idt-run$(_END)$(_LWHITE)' or '$(_LYELLOW)make tiny-idt-run-iso$(_END)$(_LWHITE)' to start the tiny-kernel !$(_END)\n"
+
+tiny-idt-run: tiny-idt
+	@printf "$(_LWHITE)Running $(_LYELLOW)IDT$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) !\n"
+	@qemu-system-i386 -kernel $(TINY_DIR)/IDT/isodir/boot/idt.bin
+
+tiny-idt-run-iso: tiny-idt
+	@printf "$(_LWHITE)Running $(_LYELLOW)IDT$(_LWHITE) with $(_LYELLOW)qemu-system-i386$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) !\n"
+	@qemu-system-i386 -cdrom $(TINY_DIR)/IDT/idt.iso
+
+tiny-idt-clear:
+	@make -s -C $(TINY_DIR)/IDT fclean

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 19:57:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 16:29:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/08 23:25:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static void __bios32_service(uint8_t interrupt, regs16_t *in, regs16_t *out)
     memcpy(out, in_reg16_address, sizeof(regs16_t));
 
     gdt_flush((uint32_t)(&gp));
-    idt_load();
+    idt_load(&idtp);
 }
 
 static void __init_bios32()

@@ -5,6 +5,9 @@ save_stack:
     push eax
 
     mov eax, [esp + 4]
+    mov ebx, [esp + 8]
+
+    call ebx
 
     pop eax
 

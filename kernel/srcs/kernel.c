@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 21:52:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 01:08:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,9 +145,13 @@ int kmain(hex_t magic_number, hex_t addr)
         printk("\n");
     ASM_STI();
 
-    // init_vbe_mode();
+    /* Raise exception: Divide by zero */
+    asm volatile("\txorl %edx, %edx");
+    asm volatile("\tmovl $0x7b, %eax");
+    asm volatile("\tmovl $0, %ecx");
+    asm volatile("\tidivl %ecx");
 
-    interrupts_test();
+    // interrupts_test();
 
     // process_test();
 

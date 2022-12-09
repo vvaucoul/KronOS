@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 22:17:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 18:16:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,7 @@ static bool __panic_handler = false;
  ******************************************************************************/
 
 extern void kernel_panic(const char *str);
-extern void kernel_fault(const char *str);
-extern void kernel_trap(const char *str);
-extern void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code);
+extern __attribute__((no_caller_saved_registers)) void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code);
 extern void kernel_panic_multistr(const char *str[], size_t count);
 
 /*******************************************************************************

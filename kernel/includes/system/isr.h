@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:47:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 18:27:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,7 @@ typedef struct s_irqs
     panic_t type;
     char *exception;
     bool zero;
+    bool has_code;
 } __attribute__((packed)) irqs_t;
 
 extern irqs_t g_irqs[ISR_MAX_COUNT];
@@ -182,7 +183,7 @@ extern ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS];
 
 extern void isrs_install();
 extern void isr_register_interrupt_handler(int num, ISR handler);
-extern void fault_handler(struct regs r);
+extern void fault_handler(struct regs *r);
 
 extern void clean_registers(void (*func)(struct regs *r));
 extern void save_stack(void (*func)(struct regs *r));

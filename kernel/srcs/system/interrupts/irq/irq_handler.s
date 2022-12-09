@@ -1,119 +1,37 @@
-global irq0
-global irq1
-global irq2
-global irq3
-global irq4
-global irq5
-global irq6
-global irq7
-global irq8
-global irq9
-global irq10
-global irq11
-global irq12
-global irq13
-global irq14
-global irq15
+bits 32
 
-irq0:
-	cli
-	push byte 0
-	push byte 32
-	jmp irq_common_stub
+section .text
 
-irq1:
-	cli
-	push byte 1
-	push byte 33
-	jmp irq_common_stub
+%macro IRQ 1
+global irq%1
 
-irq2:
+irq%1:
 	cli
-	push byte 2
-	push byte 34
-	jmp irq_common_stub
+	push byte %1
+	push byte 32+%1
+	jmp __irq_handler
+%endmacro
 
-irq3:
-	cli
-	push byte 3
-	push byte 35
-	jmp irq_common_stub
-
-irq4:
-	cli
-	push byte 4
-	push byte 36
-	jmp irq_common_stub
-
-irq5:
-	cli
-	push byte 5
-	push byte 37
-	jmp irq_common_stub
-
-irq6:
-	cli
-	push byte 6
-	push byte 38
-	jmp irq_common_stub
-
-irq7:
-	cli
-	push byte 7
-	push byte 39
-	jmp irq_common_stub
-
-irq8:
-	cli
-	push byte 8
-	push byte 40
-	jmp irq_common_stub
-
-irq9:
-	cli
-	push byte 9
-	push byte 41
-	jmp irq_common_stub
-
-irq10:
-	cli
-	push byte 10
-	push byte 42
-	jmp irq_common_stub
-
-irq11:
-	cli
-	push byte 11
-	push byte 43
-	jmp irq_common_stub
-
-irq12:
-	cli
-	push byte 12
-	push byte 44
-	jmp irq_common_stub
-
-irq13:
-	cli
-	push byte 13
-	push byte 45
-	jmp irq_common_stub
-
-irq14:
-	cli
-	push byte 14
-	push byte 46
-	jmp irq_common_stub
-
-irq15:
-	cli
-	push byte 15
-	push byte 47
-	jmp irq_common_stub
+IRQ 0
+IRQ 1
+IRQ 2
+IRQ 3
+IRQ 4
+IRQ 5
+IRQ 6
+IRQ 7
+IRQ 8
+IRQ 9
+IRQ 10
+IRQ 11
+IRQ 12
+IRQ 13
+IRQ 14
+IRQ 15
 
 extern irq_handler
 
-irq_common_stub:
+__irq_handler:
 	; save registers
     pusha
     push ds

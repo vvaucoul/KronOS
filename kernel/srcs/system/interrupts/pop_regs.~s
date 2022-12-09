@@ -1,0 +1,11 @@
+bits 32
+
+global pop_regs
+pop_regs:
+    sub esp, 4
+    pop eax
+    mov dx, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    sti

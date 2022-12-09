@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 13:29:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 14:20:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,49 +177,50 @@ typedef struct s_multiboot_memory_map
     enum e_multiboot_memory_type type;
 } t_multiboot_memory_map;
 
-typedef struct s_multiboot_info
+typedef struct
 {
-    /* Multiboot info version number */
+    /* required, defined in entry.asm */
     uint32_t flags;
 
-    /* Available memory from BIOS */
-    uint32_t mem_lower;
-    uint32_t mem_upper;
+    /* available low-high memory from BIOS, present if flags[0] is set(MEMINFO in entry.asm) */
+    uint32_t mem_low;
+    uint32_t mem_high;
 
-    /* "root" partition */
+    /* "root" partition, present if flags[1] is set(BOOTDEVICE in entry.asm) */
     uint32_t boot_device;
 
-    /* Kernel command line */
+    /* kernel command line, present if flags[2] is set(CMDLINE in entry.asm) */
     uint32_t cmdline;
 
-    /* Boot-Module list */
-    uint32_t mods_count;
-    uint32_t mods_addr;
+    /* no of modules loaded, present if flags[3] is set(MODULECOUNT in entry.asm) */
+    uint32_t modules_count;
+    uint32_t modules_addr;
 
+    /* symbol table info, present if flags[4] & flags[5] is set(SYMT in entry.asm) */
     union
     {
         t_aout_symbol_table aout_sym;
         t_elf_section_header_table elf_sec;
     } u;
 
-    /* Memory Mapping buffer */
+    /* memory mapping, present if flags[6] is set(MEMMAP in entry.asm) */
     uint32_t mmap_length;
     uint32_t mmap_addr;
 
-    /* Drive Info buffer */
+    /* drive info, present if flags[7] is set(DRIVE in entry.asm) */
     uint32_t drives_length;
     uint32_t drives_addr;
 
-    /* ROM configuration table */
+    /* ROM configuration table, present if flags[8] is set(CONFIGT in entry.asm) */
     uint32_t config_table;
 
-    /* Boot Loader Name */
+    /* boot loader name, present if flags[9] is set(BOOTLDNAME in entry.asm) */
     uint32_t boot_loader_name;
 
-    /* APM table (Advanced Power Management) */
+    /* Advanced Power Management(APM) table, present if flags[10] is set(APMT in entry.asm) */
     uint32_t apm_table;
 
-    /* VIDEO BIOS EXTENSIONS */
+    /* video info, present if flags[11] is set(VIDEO in entry.asm) */
     uint32_t vbe_control_info;
     uint32_t vbe_mode_info;
     uint16_t vbe_mode;
@@ -227,34 +228,14 @@ typedef struct s_multiboot_info
     uint16_t vbe_interface_off;
     uint16_t vbe_interface_len;
 
-    /* Framebuffer */
-    multiboot_uint64_t framebuffer_addr;
-    multiboot_uint32_t framebuffer_pitch;
-    multiboot_uint32_t framebuffer_width;
-    multiboot_uint32_t framebuffer_height;
-    multiboot_uint8_t framebuffer_bpp;
+    /* video framebufer info, present if flags[12] is set(VIDEO_FRAMEBUF in entry.asm)  */
+    uint64_t framebuffer_addr;
+    uint32_t framebuffer_pitch;
+    uint32_t framebuffer_width;
+    uint32_t framebuffer_height;
+    uint8_t framebuffer_bpp;
+    uint8_t framebuffer_type; // indexed = 0, RGB = 1, EGA = 2
 
-#define MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED 0
-#define MULTIBOOT_FRAMEBUFFER_TYPE_RGB 1
-#define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT 2
-    multiboot_uint8_t framebuffer_type;
-    union
-    {
-        struct
-        {
-            multiboot_uint32_t framebuffer_palette_addr;
-            multiboot_uint16_t framebuffer_palette_num_colors;
-        };
-        struct
-        {
-            multiboot_uint8_t framebuffer_red_field_position;
-            multiboot_uint8_t framebuffer_red_mask_size;
-            multiboot_uint8_t framebuffer_green_field_position;
-            multiboot_uint8_t framebuffer_green_mask_size;
-            multiboot_uint8_t framebuffer_blue_field_position;
-            multiboot_uint8_t framebuffer_blue_mask_size;
-        };
-    };
 } t_multiboot_info;
 
 #define MultibootMemoryMap t_multiboot_memory_map

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:18:24 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 12:50:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 14:21:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ int get_memory_map(MultibootInfo *multiboot_info)
     KMAP_SECTIONS.bss.bss_addr_end = (uint32_t)&__kernel_bss_section_end;
     KMAP_SECTIONS.bss.bss_length = KMAP_SECTIONS.bss.bss_addr_end - KMAP_SECTIONS.bss.bss_addr_start;
 
-    KMAP_TOTAL.total_memory_length = multiboot_info->mem_upper + multiboot_info->mem_lower;
+    KMAP_TOTAL.total_memory_length = multiboot_info->mem_high + multiboot_info->mem_low;
 
     if ((__init_memory_map(multiboot_info)) == 1)
         return (1);

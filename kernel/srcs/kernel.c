@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 01:08:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 15:07:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,17 +85,19 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
+    // Todo: Fix multiboot with boot.s (no multiboot info -> due to idt works)
     else
     {
-        __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr));
-        assert(__multiboot_info != NULL);
-        if (multiboot_init(__multiboot_info))
-            __PANIC("Error: multiboot_init failed");
-        kernel_log_info("LOG", "MULTIBOOT");
-        if (get_memory_map(__multiboot_info))
-            __PANIC("Error: kernel memory map failed");
-        kernel_log_info("LOG", "KERNEL MEMORY MAP");
-        // display_multiboot_infos();
+        printk("Addr: %x\n", addr);
+        // __multiboot_info = (MultibootInfo *)(addr);
+        // assert(__multiboot_info != NULL);
+        // if (multiboot_init(__multiboot_info))
+        //     __PANIC("Error: multiboot_init failed");
+        // kernel_log_info("LOG", "MULTIBOOT");
+        // if (get_memory_map(__multiboot_info))
+        //     __PANIC("Error: kernel memory map failed");
+        // kernel_log_info("LOG", "KERNEL MEMORY MAP");
+        // // display_multiboot_infos();
     }
     gdt_install();
     kernel_log_info("LOG", "GDT");
@@ -116,6 +118,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "KEYBOARD");
     enable_fpu();
     kernel_log_info("LOG", "FPU");
+
     init_paging();
     kernel_log_info("LOG", "PAGING");
 
@@ -145,11 +148,12 @@ int kmain(hex_t magic_number, hex_t addr)
         printk("\n");
     ASM_STI();
 
-    /* Raise exception: Divide by zero */
-    asm volatile("\txorl %edx, %edx");
-    asm volatile("\tmovl $0x7b, %eax");
-    asm volatile("\tmovl $0, %ecx");
-    asm volatile("\tidivl %ecx");
+    // /* Raise exception: Divide by zero */
+
+    // __asm__ volatile("int $0x0");
+    // __asm__ volatile("int $0x1");
+
+    printk("Hello World!\n");
 
     // interrupts_test();
 

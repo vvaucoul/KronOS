@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/29 10:15:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 14:22:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void display_multiboot_infos(void)
 
     printk(_CYAN "Memory: "_END
                   "%uKo - %uMo\n",
-            __multiboot_info->mem_lower, __multiboot_info->mem_upper / 1024);
+            __multiboot_info->mem_low, __multiboot_info->mem_high / 1024);
     printk(_CYAN "Boot Device:"_END
                   " 0x%x\n",
             __multiboot_info->boot_device);
@@ -53,8 +53,8 @@ void display_multiboot_infos(void)
                   " %s\n",
             __multiboot_info->cmdline);
     printk(_CYAN "Mods "_END
-                  "%u - 0x%x\n",
-            __multiboot_info->mods_count, __multiboot_info->mods_addr);
+                 "%u - 0x%x\n",
+           __multiboot_info->modules_count, __multiboot_info->modules_addr);
     printk(_CYAN "Drives: "_END
                   "%u - 0x%x - ",
             __multiboot_info->drives_length, __multiboot_info->drives_addr);

@@ -57,116 +57,44 @@ extern fault_handler
 
 isr_exception_handler:
 
-    cli
-    mov ax, ds; refer to the data segment
-    push eax
+    ; Save the registers
+    pusha
+
+    ; Save the segment registers
+    push ds
+    push es
+    push fs
+    push gs
+
+    ; Set the data segment to 0x10
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
 
-    call fault_handler
+    ; Save the stack pointer
+    mov eax, esp
+    push eax
 
-    sub esp, 0x8
+    ; Call the fault handler
+    mov eax, fault_handler
+    call eax
+
+    ; Restore the stack pointer
     pop eax
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
+    pop gs
+    pop fs
+    pop es
+    pop ds
+
+    ; Restore the registers
+    popa
+
+
+    ; Restore the stack
+    add esp, 0x8
+
+    ; Restore the interrupt flag
     sti
-
     iret
-
-
-
-    ; pusha
-
-    ; mov ax, ds
-    ; push eax
-
-    ; mov ax, 0x10
-    ; mov ds, ax
-    ; mov es, ax
-    ; mov fs, ax
-    ; mov gs, ax
-
-    ; call fault_handler
-
-    ; pop ebx
-    ; mov ds, bx
-    ; mov es, bx
-    ; mov fs, bx
-    ; mov gs, bx
-
-    ; popa
-    ; add esp, 0x8
-    
-    ; sti
-    ; iret
-
-    ; pusha
-    ; mov ax, dx
-    ; push eax
-
-    ; mov ax, 0x10
-    ; mov ds, ax
-    ; mov es, ax
-    ; mov fs, ax
-    ; mov gs, ax
-
-    ; call fault_handler
-
-    ; pop eax
-
-    ; mov ds, ax
-    ; mov es, ax
-    ; mov fs, ax
-    ; mov gs, ax
-
-    ; popa
-    ; add esp, 0x8
-    ; sti
-    ; iret
-
-    ; ; Save the registers
-    ; pusha
-
-    ; ; Save the segment registers
-    ; push ds
-    ; push es
-    ; push fs
-    ; push gs
-
-    ; ; Set the data segment to 0x10
-    ; mov ax, 0x10
-    ; mov ds, ax
-    ; mov es, ax
-    ; mov fs, ax
-    ; mov gs, ax
-
-    ; ; Save the stack pointer
-    ; mov eax, esp
-    ; push eax
-
-    ; ; Call the fault handler
-    ; mov eax, fault_handler
-    ; call eax
-
-    ; ; Restore the stack pointer
-    ; pop eax
-    ; pop gs
-    ; pop fs
-    ; pop es
-    ; pop ds
-
-    ; ; Restore the registers
-    ; popa
-
-
-    ; ; Restore the stack
-    ; add esp, 0x8
-
-    ; ; Restore the interrupt flag
-    ; sti
-    ; iret

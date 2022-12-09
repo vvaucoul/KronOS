@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:47:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 15:00:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@
 
 /* Interrupt Service Routine */
 
-/*  
+/*
     P: 1bit, DPL: 2bits, S: 1bit, TYPE: 4bits
 
     - P: Present
@@ -96,8 +96,8 @@ typedef struct regs
     uint32_t ecx;
     uint32_t eax;
 
-    uint32_t int_no;
     uint32_t err_code;
+    uint32_t int_no;
     uint32_t eip;
     uint32_t cs;
     uint32_t eflags;
@@ -135,6 +135,7 @@ typedef struct s_irqs
     panic_t type;
     char *exception;
     bool zero;
+    bool has_error_code;
 } __attribute__((packed)) irqs_t;
 
 extern irqs_t g_irqs[ISR_MAX_COUNT];
@@ -184,7 +185,30 @@ extern void isrs_install();
 extern void isr_register_interrupt_handler(int num, ISR handler);
 extern void fault_handler(struct regs r);
 
-extern void clean_registers(void (*func)(struct regs *r));
-extern void save_stack(void (*func)(struct regs *r));
+#define __PUSH_REGS()                           \
+    {                                           \
+        __asm__ __volatile__("cli\n"            \
+                             "mov %ds, %ax\n"   \
+                             "push %eax\n"      \
+                             "mov $0x10, %ax\n" \
+                             "mov %ax, %ds\n"   \
+                             "mov %ax, %es\n"   \
+                             "mov %ax, %fs\n"   \
+                             "mov %ax, %gs\n"   \
+                             "add $4, %esp");   \
+    }
+
+#define __POP_REGS()                          \
+    {                                         \
+        __asm__ __volatile__("sub $4, %esp\n" \
+                             "pop %eax\n"     \
+                             "mov %ax, %ds\n" \
+                             "mov %ax, %es\n" \
+                             "mov %ax, %fs\n" \
+                             "mov %ax, %gs\n" \
+                             "sti\n");        \
+    }
+
+extern void tmp(void);
 
 #endif /* !ISR_H */

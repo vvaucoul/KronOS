@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:27:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 22:17:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 15:01:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,19 +132,7 @@ void kernel_panic_multistr(const char *str[], size_t count)
     __PANIC_LOOP_HANDLER__();
 }
 
-void kernel_fault(const char *str)
-{
-    __DISPLAY_HEADER_FAULT__();
-    printk(_YELLOW "%s\n" _END, str);
-}
-
-void kernel_trap(const char *str)
-{
-    __DISPLAY_HEADER_TRAP__();
-    printk(_YELLOW "%s\n" _END, str);
-}
-
-void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code)
+__attribute__((no_caller_saved_registers)) void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code)
 {
     if (__USE_KERRNO_HELPER__)
         __panic_kerrno();
@@ -153,19 +141,19 @@ void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint
     {
     case ABORT:
         __DISPLAY_HEADER__();
-        printk(_RED "%s\n" _END, str);
+        printk(_RED "%s "_END"["_RED"%u"_END"] ["_RED"%u"_END"]\n" _END, str, index, code);
         break;
     case FAULT:
         __DISPLAY_HEADER_FAULT__();
-        printk(_END "%s\n" _END, str);
+        printk(_END "%s "_END"["_RED"%u"_END"] ["_RED"%u"_END"]\n" _END, str, index, code);
         break;
     case TRAP:
         __DISPLAY_HEADER_TRAP__();
-        printk(_CYAN "%s\n" _END, str);
+        printk(_CYAN "%s "_END"["_RED"%u"_END"] ["_RED"%u"_END"]\n" _END, str, index, code);
         break;
     case INTERRUPT:
         __DISPLAY_HEADER_INTERRUPT__();
-        printk(_YELLOW "%s\n" _END, str);
+        printk(_YELLOW "%s "_END"["_RED"%u"_END"] ["_RED"%u"_END"]\n" _END, str, index, code);
         break;
     }
     if (fault == ABORT)

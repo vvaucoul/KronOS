@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:09:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:36:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 15:06:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/idt.h>
 #include <system/isr.h>
 
-struct idt_entry idt[IDT_SIZE] __attribute__((aligned(0x10)));
+struct idt_entry idt[IDT_SIZE];
 struct idt_ptr idtp;
 
 void idt_set_gate(unsigned char num, unsigned long base, unsigned short selector, unsigned char flags)
@@ -21,9 +21,9 @@ void idt_set_gate(unsigned char num, unsigned long base, unsigned short selector
     idt[num].base_low = (base & 0xFFFF);
     idt[num].base_high = (base >> 16) & 0xFFFF;
 
-    idt[num].selector = selector; // Selector
+    idt[num].selector = selector;
     idt[num].zero = 0;
-    idt[num].flags = flags | 0x60;// <- Uncomment this for user mode interrupts
+    idt[num].flags = flags; //| 0x60; // <- Uncomment this for user mode interrupts
 }
 
 /* Installs the IDT */

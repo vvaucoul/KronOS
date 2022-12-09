@@ -6,40 +6,40 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/09 00:11:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:12:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 16:35:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef IDT_H
-# define IDT_H
+#define IDT_H
 
 #include "kernel.h"
+#include <stddef.h>
 
-#define NO_IDT_DESCRIPTORS 256
-
-typedef struct
+/* Defines an IDT entry */
+struct idt_entry
 {
-    uint16_t base_low;         // lower 16 bits 0-15 of the address to jump to when this interrupt fires
-    uint16_t segment_selector; // code segment selector in GDT
-    uint8_t zero;              // unused, always be zero
-    uint8_t type;              // types trap, interrupt gates
-    uint16_t base_high;        // upper 16 bits 16-31 of the address to jump to
-} __attribute__((packed)) IDT;
+    unsigned short base_low;
+    unsigned short sel;  /* Our kernel segment goes here! */
+    unsigned char zero;  /* This will ALWAYS be set to 0! */
+    unsigned char flags; /* Set using the above table! */
+    unsigned short base_high;
+} __attribute__((packed));
 
-typedef struct
+struct idt_ptr
 {
-    uint16_t limit;        // limit size of all IDT segments
-    uint32 base_address; // base address of the first IDT segment
-} __attribute__((packed)) IDT_PTR;
+    unsigned short limit;
+    unsigned int base;
+} __attribute__((packed));
 
-// asm gdt functions, define in load_idt.asm
-extern void load_idt(uint32 idt_ptr);
+#define IDT_SIZE 256
 
-/**
- * fill entries of IDT
- */
-void idt_set_entry(int index, uint32 base, uint16_t seg_sel, uint8_t flags);
+extern struct idt_entry idt[IDT_SIZE];
+extern struct idt_ptr idtp;
 
-void idt_init();
+/* This exists in 'start.asm', and is used to load our IDT */
+extern void idt_load();
+void idt_install();
+void idt_set_gate(unsigned char num, unsigned long base, unsigned short sel, unsigned char flags);
 
 #endif /* !IDT_H */

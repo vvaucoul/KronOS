@@ -39,7 +39,7 @@ SECTIONS
     .text BLOCK(4K) : ALIGN(4K)
 	{
 		__kernel_text_section_start = .;
-		*(.multiboot)
+		KEEP(*(.multiboot))
 		*(.text)
         . = ALIGN(4096);
 		__kernel_text_section_end = .;

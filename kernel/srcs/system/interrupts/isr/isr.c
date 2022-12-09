@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 15:06:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 17:08:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,6 @@ void fault_handler(struct regs r)
         __PANIC_INTERRUPT("Unhandled Interrupt", r.int_no, ABORT, r.err_code);
     }
 
-    // if (g_interrupt_handlers[r.int_no] != NULL)
-    //     g_interrupt_handlers[r.int_no](&r);
+    if (g_interrupt_handlers[r.int_no] != NULL)
+        g_interrupt_handlers[r.int_no](&r);
 }

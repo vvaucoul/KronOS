@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:48:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 16:48:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ void pic8259_send_eoi(uint8_t irq)
 void irq_install_handler(int irq, void (*handler)(struct regs *r))
 {
     irq_routines[irq] = handler;
+    printk("IRQ %d installed\n", irq);
 }
 
 void irq_uninstall_handler(int irq)
@@ -79,6 +80,7 @@ void irq_remap(void)
 void irq_install()
 {
     irq_remap();
+
     idt_set_gate(32, (unsigned)irq0, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(33, (unsigned)irq1, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(34, (unsigned)irq2, IDT_SELECTOR, IDT_FLAG_GATE);
@@ -95,6 +97,8 @@ void irq_install()
     idt_set_gate(45, (unsigned)irq13, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(46, (unsigned)irq14, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(47, (unsigned)irq15, IDT_SELECTOR, IDT_FLAG_GATE);
+
+    printk("IRQs installed\n");
 }
 
 void irq_handler(struct regs *r)
@@ -105,8 +109,7 @@ void irq_handler(struct regs *r)
     if (handler)
     {
         /* Call the handler. */
-        if (handler)
-            handler(r);
+        handler(r);
     }
     pic8259_send_eoi(r->int_no);
 }

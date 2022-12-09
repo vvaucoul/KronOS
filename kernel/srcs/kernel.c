@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 15:11:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 17:09:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,9 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
 
+    printk("Magic Number: 0x%x\n", magic_number);
+    printk("Addr: 0x%x\n", addr);
+    // kpause();
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
@@ -89,16 +92,17 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     else
     {
         printk("Addr: %x\n", addr);
-        // __multiboot_info = (MultibootInfo *)(addr);
-        // assert(__multiboot_info != NULL);
-        // if (multiboot_init(__multiboot_info))
-        //     __PANIC("Error: multiboot_init failed");
-        // kernel_log_info("LOG", "MULTIBOOT");
-        // if (get_memory_map(__multiboot_info))
-        //     __PANIC("Error: kernel memory map failed");
-        // kernel_log_info("LOG", "KERNEL MEMORY MAP");
+        __multiboot_info = (MultibootInfo *)(addr);
+        assert(__multiboot_info != NULL);
+        if (multiboot_init(__multiboot_info))
+            __PANIC("Error: multiboot_init failed");
+        kernel_log_info("LOG", "MULTIBOOT");
+        if (get_memory_map(__multiboot_info))
+            __PANIC("Error: kernel memory map failed");
+        kernel_log_info("LOG", "KERNEL MEMORY MAP");
         // // display_multiboot_infos();
     }
+
     gdt_install();
     kernel_log_info("LOG", "GDT");
 
@@ -148,10 +152,14 @@ int kmain(hex_t magic_number, hex_t addr)
         printk("\n");
     ASM_STI();
 
+
     // /* Raise exception: Divide by zero */
 
     __asm__ volatile("int $0x0");
-    __asm__ volatile("int $0x1");
+    // __asm__ volatile("int $0x1");
+    // __asm__ volatile("int $0x2");
+    // __asm__ volatile("int $0x3");
+    // __asm__ volatile("int $0x4");
 
     printk("Hello World!\n");
 

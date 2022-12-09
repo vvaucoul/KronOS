@@ -1,0 +1,172 @@
+
+                     libisofs internal documentation
+                 Representing Solaris O_XATTR Attributes
+
+                      - Draft - Not Yet Implemented -
+ 
+Solaris O_XATTR attributes are file trees which can be attached to any
+file object. I.e. any file can be root of a whole attribute filesystem
+with own attribute filesystems attached to each of its files.
+
+libisofs implements this by a separate tree of root entries for the
+attributes of the files. Access key is the ISO image inode number
+of the hosting file. This ensures that hardlinks share their attributes.
+If the inode number cannot be stored in Rock Ridge entry PX, then
+AAIP attribute isofs.in will do.
+
+The tree of attribute roots is organized in directories of at most
+512 sub directories. The directory names consist of uppercase hex
+representations of the bytes of the little endian form of the inode number.
+Those directories which serve as attribute roots have a suffix "a".
+Those which lead to the next level of the tree of roots, have no suffix.
+Example:
+  inode number -> path to attribute root   
+    0x12345678 -> 78/56/34/12a
+        0x5678 -> 78/56a
+
+After loading an ISO image, the attribute roots might have to be re-arranged
+to match the eventual new inode numbering. This may mean that new attribute
+trees may emerge as copies of split hardlinks.
+>>> ??? where to implement ?
+
+All operations which care about identity of files shall take the attribute
+trees into account.
+>>> which ones ?
+   >>> API: iso_node_cmp_ino()
+   >>> Update isofs.pp when moving files
+       >>> ??? which API functions move files ?
+
+The new members of the attribute root tree get produced during the
+preparations for image writing. If no PX serial numbers get written, then
+AAIP attributes isofs.in need to be written.
+
+Manipulations of O_XATTR between loading and image production are done
+by normal file operations on the attribute tree of the inode of the file.
+A xinfo function allows to record the path of a directory in the ISO image
+which shall replace the attribute tree of the file when the image gets
+written.
+>>> Make sure that no attribute loops emerge by xinfo-dir being boss of
+    the file
+>>> ??? Enforce absolute path ${isofs.ob}/by_path/${path} ?
+    ??? maybe within xorriso rather than libisofs ?
+
+-------------------------------------------------------------------------------
+xinfo functions
+-------------------------------------------------------------------------------
+
+>>> ??? This way ? (Or by early hand-out of inode number ?)
+
+/**
+
+ >>> Not implemeted yet
+
+ * The function that marks data which designate a directory in the ISO image as
+ * solaris-style O_XATTR attribute tree of an IsoNodes.
+ * Usually an application does not call this function, but only uses it as
+ * parameter of xinfo calls like iso_node_add_xinfo() or iso_node_get_xinfo().
+ * The data submitted with iso_node_add_xinfo() is supposed to be an absolute
+ * path in memory that can be disposed by free(3).
+ *
+ * >>> @since ?.?.?
+ */
+int iso_sol_o_xattr_xinfo_func(void *data, int flag);
+
+-------------------------------------------------------------------------------
+AAIP variables:
+-------------------------------------------------------------------------------
+
+Name:
+      >>> ??? isofs.in
+
+Purpose:
+      Records the inode number of a file, if this is not done in a Rock Ridge
+      PX entry (older RRIP 1.10 does not record it).
+      This number is used to identify hardlink relations and optionally
+      as a pointer to a directory which holds the attribute files as of
+      Solaris-style openat(O_XATTR).
+      The inode number is mapped to a little endian hierarchy of byte name
+      directories
+         0x12345678 -> 78/56/34/12a
+             0x5678 -> 78/56a
+      The directory names are upper case hex representations of the bytes.
+      Those with no suffix are access branches to longer indice.
+      Those with suffix "a" are leaf directories which hold the attribute file
+      tree of a particular index.
+              
+Format of Value:
+      IDX_BYTES 
+      The byte strings begin with the most significant byte.
+
+Example:
+      Index 91337 = 0x0164C9 leading to ${ATTRIBUTE_BASE}/C9/64/01a
+      { 1, 100, 201 }
+
+Registered:
+      ?? ??? 201? by Thomas Schmitt for libisofs.
+
+-------------------------------------------------------------------------------
+
+Name:
+      >>> ??? isofs.ob
+
+Purpose:
+      Records the O_XATTR base directory where the tree of attribute roots
+      has its root.
+      >>> How to protect ATTRIBUTE_BASE from being populated with normal files ?
+      >>> ??? may this directory be hidden ?
+          --- Rather not, in order not to hamper readability on unaware systems
+              
+Format of Value:
+      ATTRIBUTE_BASE
+      The Rock Ridge path to the attribute base directory.
+
+Example:
+      Attribute base is "/.solaris_fsattr"
+      { '/', '.', 's', 'o', 'l', 'a', 'r', 'i', 's', '_', 'f', 's',
+        'a', 't', 't', 'r' }
+
+Registered:
+      ?? ??? 201? by Thomas Schmitt for libisofs.
+
+-------------------------------------------------------------------------------
+
+Name:
+      >>> isofs.or
+
+Purpose:
+      Records the number of references of a O_XATTR attribute root directory.
+      This is the number of hard links of the inode to which the directory
+      belongs.
+
+Format of Value:
+      REF_BYTES
+
+Example:
+      The directory holds the attributes of a triply hardlinked file.
+      { 3 }
+
+Registered:
+      ?? ??? 201? by Thomas Schmitt for libisofs.
+
+-------------------------------------------------------------------------------
+
+Name:
+      >>> isofs.pp
+
+Purpose:
+      Records the path of the file to which an attribute directory belongs.
+      Attribute directories are those underneath ATTRIBUTE_BASE with a name
+      that ends by "a". E.g ${ATTRIBUTE_BASE}/78/56a
+
+Format of Value:
+      ISO_RR_PATH
+
+Example:
+      The directory belongs to file "/my/solaris/file"
+      { '/', 'm', 'y', '/', 's', 'o', 'l', 'a', 'r', 'i', 's', '/', 'f',
+        'i', 'l', 'e', }
+
+Registered:
+      ?? ??? 201? by Thomas Schmitt for libisofs.
+
+

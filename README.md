@@ -164,7 +164,7 @@ flowchart LR
 - [x] A signal-callback system on your Kernel API
 - [x] An interface to schedule signals
 - [ ] An interface to clean registers before a panic / halt ----------> **halt**
-- [x] An interface to save the stack before a panic
+- [ ] An interface to save the stack before a panic
 
 
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 19:55:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/18 20:22:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,4 +34,4 @@ extern void *bios32_int_number_ptr;
 extern void init_bios32();
 extern void int86(uint8_t interrupt, regs16_t *in, regs16_t *out);
 
-#endif /* BIOS_H */
+#endif /* !BIOS_H */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 18:16:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:35:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,4 +86,4 @@ extern void kernel_panic_multistr(const char *str[], size_t count);
 
 #define __PANIC_INTERRUPT(str, index, fault, code) kernel_panic_interrupt(str, index, fault, code)
 
-#endif /* PANIC_H */
+#endif /* !PANIC_H */

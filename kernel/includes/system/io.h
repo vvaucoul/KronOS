@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:32:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:53:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,4 @@ extern void poweroff(void);
 extern void halt();
 extern void reboot();
 
-#endif
+#endif /* !IO_H */

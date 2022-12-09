@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:20:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/06/29 19:45:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,4 +71,4 @@ extern void ksh_suppr_char(void);
 
 extern void ksh_write_char(char c);
 
-#endif /* KSH_TERMCAPS_H */
+#endif /* !KSH_TERMCAPS_H */

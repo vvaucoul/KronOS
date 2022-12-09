@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:55:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,4 @@ extern void ksh_save_line(size_t y);
 
 extern void ksh_clear(void);
 
-#endif /* KSH_H */
+#endif /* !KSH_H */

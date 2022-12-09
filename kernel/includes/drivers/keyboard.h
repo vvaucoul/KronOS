@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 23:42:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,4 +60,4 @@ extern void set_keyboard_lang(kbd_lang_t lang);
 
 extern bool __keyboard_uppercase;
 
-#endif
+#endif /* !KEYBOARD_H */

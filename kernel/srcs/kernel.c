@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 15:07:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 15:11:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,8 +150,8 @@ int kmain(hex_t magic_number, hex_t addr)
 
     // /* Raise exception: Divide by zero */
 
-    // __asm__ volatile("int $0x0");
-    // __asm__ volatile("int $0x1");
+    __asm__ volatile("int $0x0");
+    __asm__ volatile("int $0x1");
 
     printk("Hello World!\n");
 

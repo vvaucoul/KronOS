@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 18:27:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:06:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 
 /*
 +--------------------+------------+------------+------------+-------+
-| Error              | Code       | Type       | Exception  | Zero? |
+| Error              | Code       | Type       | Exception  | ERR C |
 +--------------------+------------+------------+------------+-------+
 | Divide-by-zero     | 0 (0x0)    | Fault      | #DE        | No    |
 | Debug              | 1 (0x1)    | Fault/Trap | #DB        | No    |
@@ -33,7 +33,7 @@
 | Bound Range Exceed | 5 (0x5)    | Fault      | #BR        | No    |
 | Invalid Opcode     | 6 (0x6)    | Fault      | #UD        | No    |
 | Device Not         | 7 (0x7)    | Fault      | #NM        | No    |
-| Double Fault       | 8 (0x8)    | Abort      | #DF        | Yes   |
+| Double Fault       | 8 (0x8)    | Abort      | #DF        | Yes(Z)|
 | Coprocessor        | 9 (0x9)    | Fault      | -          | No    |
 | Invalid TSS        | 10 (0xA)   | Fault      | #TS        | Yes   |
 | Segment Not        | 11 (0xB)   | Fault      | #NP        | Yes   |

@@ -77,6 +77,7 @@ isr_exception_handler:
     mov eax, esp
     push eax
 
+
     ; Call the fault handler
     mov eax, fault_handler
     call eax
@@ -90,7 +91,6 @@ isr_exception_handler:
 
     ; Restore the registers
     popa
-
 
     ; Restore the stack
     add esp, 0x8

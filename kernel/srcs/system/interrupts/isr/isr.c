@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 18:29:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:17:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,35 +64,10 @@ static void isr_register(uint8_t index, char *name, isr_code_t code, panic_t typ
 
 static __attribute__((no_caller_saved_registers)) void __display_interrupt_frame(struct regs *r)
 {
-    printk("REGISTERS:\n");
-    // printk("err_code=%d\n", r->err_code);
+    printk("REGS:\n");
     printk("eax=0x%x, ebx=0x%x, ecx=0x%x, edx=0x%x\n", r->eax, r->ebx, r->ecx, r->edx);
     printk("edi=0x%x, esi=0x%x, ebp=0x%x, esp=0x%x\n", r->edi, r->esi, r->ebp, r->esp);
     printk("eip=0x%x, cs=0x%x, ss=0x%x, eflags=0x%x, useresp=0x%x\n", r->eip, r->ss, r->eflags, r->useresp);
-}
-
-__attribute__((interrupt)) void isr_err_00(struct regs *r)
-{
-    __asm__ __volatile__("cli\n"
-                         "mov %ds, %ax\n"
-                         "push %eax\n"
-                         "mov $0x10, %ax\n"
-                         "mov %ax, %ds\n"
-                         "mov %ax, %es\n"
-                         "mov %ax, %fs\n"
-                         "mov %ax, %gs\n"
-                         "add $4, %esp");
-
-    __display_interrupt_frame(r);
-    __PANIC_INTERRUPT((const char *)g_irqs[r->int_no].name, r->int_no, g_irqs[r->int_no].type, r->err_code);
-
-    __asm__ __volatile__("sub $4, %esp\n"
-                         "pop %eax\n"
-                         "mov %ax, %ds\n"
-                         "mov %ax, %es\n"
-                         "mov %ax, %fs\n"
-                         "mov %ax, %gs\n"
-                         "sti\n");
 }
 
 void isrs_install()
@@ -128,28 +103,28 @@ void isrs_install()
     isr_register(9, "Coprocessor Segment Overrun", 0x9, FAULT, "COP", false, false);
 
     idt_set_gate(10, (unsigned)isr10, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(10, "Invalid TSS", 0xA, FAULT, "#TS", true, true);
+    isr_register(10, "Invalid TSS", 0xA, FAULT, "#TS", false, true);
 
     idt_set_gate(11, (unsigned)isr11, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(11, "Segment Not Present", 0xB, FAULT, "#NP", true, true);
+    isr_register(11, "Segment Not Present", 0xB, FAULT, "#NP", false, true);
 
     idt_set_gate(12, (unsigned)isr12, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(12, "Stack Fault", 0xC, FAULT, "#SS", true, true);
+    isr_register(12, "Stack Fault", 0xC, FAULT, "#SS", false, true);
 
     idt_set_gate(13, (unsigned)isr13, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(13, "General Protection Fault", 0xD, ABORT, "#GP", true, true); // tmp
+    isr_register(13, "General Protection Fault", 0xD, ABORT, "#GP", false, true);
 
     idt_set_gate(14, (unsigned)isr14, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(14, "Page Fault", 0xE, FAULT, "#PF", true, true);
+    isr_register(14, "Page Fault", 0xE, FAULT, "#PF", false, true);
 
     idt_set_gate(15, (unsigned)isr15, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(15, "Reserved", 0xF, FAULT, "RES", false, false);
+    isr_register(15, "Reserved", 0xF, FAULT, "RES", false, true);
 
     idt_set_gate(16, (unsigned)isr16, IDT_SELECTOR, IDT_FLAG_GATE);
     isr_register(16, "x87 Floating Point Exception", 0x10, FAULT, "#MF", false, false);
 
     idt_set_gate(17, (unsigned)isr17, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(17, "Alignment Check", 0x11, FAULT, "#AC", true, true);
+    isr_register(17, "Alignment Check", 0x11, FAULT, "#AC", false, true);
 
     idt_set_gate(18, (unsigned)isr18, IDT_SELECTOR, IDT_FLAG_GATE);
     isr_register(18, "Machine Check", 0x12, ABORT, "#MC", false, false);
@@ -161,7 +136,7 @@ void isrs_install()
     isr_register(20, "Virtualization Exception", 0x14, FAULT, "#VE", false, false);
 
     idt_set_gate(21, (unsigned)isr21, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(21, "Control Protection", 0x15, FAULT, "CP", true, true);
+    isr_register(21, "Control Protection", 0x15, FAULT, "CP", false, true);
 
     idt_set_gate(22, (unsigned)isr22, IDT_SELECTOR, IDT_FLAG_GATE);
     isr_register(22, "Reserved", 0x16, FAULT, "", false, false);
@@ -170,10 +145,10 @@ void isrs_install()
     isr_register(23, "Hypervisor", 0x1C, FAULT, "HV", false, false);
 
     idt_set_gate(24, (unsigned)isr24, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(24, "VMM Communication", 0x1D, FAULT, "VC", true, true);
+    isr_register(24, "VMM Communication", 0x1D, FAULT, "VC", false, true);
 
     idt_set_gate(25, (unsigned)isr25, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(25, "Security", 0x1E, FAULT, "SX", true, true);
+    isr_register(25, "Security", 0x1E, FAULT, "SX", false, true);
 
     idt_set_gate(26, (unsigned)isr26, IDT_SELECTOR, IDT_FLAG_GATE);
     isr_register(26, "Reserved", 0x1F, FAULT, "", false, false);
@@ -185,10 +160,10 @@ void isrs_install()
     isr_register(28, "FPU Error Interrupt", 0x21, FAULT, "", false, false);
 
     idt_set_gate(29, (unsigned)isr29, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(29, "Reserved", 0x22, FAULT, "", false, false);
+    isr_register(29, "Reserved", 0x22, FAULT, "", false, true);
 
     idt_set_gate(30, (unsigned)isr30, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(30, "Reserved", 0x23, FAULT, "", false, false);
+    isr_register(30, "Reserved", 0x23, FAULT, "", false, true);
 
     idt_set_gate(31, (unsigned)isr31, IDT_SELECTOR, IDT_FLAG_GATE);
     isr_register(31, "Reserved", 0x24, FAULT, "", false, false);
@@ -200,19 +175,31 @@ void isr_register_interrupt_handler(int num, ISR handler)
     idt_set_gate(num, (unsigned)handler, IDT_SELECTOR, IDT_FLAG_GATE);
 }
 
+/**
+ * @brief Fault Handler Called by ASM Interrupt Handler
+ *
+ * @param r (struct regs *)
+ */
 void fault_handler(struct regs *r)
 {
-    /* CPU Extend 8bits interrupts */
-    // r->int_no &= 0xFF;
+    uint8_t err_code = 0x0;
 
-    printk("Error Code: %u | %u\n", r->int_no, r->err_code);
+    /* CPU Extend 8bits interrupts to 32bits */
+    r->int_no &= 0xFF;
 
     KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
-
     if (r->int_no < 32)
     {
         __display_interrupt_frame(r);
-        __PANIC_INTERRUPT((const char *)g_irqs[r->int_no].name, r->int_no, g_irqs[r->int_no].type, g_irqs[r->int_no].has_code == true ? r->err_code : 0x0);
+
+        panic_t type = g_irqs[r->int_no].type;
+        bool has_code = g_irqs[r->int_no].has_code;
+        bool zero = g_irqs[r->int_no].zero;
+
+        if (zero == false && has_code == true)
+            err_code = r->err_code;
+
+        __PANIC_INTERRUPT((const char *)g_irqs[r->int_no].name, r->int_no, type, err_code);
     }
     else
     {

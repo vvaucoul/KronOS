@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 18:29:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:16:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,8 +146,7 @@ int kmain(hex_t magic_number, hex_t addr)
     ASM_STI();
 
     /* Raise exception: Divide by zero */
-    __asm__ volatile("int $0xA");
-
+    __asm__ volatile("int $0x0");
 
     // interrupts_test();
 

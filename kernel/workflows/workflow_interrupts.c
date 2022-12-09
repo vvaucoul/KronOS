@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/06 21:57:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 18:13:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:03:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,42 +29,45 @@ void interrupts_test(void)
 
     /* Division by zero */
     __asm__ volatile("int $0x0");
+    ksleep(1);
 
     /* Debug */
     __asm__ volatile("int $0x1");
+    ksleep(1);
 
     /* Non Maskable Interrupt */
     __asm__ volatile("int $0x2");
+    ksleep(1);
 
     /* Breakpoint */
     __asm__ volatile("int $0x3");
+    ksleep(1);
 
     /* Overflow */
     __asm__ volatile("int $0x4");
+    ksleep(1);
 
     /* Bound Range Exceeded */
     __asm__ volatile("int $0x5");
+    ksleep(1);
 
     /* Invalid Opcode */
     __asm__ volatile("int $0x6");
+    ksleep(1);
 
     /* Device Not Available */
     __asm__ volatile("int $0x7");
+    ksleep(1);
 
     /* Coprocessor Segment Overrun */
     __asm__ volatile("int $0x9");
-
-    /* Invalid TSS */
-    __asm__ volatile("int $0x0a");
-
-    /* Segment Not Present */
-    __asm__ volatile("int $0x0b");
-
-    /* PANICS */
+    ksleep(1);
 
     /* Double Fault */
     __asm__ volatile("int $0x8");
+    ksleep(1);
 
     /* Page Fault */
     __asm__ volatile("int $0x0e");
+    ksleep(1);
 }

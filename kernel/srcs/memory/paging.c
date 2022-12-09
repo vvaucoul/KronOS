@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 16:14:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 23:03:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,8 @@ page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *
     //     dir->tables[table_idx]->pages[i % 1024].rw = 1;
     //     dir->tables[table_idx]->pages[i % 1024].user = 1;
     // }
+
+    __UNUSED(end_addr);
     return (&dir->tables[table_idx]->pages[address % 1024]);
 }
 

@@ -155,29 +155,29 @@ __protected_mode_32:use32
     ret
 
 __padding:
-    db 0x0
-    db 0x0
-    db 0x0
+    ; db 0x0
+    ; db 0x0
+    ; db 0x0
 bios32_gdt_entries:
     ; 8 gdt entries
-    resb 64
+    ; resb 64
 bios32_gdt_ptr:
-    dd 0x00000000
-    dd 0x00000000
+    ; dd 0x00000000
+    ; dd 0x00000000
 bios32_idt_ptr:
-    dd 0x00000000
-    dd 0x00000000
+    ; dd 0x00000000
+    ; dd 0x00000000
 bios32_in_reg16_ptr:
-    resw 14
+    ; resw 14
 bios32_out_reg16_ptr:
-    dd 0xaaaaaaaa
-    dd 0xaaaaaaaa
-    dd 0xaaaaaaaa
-    dd 0xaaaaaaaa
-    dd 0xaaaaaaaa
-    dd 0xaaaaaaaa
-    dd 0xaaaaaaaa
+    ; dd 0xaaaaaaaa
+    ; dd 0xaaaaaaaa
+    ; dd 0xaaaaaaaa
+    ; dd 0xaaaaaaaa
+    ; dd 0xaaaaaaaa
+    ; dd 0xaaaaaaaa
+    ; dd 0xaaaaaaaa
 current_esp:
-    dw 0x0000
+    ; dw 0x0000
 
 BIOS32_END:

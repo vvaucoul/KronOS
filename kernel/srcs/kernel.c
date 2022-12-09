@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:16:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 23:03:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,10 @@ static void __hhk_log(void)
 static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
+    
+    // bga_init();
+    // vesa_init();
+
     ksh_header();
     __hhk_log();
     kernel_log_info("LOG", "TERMINAL");
@@ -146,7 +150,8 @@ int kmain(hex_t magic_number, hex_t addr)
     ASM_STI();
 
     /* Raise exception: Divide by zero */
-    __asm__ volatile("int $0x0");
+    // __asm__ volatile("int $0x0");
+
 
     // interrupts_test();
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 01:09:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 01:26:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ static void isr_register(uint8_t index, char *name, isr_code_t code, panic_t typ
 static void __display_interrupt_frame(struct regs *r)
 {
     printk("REGISTERS:\n");
-    printk("err_code=%d\n", r->err_code);
+    // printk("err_code=%d\n", r->err_code);
     printk("eax=0x%x, ebx=0x%x, ecx=0x%x, edx=0x%x\n", r->eax, r->ebx, r->ecx, r->edx);
     printk("edi=0x%x, esi=0x%x, ebp=0x%x, esp=0x%x\n", r->edi, r->esi, r->ebp, r->esp);
     printk("eip=0x%x, cs=0x%x, ss=0x%x, eflags=0x%x, useresp=0x%x\n", r->eip, r->ss, r->eflags, r->useresp);
@@ -204,7 +204,7 @@ void isr_register_interrupt_handler(int num, ISR handler)
 void fault_handler(struct regs r)
 {
     /* CPU Extend 8bits interrupts */
-    // r.int_no &= 0xFF;
+    r.int_no &= 0xFF;
 
     printk("Error [%d] code: %d\n", r.int_no, r.err_code);
 
@@ -217,6 +217,7 @@ void fault_handler(struct regs r)
     }
     else
     {
+        __display_interrupt_frame(&r);
         __PANIC_INTERRUPT("Unhandled Interrupt", r.int_no, ABORT, r.err_code);
     }
 

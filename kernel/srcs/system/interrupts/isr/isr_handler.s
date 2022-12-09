@@ -58,7 +58,7 @@ extern fault_handler
 isr_exception_handler:
 
     cli
-    mov ax, ds
+    mov ax, ds; refer to the data segment
     push eax
     mov ax, 0x10
     mov ds, ax
@@ -76,7 +76,7 @@ isr_exception_handler:
     mov gs, ax
     sti
 
-    ret
+    iret
 
 
 

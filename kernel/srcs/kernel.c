@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 23:03:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 01:19:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #include <system/fpu.h>
 #include <system/bsod.h>
 #include <system/scheduler.h>
+#include <system/syscall.h>
 
 #include <drivers/keyboard.h>
 #include <drivers/display.h>
@@ -76,7 +77,7 @@ static void __hhk_log(void)
 static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
-    
+
     // bga_init();
     // vesa_init();
 
@@ -123,6 +124,9 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     init_paging();
     kernel_log_info("LOG", "PAGING");
 
+    init_syscall();
+    kernel_log_info("LOG", "SYSCALL");
+
     // SMP -> Wait KFS -> Threads, processus
     // kpause();
     // Require x64 Broadwell Intel (5th Gen) or higher
@@ -151,7 +155,6 @@ int kmain(hex_t magic_number, hex_t addr)
 
     /* Raise exception: Divide by zero */
     // __asm__ volatile("int $0x0");
-
 
     // interrupts_test();
 

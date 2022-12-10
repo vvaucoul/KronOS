@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 01:19:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 15:32:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 #include <system/bsod.h>
 #include <system/scheduler.h>
 #include <system/syscall.h>
+#include <system/cpu.h>
 
 #include <drivers/keyboard.h>
 #include <drivers/display.h>
@@ -114,6 +115,9 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "ISRS");
     irq_install();
     kernel_log_info("LOG", "IRQ");
+
+    if ((init_cpuid()) == true)
+        kernel_log_info("LOG", "CPUID");
 
     timer_install();
     kernel_log_info("LOG", "TIMER");

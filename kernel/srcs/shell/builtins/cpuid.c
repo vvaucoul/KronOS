@@ -1,39 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process.h                                          :+:      :+:    :+:   */
+/*   cpuid.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/08 12:11:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 12:49:20 by vvaucoul         ###   ########.fr       */
+/*   Created: 2022/12/10 13:25:01 by vvaucoul          #+#    #+#             */
+/*   Updated: 2022/12/10 13:39:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PROCESS_H
-#define PROCESS_H
+#include <shell/ksh.h>
 
-#include <kernel.h>
+#include <system/cpu.h>
 
-typedef enum e_process_state
+int cpuid(const ksh_args_t *args)
 {
-    PROCESS_STATE_RUNNING,
-    PROCESS_STATE_ZOMBIE,
-    PROCESS_STATE_THREAD,
-} process_state_t;
-
-typedef uint32_t pid_t;
-
-typedef struct s_process
-{
-    pid_t pid;
-    process_state_t state;
+    __UNUSED(args);
     
-    struct s_process *father;
-    struct s_process *children;
-
-    
-
-} process_t;
-
-#endif /* !PROCESS_H */
+    return (0);
+}

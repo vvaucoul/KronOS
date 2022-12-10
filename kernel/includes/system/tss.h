@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 18:56:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/07 18:10:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 12:08:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ typedef volatile struct __tss
 
 extern tss_entry_t tss_entry;
 
-extern void tss_flush(void);
+extern void tss_flush(tss_entry_t *tss_entry);
 extern void tss_init(uint32_t idx, uint32_t kss, uint32_t kesp);
 extern void tss_set_stack(uint32_t kss, uint32_t kesp);
 

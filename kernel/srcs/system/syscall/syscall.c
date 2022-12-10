@@ -6,13 +6,18 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 01:15:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 12:49:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/syscall.h>
 
 syscall_t __syscall[SYSCALL_SIZE];
+
+static sysfn_t __syscall_exit_test(void)
+{
+    printk("Syscall exit test\n");
+}
 
 static void __add_syscall(uint32_t id, const char *name, sysfn_t *fn)
 {
@@ -27,7 +32,7 @@ void init_syscall(void)
 
     // TMP syscall fn -> NULL -> Wait for KFS-5 & KFS-7
     __add_syscall(SYSCALL_RESTART, "restart", NULL);
-    __add_syscall(SYSCALL_EXIT, "exit", NULL);
+    __add_syscall(SYSCALL_EXIT, "exit", &__syscall_exit_test);
     __add_syscall(SYSCALL_FORK, "fork", NULL);
     __add_syscall(SYSCALL_READ, "read", NULL);
     __add_syscall(SYSCALL_WRITE, "write", NULL);

@@ -53,7 +53,7 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 * [x] <strong>KFS-1</strong> : Grub / Boot and Screen
 * [x] <strong>KFS-2</strong> : GDT & Stack
 * [x] <strong>KFS-3</strong> : Memory
-* [ ] <strong>KFS-4</strong> : Interrupts -----------> **<i>almost done</i>**
+* [ ] <strong>KFS-4</strong> : Interrupts -----------> **<i>done, waiting for evaluation</i>**
 * [ ] <strong>KFS-5</strong> : Processes
 * [ ] <strong>KFS-6</strong> : Filesystem
 * [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
@@ -163,8 +163,8 @@ flowchart LR
 - [x] Create an Interrupts Descriptor Table, fill it and register it
 - [x] A signal-callback system on your Kernel API
 - [x] An interface to schedule signals
-- [ ] An interface to clean registers before a panic / halt ----------> **halt**
-- [ ] An interface to save the stack before a panic
+- [x] An interface to clean registers before a panic / halt
+- [x] An interface to save the stack before a panic
 
 
 

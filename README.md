@@ -11,6 +11,8 @@ img/>
 This is the result of the **KFS** projects available at School 42.
 The kernel is currently not finished. I will make major improvements as soon as possible.
 
+[![Kronos Workflow](https://github.com/vvaucoul/KronOS/actions/workflows/workflow.yml/badge.svg)](https://github.com/vvaucoul/KronOS/actions/workflows/workflow.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/vvaucoul/kronos/badge)](https://www.codefactor.io/repository/github/vvaucoul/kronos)
 ---
 
 ### Requirements

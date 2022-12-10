@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 16:12:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 22:30:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <workflows/workflows.h>
-#include <system/scheduler.h>
+#include <multitasking/scheduler.h>
 #include <system/pit.h>
 #include <system/panic.h>
 

@@ -33,7 +33,7 @@ section .multiboot.data
 	dd 0			; BSS end address
 	dd 0			; Entry address
 
-	dd 0			; Mode type
+	dd 1			; Mode type
 	dd 0			; Width
 	dd 0			; Height
 	dd 32			; Depth

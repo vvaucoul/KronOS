@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 01:13:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 16:24:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ All x86 syscall: https://chromium.googlesource.com/chromiumos/docs/+/master/cons
 */
 
 #define SYSCALL_SIZE 0x180 // 384 syscall
+#define SYSCALL_IRQ 0x7F
 
 typedef void sysfn_t;
 

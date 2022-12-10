@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 12:49:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 16:32:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/syscall.h>
+#include <system/irq.h>
 
 syscall_t __syscall[SYSCALL_SIZE];
 
@@ -26,6 +27,38 @@ static void __add_syscall(uint32_t id, const char *name, sysfn_t *fn)
     __syscall[id].function = fn;
 }
 
+static void __syscall_handler(struct regs *r)
+{
+    printk("Syscall %d called\n", r->eax);
+    assert(r->eax < SYSCALL_SIZE);
+
+    uint32_t id = r->eax;
+
+    // Update current process
+
+    uint32_t ret;
+
+    __asm__ volatile(
+        "push %1\n"
+        "push %2\n"
+        "push %3\n"
+        "push %4\n"
+        "push %5\n"
+        "push %6\n"
+        "call *%6\n"
+        "pop %%ebx\n"
+        "pop %%ebx\n"
+        "pop %%ebx\n"
+        "pop %%ebx\n"
+        "pop %%ebx\n"
+        : "=a"(ret)
+        : "r"(r->edi), "r"(r->esi), "r"(r->edx), "r"(r->ecx), "r"(r->ebx), "r"(id));
+    
+    // todo: update current process
+    // r = current_process->regs;
+    r->eax = ret;
+}
+
 void init_syscall(void)
 {
     memset(__syscall, 0, SYSCALL_SIZE);
@@ -36,4 +69,9 @@ void init_syscall(void)
     __add_syscall(SYSCALL_FORK, "fork", NULL);
     __add_syscall(SYSCALL_READ, "read", NULL);
     __add_syscall(SYSCALL_WRITE, "write", NULL);
+
+    irq_install_handler(SYSCALL_IRQ, &__syscall_handler);
+
+    // call syscall
+
 }

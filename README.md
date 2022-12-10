@@ -54,7 +54,7 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 * [x] <strong>KFS-2</strong> : GDT & Stack
 * [x] <strong>KFS-3</strong> : Memory
 * [ ] <strong>KFS-4</strong> : Interrupts -----------> **<i>done, waiting for evaluation</i>**
-* [ ] <strong>KFS-5</strong> : Processes
+* [ ] <strong>KFS-5</strong> : Processes -----------> **<i>in progress</i>**
 * [ ] <strong>KFS-6</strong> : Filesystem
 * [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
 * [ ] <strong>KFS-8</strong> : Kernel Modules

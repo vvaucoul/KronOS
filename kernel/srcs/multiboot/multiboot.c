@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 14:03:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 14:04:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,18 +20,18 @@ bool multiboot_check_magic_number(hex_t magic_number)
 {
     if (magic_number != MULTIBOOT_BOOTLOADER_MAGIC)
     {
-        printk(_YELLOW "[LOG] " _END "- " _GREEN "[CHK]  " _RED "MAGIC NUMBER IS INVALID " _END "\n");
+        kernel_log_info("CHK", "MAGIC NUMBER IS INVALID");
         return (false);
     }
     else if (__DISPLAY_INIT_LOG__)
-        printk(_YELLOW "[LOG] " _END "- " _GREEN "[CHK]  " _CYAN "MAGIC NUMBER IS VALID " _END "\n");
+        kernel_log_info("CHK", "MAGIC NUMBER IS VALID");
     return (true);
 }
 
 static void multiboot_check_device(MultibootInfo *mboot_ptr)
 {
     uint32_t device = mboot_ptr->boot_device >> 24;
-    printk(_GREEN "\t\tDEVICE: " _END);
+    printk(_END"\t\t\t  -"_GREEN " DEVICE: " _END);
     switch (device)
     {
     case 0xE0:

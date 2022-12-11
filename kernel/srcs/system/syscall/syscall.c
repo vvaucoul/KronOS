@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 16:32:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 13:32:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static void __syscall_handler(struct regs *r)
         "pop %%ebx\n"
         : "=a"(ret)
         : "r"(r->edi), "r"(r->esi), "r"(r->edx), "r"(r->ecx), "r"(r->ebx), "r"(id));
-    
+
     // todo: update current process
     // r = current_process->regs;
     r->eax = ret;
@@ -73,5 +73,12 @@ void init_syscall(void)
     irq_install_handler(SYSCALL_IRQ, &__syscall_handler);
 
     // call syscall
-
+    // type __res;
+    // __asm__ volatile("int $0x80"
+    //                  : "=a"(__res)
+    //                  : "0"(__NR_##name), "b"(a));
+    // if (__res >= 0)
+    //     return __res;
+    // errno = -__res;
+    // return -1;
 }

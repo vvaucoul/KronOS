@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 00:43:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 14:00:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@
 #include <multitasking/scheduler.h>
 #include <system/syscall.h>
 #include <system/cpu.h>
+#include <system/cmos.h>
+#include <system/time.h>
 
 #include <drivers/keyboard.h>
 #include <drivers/display.h>
@@ -64,7 +66,15 @@ static inline void ksh_header(void)
 void kernel_log_info(const char *part, const char *name)
 {
     if (__DISPLAY_INIT_LOG__)
-        printk(_YELLOW "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n", part, name);
+    {
+        tm_t tm = gettime();
+
+        uint64_t diff_time = difftime(&tm, &startup_tm);
+        printk(_END "[0:%u] "_END
+                    "- "_YELLOW
+                    "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
+               diff_time, part, name);
+    }
 }
 
 static void __hhk_log(void)
@@ -78,6 +88,7 @@ static void __hhk_log(void)
 static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
+    time_init();
 
     // bga_init();
     // vesa_init();
@@ -87,7 +98,6 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
-
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
@@ -101,7 +111,6 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         if (get_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
-        // display_multiboot_infos();
     }
     gdt_install();
     kernel_log_info("LOG", "GDT");
@@ -163,6 +172,10 @@ int kmain(hex_t magic_number, hex_t addr)
     // interrupts_test();
 
     // process_test();
+
+    // tm_t date = gettime();
+    // printk("Mktime: %u\n", mktime(&date));
+    // printk("Date: %s\n\n", asctime(&date));
 
     kronos_shell();
     return (0);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 16:24:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 15:24:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,34 @@ extern syscall_t __syscall[SYSCALL_SIZE];
 
 extern void init_syscall(void);
 
+
+/*
+** SYSCALL MACROS
+*/
+#define _syscall0(type, name)                 \
+    type name(void)                           \
+    {                                         \
+        type __res;                           \
+        __asm__ volatile("int $0x80"          \
+                         : "=a"(__res)        \
+                         : "0"(__NR_##name)); \
+        if (__res >= 0)                       \
+            return __res;                     \
+        return -1;                            \
+    }
+
+#define _syscall(type, name, atype, a)                \
+    type name(atype a)                                \
+    {                                                 \
+        type __res;                                   \
+        __asm__ volatile("int $0x80"                  \
+                         : "=a"(__res)                \
+                         : "0"(__NR_##name), "b"(a)); \
+        if (__res >= 0)                               \
+            return __res;                             \
+        return -1;                                    \
+    }
+
 /*******************************************************************************
  *                              ALL SYSCALL LIST                               *
  ******************************************************************************/
@@ -51,6 +79,9 @@ extern void init_syscall(void);
 */
 
 #define SYSCALL_EXIT 0x01
+#define __NR_exit 0x01
+
+// volatile void exit(int error_code);
 /*
 ** EAX: 0x01
 ** EBX: int error_code
@@ -62,6 +93,7 @@ extern void init_syscall(void);
 */
 
 #define SYSCALL_FORK 0x02
+#define __NR_fork 0x02
 /*
 ** EAX: 0x02
 ** EBX: 0x00

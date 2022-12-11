@@ -6,12 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 13:32:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 15:23:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/syscall.h>
 #include <system/irq.h>
+
+_syscall0(int, exit);
+_syscall0(int, fork);
 
 syscall_t __syscall[SYSCALL_SIZE];
 
@@ -73,12 +76,5 @@ void init_syscall(void)
     irq_install_handler(SYSCALL_IRQ, &__syscall_handler);
 
     // call syscall
-    // type __res;
-    // __asm__ volatile("int $0x80"
-    //                  : "=a"(__res)
-    //                  : "0"(__NR_##name), "b"(a));
-    // if (__res >= 0)
-    //     return __res;
-    // errno = -__res;
-    // return -1;
+    // exit();
 }

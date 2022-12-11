@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 14:07:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 15:25:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,8 +177,17 @@ int kmain(hex_t magic_number, hex_t addr)
     // printk("Mktime: %u\n", mktime(&date));
     // printk("Date: %s\n\n", asctime(&date));
 
+    // exit();
+
     tm_t date = gettime();
     printk(_GREEN "%u-%u-%u\n\n" _END, date.year + 2000, date.month, date.day);
+
+    // TODO: fork and exec
+    /* fork
+    ** exec kronos_shell
+    ** infinite pause
+    */
+
     kronos_shell();
     return (0);
 }

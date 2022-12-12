@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 12:11:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 16:06:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/12 14:57:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,15 @@ typedef struct s_process
 {
     pid_t pid;
     process_state_t state;
-    
+
+    uint32_t stack; // Stack pointer (ESP)
+    uint32_t base; // Base pointer (EBP)
+
+    uint32_t owner_id; // Owner ID
+    //Todo: Current Signal
+        
     struct s_process *father;
     struct s_process *children;
-
-    
 
 } process_t;
 

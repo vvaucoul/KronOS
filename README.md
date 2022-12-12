@@ -166,6 +166,16 @@ flowchart LR
 - [x] An interface to clean registers before a panic / halt
 - [x] An interface to save the stack before a panic
 
+--- 
+
+- [ ]  Basic data structure for processus
+- [ ]  Processus interconnection, such as kinship, signals and sockets.
+- [ ]  Processus owner
+- [ ]  Rights on processus
+- [ ]  Helpers for the followings syscalls: fork, wait, _exit, getuid, signal, kill
+- [ ]  Processus interruptions
+- [ ]  Processus memory separation
+- [ ]  Multitasking
 
 
 🚧 ... Next redaction pending ...🚧

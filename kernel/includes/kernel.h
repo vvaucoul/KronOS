@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 16:02:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 18:20:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,5 +24,9 @@
 #define __HIGHER_HALF_KERNEL__ false
 
 extern void kernel_log_info(const char *part, const char *name);
+
+//tmp
+extern void test_user_function();
+extern void switch_user_mode();
 
 #endif /* !KERNEL_H */

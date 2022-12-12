@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 15:24:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 16:45:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,10 @@ extern syscall_t __syscall[SYSCALL_SIZE];
 
 extern void init_syscall(void);
 
+/*******************************************************************************
+ *                               SYSCALL MACROS                                *
+ ******************************************************************************/
 
-/*
-** SYSCALL MACROS
-*/
 #define _syscall0(type, name)                 \
     type name(void)                           \
     {                                         \

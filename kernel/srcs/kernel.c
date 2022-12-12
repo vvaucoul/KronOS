@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 15:25:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/12 12:32:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void kernel_log_info(const char *part, const char *name)
         tm_t tm = gettime();
 
         uint64_t diff_time = difftime(&tm, &startup_tm);
-        printk(_END "[0:%u] "_END
+        printk(_END "[0:%02u] "_END
                     "- "_YELLOW
                     "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
                diff_time, part, name);
@@ -88,12 +88,14 @@ static void __hhk_log(void)
 static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
-    time_init();
+    ksh_header();
 
     // bga_init();
     // vesa_init();
 
-    ksh_header();
+    time_init();
+    kernel_log_info("LOG", "TIME");
+
     __hhk_log();
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
@@ -157,6 +159,11 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr)
     return (0);
 }
 
+void test_user_function()
+{
+    printk("Hello from user space!\n");
+}
+
 int kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
@@ -187,6 +194,11 @@ int kmain(hex_t magic_number, hex_t addr)
     ** exec kronos_shell
     ** infinite pause
     */
+
+    // switch to user mode
+
+    // switch_user_mode();
+    // kpause();
 
     kronos_shell();
     return (0);

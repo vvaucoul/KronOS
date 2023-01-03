@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 16:12:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:29:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/11 13:53:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,10 @@ void init_kerrno(void)
     __kerrno_error_code = 0;
     __kerrno_file_name = NULL;
     bzero(__kerrno_function_name, __KERRNO_FUNCTION_SIZE);
-    memset(__kerrno_table, 0, sizeof(__kerrno_table));
+    memset(__kerrno_table, 0, __KERRNO_SECTOR_SIZE);
     for (size_t i = 0; i < __KERRNO_SECTOR_SIZE; i ++)
     {
-        memset(__kerrno_table[i], 0, sizeof(__kerrno_table));
+        memset(__kerrno_table[i], 0, __KERRNO_TABLE_SIZE);
     }
     __kerrno_sectors();
 }

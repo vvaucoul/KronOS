@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 15:44:01 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 17:57:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 17:30:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ extern void __kerrno_sectors(void);
  *                                KERRNO MACROS                                *
  ******************************************************************************/
 
-#define KERNO_ASSIGN_ERROR(sector, error_code) kerrno_assign_error(sector, error_code, __FILE_NAME__, __FUNCTION__)
+#define KERNO_ASSIGN_ERROR(sector, error_code) kerrno_assign_error(sector, error_code, __FILE__, __FUNCTION__)
 
 /*******************************************************************************
  *                                KERRNO ERRORS                                *

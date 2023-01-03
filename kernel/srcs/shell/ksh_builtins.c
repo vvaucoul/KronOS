@@ -6,16 +6,18 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 12:09:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 15:26:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <shell/ksh.h>
+#include <shell/builtins/builtins.h>
 #include <system/gdt.h>
 #include <multiboot/multiboot.h>
 #include <system/sections.h>
-// #include <memory/memory_map.h>
-// #include <memory/pmm.h>
+#include <system/cpu.h>
+
+#include <drivers/keyboard.h>
 
 #include <workflows/workflows.h>
 
@@ -34,6 +36,8 @@ static void __ksh_help(void)
     printk("- " _GREEN "sections" _END ": display kernel sections\n");
     printk("- " _GREEN "mboot" _END "/" _GREEN "multiboot" _END ": display multiboot info\n");
     printk("- " _GREEN "kmmap" _END ": display kernel memory info\n");
+    printk("- " _GREEN "setxkbmap" _END ": set keyboard layout\n");
+    printk("- " _GREEN "cpuinfos" _END ": display cpu infos\n");
 }
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -50,6 +54,8 @@ static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
 
 void __ksh_init_builtins(void)
 {
+    bzero(__ksh_builtins, sizeof(__ksh_builtins));
+
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"clear", ""}, &ksh_clear);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"poweroff", "halt", "shutdown", ""}, &poweroff);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"reboot", ""}, &reboot);
@@ -61,13 +67,13 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"help", ""}, &__ksh_help);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"setxkbmap", ""}, &setxkbmap);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cpuinfos", ""}, &get_cpu_informations);
 }
 
-void __ksh_execute_builtins(const char *name)
+void __ksh_execute_builtins(const ksh_args_t *arg)
 {
-    if (!name)
-        return;
-    else if (!name[0])
+    if (arg == NULL)
         return;
 
     for (uint8_t i = 0; i < __NB_BUILTINS_; i++)
@@ -76,12 +82,12 @@ void __ksh_execute_builtins(const char *name)
         {
             if (__ksh_builtins[i].names[j] == NULL)
                 continue;
-            if (strcmp(name, __ksh_builtins[i].names[j]) == 0)
+            if (strcmp(arg->cmd, __ksh_builtins[i].names[j]) == 0)
             {
-                __ksh_builtins[i].function();
+                __ksh_builtins[i].function(arg);
                 return;
             }
         }
     }
-    printk("       Unknown command: %s\n", name);
+    printk("       Unknown command: %s\n", arg->cmd);
 }

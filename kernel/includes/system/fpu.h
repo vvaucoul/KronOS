@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:53:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 19:16:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,4 +20,4 @@
 /* Enable Float Point Units */
 void enable_fpu(void);
 
-#endif /* FPU */
+#endif /* !FPU_H */

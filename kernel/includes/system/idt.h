@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:08:45 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 20:56:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 21:04:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@
 /* Defines an IDT entry */
 struct idt_entry
 {
-    unsigned short base_low;
-    unsigned short sel;  /* Our kernel segment goes here! */
-    unsigned char zero;  /* This will ALWAYS be set to 0! */
-    unsigned char flags; /* Set using the above table! */
-    unsigned short base_high;
+    unsigned short base_low;  /* The lower 16 bits of the address to jump to when this interrupt fires */
+    unsigned short selector;  /* Our kernel segment goes here! */
+    unsigned char zero;       /* This will ALWAYS be set to 0! */
+    unsigned char flags;      /* Set using the above table! */
+    unsigned short base_high; /* The upper 16 bits of the address to jump to */
 } __attribute__((packed));
 
 struct idt_ptr
@@ -37,8 +37,13 @@ extern struct idt_entry idt[IDT_SIZE];
 extern struct idt_ptr idtp;
 
 /* This exists in 'start.asm', and is used to load our IDT */
-extern void idt_load();
-void idt_install();
-void idt_set_gate(unsigned char num, unsigned long base, unsigned short sel, unsigned char flags);
+extern void idt_load(struct idt_ptr *idtp);
+extern void idt_install();
+extern void idt_set_gate(unsigned char num, unsigned long base, unsigned short selector, unsigned char flags);
+
+extern void push_regs(void);
+extern void pop_regs(void);
+
+void tmp(void);
 
 #endif /* !IDT_H */

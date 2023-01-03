@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 13:29:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:52:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@
 
 #define MULTIBOOT_INFO_DEVICE 0x00000001
 #define MULTIBOOT_INFO_VBE 0x00000400
-
 
 #define MULTIBOOT_INFO_AOUT_SYMS 0x00000010
 #define MULTIBOOT_INFO_ELF_SHDR 0X00000020
@@ -257,6 +256,32 @@ typedef struct s_multiboot_info
     };
 } t_multiboot_info;
 
+typedef struct
+{
+    uint16_t attributes;
+    uint8_t winA, winB;
+    uint16_t granularity;
+    uint16_t winsize;
+    uint16_t segmentA, segmentB;
+    uint32_t realFctPtr;
+    uint16_t pitch;
+
+    uint16_t Xres, Yres;
+    uint8_t Wchar, Ychar, planes, bpp, banks;
+    uint8_t memory_model, bank_size, image_pages;
+    uint8_t reserved0;
+
+    uint8_t red_mask, red_position;
+    uint8_t green_mask, green_position;
+    uint8_t blue_mask, blue_position;
+    uint8_t rsv_mask, rsv_position;
+    uint8_t directcolor_attributes;
+
+    uint32_t physbase;
+    uint32_t reserved1;
+    uint16_t reserved2;
+} __attribute__((packed)) vbe_info_t;
+
 #define MultibootMemoryMap t_multiboot_memory_map
 #define MultibootInfo t_multiboot_info
 #define MultibootHeader t_multiboot_header
@@ -269,4 +294,4 @@ extern MultibootInfo *__multiboot_info;
 extern int multiboot_init(MultibootInfo *mboot_ptr);
 extern bool multiboot_check_magic_number(hex_t magic_number);
 
-#endif /* MULTIBOOT_H */
+#endif /* !MULTIBOOT_H */

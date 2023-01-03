@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/02 13:23:58 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/17 02:42:19 by vvaucoul         ###   ########.fr        #
+#    Updated: 2022/12/07 19:02:06 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -56,6 +56,12 @@ pwd=$(pwd)
 xorriso_dir=dependencies
 xorriso=xorriso-1.4.6
 xorriso_installed=$(sh scripts/checkXorriso.sh)
+ls $xorriso_dir/$xorriso > /dev/null 2>&1
+local_xorriso=$?
+
+if [ $local_xorriso -eq 0 ]; then
+    exit 0
+fi
 
 printf "$_LWHITE- Check package $_LYELLOW[XORRISO] $_LYELLOW> $_END$_DIM$xorriso or latest version$_END$_LYELLOW <$_END\n"
 

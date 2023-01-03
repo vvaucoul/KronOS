@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:11:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/17 15:14:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:35:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,4 +36,4 @@ extern uint32_t __kernel_virtual_memory_end;
 
 extern void display_sections(void);
 
-#endif /* SECTIONS */
+#endif /* !SECTIONS_H */

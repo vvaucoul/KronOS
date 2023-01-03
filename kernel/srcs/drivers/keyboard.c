@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:55:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/10 00:27:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <shell/ksh_termcaps.h>
 
 bool __keyboard_uppercase = false;
+kbd_lang_t __keyboard_lang = KEYBOARD_LAYOUT_EN;
 
 unsigned char kbdus[128] =
     {
@@ -55,6 +56,68 @@ unsigned char kbdus[128] =
         0, /* F12 Key */
         0, /* All other keys are undefined */
 };
+
+unsigned char kbdfr[128] =
+    {
+        0, 27, '1', '2', '3', '4', '5', '6', '7', '8',
+        '9', '0', ')', '=', '\b',
+        '\t',
+        'a', 'z', 'e', 'r',
+        't', 'y', 'u', 'i', 'o', 'p', '^', '$', '\n',
+        0,
+        'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+        '%', '*', KEYBOARD_LEFT_SHIFT,
+        '<', 'w', 'x', 'c', 'v', 'b', 'n',
+        ',', ';', ':', '!', KEYBOARD_RIGHT_SHIFT,
+        0,
+        0,   /* Alt */
+        ' ', /* Space bar */
+        0,   /* Caps lock */
+        0,   /* 59 - F1 key ... > */
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, /* < ... F10 */
+        0, /* 69 - Num lock*/
+        0, /* Scroll Lock */
+        0, /* Home key */
+        0, /* Up Arrow */
+        0, /* Page Up */
+        '-',
+        0, /* Left Arrow */
+        0,
+        0, /* Right Arrow */
+        '+',
+        0, /* 79 - End key*/
+        0, /* Down Arrow */
+        0, /* Page Down */
+        0, /* Insert Key */
+        0, /* Delete Key */
+        0, 0, 0,
+        0, /* F11 Key */
+        0, /* F12 Key */
+        0, /* All other keys are undefined */
+};
+
+static uint8_t __get_keyboard_lang(void)
+{
+    return (__keyboard_lang);
+}
+
+static unsigned char *__get_keyboard_codes(void)
+{
+    if (__keyboard_lang == KEYBOARD_LAYOUT_EN)
+        return (kbdus);
+    else
+        return (kbdfr);
+}
+
+void keyboard_set_layout(kbd_lang_t lang)
+{
+    __keyboard_lang = lang;
+    printk("\t   Keyboard layout set to "_GREEN
+           "%s"_END
+           "\n",
+           lang == KEYBOARD_LAYOUT_EN ? "EN" : "FR");
+}
 
 static bool scancode_handler(unsigned char scancode)
 {
@@ -135,10 +198,10 @@ void keyboard_handler(struct regs *r)
     {
         if ((scancode_handler(scancode)) == false)
         {
-            if (isalpha(kbdus[scancode]))
-                ksh_write_char(__keyboard_uppercase == true ? kbdus[scancode] - 32 : kbdus[scancode]);
+            if (isalpha(__get_keyboard_codes()[scancode]))
+                ksh_write_char(__keyboard_uppercase == true ? __get_keyboard_codes()[scancode] - 32 : __get_keyboard_codes()[scancode]);
             else
-                ksh_write_char(kbdus[scancode]);
+                ksh_write_char(__get_keyboard_codes()[scancode]);
         }
     }
 }
@@ -147,4 +210,5 @@ void keyboard_handler(struct regs *r)
 void keyboard_install()
 {
     irq_install_handler(1, keyboard_handler);
+    __UNUSED(__get_keyboard_lang);
 }

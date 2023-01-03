@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:06:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/30 13:07:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:35:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,4 @@ extern int timer_seconds;
 
 extern void timer_display_ktimer(void);
 
-#endif // PIT_H
+#endif /* !PIT_H */

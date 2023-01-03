@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 12:41:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/04 12:45:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:33:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,4 +24,4 @@ enum e_video_type
 
 extern enum e_video_type get_bios_area_video_type(void);
 
-#endif /* DISPLAY_H */
+#endif /* !DISPLAY_H */

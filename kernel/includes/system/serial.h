@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/01 16:14:50 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/09/01 16:17:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:35:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,4 +22,4 @@ void serial_init(void);
 
 void qemu_printf(const char *str, ...);
 
-#endif /* SERIALH_H */
+#endif /* !SERIALH_H */

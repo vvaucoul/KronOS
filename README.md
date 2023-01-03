@@ -55,7 +55,7 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 * [x] <strong>KFS-1</strong> : Grub / Boot and Screen
 * [x] <strong>KFS-2</strong> : GDT & Stack
 * [x] <strong>KFS-3</strong> : Memory
-* [ ] <strong>KFS-4</strong> : Interrupts -----------> **<i>done, waiting for evaluation</i>**
+* [x] <strong>KFS-4</strong> : Interrupts
 * [ ] <strong>KFS-5</strong> : Processes -----------> **<i>in progress</i>**
 * [ ] <strong>KFS-6</strong> : Filesystem
 * [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
@@ -165,8 +165,22 @@ flowchart LR
 
 ### WIP
 
-- IDT
-- Save stack and clear memory when kernel panic !
+- [x] Create an Interrupts Descriptor Table, fill it and register it
+- [x] A signal-callback system on your Kernel API
+- [x] An interface to schedule signals
+- [x] An interface to clean registers before a panic / halt
+- [x] An interface to save the stack before a panic
+
+--- 
+
+- [ ]  Basic data structure for processus
+- [ ]  Processus interconnection, such as kinship, signals and sockets.
+- [ ]  Processus owner
+- [ ]  Rights on processus
+- [ ]  Helpers for the followings syscalls: fork, wait, _exit, getuid, signal, kill
+- [ ]  Processus interruptions
+- [ ]  Processus memory separation
+- [ ]  Multitasking
 
 
 🚧 ... Next redaction pending ...🚧

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 19:17:50 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:19:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,4 @@ extern void ksh_buffer_delete_last_char(void);
 extern void ksh_buffer_delete_char_at(size_t index);
 extern void ksh_buffer_clear(void);
 
-#endif /* KSH_BUFFER_H */
+#endif /* !KSH_BUFFER_H */

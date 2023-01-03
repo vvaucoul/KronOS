@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 20:50:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/12 12:32:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,22 @@
 #include <system/isr.h>
 #include <system/irq.h>
 #include <system/pit.h>
+#include <system/tss.h>
 #include <system/kerrno.h>
 #include <system/serial.h>
 #include <system/panic.h>
 #include <system/sections.h>
 #include <system/fpu.h>
 #include <system/bsod.h>
+#include <multitasking/scheduler.h>
+#include <system/syscall.h>
+#include <system/cpu.h>
+#include <system/cmos.h>
+#include <system/time.h>
 
 #include <drivers/keyboard.h>
 #include <drivers/display.h>
-#include <drivers/vbe.h>
+#include <drivers/vesa.h>
 
 #include <multiboot/multiboot.h>
 
@@ -60,7 +66,15 @@ static inline void ksh_header(void)
 void kernel_log_info(const char *part, const char *name)
 {
     if (__DISPLAY_INIT_LOG__)
-        printk(_YELLOW "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n", part, name);
+    {
+        tm_t tm = gettime();
+
+        uint64_t diff_time = difftime(&tm, &startup_tm);
+        printk(_END "[0:%02u] "_END
+                    "- "_YELLOW
+                    "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
+               diff_time, part, name);
+    }
 }
 
 static void __hhk_log(void)
@@ -75,11 +89,17 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
     ksh_header();
+
+    // bga_init();
+    // vesa_init();
+
+    time_init();
+    kernel_log_info("LOG", "TIME");
+
     __hhk_log();
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
-
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
@@ -93,16 +113,23 @@ static int init_kernel(hex_t magic_number, hex_t addr)
         if (get_memory_map(__multiboot_info))
             __PANIC("Error: kernel memory map failed");
         kernel_log_info("LOG", "KERNEL MEMORY MAP");
-        // display_multiboot_infos();
     }
     gdt_install();
     kernel_log_info("LOG", "GDT");
+
+    tss_init(5, 0x10, 0x0);
+    kernel_log_info("LOG", "TSS");
+
     idt_install();
     kernel_log_info("LOG", "IDT");
     isrs_install();
     kernel_log_info("LOG", "ISRS");
     irq_install();
     kernel_log_info("LOG", "IRQ");
+
+    if ((init_cpuid()) == true)
+        kernel_log_info("LOG", "CPUID");
+
     timer_install();
     kernel_log_info("LOG", "TIMER");
     keyboard_install();
@@ -111,6 +138,9 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "FPU");
     init_paging();
     kernel_log_info("LOG", "PAGING");
+
+    init_syscall();
+    kernel_log_info("LOG", "SYSCALL");
 
     // SMP -> Wait KFS -> Threads, processus
     // kpause();
@@ -129,6 +159,11 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr)
     return (0);
 }
 
+void test_user_function()
+{
+    printk("Hello from user space!\n");
+}
+
 int kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
@@ -137,6 +172,33 @@ int kmain(hex_t magic_number, hex_t addr)
     if (__DISPLAY_INIT_LOG__)
         printk("\n");
     ASM_STI();
+
+    /* Raise exception: Divide by zero */
+    // __asm__ volatile("int $0x0");
+
+    // interrupts_test();
+
+    // process_test();
+
+    // tm_t date = gettime();
+    // printk("Mktime: %u\n", mktime(&date));
+    // printk("Date: %s\n\n", asctime(&date));
+
+    // exit();
+
+    tm_t date = gettime();
+    printk(_GREEN "%u-%u-%u\n\n" _END, date.year + 2000, date.month, date.day);
+
+    // TODO: fork and exec
+    /* fork
+    ** exec kronos_shell
+    ** infinite pause
+    */
+
+    // switch to user mode
+
+    // switch_user_mode();
+    // kpause();
 
     kronos_shell();
     return (0);

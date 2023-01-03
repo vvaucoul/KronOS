@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 17:51:49 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/10/21 18:29:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:34:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,4 @@
 
 #define __KERRNO_PMM_ROOT_BLOCK_ERROR_STRUCT __KERRNO_STRUCT(__KERRNO_SECTOR_PMM, KERRNO_PMM_ROOT_BLOCK_ERROR, "Root block error")
 
-#endif /* KERRNO_SECTOR_H */
+#endif /* !KERRNO_SECTOR_H */

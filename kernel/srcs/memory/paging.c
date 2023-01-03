@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/03 23:52:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 23:03:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,33 @@ page_t *get_page(uint32_t address, page_directory_t *dir)
     return (NULL);
 }
 
-static void switch_page_directory(page_directory_t *dir)
+page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *dir)
+{
+    // TODO: Copies kernel space into a new page directory and makes the range from address to end_addr user accessible.
+
+    address /= PAGE_SIZE;
+    uint32_t table_idx = address / 1024;
+
+    dir->tables[table_idx] = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &dir->tablesPhysical[table_idx]);
+    memset(dir->tables[table_idx], 0, PAGE_SIZE);
+    dir->tablesPhysical[table_idx] |= PAGE_PRESENT | PAGE_WRITE | PAGE_USER;
+    // for (uint32_t i = address; i < end_addr; i++)
+    // {
+    //     dir->tables[table_idx]->pages[i % 1024].frame = i;
+    //     dir->tables[table_idx]->pages[i % 1024].present = 1;
+    //     dir->tables[table_idx]->pages[i % 1024].rw = 1;
+    //     dir->tables[table_idx]->pages[i % 1024].user = 1;
+    // }
+
+    __UNUSED(end_addr);
+    return (&dir->tables[table_idx]->pages[address % 1024]);
+}
+
+void switch_page_directory(page_directory_t *dir)
 {
     current_directory = dir;
-    enable_paging((page_directory_t *)&dir->tablesPhysical);
+    asm volatile("mov %0, %%cr3" ::"r"(dir->physicalAddr));
+    // enable_paging((page_directory_t *)&dir->tablesPhysical);
 }
 
 void init_paging(void)
@@ -103,6 +126,7 @@ void init_paging(void)
 
     isr_register_interrupt_handler(14, page_fault);
     switch_page_directory(kernel_directory);
+    enable_paging((page_directory_t *)&kernel_directory->tablesPhysical);
     init_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_MAX_SIZE, 0, 0);
     paging_enabled = true;
 }

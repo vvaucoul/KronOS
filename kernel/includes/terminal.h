@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:53:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2022/12/09 22:36:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,4 +149,4 @@ static inline void terminal_move_cursor_down(void)
     UPDATE_CURSOR();
 }
 
-#endif /* TERMINAL_H */
+#endif /* !TERMINAL_H */

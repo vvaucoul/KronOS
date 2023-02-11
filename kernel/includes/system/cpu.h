@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 14:36:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 22:31:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@
 #define CPUID_VENDOR_BHYVE "bhyve bhyve "
 #define CPUID_VENDOR_QNX " QNXQVMBSQG "
 
-typedef enum e_cpu_info
+typedef enum e_cpu_info : uint32_t
 {
     CPUID_FEAT_ECX_SSE3 = 1 << 0,
     CPUID_FEAT_ECX_PCLMUL = 1 << 1,

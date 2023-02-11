@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:35:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 22:30:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <kernel.h>
 #include <system/kerrno.h>
 
-typedef enum e_panic_type
+typedef enum e_panic_type : uint8_t
 {
     ABORT,
     FAULT,

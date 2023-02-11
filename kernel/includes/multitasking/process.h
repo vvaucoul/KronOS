@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 12:11:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/12 14:57:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 22:30:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <kernel.h>
 
-typedef enum e_process_state
+typedef enum e_process_state : uint8_t
 {
     PROCESS_STATE_RUNNING,
     PROCESS_STATE_ZOMBIE,

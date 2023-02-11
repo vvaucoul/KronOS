@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 12:41:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:33:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 22:30:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <kernel.h>
 
-enum e_video_type
+enum e_video_type : uint8_t
 {
     VIDEO_TYPE_NONE = 0x00,
     VIDEO_TYPE_COLOUR = 0x20,

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 20:37:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 22:54:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,10 @@
 #include <memory/paging.h>
 
 #include <workflows/workflows.h>
+
+#if __HIGHER_HALF_KERNEL__ == true
+#error "Higher Half Kernel is not supported yet"
+#endif
 
 MultibootInfo *__multiboot_info = NULL;
 
@@ -90,7 +94,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
     ksh_header();
-    
+
     // bga_init();
     // vesa_init();
 
@@ -188,6 +192,7 @@ int kmain(hex_t magic_number, hex_t addr)
     if (__DISPLAY_INIT_LOG__)
         printk("\n");
     ASM_STI();
+
 
     /* Raise exception: Divide by zero */
     // __asm__ volatile("int $0x0");

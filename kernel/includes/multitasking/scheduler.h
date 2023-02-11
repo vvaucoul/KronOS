@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 12:58:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 22:30:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 #define UCODE_START (uint32_t)0x00600000 // 6MB
 
-typedef enum e_process_state
+typedef enum e_process_state : uint8_t
 {
     PROCESS_STATE_RUNNING,
     PROCESS_STATE_ZOMBIE,

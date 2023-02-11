@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 18:55:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 22:35:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,5 +133,5 @@ void get_cpu_topology(void)
     cpu_topology.minFrequency = cpuInfo[1];
     printk("Min Frequency: %d\n", cpu_topology.minFrequency);
 
-    pause();
+    // pause();
 }

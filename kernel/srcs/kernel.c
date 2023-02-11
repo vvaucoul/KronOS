@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/12 12:32:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 13:44:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
+
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
@@ -128,8 +129,22 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     kernel_log_info("LOG", "IRQ");
 
     if ((init_cpuid()) == true)
+    {
         kernel_log_info("LOG", "CPUID");
 
+        printk(_END "\t\t\t   -"_GREEN
+                    " VENDOR: " _END "%s" _END "\n",
+               cpu_vendor);
+        printk(_END "\t\t\t   -"_GREEN
+                    " NAME: " _END "%s" _END "\n",
+               cpu_brand);
+        printk(_END "\t\t\t   -"_GREEN
+                    " HYPERVISOR: " _END "%s" _END "\n",
+               hypervisor);
+    }
+    get_cpu_topology();
+    kernel_log_info("LOG", "CPU TOPOLOGY");
+    
     timer_install();
     kernel_log_info("LOG", "TIMER");
     keyboard_install();
@@ -187,7 +202,9 @@ int kmain(hex_t magic_number, hex_t addr)
     // exit();
 
     tm_t date = gettime();
-    printk(_GREEN "%u-%u-%u\n\n" _END, date.year + 2000, date.month, date.day);
+    printk(_GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
+
+    get_cpu_informations();
 
     // TODO: fork and exec
     /* fork

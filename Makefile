@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/12/09 01:05:32 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/02/11 10:45:52 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -147,13 +147,12 @@ re: clean
 	@make -s -C . all
 
 ascii:
-	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)      $(_LRED)██╗  ██╗\n$(_END)"
-	@printf "$(_LRED)\r██║ ██╔╝██╔════╝██╔════╝$(_LWHITE)      $(_LRED)██║  ██║\n$(_END)"
-	@printf "$(_LRED)\r█████╔╝ █████╗  ███████╗$(_LWHITE)█████╗$(_LRED)███████║\n$(_END)"
+	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)      $(_LRED)███████╗\n$(_END)"
+	@printf "$(_LRED)\r██║ ██╔╝██╔════╝██╔════╝$(_LWHITE)      $(_LRED)██╔════╝\n$(_END)"
+	@printf "$(_LRED)\r█████╔╝ █████╗  ███████╗$(_LWHITE)█████╗$(_LRED)███████╗\n$(_END)"
 	@printf "$(_LRED)\r██╔═██╗ ██╔══╝  ╚════██║$(_LWHITE)╚════╝$(_LRED)╚════██║\n$(_END)"
-	@printf "$(_LRED)\r██║  ██╗██║     ███████║$(_LWHITE)      $(_LRED)     ██║\n$(_END)"
-	@printf "$(_LRED)\r╚═╝  ╚═╝╚═╝     ╚══════╝$(_LWHITE)      $(_LRED)     ╚═╝\n$(_END)"
-                                      
+	@printf "$(_LRED)\r██║  ██╗██║     ███████║$(_LWHITE)      $(_LRED)███████║\n$(_END)"
+	@printf "$(_LRED)\r╚═╝  ╚═╝╚═╝     ╚══════╝$(_LWHITE)      $(_LRED)╚══════╝\n$(_END)"
 
 helper:
 	@printf "\n$(_LWHITE)- Now you use: '$(_LYELLOW)make run$(_END)$(_LWHITE)' or '$(_LYELLOW)make run-iso$(_END)$(_LWHITE)' to start the kernel !$(_END)\n"

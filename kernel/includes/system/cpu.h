@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 15:28:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 13:48:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,5 +129,23 @@ extern uint32_t cpu_family;
 extern uint32_t cpu_model;
 
 extern char hypervisor[CPU_INFOS_SIZE];
+
+/*******************************************************************************
+ *                                CPU TOPOLOGY                                 *
+ ******************************************************************************/
+
+#define CPU_BAND_STRING_SIZE 0x40 // 64 bytes
+
+typedef struct cpu_topology
+{
+    uint32_t cores;
+    uint32_t threads;
+    uint32_t sockets;
+    char brandString[CPU_BAND_STRING_SIZE];
+} cpu_topology_t;
+
+extern cpu_topology_t cpu_topology;
+
+extern void get_cpu_topology(void);
 
 #endif /* !CPU_H */

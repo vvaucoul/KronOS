@@ -11,6 +11,8 @@ img/>
 This is the result of the **KFS** projects available at School 42.
 The kernel is currently not finished. I will make major improvements as soon as possible.
 
+[![Kronos Workflow](https://github.com/vvaucoul/KronOS/actions/workflows/workflow.yml/badge.svg)](https://github.com/vvaucoul/KronOS/actions/workflows/workflow.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/vvaucoul/kronos/badge)](https://www.codefactor.io/repository/github/vvaucoul/kronos)
 ---
 
 ### Requirements
@@ -53,7 +55,7 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 * [x] <strong>KFS-1</strong> : Grub / Boot and Screen
 * [x] <strong>KFS-2</strong> : GDT & Stack
 * [x] <strong>KFS-3</strong> : Memory
-* [ ] <strong>KFS-4</strong> : Interrupts -----------> **<i>done, waiting for evaluation</i>**
+* [x] <strong>KFS-4</strong> : Interrupts
 * [ ] <strong>KFS-5</strong> : Processes -----------> **<i>in progress</i>**
 * [ ] <strong>KFS-6</strong> : Filesystem
 * [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
@@ -95,6 +97,9 @@ make run-iso
 * [x] Scroll and Cursor support
 * [x] Colors support
 * [x] A Complete GDT system
+* [x] A Complete Memory system
+* [x] Kernel Heap
+* [x] Physical and Virtual Memory
 
 ### GRUB 2 with Multiboot 1
 

@@ -6,40 +6,41 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 13:44:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 20:37:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <shell/ksh.h>
 
+#include <multitasking/scheduler.h>
+
+#include <system/bsod.h>
+#include <system/cmos.h>
+#include <system/cpu.h>
+#include <system/fpu.h>
 #include <system/gdt.h>
 #include <system/idt.h>
-#include <system/isr.h>
 #include <system/irq.h>
-#include <system/pit.h>
-#include <system/tss.h>
+#include <system/isr.h>
 #include <system/kerrno.h>
-#include <system/serial.h>
 #include <system/panic.h>
+#include <system/pit.h>
 #include <system/sections.h>
-#include <system/fpu.h>
-#include <system/bsod.h>
-#include <multitasking/scheduler.h>
+#include <system/serial.h>
 #include <system/syscall.h>
-#include <system/cpu.h>
-#include <system/cmos.h>
 #include <system/time.h>
+#include <system/tss.h>
 
-#include <drivers/keyboard.h>
 #include <drivers/display.h>
+#include <drivers/keyboard.h>
 #include <drivers/vesa.h>
 
 #include <multiboot/multiboot.h>
 
+#include <memory/kheap.h>
 #include <memory/memory.h>
 #include <memory/memory_map.h>
-#include <memory/kheap.h>
 #include <memory/paging.h>
 
 #include <workflows/workflows.h>
@@ -89,7 +90,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
 {
     terminal_initialize();
     ksh_header();
-
+    
     // bga_init();
     // vesa_init();
 
@@ -144,7 +145,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     }
     get_cpu_topology();
     kernel_log_info("LOG", "CPU TOPOLOGY");
-    
+
     timer_install();
     kernel_log_info("LOG", "TIMER");
     keyboard_install();

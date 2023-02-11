@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:31:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/07 11:04:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 20:24:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ uint8_t inb(uint32_t _port)
 {
     uint8_t _v;
 
-    asm volatile("inb %%dx, %%al"
+    __asm__ volatile("inb %%dx, %%al"
                  : "=a"(_v)
                  : "d"(_port));
     return _v;
@@ -42,7 +42,7 @@ uint16_t inw(uint32_t _port)
 {
     uint16_t _v;
 
-    asm volatile("inw %%dx, %%ax"
+    __asm__ volatile("inw %%dx, %%ax"
                  : "=a"(_v)
                  : "d"(_port));
     return _v;
@@ -52,7 +52,7 @@ uint32_t inl(uint32_t _port)
 {
     uint32_t _v;
 
-    asm volatile("inl %%dx, %%eax"
+    __asm__ volatile("inl %%dx, %%eax"
                  : "=a"(_v)
                  : "d"(_port));
     return _v;
@@ -60,21 +60,21 @@ uint32_t inl(uint32_t _port)
 
 void outb(uint16_t _port, uint8_t _data)
 {
-    asm volatile("outb %0, %1"
+    __asm__ volatile("outb %0, %1"
                  :
                  : "a"(_data), "Nd"(_port));
 }
 
 void outw(uint16_t _port, uint16_t _data)
 {
-    asm volatile("outw %0, %1"
+    __asm__ volatile("outw %0, %1"
                  :
                  : "a"(_data), "Nd"(_port));
 }
 
 void outl(uint32_t _port, uint32_t _data)
 {
-    asm volatile("outl %%eax, %%dx"
+    __asm__ volatile("outl %%eax, %%dx"
                  :
                  : "d"(_port), "a"(_data));
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 20:23:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,8 @@ void timer_wait(int ticks)
 
     eticks = timer_ticks + ticks;
     while (timer_ticks < eticks)
-        asm volatile("sti\n\thlt\n\tcld");
-    asm volatile("sti");
+        __asm__ volatile("sti\n\thlt\n\tcld");
+    __asm__ volatile("sti");
 }
 
 void kpause(void)
@@ -91,8 +91,8 @@ void ksleep(int seconds)
 
     eseconds = timer_seconds + seconds;
     while (timer_seconds < eseconds)
-        asm volatile("sti\n\thlt\n\tcld");
-    asm volatile("sti");
+        __asm__ volatile("sti\n\thlt\n\tcld");
+    __asm__ volatile("sti");
 }
 
 void timer_display_ktimer(void)

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 23:03:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 20:21:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *
 void switch_page_directory(page_directory_t *dir)
 {
     current_directory = dir;
-    asm volatile("mov %0, %%cr3" ::"r"(dir->physicalAddr));
+    __asm__ volatile("mov %0, %%cr3" ::"r"(dir->physicalAddr));
     // enable_paging((page_directory_t *)&dir->tablesPhysical);
 }
 

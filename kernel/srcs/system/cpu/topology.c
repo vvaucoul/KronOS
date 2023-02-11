@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 14:11:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 14:49:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,39 @@
 
 cpu_topology_t cpu_topology;
 
+/* Check Flags HTT */
+static bool cpuid_is_supported(void)
+{
+    uint32_t eax, ebx, ecx, edx;
+    uint32_t htt = 0;
+
+    __cpuid(0x00000001, eax, ebx, ecx, edx);
+    htt = (edx >> 28) & 1;
+
+    if (htt == 1)
+        printk("\t\t "_YELLOW
+               "[CPUID SUPPORTED]"_END
+               " - "_GREEN
+               "%s" _END "\n",
+               "TRUE");
+    else
+        printk("\t\t "_YELLOW
+               "[CPUID SUPPORTED]"_END
+               " - "_RED
+               "%s" _END "\n",
+               "FALSE");
+
+    return (htt == 1);
+}
+
 void get_cpu_topology(void)
 {
+    // CPUID eax = 0x00000001;
+
+    // Check if CPUID is supported (with flag HTT)
+    if (cpuid_is_supported() == false)
+        return;
+
     int cpuInfo[4] = {0, 0, 0, 0};
     unsigned nExIds, i = 0;
 
@@ -87,10 +118,10 @@ void get_cpu_topology(void)
     cpu_topology.l4CacheSize = ((cpuInfo[2] >> 0) & 0xff) * 1024 * 1024;
     printk("L4 Cache Size: %d\n", cpu_topology.l4CacheSize);
 
-    // Get Frequency
-    __cpuid(0x00000016, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
-    cpu_topology.frequency = cpuInfo[0];
-    printk("Frequency: %d\n", cpu_topology.frequency);
+    // Get Current Frequency
+    __cpuid(0x80000007, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.currentFrequency = cpuInfo[3];
+    printk("Current Frequency: %d\n", cpu_topology.currentFrequency);
 
     // Get Max Frequency
     __cpuid(0x80000007, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
@@ -101,4 +132,6 @@ void get_cpu_topology(void)
     __cpuid(0x80000007, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.minFrequency = cpuInfo[1];
     printk("Min Frequency: %d\n", cpu_topology.minFrequency);
+
+    pause();
 }

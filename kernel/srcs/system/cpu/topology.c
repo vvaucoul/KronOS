@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 13:48:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 14:11:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,36 +31,74 @@ void get_cpu_topology(void)
         __cpuid(i, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
 
         // Interpret CPU brand string and cache information.
-        if  (i == 0x80000002)
+        if (i == 0x80000002)
             memcpy(cpu_topology.brandString, cpuInfo, sizeof(cpuInfo));
-        else if  (i == 0x80000003)
+        else if (i == 0x80000003)
             memcpy(cpu_topology.brandString + 16, cpuInfo, sizeof(cpuInfo));
-        else if  (i == 0x80000004)
+        else if (i == 0x80000004)
             memcpy(cpu_topology.brandString + 32, cpuInfo, sizeof(cpuInfo));
     }
 
     // Display all information in a human readable format.
     printk("CPU Brand: %s\n", cpu_topology.brandString);
 
+    // Get the number of physical cores per package.
+    __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.physicalCoresPerPackage = (cpuInfo[0] >> 26) + 1;
+    printk("Physical cores per package: %d\n", cpu_topology.physicalCoresPerPackage);
+
     // Get the number of logical cores per physical core.
     __cpuid(0x00000001, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
-    printk("Logical cores per physical core: %d\n", ((cpuInfo[1] >> 16) & 0xff));
+    cpu_topology.logicalCoresPerPhysicalCore = ((cpuInfo[1] >> 16) & 0xff);
+    printk("Logical cores per physical core: %d\n", cpu_topology.logicalCoresPerPhysicalCore);
 
-    // Get the number of threads per physical core.
+    // Get Socket count
     __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
-    printk("Threads per physical core: %d\n", (cpuInfo[0] & 0x1f));
+    cpu_topology.socketCount = ((cpuInfo[0] >> 14) & 0xfff) + 1;
+    printk("Socket count: %d\n", cpu_topology.socketCount);
 
-    // Get the number of cores per package.
-    printk("Cores per package: %d\n", ((cpuInfo[0] >> 26) & 0x3f));
+    // Get Core Count
+    __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.coreCount = ((cpuInfo[0] >> 26) & 0x3f) + 1;
+    printk("Core count: %d\n", cpu_topology.coreCount);
 
-    // Get the number of packages.
-    __cpuid(0x0000000b, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
-    printk("Packages: %d\n", (cpuInfo[1] & 0xffff));
+    // Get Thread Count
+    __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.threadCount = ((cpuInfo[0] >> 14) & 0xfff) + 1;
+    printk("Thread count: %d\n", cpu_topology.threadCount);
 
-    // Get the number of logical cores.
-    __cpuid(0x0000000b, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
-    printk("Logical cores: %d\n", (cpuInfo[1] >> 16));
+    // Get L1 Cache Size
+    __cpuid(0x00000002, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.l1CacheSize = ((cpuInfo[2] >> 24) & 0xff) * 1024;
+    printk("L1 Cache Size: %d\n", cpu_topology.l1CacheSize);
 
-    
+    // Get L2 Cache Size
+    __cpuid(0x00000002, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.l2CacheSize = ((cpuInfo[2] >> 16) & 0xff) * 1024;
+    printk("L2 Cache Size: %d\n", cpu_topology.l2CacheSize);
 
+    // Get L3 Cache Size
+    __cpuid(0x00000002, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.l3CacheSize = ((cpuInfo[2] >> 8) & 0xff) * 1024 * 1024;
+    printk("L3 Cache Size: %d\n", cpu_topology.l3CacheSize);
+
+    // Get L4 Cache Size
+    __cpuid(0x00000002, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.l4CacheSize = ((cpuInfo[2] >> 0) & 0xff) * 1024 * 1024;
+    printk("L4 Cache Size: %d\n", cpu_topology.l4CacheSize);
+
+    // Get Frequency
+    __cpuid(0x00000016, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.frequency = cpuInfo[0];
+    printk("Frequency: %d\n", cpu_topology.frequency);
+
+    // Get Max Frequency
+    __cpuid(0x80000007, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.maxFrequency = cpuInfo[0];
+    printk("Max Frequency: %d\n", cpu_topology.maxFrequency);
+
+    // Get Min Frequency
+    __cpuid(0x80000007, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
+    cpu_topology.minFrequency = cpuInfo[1];
+    printk("Min Frequency: %d\n", cpu_topology.minFrequency);
 }

@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 22:31:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 23:11:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <multitasking/scheduler.h>
 #include <memory/memory.h>
+#include <multitasking/scheduler.h>
 
 #include <system/panic.h>
 

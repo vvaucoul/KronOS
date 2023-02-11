@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:54:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 23:11:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <shell/ksh.h>
 
 #include <multitasking/scheduler.h>
+#include <multitasking/tasking.h>
 
 #include <system/bsod.h>
 #include <system/cmos.h>
@@ -211,6 +212,8 @@ int kmain(hex_t magic_number, hex_t addr)
     printk(_GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
     get_cpu_informations();
+
+    tasking_init();
 
     // TODO: fork and exec
     /* fork

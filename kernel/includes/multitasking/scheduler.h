@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:30:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/11 23:13:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <system/isr.h>
 #include <memory/paging.h>
+#include <system/isr.h>
 
 #define UCODE_START (uint32_t)0x00600000 // 6MB
 
@@ -28,7 +28,7 @@ typedef enum e_process_state : uint8_t
 typedef struct s_process
 {
     t_regs regs;                      // CPU registers
-    page_directory_t *page_directory; // Page directory
+    page_directory_t *page_directory; // Page directory, dedicated memory space
     page_t *process_page;             // Current process page
 
     uint32_t pid;          // Process ID

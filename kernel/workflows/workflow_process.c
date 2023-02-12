@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 22:30:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/12 14:11:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,9 @@ void process_test(void)
 {
     __WORKFLOW_HEADER();
 
-    load_binary((uint8_t *)(&process_a), 1024);
+    // load_binary((uint8_t *)(&process_a), 1024);
     
+    __UNUSED(process_a);
     ksleep(1);
     __WORKFLOW_FOOTER();
 }

@@ -6,12 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 20:23:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/12 13:57:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <system/pit.h>
 #include <asm/asm.h>
+#include <multitasking/scheduler.h>
+#include <system/pit.h>
 
 void speaker_phase(int hz)
 {
@@ -27,7 +28,7 @@ void timer_phase(int hz)
     int divisor = __CHIPSET_FREQUENCY / hz;
     outportb(__PIT_CMDREG, 0x36);
     outportb(__PIT_CHANNEL0, divisor & 0xFF);
-    outportb(__PIT_CHANNEL0, divisor >> 8);
+    outportb(__PIT_CHANNEL0, (divisor >> 8) & 0xFF);
 }
 
 int timer_ticks = 0;
@@ -35,13 +36,17 @@ int timer_seconds = 0;
 
 void timer_handler(struct regs *r)
 {
-    (void)r;
+    __UNUSED(r);
     timer_ticks++;
 
     if (timer_ticks % (__TIMER_HZ * 100) == 0)
     {
         timer_seconds++;
     }
+
+    /* Call the scheduler */
+    // if (timer_ticks % __TIMER_HZ == 0) // 1000 = 1 second
+        // scheduler(r->ebp, r->esp);
 }
 
 void beep(unsigned int wait_time, unsigned int times)
@@ -98,8 +103,8 @@ void ksleep(int seconds)
 void timer_display_ktimer(void)
 {
     printk("%8%% Phase: "
-            " %d\n",
-            timer_ticks);
+           " %d\n",
+           timer_ticks);
     printk("%8%% Seconds: %d\n", timer_seconds);
     printk("%8%% HZ: %d\n", (size_t)__TIMER_HZ);
 }

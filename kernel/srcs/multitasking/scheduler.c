@@ -6,70 +6,156 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 23:11:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/12 19:20:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/memory.h>
 #include <multitasking/scheduler.h>
+#include <system/isr.h>
 
-#include <system/panic.h>
+static cpu_state_t cpu_state;
 
-process_t *process_queue;
-process_t *current_process;
-
-void switch_task(t_regs *regs)
+void init_cpu_state(void)
 {
-    memcpy(&current_process->regs, regs, sizeof(t_regs));
-    if (current_process->next != NULL)
-        current_process = current_process->next;
-    else
-        current_process = process_queue;
-    memcpy(regs, &current_process->regs, sizeof(t_regs));
-    switch_page_directory(current_process->page_directory);
+    cpu_state.scheduler = NULL;
+    cpu_state.current_process = NULL;
+
+    __LOG(__LOG_HEADER, "SCHEDULER", "Initialized");
 }
 
-void load_binary(uint8_t *data, uint32_t size)
+void init_scheduler(void)
 {
-    process_t *process = (process_t *)kmalloc(sizeof(process_t));
+    init_cpu_state();
+    init_process();
+    // ksleep(1);
 
-    printk("Alloc memory for process 0x%x\n", process);
-    // process->process_page = create_user_page(UCODE_START, UCODE_START + size, current_directory);
-
-    process->process_page = get_page(UCODE_START, current_directory);
-    if (process->process_page == NULL)
-        process->process_page = create_page(UCODE_START, current_directory);
-    if (process->process_page == NULL)
-        __PANIC("Could not get, create process page");
-    printk("Create / GET user page\n");
-
-    page_directory_t *tmp = current_directory;
-
-    printk("Switch page directory\n");
-
-    switch_page_directory(process->page_directory);
-    kpause();
-    memcpy((void *)UCODE_START, data, size);
-    switch_page_directory(tmp);
-
-    process->regs.eip = UCODE_START;
-    process->regs.cs = 0x08;
-    process->regs.ds = 0x10;
-    process->regs.ss = 0x10;
-
-    process->state = PROCESS_STATE_RUNNING;
-
-    process_t *last_process = process_queue;
-
-    if (last_process == NULL)
-    {
-        process_queue = process;
-        return;
-    }
-    else
-    {
-        while (last_process->next != NULL)
-            last_process = last_process->next;
-        last_process->next = process;
-    }
+    /* Scheduler Interrupt for Process Switching */
+    __LOG(__LOG_HEADER, "SCHEDULER", "Initializing Interrupt");
+    idt_set_gate(0x20, (unsigned)scheduler_handler, IDT_SELECTOR, IDT_FLAG_GATE);
+    __LOG(__LOG_HEADER, "SCHEDULER", "Interrupt Initialized");
 }
+
+/**
+ * @brief Basic Round Robin Scheduler
+ *
+ */
+#include <terminal.h>
+
+static volatile uint32_t current_task = 0;
+
+void scheduler(uint32_t ebp, uint32_t esp)
+{
+    static uint32_t __loop = 0;
+
+    outportb(MASTER_PIC, IRQ_EOI); // Send EOI to Master PIC
+
+    // Display Scheduler Loop
+    {
+        char buffer[__ITOA_BUFFER_LENGTH__] = {0};
+
+        bzero(buffer, __ITOA_BUFFER_LENGTH__);
+
+        terminal_writestring_location("Scheduler : ", 60, 0);
+        uitoa(__loop, buffer);
+        terminal_writestring_location(buffer, 60 + 13, 0);
+        __loop++;
+    }
+
+    uint32_t old_task_idx = current_task;
+    uint32_t new_task_idx = current_task++;
+
+    new_task_idx %= MAX_PROCESS;
+    current_task = new_task_idx;
+
+    process_t *old_process = &process_table[old_task_idx];
+    assert(old_process != NULL);
+
+    if (old_process->state == PROCESS_STATE_RUNNING)
+    {
+        old_process->context->ebp = ebp;
+        old_process->context->esp = esp;
+    }
+
+    process_t *process = &process_table[current_task];
+    assert(process != NULL);
+    // kpause();
+
+    if (process->state == PROCESS_STATE_READY)
+    {
+
+        process->state = PROCESS_STATE_RUNNING;
+
+        /*
+        ** Todo: Switch user mode
+        */
+
+        assert(process->context != NULL);
+        assert(process->fn != NULL);
+        context_switch_jmp(process->context->esp, process->fn);
+    }
+
+    // context_switch(esp, ebp);
+    assert(process->context != NULL);
+    context_switch(process->context->esp, process->context->ebp);
+}
+
+// #include <system/panic.h>
+
+// process_t *process_queue;
+// process_t *current_process;
+
+// void switch_task(t_regs *regs)
+// {
+//     memcpy(&current_process->regs, regs, sizeof(t_regs));
+//     if (current_process->next != NULL)
+//         current_process = current_process->next;
+//     else
+//         current_process = process_queue;
+//     memcpy(regs, &current_process->regs, sizeof(t_regs));
+//     switch_page_directory(current_process->page_directory);
+// }
+
+// void load_binary(uint8_t *data, uint32_t size)
+// {
+//     process_t *process = (process_t *)kmalloc(sizeof(process_t));
+
+//     printk("Alloc memory for process 0x%x\n", process);
+//     // process->process_page = create_user_page(UCODE_START, UCODE_START + size, current_directory);
+
+//     process->process_page = get_page(UCODE_START, current_directory);
+//     if (process->process_page == NULL)
+//         process->process_page = create_page(UCODE_START, current_directory);
+//     if (process->process_page == NULL)
+//         __PANIC("Could not get, create process page");
+//     printk("Create / GET user page\n");
+
+//     page_directory_t *tmp = current_directory;
+
+//     printk("Switch page directory\n");
+
+//     switch_page_directory(process->page_directory);
+//     kpause();
+//     memcpy((void *)UCODE_START, data, size);
+//     switch_page_directory(tmp);
+
+//     process->regs.eip = UCODE_START;
+//     process->regs.cs = 0x08;
+//     process->regs.ds = 0x10;
+//     process->regs.ss = 0x10;
+
+//     process->state = PROCESS_STATE_RUNNING;
+
+//     process_t *last_process = process_queue;
+
+//     if (last_process == NULL)
+//     {
+//         process_queue = process;
+//         return;
+//     }
+//     else
+//     {
+//         while (last_process->next != NULL)
+//             last_process = last_process->next;
+//         last_process->next = process;
+//     }
+// }

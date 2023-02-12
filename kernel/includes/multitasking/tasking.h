@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 22:31:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 23:08:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/12 13:18:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,6 @@ typedef struct s_task
 
 extern void tasking_init(void);
 extern void task_create(task_t *task, void (*entry)(void), uint32_t flags, uint32_t *page_directory);
-extern void task_switch(uint32_t esp, uint32_t ebp);
-extern void task_switch_jmp(uint32_t esp, uint32_t ebp);
 
 extern void yield(void);
 

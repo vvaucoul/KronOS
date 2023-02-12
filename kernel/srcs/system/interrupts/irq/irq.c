@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:48:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/12 12:45:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ void irq_uninstall_handler(int irq)
 
 void irq_remap(void)
 {
+    /* Maybe remap to setup cascading */
+
     uint32_t master_mask = inb(MASTER_DATA);
     uint32_t slave_mask = inb(SLAVE_DATA);
 

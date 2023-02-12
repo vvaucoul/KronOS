@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 23:11:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/12 19:23:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <shell/ksh.h>
 
+#include <multitasking/process.h>
 #include <multitasking/scheduler.h>
 #include <multitasking/tasking.h>
 
@@ -151,6 +152,8 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     get_cpu_topology();
     kernel_log_info("LOG", "CPU TOPOLOGY");
 
+    // init_scheduler();
+
     timer_install();
     kernel_log_info("LOG", "TIMER");
     keyboard_install();
@@ -185,6 +188,22 @@ void test_user_function()
     printk("Hello from user space!\n");
 }
 
+void task_dummy(void)
+{
+    while (1)
+    {
+        printk("Hello from task %d !\n", 0);
+        // for (int i = 0; i < 1000000; ++i)
+        // {
+        //     __asm__ volatile("NOP");
+        // }
+    }
+}
+
+void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size)
+{
+}
+
 int kmain(hex_t magic_number, hex_t addr)
 {
     ASM_CLI();
@@ -193,7 +212,6 @@ int kmain(hex_t magic_number, hex_t addr)
     if (__DISPLAY_INIT_LOG__)
         printk("\n");
     ASM_STI();
-
 
     /* Raise exception: Divide by zero */
     // __asm__ volatile("int $0x0");
@@ -213,7 +231,15 @@ int kmain(hex_t magic_number, hex_t addr)
 
     get_cpu_informations();
 
-    tasking_init();
+    printk("\n");
+
+    init_scheduler();
+
+    create_processus((void *)task_dummy, 4000);
+
+    kernel_log_info("LOG", "PROCESS");
+
+    // kpause();
 
     // TODO: fork and exec
     /* fork

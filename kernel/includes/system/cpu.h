@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 11:29:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 12:13:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@
 #define CPUID_VENDOR_PARALLELS_ALT " lrpepyh vr " // Sometimes Parallels incorrectly encodes "prl hyperv" as "lrpepyh vr" due to an endianness mismatch.
 #define CPUID_VENDOR_BHYVE "bhyve bhyve "
 #define CPUID_VENDOR_QNX " QNXQVMBSQG "
+
+#define CPUID_APIC (1 << 9)
 
 typedef enum e_cpu_info
 {
@@ -124,7 +126,6 @@ extern bool __cpuid_available;
 #define CPU_INFOS_SIZE 13
 
 extern char cpu_vendor[CPU_INFOS_SIZE];
-extern char cpu_brand[CPU_INFOS_SIZE];
 extern uint32_t cpu_family;
 extern uint32_t cpu_model;
 

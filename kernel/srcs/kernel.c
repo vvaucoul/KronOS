@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 11:29:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 14:46:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <multitasking/scheduler.h>
 #include <multitasking/tasking.h>
 
-#include <system/bsod.h>    
+#include <system/bsod.h>
 #include <system/cmos.h>
 #include <system/cpu.h>
 #include <system/fpu.h>
@@ -135,27 +135,18 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     irq_install();
     kernel_log_info("LOG", "IRQ");
 
+    timer_install();
+    kernel_log_info("LOG", "TIMER");
+
     if ((init_cpuid()) == true)
     {
         kernel_log_info("LOG", "CPUID");
-
-        printk(_END "\t\t\t   -"_GREEN
-                    " VENDOR: " _END "%s" _END "\n",
-               cpu_vendor);
-        printk(_END "\t\t\t   -"_GREEN
-                    " NAME: " _END "%s" _END "\n",
-               cpu_brand);
-        printk(_END "\t\t\t   -"_GREEN
-                    " HYPERVISOR: " _END "%s" _END "\n",
-               hypervisor);
+        get_cpu_topology();
+        kernel_log_info("LOG", "CPU TOPOLOGY");
     }
-    get_cpu_topology();
-    kernel_log_info("LOG", "CPU TOPOLOGY");
 
     // init_scheduler();
 
-    timer_install();
-    kernel_log_info("LOG", "TIMER");
     keyboard_install();
     kernel_log_info("LOG", "KEYBOARD");
     enable_fpu();

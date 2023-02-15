@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/12 13:57:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 12:51:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,9 @@ void timer_phase(int hz)
     outportb(__PIT_CHANNEL0, (divisor >> 8) & 0xFF);
 }
 
-int timer_ticks = 0;
-int timer_seconds = 0;
+uint32_t timer_ticks = 0;
+uint32_t timer_useconds = 0;
+uint32_t timer_seconds = 0;
 
 void timer_handler(struct regs *r)
 {
@@ -43,6 +44,11 @@ void timer_handler(struct regs *r)
     {
         timer_seconds++;
     }
+    else if (timer_ticks % __TIMER_HZ == 0)
+    {
+        timer_useconds++;
+    }
+
 
     /* Call the scheduler */
     // if (timer_ticks % __TIMER_HZ == 0) // 1000 = 1 second
@@ -75,7 +81,7 @@ void timer_install()
 
 void timer_wait(int ticks)
 {
-    int eticks;
+    uint32_t eticks;
 
     eticks = timer_ticks + ticks;
     while (timer_ticks < eticks)
@@ -87,15 +93,37 @@ void kpause(void)
 {
     ASM_CLI();
     while (1)
-        ;
+    {
+        __asm__ volatile("nop");
+    }
 }
 
 void ksleep(int seconds)
 {
-    int eseconds;
+    uint32_t eseconds;
 
     eseconds = timer_seconds + seconds;
     while (timer_seconds < eseconds)
+        __asm__ volatile("sti\n\thlt\n\tcld");
+    __asm__ volatile("sti");
+}
+
+void kusleep(int microseconds)
+{
+    uint32_t euseconds;
+
+    euseconds = timer_useconds + microseconds;
+    while (timer_useconds < euseconds)
+        __asm__ volatile("sti\n\thlt\n\tcld");
+    __asm__ volatile("sti");
+}
+
+void kmsleep(int milliseconds)
+{
+    uint32_t emilliseconds;
+
+    emilliseconds = timer_useconds + (milliseconds * 1000);
+    while (timer_useconds < emilliseconds)
         __asm__ volatile("sti\n\thlt\n\tcld");
     __asm__ volatile("sti");
 }

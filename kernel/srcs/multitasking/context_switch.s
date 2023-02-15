@@ -2,16 +2,22 @@ bits 32
 
 global context_switch
 context_switch:
+   ; Stack Frame Pointer: ebx, Stack Pointer: eax
     mov ebx, [esp + 8] ; second argument, the stack frame pointer
     mov eax, [esp + 4] ; first argument, the stack pointer
 
+    ; Restore the stack frame pointer and stack pointer
     mov ebp, ebx ; restore the stack frame
     mov esp, eax ; restore the top of the stack
 
-    popad ; restore all registers
+    ; Restore all registers using popad
+    popad
 
-    sti ; OK for interupts at this point
-    iretd ; perform a return from interrupt since the last task was interrupted
+    ; Enable interrupts
+    sti
+
+    ; Return to the new process's instruction pointer
+    iretd
     ; mov eax, [esp + 4]
     ; mov edx, [esp + 8]
 

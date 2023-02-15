@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:35:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 13:52:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 // -> https://wiki.osdev.org/Detecting_CPU_Topology_(80x86)
 
 #include <system/cpu.h>
+
+// TMP
+#include <system/pit.h>
 
 cpu_topology_t cpu_topology;
 
@@ -28,16 +31,19 @@ static bool cpuid_is_supported(void)
 
     if (htt == 1)
         printk("\t\t "_YELLOW
-               "[CPUID SUPPORTED]"_END
+               "[CID]"_END
                " - "_GREEN
                "%s" _END "\n",
-               "TRUE");
+               "[SUPPORTED]");
     else
         printk("\t\t "_YELLOW
-               "[CPUID SUPPORTED]"_END
+               "[CID]"_END
                " - "_RED
                "%s" _END "\n",
-               "FALSE");
+               "[NOT SUPPORTED]");
+
+    // uint32_t count = (ebx >> 23) & 0x1F;
+    // uint32_t count_max = (ebx >> 16) & 0xFF;
 
     return (htt == 1);
 }
@@ -49,6 +55,8 @@ void get_cpu_topology(void)
     // Check if CPUID is supported (with flag HTT)
     if (cpuid_is_supported() == false)
         return;
+    else
+        __cpuid_available = true;
 
     int cpuInfo[4] = {0, 0, 0, 0};
     unsigned nExIds, i = 0;
@@ -133,5 +141,12 @@ void get_cpu_topology(void)
     cpu_topology.minFrequency = cpuInfo[1];
     printk("Min Frequency: %d\n", cpu_topology.minFrequency);
 
-    // pause();
+    // kpause();
+
+    printk(_END "\t\t\t   -"_GREEN
+                " VENDOR: " _END "%s" _END "\n",
+           cpu_vendor);
+    printk(_END "\t\t\t   -"_GREEN
+                " HYPERVISOR: " _END "%s" _END "\n",
+           hypervisor);
 }

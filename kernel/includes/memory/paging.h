@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 12:53:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 14:37:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ extern void *get_virtual_address(void *addr);
 extern void switch_page_directory(page_directory_t *dir);
 
 extern page_t *create_user_page(uint32_t address, uint32_t end_addr,  page_directory_t *dir);
+extern void destroy_user_page(page_t *page, page_directory_t *dir);
 
 extern bool paging_enabled;
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/12 19:20:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 15:04:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,29 +74,38 @@ void scheduler(uint32_t ebp, uint32_t esp)
     {
         old_process->context->ebp = ebp;
         old_process->context->esp = esp;
+        old_process->state = PROCESS_STATE_READY;
     }
 
     process_t *process = &process_table[current_task];
     assert(process != NULL);
-    // kpause();
 
     if (process->state == PROCESS_STATE_READY)
     {
 
         process->state = PROCESS_STATE_RUNNING;
 
+        switch_page_directory(process->page_directory);
+
+        enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
+
+        assert(process->context != NULL);
+        context_switch(process->context->esp, process->context->ebp);
+
+        kpause();
+
         /*
         ** Todo: Switch user mode
         */
 
-        assert(process->context != NULL);
-        assert(process->fn != NULL);
-        context_switch_jmp(process->context->esp, process->fn);
+        // assert(process->context != NULL);
+        // assert(process->fn != NULL);
+        // context_switch_jmp(process->context->esp, process->fn);
     }
 
     // context_switch(esp, ebp);
-    assert(process->context != NULL);
-    context_switch(process->context->esp, process->context->ebp);
+    // assert(process->context != NULL);
+    // context_switch(process->context->esp, process->context->ebp);
 }
 
 // #include <system/panic.h>

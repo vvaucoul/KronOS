@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 15:32:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 12:16:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 bool __cpuid_available = false;
 
 char cpu_vendor[CPU_INFOS_SIZE];
-char cpu_brand[CPU_INFOS_SIZE];
 uint32_t cpu_family;
 uint32_t cpu_model;
 
@@ -109,7 +108,7 @@ void get_cpu_informations(void)
 
 bool init_cpuid(void)
 {
-    if (cpu_availability() == 0)
+    if (cpu_availability() == 0 || check_apic(CPUID_APIC) == 0)
     {
         if (__DISPLAY_INIT_LOG__)
             printk(_YELLOW "[%s] " _END "- " _GREEN "[INIT] " _RED "%s " _END "\n", "CPUID", "CPUID not supported");
@@ -118,7 +117,7 @@ bool init_cpuid(void)
     else
     {
         bzero(cpu_vendor, CPU_INFOS_SIZE);
-        bzero(cpu_brand, CPU_INFOS_SIZE);
+
         cpu_family = 0;
         cpu_model = 0;
         bzero(hypervisor, CPU_INFOS_SIZE);
@@ -128,8 +127,6 @@ bool init_cpuid(void)
         get_cpu_version();
         cpu_model = get_model();
 
-        __cpuid_available = true;
         return (true);
     }
-    __UNUSED(check_apic);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/12 19:08:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 14:54:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,8 @@ typedef struct s_process
     process_state_t state;
 
     uint32_t stack;
-    page_t *page_directory;
+    page_t *page;
+    page_directory_t *page_directory;
 
     struct s_process *parent;
     struct s_process *child;
@@ -84,6 +85,6 @@ extern process_t process_table[MAX_PROCESS];
 
 extern void init_process();
 
-extern void create_processus(void *entry_point, uint32_t stack);
+extern void create_processus(void *entry_point, uint32_t size);
 
 #endif /* !PROCESS_H */

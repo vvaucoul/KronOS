@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/12 19:23:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 11:29:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <multitasking/scheduler.h>
 #include <multitasking/tasking.h>
 
-#include <system/bsod.h>
+#include <system/bsod.h>    
 #include <system/cmos.h>
 #include <system/cpu.h>
 #include <system/fpu.h>

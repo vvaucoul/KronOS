@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:30:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 11:30:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@
 #define KEYBOARD_RIGHT_SHIFT 54
 #define KEYBOARD_CAPS 58
 
-typedef enum e_kbd_lang : uint8_t
+typedef enum e_kbd_lang
 {
     KEYBOARD_LAYOUT_FR,
     KEYBOARD_LAYOUT_EN

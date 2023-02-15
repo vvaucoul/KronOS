@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:30:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 11:30:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ typedef struct s_elf_section_header_table
 } t_elf_section_header_table;
 
 /* Multiboot memory information */
-enum e_multiboot_memory_type : uint8_t
+enum e_multiboot_memory_type
 {
     __MULTIBOOT_MEMORY_AVAILABLE = 1,
     __MULTIBOOT_MEMORY_RESERVED = 2,

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:30:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 11:30:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <system/io.h>
 
 /* Hardware text mode color constants. */
-enum vga_color : uint8_t
+enum vga_color
 {
     VGA_COLOR_BLACK = 0,
     VGA_COLOR_BLUE = 1,

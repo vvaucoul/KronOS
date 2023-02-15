@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:30:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 11:30:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 #define HEAP_MIN_SIZE 0x70000
 #define PHYSICAL_MEMORY_SIZE 0x1000000
 
-enum kheap_block_status : uint8_t
+enum kheap_block_status
 {
     USED,
     FREE

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 15:44:01 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:31:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/15 11:30:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
  *                            KERRNO KERNEL SECTOR                             *
  ******************************************************************************/
 
-typedef enum __e_kerrno_kernel_sector : uint8_t
+typedef enum __e_kerrno_kernel_sector
 {
     __KERRNO_SECTOR_NONE,
     __KERRNO_SECTOR_GDT,

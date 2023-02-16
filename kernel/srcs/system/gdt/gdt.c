@@ -12,8 +12,6 @@
 
 #include <system/pit.h>
 #include <system/gdt.h>
-#include <system/panic.h>
-#include <system/kerrno.h>
 
 GDTEntry *gdt = (GDTEntry *)__GDT_ADDR;
 GDTPtr gp;

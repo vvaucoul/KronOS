@@ -32,8 +32,9 @@ section .text
 _start:
 	xor ebp, ebp
 	mov esp, stack + STACK_SIZE 
-	push ebx
-	push eax
+	push esp ; stack
+	push ebx ; Multiboot Info
+	push eax ; Magic Number
 	
 	cli
 	call kmain

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 14:46:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 22:23:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
-#include <multitasking/tasking.h>
 
 #include <system/bsod.h>
 #include <system/cmos.h>
@@ -53,6 +52,8 @@
 
 MultibootInfo *__multiboot_info = NULL;
 
+uint32_t *kernel_stack = NULL;
+
 static inline void ksh_header(void)
 {
     printk(_RED "\n \
@@ -78,8 +79,8 @@ void kernel_log_info(const char *part, const char *name)
 
         uint64_t diff_time = difftime(&tm, &startup_tm);
         printk(_END "[0:%02u] "_END
-                    "- "_YELLOW
-                    "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
+               "- "_YELLOW
+               "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
                diff_time, part, name);
     }
 }
@@ -92,10 +93,12 @@ static void __hhk_log(void)
         kernel_log_info("LOG", "HHK: FALSE");
 }
 
-static int init_kernel(hex_t magic_number, hex_t addr)
+static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack)
 {
     terminal_initialize();
     ksh_header();
+
+    kernel_stack = kstack;
 
     // bga_init();
     // vesa_init();
@@ -131,7 +134,7 @@ static int init_kernel(hex_t magic_number, hex_t addr)
     idt_install();
     kernel_log_info("LOG", "IDT");
     isrs_install();
-    kernel_log_info("LOG", "ISRS");
+    kernel_log_info("LOG", "ISR");
     irq_install();
     kernel_log_info("LOG", "IRQ");
 
@@ -174,20 +177,22 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr)
     return (0);
 }
 
-void test_user_function()
+__attribute__((unused)) void test_user_function()
 {
     printk("Hello from user space!\n");
 }
 
 void task_dummy(void)
 {
+    printk("Hello from task %d !\n", 0);
+    return;
+
     while (1)
     {
-        printk("Hello from task %d !\n", 0);
-        // for (int i = 0; i < 1000000; ++i)
-        // {
-        //     __asm__ volatile("NOP");
-        // }
+        for (int i = 0; i < 1000000; ++i)
+        {
+            __asm__ volatile("NOP");
+        }
     }
 }
 
@@ -195,10 +200,10 @@ void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size)
 {
 }
 
-int kmain(hex_t magic_number, hex_t addr)
+int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack)
 {
     ASM_CLI();
-    if ((init_kernel(magic_number, addr)))
+    if ((init_kernel(magic_number, addr, kstack)))
         return (1);
     if (__DISPLAY_INIT_LOG__)
         printk("\n");
@@ -217,6 +222,8 @@ int kmain(hex_t magic_number, hex_t addr)
 
     // exit();
 
+    // kpause();
+
     tm_t date = gettime();
     printk(_GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
@@ -226,9 +233,19 @@ int kmain(hex_t magic_number, hex_t addr)
 
     init_scheduler();
 
-    create_processus((void *)task_dummy, 4000);
+    // create_processus((void *)task_dummy, 4000);
+
+
+    struct regs *cpu_state;
+
+    // Get the current CPU state
+    __asm__ volatile("mov %%esp, %0"
+            : "=r"(cpu_state));
+
+    process_t * processus = create_processus("Task Dummy", cpu_state, kernel_stack, task_dummy, PROCESS_LEVEL_KERNEL, 4000);
 
     kernel_log_info("LOG", "PROCESS");
+
 
     // kpause();
 

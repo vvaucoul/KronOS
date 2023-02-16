@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 14:54:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 20:19:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,22 +28,11 @@
 
 #define PROCESS_STACK 0x1000 // 4Ko (1 PAGE_SIZE)
 
-typedef struct s_process_context
+typedef enum e_process_level
 {
-    uint32_t edi;
-    uint32_t esi;
-    uint32_t ebp;
-    uint32_t esp;
-    uint32_t ebx;
-    uint32_t edx;
-    uint32_t ecx;
-    uint32_t eax;
-    uint32_t eip;
-    uint32_t cs;
-    uint32_t eflags;
-    uint32_t useresp;
-    uint32_t ss;
-} __attribute__((packed)) process_context_t;
+    PROCESS_LEVEL_KERNEL,
+    PROCESS_LEVEL_USER
+} process_level_t;
 
 typedef enum e_process_state
 {
@@ -66,7 +55,7 @@ typedef struct s_process
     uint32_t pid;
     uint32_t owner;
 
-    process_context_t *context;
+    struct regs *context;
     process_state_t state;
 
     uint32_t stack;
@@ -85,6 +74,8 @@ extern process_t process_table[MAX_PROCESS];
 
 extern void init_process();
 
-extern void create_processus(void *entry_point, uint32_t size);
+extern process_t *create_processus(const char *name, struct regs *cpu_state, void *kernel_stack, void (*entry_point)(void), process_level_t level, uint32_t size);
+
+extern void destroy_processus(process_t *process);
 
 #endif /* !PROCESS_H */

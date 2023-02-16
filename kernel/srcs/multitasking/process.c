@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 15:04:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 20:48:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ static process_t *alloc_new_process(uint32_t process_size)
     return (process);
 }
 
-void create_processus(void *entry_point, uint32_t size)
+process_t *create_processus(const char *name, struct regs *cpu_state, void *kernel_stack, void (*entry_point)(void), process_level_t level, uint32_t size)
 {
     __LOG(__LOG_HEADER, "PROCESS", "Creating init process");
 
@@ -115,17 +115,27 @@ void create_processus(void *entry_point, uint32_t size)
 
     __LOG(__LOG_HEADER, "PROCESS", "Init process created");
 
-    strncpy(process->name, "init", sizeof(process->name) - 1);
+    memcpy(process->name, name, strlen(name));
 
     uint32_t sp = process->stack + PROCESS_STACK;
-    sp -= sizeof(process_context_t);
+    sp -= sizeof(struct regs);
 
-    process->context = (process_context_t *)sp;
-    memset(process->context, 0, sizeof(process_context_t));
+    process->context = (struct regs *)sp;
+    memset(process->context, 0, sizeof(struct regs));
     process->context->eip = (uint32_t)entry_point;
+
+    uint32_t esp, ebp;
+    __asm__ volatile("mov %%esp, %0; mov %%ebp, %1"
+                     : "=r"(esp), "=r"(ebp));
 
     process->context->esp = process->stack + PROCESS_STACK;
     process->context->ebp = process->stack + PROCESS_STACK;
+    process->context->eflags = cpu_state->eflags;
+
+    process->context->ds = cpu_state->ds;
+    process->context->es = cpu_state->es;
+    process->context->fs = cpu_state->fs;
+    process->context->gs = cpu_state->gs;
 
     process->parent = NULL;
     process->child = NULL;
@@ -137,4 +147,28 @@ void create_processus(void *entry_point, uint32_t size)
     printk("Init process created (pid %d)\n", process->pid);
 
     process->fn = entry_point;
+}
+
+void destroy_processus(process_t *process)
+{
+    __LOG(__LOG_HEADER, "PROCESS", "Destroying process");
+
+    if (process->state == PROCESS_STATE_UNUSED)
+        return;
+
+    kfree((void *)process->stack);
+
+    if (process->page_directory != NULL)
+    {
+        // destroy_page_directory(process->page_directory);
+        process->page_directory = NULL;
+    }
+
+    memset(process->context, 0, sizeof(struct regs));
+
+    memset(process->name, 0, sizeof(process->name));
+
+    process->state = PROCESS_STATE_UNUSED;
+
+    __LOG(__LOG_HEADER, "PROCESS", "Process destroyed");
 }

@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.c": "c",
+			"cpu.h": "c",
+			"pit.h": "c",
+			"process.h": "c",
+			"serial.h": "c",
+			"kernel.h": "c",
+			"bsod.h": "c",
+			"irq.h": "c",
+			"vesa.h": "c",
+			"time.h": "c",
+			"printk.h": "c",
+			"scheduler.h": "c"
+		}
+	}
+}

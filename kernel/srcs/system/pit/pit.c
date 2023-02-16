@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 12:51:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 22:08:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,13 @@ void timer_handler(struct regs *r)
         timer_useconds++;
     }
 
+    // Check if we need to call the scheduler from pit
+    // if (timer_ticks % (__TIMER_HZ * 50) == 0) // 1000 = 1 second
+    //     scheduler(r->ebp, r->esp);
 
     /* Call the scheduler */
     // if (timer_ticks % __TIMER_HZ == 0) // 1000 = 1 second
-        // scheduler(r->ebp, r->esp);
+    // scheduler(r->ebp, r->esp);
 }
 
 void beep(unsigned int wait_time, unsigned int times)

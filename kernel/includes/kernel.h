@@ -26,7 +26,7 @@
 extern void kernel_log_info(const char *part, const char *name);
 
 //tmp
-extern void test_user_function();
-extern void switch_user_mode();
+__attribute__((unused)) extern void test_user_function();
+__attribute__((unused)) extern void switch_user_mode();
 
 #endif /* !KERNEL_H */

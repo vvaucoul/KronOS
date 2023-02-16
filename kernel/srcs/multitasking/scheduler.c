@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 15:04:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 22:08:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void init_scheduler(void)
     /* Scheduler Interrupt for Process Switching */
     __LOG(__LOG_HEADER, "SCHEDULER", "Initializing Interrupt");
     idt_set_gate(0x20, (unsigned)scheduler_handler, IDT_SELECTOR, IDT_FLAG_GATE);
+    // __asm__("int $0x20");
     __LOG(__LOG_HEADER, "SCHEDULER", "Interrupt Initialized");
 }
 
@@ -75,6 +76,8 @@ void scheduler(uint32_t ebp, uint32_t esp)
         old_process->context->ebp = ebp;
         old_process->context->esp = esp;
         old_process->state = PROCESS_STATE_READY;
+
+        printk("Old Process : 0x%x - 0x%x\n", old_process->context->ebp, old_process->context->esp);
     }
 
     process_t *process = &process_table[current_task];
@@ -85,14 +88,21 @@ void scheduler(uint32_t ebp, uint32_t esp)
 
         process->state = PROCESS_STATE_RUNNING;
 
-        switch_page_directory(process->page_directory);
 
-        enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
+        printk("New Process : 0x%x - 0x%x\n", process->context->ebp, process->context->esp);
+
+        // switch_page_directory(process->page_directory);
+
+        // enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
 
         assert(process->context != NULL);
-        context_switch(process->context->esp, process->context->ebp);
+        printk("\n\nESP : 0x%x - EBP : 0x%x\n", process->context->esp, process->context->ebp);
+        
+        ASM_CLI();
+        // context_switch(process->context->esp, process->context->ebp);
+        ASM_STI();
+        // kpause();
 
-        kpause();
 
         /*
         ** Todo: Switch user mode

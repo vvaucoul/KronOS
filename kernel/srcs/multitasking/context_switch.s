@@ -18,6 +18,7 @@ context_switch:
 
     ; Return to the new process's instruction pointer
     iretd
+
     ; mov eax, [esp + 4]
     ; mov edx, [esp + 8]
 

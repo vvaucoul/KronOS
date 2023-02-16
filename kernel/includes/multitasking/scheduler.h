@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/12 14:10:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 20:19:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 typedef struct s_cpu_state
 {
-    process_context_t *scheduler;
+    struct regs *scheduler;
     process_t *current_process;
 } cpu_state_t;
 

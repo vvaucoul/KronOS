@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:07:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 12:48:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 22:16:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,5 +17,7 @@
 #include <memory/kheap.h>
 #include <memory/frames.h>
 #include <memory/memory_map.h>
+
+extern uint32_t *kernel_stack;
 
 #endif /* MEMORY_H */

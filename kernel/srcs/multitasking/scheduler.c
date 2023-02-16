@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/16 22:08:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 23:42:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void init_scheduler(void)
 
     /* Scheduler Interrupt for Process Switching */
     __LOG(__LOG_HEADER, "SCHEDULER", "Initializing Interrupt");
-    idt_set_gate(0x20, (unsigned)scheduler_handler, IDT_SELECTOR, IDT_FLAG_GATE);
+    // idt_set_gate(0x20, (unsigned)scheduler_handler, IDT_SELECTOR, IDT_FLAG_GATE);
     // __asm__("int $0x20");
     __LOG(__LOG_HEADER, "SCHEDULER", "Interrupt Initialized");
 }
@@ -71,6 +71,8 @@ void scheduler(uint32_t ebp, uint32_t esp)
     process_t *old_process = &process_table[old_task_idx];
     assert(old_process != NULL);
 
+    printk("Check Process %u\n", old_task_idx);
+
     if (old_process->state == PROCESS_STATE_RUNNING)
     {
         old_process->context->ebp = ebp;
@@ -91,15 +93,18 @@ void scheduler(uint32_t ebp, uint32_t esp)
 
         printk("New Process : 0x%x - 0x%x\n", process->context->ebp, process->context->esp);
 
-        // switch_page_directory(process->page_directory);
+        switch_page_directory(process->page_directory);
 
-        // enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
+        enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
 
         assert(process->context != NULL);
         printk("\n\nESP : 0x%x - EBP : 0x%x\n", process->context->esp, process->context->ebp);
         
         ASM_CLI();
-        // context_switch(process->context->esp, process->context->ebp);
+       
+        // Instead, use esp and cr3 (page directory)
+        // asm_switch_ucontext(next_task->op_registers.u_esp, next_task->op_registers.cr3);
+        context_switch(process->context->esp, process->context->ebp);
         ASM_STI();
         // kpause();
 

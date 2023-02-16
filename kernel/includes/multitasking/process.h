@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/16 20:19:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/16 23:36:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <kernel.h>
 #include <memory/paging.h>
 
-#define __LOG_HEADER ""_END                                     \
+#define __LOG_HEADER ""_END                                         \
                      "- "_YELLOW                                    \
                      "[MULTITASKING]" _END " - " _GREEN "[%s] "_END \
                      ": "_CYAN                                      \
@@ -24,9 +24,30 @@
 
 #define __LOG(x, ...) printk(x, ##__VA_ARGS__)
 
-#define MAX_PROCESS 32 // Get max process with CPU
+#define MAX_PROCESS 16 // Get max process with CPU
 
-#define PROCESS_STACK 0x1000 // 4Ko (1 PAGE_SIZE)
+#define PROCESS_KERNEL_STACK (0x1000 / 4)
+#define PROCESS_USER_STACK 0x1000
+
+#define PROCESS_NULL_SEGMENT 0x00
+#define PROCESS_KERNEL_CODE_SEGMENT 0x01
+#define PROCESS_KERNEL_DATA_SEGMENT 0x02
+#define PROCESS_KERNEL_STACK_SEGMENT 0x03
+#define PROCESS_KERNEL_TSS_SEGMENT 0x04
+#define PROCESS_USER_CODE_SEGMENT 0x05
+#define PROCESS_USER_DATA_SEGMENT 0x06
+#define PROCESS_USER_STACK_SEGMENT 0x07
+#define PROCESS_USER_TSS_SEGMENT 0x08
+
+#define PROCESS_NULL_SELECTOR 0x00
+#define PROCESS_KERNEL_CODE_SELECTOR 0x08
+#define PROCESS_KERNEL_DATA_SELECTOR 0x10
+#define PROCESS_KERNEL_STACK_SELECTOR 0x18
+#define PROCESS_KERNEL_TSS_SELECTOR 0x38
+#define PROCESS_USER_CODE_SELECTOR 0x23
+#define PROCESS_USER_DATA_SELECTOR 0x2B
+#define PROCESS_USER_STACK_SELECTOR 0x33
+#define PROCESS_USER_TSS_SELECTOR 0x3B
 
 typedef enum e_process_level
 {
@@ -58,7 +79,12 @@ typedef struct s_process
     struct regs *context;
     process_state_t state;
 
-    uint32_t stack;
+    uint32_t kernel_stack;
+    uint32_t user_stack;
+
+    uint32_t kernel_esp;
+    uint32_t user_esp;
+
     page_t *page;
     page_directory_t *page_directory;
 

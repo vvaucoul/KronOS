@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/16 23:42:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/17 10:20:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,58 @@
 #include <system/isr.h>
 
 static cpu_state_t cpu_state;
+
+static bool __check_process(process_t *process)
+{
+    /* PROCESS INFO */
+    if (process == NULL)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process is NULL") | false);
+    if (strlen(process->name) == 0)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Name is Empty") | false);
+    else if (process->pid > MAX_PROCESS)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process PID is too high") | false);
+    else if (process->priority > MAX_PRIORITY)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Priority is too high") | false);
+
+    /* PROCESS MEMORY */
+    if (process->context != NULL)
+    {
+        if (process->context->ebp == 0)
+            return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Context EBP is NULL") | false);
+        else if (process->context->esp == 0)
+            return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Context ESP is NULL") | false);
+        else if (process->context->eip == 0)
+            return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Context EIP is NULL") | false);
+        else
+            return true;
+    }
+    else
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Context is NULL") | false);
+
+    if (process->stack == 0)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Stack is NULL") | false);
+    else if (process->page == NULL)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Page is NULL") | false);
+    else if (process->page_directory == NULL)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Page Directory is NULL") | false);
+
+    /* PROCESS SIGNALS */
+
+    if (process->sig_queue == NULL)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Signal Queue is NULL") | false);
+
+    /* PROCESS LEVEL */
+
+    if (process->level > 2)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Level is too high") | false);
+
+    /* PROCESS ENTRYPOINT */
+
+    if (process->entry_point == NULL)
+        return (__LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process Entry Point is NULL") | false);
+
+    return (true);
+}
 
 void init_cpu_state(void)
 {
@@ -62,6 +114,12 @@ void scheduler(uint32_t ebp, uint32_t esp)
         __loop++;
     }
 
+    if (nb_process == 0)
+    {
+        __LOG(__LOG_ERROR_HEADER, "SCHEDULER", "No Process to run");
+        return ;
+    }
+
     uint32_t old_task_idx = current_task;
     uint32_t new_task_idx = current_task++;
 
@@ -85,29 +143,34 @@ void scheduler(uint32_t ebp, uint32_t esp)
     process_t *process = &process_table[current_task];
     assert(process != NULL);
 
+    if ((__check_process(process)) == false)
+    {
+        __LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process is not valid");
+        destroy_processus(process);
+        return ;
+    }
+
     if (process->state == PROCESS_STATE_READY)
     {
 
         process->state = PROCESS_STATE_RUNNING;
 
-
         printk("New Process : 0x%x - 0x%x\n", process->context->ebp, process->context->esp);
 
-        switch_page_directory(process->page_directory);
+        // switch_page_directory(process->page_directory);
 
-        enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
+        // enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
 
         assert(process->context != NULL);
         printk("\n\nESP : 0x%x - EBP : 0x%x\n", process->context->esp, process->context->ebp);
-        
+
         ASM_CLI();
-       
+
         // Instead, use esp and cr3 (page directory)
         // asm_switch_ucontext(next_task->op_registers.u_esp, next_task->op_registers.cr3);
-        context_switch(process->context->esp, process->context->ebp);
+        // context_switch(process->context->esp, process->context->ebp);
         ASM_STI();
         // kpause();
-
 
         /*
         ** Todo: Switch user mode

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/16 22:23:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/17 09:54:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,6 +198,11 @@ void task_dummy(void)
 
 void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size)
 {
+    uint32_t *ptr = (uint32_t *)addr;
+    for (uint32_t i = 0; i < size; ++i)
+    {
+        ptr[i] = function[i];
+    }
 }
 
 int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack)
@@ -243,6 +248,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack)
             : "=r"(cpu_state));
 
     process_t * processus = create_processus("Task Dummy", cpu_state, kernel_stack, task_dummy, PROCESS_LEVEL_KERNEL, 4000);
+
+    __UNUSED(processus);
 
     kernel_log_info("LOG", "PROCESS");
 

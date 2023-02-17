@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/16 23:36:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/17 10:11:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,18 @@
                      "[MULTITASKING]" _END " - " _GREEN "[%s] "_END \
                      ": "_CYAN                                      \
                      "%s\n" _END
+#define __LOG_ERROR_HEADER ""_END                                         \
+                           "- "_YELLOW                                    \
+                           "[MULTITASKING]" _END " - " _RED "[%s] "_END \
+                           ": "_CYAN                                      \
+                           "%s\n" _END
 
 #define __LOG(x, ...) printk(x, ##__VA_ARGS__)
 
 #define MAX_PROCESS 16 // Get max process with CPU
+#define MAX_PRIORITY 4 // Get max priority
 
-#define PROCESS_KERNEL_STACK (0x1000 / 4)
-#define PROCESS_USER_STACK 0x1000
+#define PROCESS_STACK 0x1000
 
 #define PROCESS_NULL_SEGMENT 0x00
 #define PROCESS_KERNEL_CODE_SEGMENT 0x01
@@ -71,30 +76,36 @@ typedef enum e_process_state
 
 typedef struct s_process
 {
+    /* PROCESS INFO */
     char name[__PROCESS_NAME_LEN];
 
     uint32_t pid;
-    uint32_t owner;
+    uint32_t priority;
 
+    /* PROCESS MEMORY */
     struct regs *context;
     process_state_t state;
-
-    uint32_t kernel_stack;
-    uint32_t user_stack;
-
-    uint32_t kernel_esp;
-    uint32_t user_esp;
+    uint32_t stack;
 
     page_t *page;
     page_directory_t *page_directory;
 
-    struct s_process *parent;
-    struct s_process *child;
-
+    /* PROCESS SIGNALS */
     uint32_t *sig_queue;
 
-    void *fn; // tmp should be removed
+    /* PROCESS LEVEL */
+    process_level_t level;
+
+    /* PROCESS ENTRY POINT */
+    void (*entry_point)(void);
+
+    /* PROCESS PARENT - CHILD */
+    struct s_process *parent;
+    struct s_process *child;
 } process_t;
+
+extern uint32_t next_pid;
+extern uint32_t nb_process;
 
 extern process_t process_table[MAX_PROCESS];
 

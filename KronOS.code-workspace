@@ -17,7 +17,8 @@
 			"vesa.h": "c",
 			"time.h": "c",
 			"printk.h": "c",
-			"scheduler.h": "c"
+			"scheduler.h": "c",
+			"memory.h": "c"
 		}
 	}
 }

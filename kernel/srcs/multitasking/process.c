@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: mle-faou <mle-faou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/17 10:17:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/28 20:35:03 by mle-faou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ void init_process(void)
     nb_process = 0;
 
     __LOG(__LOG_HEADER, "PROCESS", "Initialized");
+
+    __LOG("Matt is here!");
 }
 
 static void __init_process_stack(uint32_t *stack, void (*entry_point)(void))

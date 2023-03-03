@@ -6,7 +6,7 @@
 /*   By: mle-faou <mle-faou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/28 20:35:03 by mle-faou         ###   ########.fr       */
+/*   Updated: 2023/02/17 11:42:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,8 @@ process_t *create_processus(const char *name, struct regs *cpu_state, void *kern
     process->context->ss = PROCESS_KERNEL_STACK_SELECTOR;
 
     process->context->eip = (uint32_t)entry_point;
+    process->context->esp = (uint32_t)kernel_stack;
+    process->context->ebp = (uint32_t)kernel_stack;
 
     process->parent = NULL;
     process->child = NULL;

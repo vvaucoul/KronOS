@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/17 10:20:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/02/17 11:46:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,19 @@ void init_scheduler(void)
 
 static volatile uint32_t current_task = 0;
 
+static void __context_switch(uint32_t *stack)
+{
+    // Save the current process's context
+    __asm__ volatile("pusha");
+    __asm__ volatile("mov %%esp, %0"
+                     : "=r"(process_table[current_task].stack));
+
+    // Switch to the new process's stack and restore its context
+    __asm__ volatile("mov %0, %%esp" ::"r"(stack));
+    __asm__ volatile("popa");
+    __asm__ volatile("ret");
+}
+
 void scheduler(uint32_t ebp, uint32_t esp)
 {
     static uint32_t __loop = 0;
@@ -117,7 +130,7 @@ void scheduler(uint32_t ebp, uint32_t esp)
     if (nb_process == 0)
     {
         __LOG(__LOG_ERROR_HEADER, "SCHEDULER", "No Process to run");
-        return ;
+        return;
     }
 
     uint32_t old_task_idx = current_task;
@@ -146,8 +159,10 @@ void scheduler(uint32_t ebp, uint32_t esp)
     if ((__check_process(process)) == false)
     {
         __LOG(__LOG_ERROR_HEADER, "SCHEDULER", "Process is not valid");
+        __PANIC("Process is not valid"); // Trigger Panic
+
         destroy_processus(process);
-        return ;
+        return;
     }
 
     if (process->state == PROCESS_STATE_READY)
@@ -157,9 +172,9 @@ void scheduler(uint32_t ebp, uint32_t esp)
 
         printk("New Process : 0x%x - 0x%x\n", process->context->ebp, process->context->esp);
 
-        // switch_page_directory(process->page_directory);
+        switch_page_directory(process->page_directory);
 
-        // enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
+        enable_paging((page_directory_t *)&process->page_directory->tablesPhysical);
 
         assert(process->context != NULL);
         printk("\n\nESP : 0x%x - EBP : 0x%x\n", process->context->esp, process->context->ebp);
@@ -168,6 +183,9 @@ void scheduler(uint32_t ebp, uint32_t esp)
 
         // Instead, use esp and cr3 (page directory)
         // asm_switch_ucontext(next_task->op_registers.u_esp, next_task->op_registers.cr3);
+
+        __context_switch(&process->stack);
+
         // context_switch(process->context->esp, process->context->ebp);
         ASM_STI();
         // kpause();

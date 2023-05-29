@@ -10,10 +10,12 @@ fmt:    db "%s", 10, 0
 section .text
 global __asm_printk
 __asm_kprintf:
+    pusha
     mov esi, msg
     mov edi, fmt
     mov eax, 0
     call printk
     mov eax, 0
     call __asm_kpause
+    popa
     ret

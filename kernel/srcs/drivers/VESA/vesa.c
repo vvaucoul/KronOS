@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vesa.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 18:33:27 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 16:24:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 15:51:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void init_vbe_mode(void)
 
     const bool vbe_info = get_vbe_info();
 
+    kpause();
     if (!vbe_info)
     {
         printk("VESA VBE 2.0 Mode not supported\n");

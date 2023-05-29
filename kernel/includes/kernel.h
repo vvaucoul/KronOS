@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   kernel.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 22:51:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 18:03:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KERNEL_H
-# define KERNEL_H
+#define KERNEL_H
 
 #pragma once
 
@@ -25,8 +25,24 @@
 
 extern void kernel_log_info(const char *part, const char *name);
 
-//tmp
+// tmp
 __attribute__((unused)) extern void test_user_function();
-__attribute__((unused)) extern void switch_user_mode();
+__attribute__((unused)) extern void switch_to_user_mode();
+
+#define __THROW(msg, err, ...)                     \
+    {                                              \
+        printk(_RED "WARNING: "                    \
+                    "[%s:%u] " msg _END "\n",      \
+               __FILE__, __LINE__, ##__VA_ARGS__); \
+        return (err);                              \
+    }
+
+#define __THROW_NO_RETURN(msg, err, ...)           \
+    {                                              \
+        printk(_RED "WARNING: "                    \
+                    "[%s:%u] " msg _END "\n",      \
+               __FILE__, __LINE__, ##__VA_ARGS__); \
+        return;                                   \
+}
 
 #endif /* !KERNEL_H */

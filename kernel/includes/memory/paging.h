@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   paging.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 14:37:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 18:34:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,35 @@ extern void *get_virtual_address(void *addr);
 
 extern void switch_page_directory(page_directory_t *dir);
 
-extern page_t *create_user_page(uint32_t address, uint32_t end_addr,  page_directory_t *dir);
+extern page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *dir);
 extern void destroy_user_page(page_t *page, page_directory_t *dir);
 
+extern page_directory_t *create_page_directory();
+extern void destroy_page_directory(page_directory_t *dir);
+
+
 extern bool paging_enabled;
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                  PAGING MACROS                                 ||
+// ! ||--------------------------------------------------------------------------------||
+
+#define E_PAGING_NOT_ENABLED "Paging not enabled"
+#define E_INVALID_ADDRESS "Invalid address"
+#define E_ADDRESS_NOT_IN_KERNEL_SPACE "Address not in kernel space"
+#define E_ADDRESS_NOT_ALIGNED "Address not aligned"
+#define E_SWITCH_PAGE_DIRECTORY "Failed to switch page directory"
+
+#define __addr_validator(addr)                            \
+    {                                                     \
+        if (!paging_enabled)                              \
+            __THROW(E_PAGING_NOT_ENABLED, NULL);          \
+        if (!addr)                                        \
+            __THROW(E_INVALID_ADDRESS, NULL);             \
+        if ((uint32_t)addr < KERNEL_VIRTUAL_BASE)         \
+            __THROW(E_ADDRESS_NOT_IN_KERNEL_SPACE, NULL); \
+        if ((uint32_t)addr % PAGE_SIZE != 0)              \
+            __THROW(E_ADDRESS_NOT_ALIGNED, NULL);         \
+    }
 
 #endif /* !PAGING_H */

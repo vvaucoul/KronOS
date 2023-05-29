@@ -3,30 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   page_fault.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:59:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/28 12:43:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/paging.h>
+#include <memory/memory.h>
 #include <system/panic.h>
 
 void page_fault(struct regs *r)
 {
-    /*
-     ** US RW  P - Description
-     ** 0  0  0 - Supervisory process tried to read a non-present page entry
-     ** 0  0  1 - Supervisory process tried to read a page and caused a protection fault
-     ** 0  1  0 - Supervisory process tried to write to a non-present page entry
-     ** 0  1  1 - Supervisory process tried to write a page and caused a protection fault
-     ** 1  0  0 - User process tried to read a non-present page entry
-     ** 1  0  1 - User process tried to read a page and caused a protection fault
-     ** 1  1  0 - User process tried to write to a non-present page entry
-     ** 1  1  1 - User process tried to write a page and caused a protection fault
-     */
-
     uint32_t faulting_address;
 
     faulting_address = get_cr2();
@@ -38,7 +27,7 @@ void page_fault(struct regs *r)
     int id = r->err_code & 0x10;
 
     printk(_RED "Page fault! "_END
-                 "( ");
+                "( ");
     if (present)
         printk("present ");
     if (rw)
@@ -51,8 +40,36 @@ void page_fault(struct regs *r)
         printk("instruction fetch ");
     printk(") at ");
     printk(_RED "0x%08x"_END
-                 "\n",
-            faulting_address);
+                "\n",
+           faulting_address);
     printk("");
-    __PANIC("Page fault");
+
+    if (faulting_address == 0x0)
+    {
+        __PANIC("Page fault at NULL pointer");
+    }
+    else if (faulting_address >= KERNEL_BASE)
+    {
+        __PANIC("Page fault at kernel address");
+    }
+    else if (reserved)
+    {
+        __PANIC("Page fault at reserved address");
+    }
+    else if (rw && !present)
+    {
+        __PANIC("Page fault trying to write to non-present page");
+    }
+    else if (!us && present)
+    {
+        __PANIC("Page fault trying to execute kernel code");
+    }
+    else if (rw && us && present)
+    {
+        __PANIC("Page fault trying to write to read-only page");
+    }
+    else
+    {
+        __PANIC("Page fault");
+    }
 }

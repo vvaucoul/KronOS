@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kernel.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/17 09:54:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 17:38:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,6 @@
 #error "Higher Half Kernel is not supported yet"
 #endif
 
-MultibootInfo *__multiboot_info = NULL;
-
-uint32_t *kernel_stack = NULL;
-
 static inline void ksh_header(void)
 {
     printk(_RED "\n \
@@ -79,8 +75,8 @@ void kernel_log_info(const char *part, const char *name)
 
         uint64_t diff_time = difftime(&tm, &startup_tm);
         printk(_END "[0:%02u] "_END
-               "- "_YELLOW
-               "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
+                    "- "_YELLOW
+                    "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
                diff_time, part, name);
     }
 }
@@ -101,7 +97,8 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack)
     kernel_stack = kstack;
 
     // bga_init();
-    // vesa_init();
+    // init_vbe_mode();
+    // kpause();
 
     time_init();
     kernel_log_info("LOG", "TIME");
@@ -165,7 +162,9 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack)
     // Require x64 Broadwell Intel (5th Gen) or higher
     // smp_init();
     // kernel_log_info("LOG", "SMP");
-    // kpause();
+
+    kheap_test();
+    kpause();
 
     return (0);
 }
@@ -182,17 +181,28 @@ __attribute__((unused)) void test_user_function()
     printk("Hello from user space!\n");
 }
 
-void task_dummy(void)
+void yield()
 {
-    printk("Hello from task %d !\n", 0);
-    return;
+    scheduler();
+}
 
+void process_02(void)
+{
     while (1)
     {
-        for (int i = 0; i < 1000000; ++i)
-        {
-            __asm__ volatile("NOP");
-        }
+        printk("Hello from dummy function!\n");
+        ksleep(1);
+        // yield();
+    }
+}
+
+void process_01(void)
+{
+    while (1)
+    {
+        terminal_writestring("Hello from task 0 !\n");
+        ksleep(1);
+        // yield();
     }
 }
 
@@ -227,8 +237,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack)
 
     // exit();
 
-    // kpause();
-
     tm_t date = gettime();
     printk(_GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
@@ -236,25 +244,15 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack)
 
     printk("\n");
 
+    printk("\n\nInit Scheduler\n");
     init_scheduler();
-
-    // create_processus((void *)task_dummy, 4000);
-
-
-    struct regs *cpu_state;
-
-    // Get the current CPU state
-    __asm__ volatile("mov %%esp, %0"
-            : "=r"(cpu_state));
-
-    process_t * processus = create_processus("Task Dummy", cpu_state, kernel_stack, task_dummy, PROCESS_LEVEL_KERNEL, 4000);
-
-    __UNUSED(processus);
 
     kernel_log_info("LOG", "PROCESS");
 
+    // switch_to_user_mode();
 
-    // kpause();
+    create_process(process_01);
+    // create_process(process_02);
 
     // TODO: fork and exec
     /* fork

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   multiboot.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 11:30:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 15:43:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,16 @@
 
 #include <kernel.h>
 
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                     DEFINES                                    ||
+// ! ||--------------------------------------------------------------------------------||
+
 #define CHECK_FLAG(flags, bit) ((flags) & (1 << (bit)))
 
 #define MULTIBOOT_HEADER_MAGIC 0x1BADB002
 #define MULTIBOOT_BOOTLOADER_MAGIC 0x2BADB002
 
+#define MULTIBOOT_FLAGS 0x0
 #define MULTIBOOT_INFO_MEMORY 0x00000001
 #define MULTIBOOT_INFO_BOOTDEV 0x00000002
 #define MULTIBOOT_ACPI_MEMORY 0x00000003
@@ -64,6 +69,10 @@ typedef unsigned int multiboot_uint32_t;
 typedef unsigned long long multiboot_uint64_t;
 #define __MULTIBOOT_UINT_64_T__
 #endif
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                               MULTIBOOT STRUCTURE                              ||
+// ! ||--------------------------------------------------------------------------------||
 
 /*
 **         +-------------------+
@@ -289,9 +298,23 @@ typedef struct
 #define MUltibootAout t_aout_symbol_table
 #define MultibootMemoryType enum e_multiboot_memory_type
 
-extern MultibootInfo *__multiboot_info;
+static MultibootInfo *__multiboot_info = NULL;
 
 extern int multiboot_init(MultibootInfo *mboot_ptr);
 extern bool multiboot_check_magic_number(hex_t magic_number);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                     MACROS                                     ||
+// ! ||--------------------------------------------------------------------------------||
+
+#define CHECK_AND_LOG_FLAG(mboot_ptr, flag, name)                          \
+    do                                                                     \
+    {                                                                      \
+        if (!CHECK_FLAG((mboot_ptr)->flags, (flag)))                       \
+        {                                                                  \
+            printk(_GREEN "[CHECK] " name ": " _RED "INVALID " _END "\n"); \
+            return (1);                                                      \
+        }                                                                  \
+    } while (0)
 
 #endif /* !MULTIBOOT_H */

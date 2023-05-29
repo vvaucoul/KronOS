@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/02/11 23:01:29 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/05/29 15:30:17 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,6 +47,10 @@ CFLAGS				=	-Wall -Wextra -Wfatal-errors \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs \
 						-std=c99 -ffreestanding -O2 
+CXXFLAGS			=	-Wall -Wextra -Wfatal-errors \
+						-fno-builtin -fno-exceptions -fno-stack-protector \
+						-fno-rtti -nostdlib -nodefaultlibs \
+						-std=c++17 -ffreestanding -O2
 LDFLAGS				= 	-g3 -m32
 LD_FLAGS			=	-m elf_i386
 
@@ -73,14 +77,16 @@ else
 	CCACHE 			=	ccache
 endif
 
-# Todo: Check clang version / do not use gcc -> error
 ifeq ($(CLANG_INSTALLED), false)
 	CC				=	$(CCACHE) gcc
+	CXX				=	$(CCACHE) g++
 else
 	CC				=	$(CCACHE) clang
+	CXX				=	$(CCACHE) clang++
 endif
 
 DEPENDS				=	$(KOBJS:.o=.d)
+DEPENDSXX			=	$(KOBJSXX:.o=.d)
 WDEPENDS			=	$(WOBJS:.o=.d)
 DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
@@ -95,6 +101,10 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 %.o: %.s
 	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
+
+%.o: %.cpp
+	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LGREEN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@$(CXX) $(LDFLAGS) $(CXXFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.cpp=.o}
 
 #*******************************************************************************
 #*                                    RULES                                    *
@@ -117,7 +127,7 @@ lkfs: lkfs-install
 $(BOOT): $(KBOOT_OBJS)
 	@printf "$(_LWHITE)- ASM BOOT $(_END)$(_DIM)--------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-$(KDSRCS): $(KOBJS) $(KOBJS_ASM) $(WOBJS)
+$(KDSRCS): $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS)
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(XORRISO):
@@ -133,7 +143,7 @@ check:
 clean:
 	@make -s -C $(LIBKFS_DIR) clean
 	@make -s -C . clean-disk
-	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM)
+	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM) $(DEPENDSXX)
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 fclean: clean docker-clear
@@ -166,5 +176,6 @@ include $(MK_INCLUDE_DIR)/tiny-kernels/tiny-kernels.mk
 -include $(DEPENDS)
 -include $(WDEPENDS)
 -include $(DEPENDS_ASM)
+-include $(DEPENDSXX)
 
-.PHONY: all clean fclean re debug ascii helper
+.PHONY: all clean fclean re debug ascii helper check 

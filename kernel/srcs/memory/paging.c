@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   paging.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 20:57:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 18:53:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,16 @@ bool paging_enabled = false;
 
 void *get_physical_address(void *addr)
 {
+    __addr_validator(addr);
+
     uint32_t page_idx = (uint32_t)addr / PAGE_SIZE;
     uint32_t offset = (uint32_t)addr % PAGE_SIZE;
 
     page_t *page = get_page(page_idx, kernel_directory);
     if (!page)
-        return (NULL);
+        __THROW("Page not found", NULL);
+    if (!(page->present))
+        __THROW("Page not present", NULL);
 
     uint32_t physical_addr = (page->frame * PAGE_SIZE) + offset;
 
@@ -37,15 +41,19 @@ void *get_physical_address(void *addr)
 
 void *get_virtual_address(void *addr)
 {
+    __addr_validator(addr);
+
     uint32_t page_idx = (uint32_t)addr / PAGE_SIZE;
     uint32_t offset = (uint32_t)addr % PAGE_SIZE;
 
     page_t *page = get_page(page_idx, kernel_directory);
-    if (!page || !(page->present))
-        return NULL;
+    if (!page)
+        __THROW("Page not found", NULL);
+    if (!(page->present))
+        __THROW("Page not present", NULL);
 
     uint32_t virtual_addr = (page->frame * PAGE_SIZE) + offset;
-    return ((void *)virtual_addr);
+    return ((void *)(virtual_addr - KERNEL_VIRTUAL_BASE));
 }
 
 page_t *create_page(uint32_t address, page_directory_t *dir)
@@ -69,8 +77,14 @@ page_t *get_page(uint32_t address, page_directory_t *dir)
     uint32_t table_idx = page_idx / PAGE_TABLE_SIZE;
 
     if (dir->tables[table_idx])
-        return (&dir->tables[table_idx]->pages[page_idx % PAGE_TABLE_SIZE]);
-    return (NULL);
+    {
+        if (dir->tables[table_idx]->pages[page_idx % PAGE_TABLE_SIZE].present)
+            return (&dir->tables[table_idx]->pages[page_idx % PAGE_TABLE_SIZE]);
+        else
+            return (NULL);
+    }
+    else
+        return (NULL);
 }
 
 page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *dir)
@@ -123,10 +137,63 @@ void destroy_user_page(page_t *page, page_directory_t *dir)
     dir->tables[table_idx]->pages[page_idx].user = 0;
 }
 
+page_directory_t *create_page_directory()
+{
+    // Allocate a page-aligned block of memory for the page directory
+    page_directory_t *dir = (page_directory_t *)kmalloc_a(sizeof(page_directory_t));
+    if (!dir)
+        __THROW("Failed to allocate page directory", NULL);
+
+    // Zero out the page directory
+    memset(dir, 0, sizeof(page_directory_t));
+
+    // Set the page directory's physical address
+    dir->physicalAddr = (uint32_t)dir - KERNEL_VIRTUAL_BASE;
+
+    // Map the first 4 MB of memory to the page directory
+    dir->tablesPhysical[0] = KERNEL_BASE | PAGE_PRESENT | PAGE_WRITE | PAGE_USER;
+
+    return dir;
+}
+
+void destroy_page_directory(page_directory_t *dir)
+{
+    if (dir)
+    {
+        // Free all page tables in the page directory
+        for (int i = 0; i < 1024; ++i)
+        {
+            if (dir->tables[i])
+            {
+                page_table_t *table = dir->tables[i];
+                for (int j = 0; j < 1024; ++j)
+                {
+                    if (table->pages[j].frame)
+                        free_frame(&table->pages[j]);
+                }
+                kfree(table);
+            }
+        }
+
+        // Free the page directory
+        kfree(dir);
+    }
+}
+
 void switch_page_directory(page_directory_t *dir)
 {
+    if (!paging_enabled)
+        __THROW_NO_RETURN(E_PAGING_NOT_ENABLED, NULL);
+    if (!dir)
+        __THROW_NO_RETURN(E_SWITCH_PAGE_DIRECTORY, NULL);
     current_directory = dir;
-    __asm__ volatile("mov %0, %%cr3" ::"r"(dir->physicalAddr));
+
+    printk("Switching page directory to 0x%x\n", dir->physicalAddr);
+    __asm__ volatile("mov %0, %%cr3" ::"r"(&dir->tablesPhysical));
+    uint32_t cr0;
+    __asm__ volatile("mov %%cr0, %0" : "=r"(cr0));
+    cr0 |= 0x80000000; // Enable paging
+    __asm__ volatile("mov %0, %%cr0" ::"r"(cr0));
 }
 
 void init_paging(void)
@@ -135,6 +202,8 @@ void init_paging(void)
 
     // Allocate kernel directory and initialize
     kernel_directory = (page_directory_t *)kmalloc_a(sizeof(page_directory_t));
+    if (!kernel_directory)
+        __PANIC("Failed to allocate memory for kernel directory");
     memset(kernel_directory, 0, sizeof(page_directory_t));
     kernel_directory->physicalAddr = (uint32_t)kernel_directory->tablesPhysical;
 
@@ -168,15 +237,16 @@ void init_paging(void)
     // Register the page fault handler
     isr_register_interrupt_handler(14, page_fault);
 
-    // Switch to the kernel directory
-    switch_page_directory(kernel_directory);
-
     // Enable paging
     enable_paging((page_directory_t *)&kernel_directory->tablesPhysical);
 
-    // Initialize heap memory allocation system
-    init_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_MAX_SIZE, 0, 0);
 
     // Set paging_enabled flag
     paging_enabled = true;
+
+    // Switch to the kernel directory
+    switch_page_directory(kernel_directory);
+
+    // Initialize heap memory allocation system
+    init_heap(KHEAP_START, KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_MAX_SIZE, 0, 0);
 }

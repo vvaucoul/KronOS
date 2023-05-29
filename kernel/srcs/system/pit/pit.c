@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pit.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/16 23:17:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 16:15:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,14 @@ void timer_handler(struct regs *r)
     }
 
     // Check if we need to call the scheduler from pit
-    if (timer_ticks % (__TIMER_HZ * 50) == 0) // 1000 = 1 second
-        scheduler(r->ebp, r->esp);
+    if (timer_ticks % (__TIMER_HZ * 50) == 0)
+    {
+        if (scheduler_initialized == true) // 1000 = 1 second
+            scheduler();
+        // else
+            // printk("Scheduler not initialized\n");
+    }
+    // scheduler(r->ebp, r->esp);
 
     /* Call the scheduler */
     // if (timer_ticks % __TIMER_HZ == 0) // 1000 = 1 second

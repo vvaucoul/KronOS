@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   kheap.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/06 20:57:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 17:02:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
         if (phys)
         {
             page_t *page = get_page((uint32_t)addr, kernel_directory);
-            if (!page)
-                *phys = 0;
-            else
+            if (page)
                 *phys = page->frame * PAGE_SIZE + ((uint32_t)addr & 0xFFF);
+            else
+                *phys = 0;
         }
         return (addr);
     }

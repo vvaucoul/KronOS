@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cpu.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 12:13:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 09:45:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,11 +148,8 @@ typedef struct cpu_topology
     uint32_t l1CacheSize; // per core
     uint32_t l2CacheSize; // per core
     uint32_t l3CacheSize; // per package
-    uint32_t l4CacheSize; // per package
 
     uint32_t currentFrequency; // in MHz
-    uint32_t maxFrequency;     // in MHz
-    uint32_t minFrequency;     // in MHz
 
     char brandString[CPU_BAND_STRING_SIZE];
 } cpu_topology_t;
@@ -160,5 +157,11 @@ typedef struct cpu_topology
 extern cpu_topology_t cpu_topology;
 
 extern void get_cpu_topology(void);
+
+/*
+** ============================= CPU FREQUENCY ================================
+*/
+
+extern double get_cpu_frequency();
 
 #endif /* !CPU_H */

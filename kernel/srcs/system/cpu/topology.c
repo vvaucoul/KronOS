@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/27 20:24:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/31 19:55:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,17 +117,17 @@ void get_cpu_topology(void)
     // Get Current Frequency
     cpu_topology.currentFrequency = get_cpu_frequency();
 
-    printk("CPU Topology:\n");
-    printk("\tPhysical cores per package: %d\n", cpu_topology.physicalCoresPerPackage);
-    printk("\tLogical cores per physical core: %d\n", cpu_topology.logicalCoresPerPhysicalCore);
-    printk("\tSocket count: %d\n", cpu_topology.socketCount);
-    printk("\tCore count: %d\n", cpu_topology.coreCount);
-    printk("\tThread count: %d\n", cpu_topology.threadCount);
-    printk("\tL1 Cache Size: %d\n", cpu_topology.l1CacheSize);
-    printk("\tL2 Cache Size: %d\n", cpu_topology.l2CacheSize);
-    printk("\tL3 Cache Size: %d\n", cpu_topology.l3CacheSize);
-    printk("\tCurrent Frequency: %d MHz\n", cpu_topology.currentFrequency);
-    printk("\tCPU Brand: %s\n", cpu_topology.brandString);
+    // printk("CPU Topology:\n");
+    // printk("\tPhysical cores per package: %d\n", cpu_topology.physicalCoresPerPackage);
+    // printk("\tLogical cores per physical core: %d\n", cpu_topology.logicalCoresPerPhysicalCore);
+    // printk("\tSocket count: %d\n", cpu_topology.socketCount);
+    // printk("\tCore count: %d\n", cpu_topology.coreCount);
+    // printk("\tThread count: %d\n", cpu_topology.threadCount);
+    // printk("\tL1 Cache Size: %d\n", cpu_topology.l1CacheSize);
+    // printk("\tL2 Cache Size: %d\n", cpu_topology.l2CacheSize);
+    // printk("\tL3 Cache Size: %d\n", cpu_topology.l3CacheSize);
+    // printk("\tCurrent Frequency: %d MHz\n", cpu_topology.currentFrequency);
+    // printk("\tCPU Brand: %s\n", cpu_topology.brandString);
 
     // kpause();
 

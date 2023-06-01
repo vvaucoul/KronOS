@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    QEMU-Runner.mk                                     :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/02/11 14:01:31 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/05/29 20:17:00 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,7 +43,8 @@ run-curses: $(NAME)
 
 run-debug: $(NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
-	@$(QEMU) $(GLOBAL_QEMU_FLAGS) --enable-kvm -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -serial file:serial.log
+	@x-terminal-emulator -e gdb -q -x scripts/gdb-commands.txt 
+	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -serial file:serial.log
 
 run-disk: $(NAME) $(DISK_NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"

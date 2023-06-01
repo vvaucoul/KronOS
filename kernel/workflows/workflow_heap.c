@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/29 18:36:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/01 12:15:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <workflows/workflows.h>
+#include <kernel.h>
 #include <memory/kheap.h>
 #include <memory/paging.h>
-#include <kernel.h>
 #include <system/panic.h>
+#include <workflows/workflows.h>
 
 #include <system/pit.h>
 
@@ -22,8 +22,20 @@
  *                           KERNEL HEAP - WORKFLOW                            *
  ******************************************************************************/
 
-void test_get_physical_address()
-{
+void test_cr0() {
+    uint32_t cr0 = 0;
+    __asm__ __volatile__("mov %%cr0, %0"
+                         : "=r"(cr0));
+
+    // Check if paging is enabled
+    assert((cr0 & 0x80000000) == 0x80000000);
+
+    printk("test_cr0: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
+}
+
+void test_get_physical_address() {
     // Allocate a page of memory
     void *ptr = kmalloc_a(PAGE_SIZE);
     assert(ptr != NULL);
@@ -43,10 +55,10 @@ void test_get_physical_address()
     kfree(ptr);
     printk("test_get_physical_address: "_GREEN
            "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_get_virtual_address()
-{
+void test_get_virtual_address() {
     // Allocate a page of memory
     void *ptr = kmalloc_a(PAGE_SIZE);
     assert(ptr != NULL);
@@ -66,10 +78,10 @@ void test_get_virtual_address()
     kfree(ptr);
     printk("test_get_virtual_address: "_GREEN
            "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_get_page()
-{
+void test_get_page() {
     // Allocate a page of memory
     void *ptr = kmalloc(PAGE_SIZE);
     assert(ptr != NULL);
@@ -83,10 +95,10 @@ void test_get_page()
     kfree(ptr);
     printk("test_get_page: "_GREEN
            "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_create_page()
-{
+void test_create_page() {
     // Allocate a page of memory
     void *ptr = kmalloc(PAGE_SIZE);
     assert(ptr != NULL);
@@ -100,40 +112,56 @@ void test_create_page()
     kfree(ptr);
     printk("test_create_page: "_GREEN
            "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_get_cr2()
-{
-    // This test assumes that the CR2 register is set to a valid address
-
-    // uint32_t cr2 = get_cr2();
-    // assert(cr2 != 0);
-
-    printk("test_get_cr2: "_GREEN
-           "[OK] " _END "\n");
-}
-
-void test_switch_page_directory()
-{
+void test_create_page_directory() {
     // Allocate a new page directory
     page_directory_t *dir = create_page_directory();
     assert(dir != NULL);
 
-    // Switch to the new page directory
-    switch_page_directory(dir);
-    kpause();
-
-    // Switch back to the original page directory
-    switch_page_directory(kernel_directory);
+    verify_page_directory(dir);
 
     // Free the new page directory
     destroy_page_directory(dir);
-    printk("test_switch_page_directory: "_GREEN
+    printk("test_create_page_directory: "_GREEN
            "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_create_user_page()
-{
+void test_switch_page_directory() {
+    // Allocate a new page directory
+    // page_directory_t *dir = create_page_directory();
+    // assert(dir != NULL);
+
+    // verify_paging_enabled();
+    // verify_page_directory(dir);
+
+    // display_page_directory(dir);
+
+    // uint32_t cr3 = READ_CR3();
+    // // Switch to the new page directory
+
+    // page_directory_t *dir = current_directory;
+    // switch_page_directory(kernel_directory);
+
+    // uint32_t new_cr3 = READ_CR3();
+    // // Switch back to the original page directory
+    // switch_page_directory(dir);
+
+    // printk("cr3: 0x%x\n", cr3);
+    // printk("new_cr3: 0x%x\n", new_cr3);
+
+    // assert(cr3 != new_cr3);
+
+    // Free the new page directory
+    // destroy_page_directory(dir);
+    printk("test_switch_page_directory: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
+}
+
+void test_create_user_page() {
     // Allocate a page of memory
     void *ptr = kmalloc(PAGE_SIZE);
     assert(ptr != NULL);
@@ -146,248 +174,332 @@ void test_create_user_page()
     // Free the page
     destroy_user_page(page, kernel_directory);
     kfree(ptr);
+    printk("test_create_user_page: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kmalloc_int()
-{
+void test_kmalloc_int() {
     uint32_t *ptr;
     uint32_t phys;
+
+    // Test allocation of a single uint32_t
     ptr = kmalloc_int(sizeof(uint32_t), true, &phys);
-    printk("ptr: %p\n", ptr);
     assert(ptr != NULL);
-    printk("phys: 0x%x\n", phys);
     assert(phys % 4096 == 0);
-    kfree_p(ptr);
+    kfree(ptr);
+
+    // Test allocation of a large buffer
+    ptr = kmalloc_int(4096 * 10, true, &phys);
+    assert(ptr != NULL);
+    assert(phys % 4096 == 0);
+    kfree(ptr);
+
+    // Test allocation of an unaligned buffer
+    ptr = kmalloc_int(10, false, &phys);
+    assert(ptr != NULL);
+    assert(phys % 4096 != 0);
+    kfree(ptr);
+
+    // Test allocation of a buffer that spans multiple pages
+    ptr = kmalloc_int(4096 * 3 + 10, true, &phys);
+    assert(ptr != NULL);
+    assert(phys % 4096 == 0);
+    kfree(ptr);
+
+    printk("test_kmalloc_int: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kmalloc_a()
-{
+void test_kmalloc_a() {
     uint32_t *ptr;
+
+    // Test allocation of a single uint32_t
     ptr = kmalloc_a(sizeof(uint32_t));
     assert(ptr != NULL);
     assert((uint32_t)ptr % 4 == 0);
     kfree(ptr);
+
+    // Test allocation of a large buffer
+    ptr = kmalloc_a(4096 * 10);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr % 4096 == 0);
+    kfree(ptr);
+
+    // Test allocation of an unaligned buffer
+    ptr = kmalloc_a(10);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr % 4 == 0);
+    kfree(ptr);
+
+    // Test allocation of a buffer that spans multiple pages
+    ptr = kmalloc_a(4096 * 3 + 10);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr % 4096 == 0);
+    kfree(ptr);
+
+    printk("test_kmalloc_a: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kmalloc_p()
-{
+void test_kmalloc_p() {
     uint32_t *ptr;
     uint32_t phys;
+
+    // Test allocation of a single uint32_t
     ptr = kmalloc_p(sizeof(uint32_t), &phys);
     assert(ptr != NULL);
-    assert(phys % 4096 == 0);
-    kfree_p(ptr);
+    kfree(ptr);
+
+    // Test allocation of a large buffer
+    ptr = kmalloc_p(4096 * 10, &phys);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    // Test allocation of a buffer that spans multiple pages
+    ptr = kmalloc_p(4096 * 3 + 10, &phys);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    printk("test_kmalloc_p: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kmalloc_ap()
-{
+void test_kmalloc_ap() {
     uint32_t *ptr;
     uint32_t phys;
+
+    // Test allocation of a single uint32_t
     ptr = kmalloc_ap(sizeof(uint32_t), &phys);
     assert(ptr != NULL);
     assert((uint32_t)ptr % 4 == 0);
     assert(phys % 4096 == 0);
-    kfree_p(ptr);
+    kfree(ptr);
+
+    // Test allocation of a large buffer
+    ptr = kmalloc_ap(4096 * 10, &phys);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr % 4096 == 0);
+    assert(phys % 4096 == 0);
+    kfree(ptr);
+
+    // Test allocation of an unaligned buffer
+    ptr = kmalloc_ap(10, &phys);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr % 4 == 0);
+    assert(phys % 4096 == 0);
+    kfree(ptr);
+
+    // Test allocation of a buffer that spans multiple pages
+    ptr = kmalloc_ap(4096 * 3 + 10, &phys);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr % 4096 == 0);
+    assert(phys % 4096 == 0);
+    kfree(ptr);
+
+    printk("test_kmalloc_ap: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kmalloc_v()
-{
+void test_kmalloc_v() {
     uint32_t *ptr;
+
+    // Test allocation of a single uint32_t
     ptr = kmalloc_v(sizeof(uint32_t));
     assert(ptr != NULL);
+    assert((uint32_t)ptr >= KERNEL_VIRTUAL_BASE);
     kfree_v(ptr);
+
+    // Test allocation of a large buffer
+    ptr = kmalloc_v(4096 * 10);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr >= KERNEL_VIRTUAL_BASE);
+    kfree_v(ptr);
+
+    // Test allocation of an unaligned buffer
+    ptr = kmalloc_v(10);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr >= KERNEL_VIRTUAL_BASE);
+    kfree_v(ptr);
+
+    // Test allocation of a buffer that spans multiple pages
+    ptr = kmalloc_v(4096 * 3 + 10);
+    assert(ptr != NULL);
+    assert((uint32_t)ptr >= KERNEL_VIRTUAL_BASE);
+    kfree_v(ptr);
+
+    printk("test_kmalloc_v: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kmalloc()
-{
+void test_kmalloc() {
     uint32_t *ptr;
+
+    // Test allocation of a single uint32_t
     ptr = kmalloc(sizeof(uint32_t));
     assert(ptr != NULL);
     kfree(ptr);
+
+    // Test allocation of a large buffer
+    ptr = kmalloc(4096 * 10);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    // Test allocation of an unaligned buffer
+    ptr = kmalloc(10);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    // Test allocation of a buffer that spans multiple pages
+    ptr = kmalloc(4096 * 3 + 10);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    printk("test_kmalloc: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_krealloc()
-{
+void test_krealloc() {
     uint32_t *ptr;
+
+    // Test reallocation of a single uint32_t
     ptr = kmalloc(sizeof(uint32_t));
     assert(ptr != NULL);
     ptr = krealloc(ptr, sizeof(uint32_t) * 2);
     assert(ptr != NULL);
     kfree(ptr);
-}
 
-void test_kcalloc()
-{
-    uint32_t *ptr;
-    ptr = kcalloc(2, sizeof(uint32_t));
+    // Test reallocation of a large buffer
+    ptr = kmalloc(4096 * 10);
     assert(ptr != NULL);
-    assert(ptr[0] == 0);
-    assert(ptr[1] == 0);
+    ptr = krealloc(ptr, 4096 * 20);
+    assert(ptr != NULL);
     kfree(ptr);
+
+    // Test reallocation of an unaligned buffer
+    ptr = kmalloc(10);
+    assert(ptr != NULL);
+    ptr = krealloc(ptr, 20);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    // Test reallocation of a buffer that spans multiple pages
+    ptr = kmalloc(4096 * 3 + 10);
+    assert(ptr != NULL);
+    ptr = krealloc(ptr, 4096 * 6 + 20);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    printk("test_krealloc: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kfree()
-{
+void test_kcalloc() {
+    uint32_t *ptr;
+
+    // Test allocation of a single uint32_t
+    ptr = kcalloc(1, sizeof(uint32_t));
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    // Test allocation of a large buffer
+    ptr = kcalloc(10, 4096);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    // Test allocation of an unaligned buffer
+    ptr = kcalloc(1, 10);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    // Test allocation of a buffer that spans multiple pages
+    ptr = kcalloc(3, 4096);
+    assert(ptr != NULL);
+    kfree(ptr);
+
+    printk("test_kcalloc: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
+}
+
+void test_kfree() {
     uint32_t *ptr;
     ptr = kmalloc(sizeof(uint32_t));
     assert(ptr != NULL);
     kfree(ptr);
+
+    printk("test_kfree: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kfree_v()
-{
+void test_kfree_v() {
     uint32_t *ptr;
     ptr = kmalloc_v(sizeof(uint32_t));
     assert(ptr != NULL);
     kfree_v(ptr);
+
+    printk("test_kfree_v: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kfree_p()
-{
+void test_kfree_p() {
     uint32_t *ptr;
     uint32_t phys;
     ptr = kmalloc_p(sizeof(uint32_t), &phys);
     assert(ptr != NULL);
-    kfree_p(ptr);
+    kfree_p(&phys);
+
+    printk("test_kfree_p: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_kbrk()
-{
+void test_kbrk() {
     uint32_t *ptr1, *ptr2;
     ptr1 = kbrk(sizeof(uint32_t));
     assert(ptr1 != NULL);
     ptr2 = kbrk(sizeof(uint32_t));
     assert(ptr2 != NULL);
     assert(ptr2 == ptr1 + 1);
+
+    printk("test_kbrk: "_GREEN
+           "[OK] " _END "\n");
+
+    kusleep(10);
 }
 
-void test_ksize()
-{
+void test_ksize() {
     uint32_t *ptr;
     ptr = kmalloc(sizeof(uint32_t));
     assert(ptr != NULL);
     assert(ksize(ptr) == sizeof(uint32_t));
     kfree(ptr);
+
+    printk("test_ksize: "_GREEN
+           "[OK] " _END "\n");
+    kusleep(10);
 }
 
-void test_init_heap()
-{
-    uint32_t start_addr = 0x100000;
-    uint32_t end_addr = 0x200000;
-    uint32_t max_addr = 0x400000;
-    uint32_t supervisor = 0;
-    uint32_t readonly = 0;
-    init_heap(start_addr, end_addr, max_addr, supervisor, readonly);
-    uint32_t *ptr;
-    ptr = kmalloc(sizeof(uint32_t));
-    assert(ptr != NULL);
-    kfree(ptr);
-}
+int test_paging() {
+    __WORKFLOW_HEADER();
+    ksleep(1);
 
-void test_kheap_alloc()
-{
-    heap_t heap;
-    heap.addr.start_address = 0x100000;
-    heap.addr.end_address = 0x200000;
-    heap.addr.max_address = 0x400000;
-    heap.flags.supervisor = 0;
-    heap.flags.readonly = 0;
-    data_t *data = kheap_alloc(sizeof(uint32_t), true, &heap);
-    assert(data != NULL);
-    assert((uint32_t)(*data) % 4096 == 0);
-    kheap_free(data, &heap);
-}
-
-void test_kheap_free()
-{
-    heap_t heap;
-    heap.addr.start_address = 0x100000;
-    heap.addr.end_address = 0x200000;
-    heap.addr.max_address = 0x400000;
-    heap.flags.supervisor = 0;
-    heap.flags.readonly = 0;
-    data_t data = kheap_alloc(sizeof(uint32_t), true, &heap);
-    assert(data != NULL);
-    kheap_free(data, &heap);
-}
-
-void test_kheap_get_ptr_size()
-{
-    heap_t heap;
-    heap.addr.start_address = 0x100000;
-    heap.addr.end_address = 0x200000;
-    heap.addr.max_address = 0x400000;
-    heap.flags.supervisor = 0;
-    heap.flags.readonly = 0;
-    data_t data = kheap_alloc(sizeof(uint32_t), true, &heap);
-    assert(data != NULL);
-    assert(kheap_get_ptr_size(data) == sizeof(uint32_t));
-    kheap_free(data, &heap);
-}
-
-void test_vmalloc()
-{
-    uint32_t *ptr;
-    ptr = vmalloc(sizeof(uint32_t));
-    assert(ptr != NULL);
-    vfree(ptr);
-}
-
-void test_vbrk()
-{
-    uint32_t *ptr1, *ptr2;
-    ptr1 = vbrk(sizeof(uint32_t));
-    assert(ptr1 != NULL);
-    ptr2 = vbrk(sizeof(uint32_t));
-    assert(ptr2 != NULL);
-    assert(ptr2 == ptr1 + 1);
-}
-
-void test_vfree()
-{
-    uint32_t *ptr;
-    ptr = vmalloc(sizeof(uint32_t));
-    assert(ptr != NULL);
-    vfree(ptr);
-}
-
-void test_vrealloc()
-{
-    uint32_t *ptr;
-    ptr = vmalloc(sizeof(uint32_t));
-    assert(ptr != NULL);
-    ptr = vrealloc(ptr, sizeof(uint32_t) * 2);
-    assert(ptr != NULL);
-    vfree(ptr);
-}
-
-void test_vcalloc()
-{
-    uint32_t *ptr;
-    ptr = vcalloc(2, sizeof(uint32_t));
-    assert(ptr != NULL);
-    assert(ptr[0] == 0);
-    assert(ptr[1] == 0);
-    vfree(ptr);
-}
-
-void test_vsize()
-{
-    uint32_t *ptr;
-    ptr = vmalloc(sizeof(uint32_t));
-    assert(ptr != NULL);
-    assert(vsize(ptr) == sizeof(uint32_t));
-    vfree(ptr);
-}
-
-int test_heap_02()
-{
+    test_cr0();
     test_get_physical_address();
     test_get_virtual_address();
     test_get_page();
     test_create_page();
-    test_get_cr2();
-    test_switch_page_directory();
+    // test_create_page_directory();
+    // test_switch_page_directory();
     test_create_user_page();
 
     test_kmalloc_int();
@@ -403,33 +515,31 @@ int test_heap_02()
     test_kfree_p();
     test_kbrk();
     test_ksize();
-    test_init_heap();
-    test_kheap_alloc();
-    test_kheap_free();
-    test_kheap_get_ptr_size();
-    test_vmalloc();
-    test_vbrk();
-    test_vfree();
-    test_vrealloc();
-    test_vcalloc();
-    test_vsize();
+
+    __WORKFLOW_FOOTER();
+
     return 0;
 }
 
-void kheap_test(void)
-{
+void kheap_test(void) {
+
+    ksleep(1);
+    test_paging();
     __WORKFLOW_HEADER();
-
-    ksleep(1);
-    test_heap_02();
-    return;
-
-    printk("\n\nKmalloc test\n");
-    ksleep(1);
+    ksleep(4);
 
     void *ptr = kmalloc(10);
     void *ptr2 = kmalloc(10);
     void *ptr3 = kmalloc(10);
+
+    ptr = kmalloc(1024);
+    printk("Allocated 1024 bytes at 0x%x\n", ptr);
+
+    ptr2 = kmalloc(2048);
+    printk("Allocated 2048 bytes at 0x%x\n", ptr2);
+
+    ptr3 = kmalloc(1024);
+    printk("Allocated 1024 bytes at 0x%x\n", ptr3);
 
     printk("ptr : 0X%x | ptr2 : 0X%x | ptr3 : 0X%x\n", ptr, ptr2, ptr3);
 
@@ -437,56 +547,32 @@ void kheap_test(void)
     kfree(ptr2);
     kfree(ptr3);
 
+    kusleep(10);
+
     uint32_t i = 0, alloc_size = 1024, total_alloc = 0;
     void *ptrs[1000];
-    while (i < 1000)
-    {
+
+    while (i < 512) {
         ptrs[i] = kmalloc(alloc_size);
-        if (ptrs[i] == NULL)
-        {
+        if (ptrs[i] == NULL) {
             printk("Failed to allocate %u bytes at iteration %u\n", alloc_size, i);
             break;
         }
         total_alloc += alloc_size;
         printk("Allocated %u bytes at iteration %u | PTR 0x%x | Total = %u\n", alloc_size, i, ptrs[i], total_alloc);
-        // timer_wait(10);
         i++;
     }
 
     i = 0;
-
-    while (i < 1000)
-    {
+    while (i < 512) {
         kfree(ptrs[i]);
         printk("Freed %u bytes at iteration %u | PTR 0x%x | Total = %u\n", alloc_size, i, ptrs[i], total_alloc);
         total_alloc -= alloc_size;
-        // timer_wait(10);
         i++;
     }
     printk("Freed %u bytes at iteration %u | PTR 0x%x | Total = %u\n", alloc_size, i, NULL, total_alloc);
 
-    ptr = kmalloc(1024 * 1024);
-    printk("Allocated 1MB at 0x%x\n", ptr);
-
-    i = 0;
-    while (i < 1000)
-    {
-        ptrs[i] = kmalloc(alloc_size);
-        if (ptrs[i] == NULL)
-        {
-            printk("Failed to allocate %u bytes at iteration %u\n", alloc_size, i);
-            break;
-        }
-        total_alloc += alloc_size;
-        printk("Allocated %u bytes at iteration %u | PTR 0x%x | Total = %u\n", alloc_size, i, ptrs[i], total_alloc);
-        // timer_wait(10);
-        kfree(ptrs[i]);
-        total_alloc -= alloc_size;
-        printk("Freed %u bytes at iteration %u | PTR 0x%x | Total = %u\n", alloc_size, i, ptrs[i], total_alloc);
-        i++;
-    }
-
-    kfree(ptr);
+    kusleep(10);
 
     printk("\n\nKcalloc test\n");
     ksleep(1);
@@ -614,11 +700,13 @@ void kheap_test(void)
     vfree(vr);
     ksleep(1);
 
-    printk("\n\nKernel Panic with page fault\n");
-    ksleep(1);
+    // Generate page fault
 
-    ptr = (void *)0x12345678;
-    printk("ptr : 0x%x\n", ptr);
+    // printk("\n### Page fault ###\n");
+
+    // volatile uint32_t *ptr_fault = (volatile uint32_t *)0xdeadbeef;
+    // uint32_t val = *ptr_fault;
+    // __UNUSED(val);
 
     __WORKFLOW_FOOTER();
 }

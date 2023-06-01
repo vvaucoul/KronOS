@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/29 18:03:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/01 10:12:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 #include <hephaistos.h>
 
-#define __KERNEL_VERSION__ "0.4.0"
+#define __KERNEL_VERSION__ "0.5.0"
 #define __KERNEL_NAME__ "KronOS"
 
 #define __DISPLAY_INIT_LOG__ true
@@ -37,12 +37,12 @@ __attribute__((unused)) extern void switch_to_user_mode();
         return (err);                              \
     }
 
-#define __THROW_NO_RETURN(msg, err, ...)           \
+#define __THROW_NO_RETURN(msg, ...)                \
     {                                              \
         printk(_RED "WARNING: "                    \
                     "[%s:%u] " msg _END "\n",      \
                __FILE__, __LINE__, ##__VA_ARGS__); \
-        return;                                   \
-}
+        return;                                    \
+    }
 
 #endif /* !KERNEL_H */

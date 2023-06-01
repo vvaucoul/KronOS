@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irq.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:54:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:49:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/01 15:51:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,8 @@
 #define SLAVE_OFFSET 0x28  /* IRQ8-15 mapped to 0x28-0x2F */
 
 #define IRQ_EOI 0x20 /* End of Interrupt */
+
+#define IRQ_PIT 0
 
 /*******************************************************************************
  *                                IRQ FUNCTIONS                                *

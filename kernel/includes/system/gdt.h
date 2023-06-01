@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   gdt.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:34:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/31 19:17:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GDT_H
 #define GDT_H
 
-#include <kernel.h>
 #include <asm/asm.h>
+#include <kernel.h>
 #include <memory/memory.h>
 
 #define SEG_DESCTYPE(x) ((x) << 0x04)
@@ -75,7 +75,8 @@
 #define GDT_ENTRY_FLAG_BASE 0xCF
 #define GDT_ENTRY_FLAG_ZERO 0x0
 
-#define __GDT_ADDR (0x00000800) //+ (__HIGHER_HALF_KERNEL__ == true ? KERNEL_MEMORY_START : 0x0))
+// #define __GDT_ADDR (0x00000800) //+ (__HIGHER_HALF_KERNEL__ == true ? KERNEL_MEMORY_START : 0x0))
+#define __GDT_ADDR ((0x00000800) + (__HIGHER_HALF_KERNEL__ == true ? KERNEL_VIRTUAL_BASE : 0x0))
 #define __GDT_SIZE 0x07
 
 #define __GDT_LIMIT (uint16_t)0xFFFFF
@@ -116,8 +117,7 @@
             GDT_BASE_HIGH(base),              \
     }
 
-typedef struct s_gdt_entry
-{
+typedef struct s_gdt_entry {
     uint16_t limit_low;  // Limit (bits 0-15)
     uint16_t base_low;   // Base address (bits 0-15)
     uint8_t base_middle; // Base address (bits 16-23)
@@ -128,8 +128,7 @@ typedef struct s_gdt_entry
 
 #define GDTEntry t_gdt_entry
 
-typedef struct s_gdt_ptr
-{
+typedef struct s_gdt_ptr {
     uint16_t limit;
     uint32_t base;
 } __attribute__((packed)) t_gdt_ptr;

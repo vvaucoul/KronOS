@@ -16,9 +16,8 @@ section .data
 	align 0x1000
 
 ; Multiboot Section
-extern __lhk_multiboot
 align 4
-call __lhk_multiboot
+extern __lhk_multiboot
 
 section .bss
 	align 32

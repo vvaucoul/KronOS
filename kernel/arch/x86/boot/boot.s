@@ -1,12 +1,25 @@
 ;*******************************************************************************
+;*                              MULTIBOOT VALUES                               *
+;*******************************************************************************
+
+MBALIGN equ 1 << 0
+MEMINFO equ 1 << 1
+MBOOT_VIDEO equ 1 << 2
+FLAGS equ (MBALIGN | MEMINFO | MBOOT_VIDEO)
+MAGIC equ 0x1BADB002
+BOOTLOADER_MAGIC equ 0x2BADB002
+CHECKSUM equ -(MAGIC + FLAGS)
+
+;*******************************************************************************
+
+;*******************************************************************************
 ;*                                   DEFINES                                   *
 ;*******************************************************************************
 
-STACK_SIZE equ 0X4000 ; 16K stack size
+STACK_SIZE equ 104856 ; 1024 * 1024 (1MB)
 
 global __call_kmain
 extern display_error_msg
-extern hhk_loader
 
 ;*******************************************************************************
 ;*                        HIGHER HALF KERNEL CONSTANTS                         *
@@ -14,7 +27,8 @@ extern hhk_loader
 
 KERNEL_VIRTUAL_BASE equ 0xC0000000
 KERNEL_PHYSICAL_BASE equ 0x00100000
-KERNEL_PAGE_NUMBER equ (KERNEL_VIRTUAL_BASE) >> 22
+KERNEL_PAGE_NUMBER equ (KERNEL_VIRTUAL_BASE >> 22)
+
 PSE_BIT equ 0x00000010 ; Page Size Extension bit
 PG_BIT equ 0x80000000 ; Page Global bit
 
@@ -22,35 +36,53 @@ PG_BIT equ 0x80000000 ; Page Global bit
 ;*                                  SECTIONS                                   *
 ;*******************************************************************************
 
+bits 32
+
+; Multiboot Section
+section .multiboot
+align 4
+	dd MAGIC
+	dd FLAGS
+	dd CHECKSUM
+
+	dd 0
+	dd 0
+	dd 0
+	dd 0
+	dd 0
+
+	dd 1
+	dd 800
+	dd 400
+	dd 32
+
 ; Data Section
 section .data
 align 0x1000
-; global BootPageDirectory
-BootPageDirectory:
+
+global BOOT_PAGE_DIRECTORY
+BOOT_PAGE_DIRECTORY:
 	dd 0x00000083 ; 10000011 - dd: 4bytes constant
     times (KERNEL_PAGE_NUMBER - 1) dd 0
     dd 0x00000083 ; 10000011
     times (1024 - KERNEL_PAGE_NUMBER - 1) dd 0
 
-; Multiboot Section
-extern __hhk_multiboot
-align 4
-call __hhk_multiboot
+; Stack Section
+section .initial_stack, nobits
+	align 4
+stack_bottom:
+	resb STACK_SIZE
+stack_top:
 
 ; Kernel Entry
 section .text
-align 4
-global _lower_half_kernel
+global _start
+_start equ (_kernel_entry - KERNEL_VIRTUAL_BASE)
 
-extern kmain
-
-lower_half_kernel:
-global lower_half_kernel
-
-_lower_half_kernel:
-	cli
+global _kernel_entry
+_kernel_entry:
 	; Update Page Directory
-	mov ecx, (BootPageDirectory - KERNEL_VIRTUAL_BASE)
+	mov ecx, (BOOT_PAGE_DIRECTORY - KERNEL_VIRTUAL_BASE)
 	mov cr3, ecx
 
 	; Enable 4MB Pages
@@ -69,26 +101,23 @@ _lower_half_kernel:
 
 higher_half_kernel:
 	; Unmap the first 4MB of memory
-	mov dword[BootPageDirectory], 0
+	mov dword[BOOT_PAGE_DIRECTORY], 0
 	invlpg[0]
 
-	mov esp, stack + STACK_SIZE 
+	mov esp, stack_top
 
-	push ebx
-	push eax
+	extern kmain
+	
+	push esp ; stack
+	push ebx ; multiboot info
+	push eax ; magic number
 
-	cli
 	call kmain
 	pop eax
 	cmp eax, 1
 	call display_error_msg
 	hlt
+
 .hang:
 	hlt
 	jmp .hang
-
-; Stack Section
-section .bss
-	align 32
-stack:
-	resb STACK_SIZE

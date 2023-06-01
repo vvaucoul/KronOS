@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   isr.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/12 12:39:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/01 15:50:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <system/isr.h>
 #include <memory/memory.h>
+#include <system/isr.h>
 #include <system/kerrno.h>
 
 ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS] = {0};
@@ -52,8 +52,7 @@ unsigned char *exception_messages[ISR_MAX_COUNT] =
         (unsigned char *)"Reserved",
         (unsigned char *)"Reserved"};
 
-static void isr_register(uint8_t index, char *name, isr_code_t code, panic_t type, char *exception, bool zero, bool has_code)
-{
+static void isr_register(uint8_t index, char *name, isr_code_t code, panic_t type, char *exception, bool zero, bool has_code) {
     g_irqs[index].name = name;
     g_irqs[index].code = code;
     g_irqs[index].type = type;
@@ -62,16 +61,14 @@ static void isr_register(uint8_t index, char *name, isr_code_t code, panic_t typ
     g_irqs[index].has_code = has_code;
 }
 
-static __attribute__((no_caller_saved_registers)) void __display_interrupt_frame(struct regs *r)
-{
+static __attribute__((no_caller_saved_registers)) void __display_interrupt_frame(struct regs *r) {
     printk("REGS:\n");
     printk("eax=0x%x, ebx=0x%x, ecx=0x%x, edx=0x%x\n", r->eax, r->ebx, r->ecx, r->edx);
     printk("edi=0x%x, esi=0x%x, ebp=0x%x, esp=0x%x\n", r->edi, r->esi, r->ebp, r->esp);
     printk("eip=0x%x, cs=0x%x, ss=0x%x, eflags=0x%x, useresp=0x%x\n", r->eip, r->ss, r->eflags, r->useresp);
 }
 
-void isrs_install()
-{
+void isrs_install() {
     idt_set_gate(0, (unsigned)isr0, IDT_SELECTOR, IDT_FLAG_GATE);
     isr_register(0, "Division By Zero", 0x0, FAULT, "#DE", false, false);
 
@@ -169,8 +166,7 @@ void isrs_install()
     isr_register(31, "Reserved", 0x24, FAULT, "", false, false);
 }
 
-void isr_register_interrupt_handler(int num, ISR handler)
-{
+void isr_register_interrupt_handler(int num, ISR handler) {
     assert(num < NB_INTERRUPT_HANDLERS);
     idt_set_gate(num, (unsigned)handler, IDT_SELECTOR, IDT_FLAG_GATE);
 }
@@ -180,16 +176,14 @@ void isr_register_interrupt_handler(int num, ISR handler)
  *
  * @param r (struct regs *)
  */
-void fault_handler(struct regs *r)
-{
+void fault_handler(struct regs *r) {
     uint8_t err_code = 0x0;
 
     /* CPU Extend 8bits interrupts to 32bits */
     r->int_no &= 0xFF;
 
     KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
-    if (r->int_no < 32)
-    {
+    if (r->int_no < 32) {
         __display_interrupt_frame(r);
 
         panic_t type = g_irqs[r->int_no].type;
@@ -200,9 +194,7 @@ void fault_handler(struct regs *r)
             err_code = r->err_code;
 
         __PANIC_INTERRUPT((const char *)g_irqs[r->int_no].name, r->int_no, type, err_code);
-    }
-    else
-    {
+    } else {
         __display_interrupt_frame(r);
         __PANIC_INTERRUPT("Unhandled Interrupt", r->int_no, ABORT, r->err_code);
     }

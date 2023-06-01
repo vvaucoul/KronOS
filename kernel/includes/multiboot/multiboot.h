@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/29 15:43:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/01 09:40:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -298,7 +298,7 @@ typedef struct
 #define MUltibootAout t_aout_symbol_table
 #define MultibootMemoryType enum e_multiboot_memory_type
 
-static MultibootInfo *__multiboot_info = NULL;
+extern MultibootInfo *__multiboot_info;
 
 extern int multiboot_init(MultibootInfo *mboot_ptr);
 extern bool multiboot_check_magic_number(hex_t magic_number);
@@ -316,5 +316,7 @@ extern bool multiboot_check_magic_number(hex_t magic_number);
             return (1);                                                      \
         }                                                                  \
     } while (0)
+
+#define GET_PHYSICAL_MEMORY_SIZE(mboot_ptr) ((mboot_ptr)->mem_upper + (mboot_ptr)->mem_lower)
 
 #endif /* !MULTIBOOT_H */

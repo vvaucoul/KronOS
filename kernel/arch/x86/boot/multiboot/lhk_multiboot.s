@@ -37,3 +37,5 @@ section .multiboot.data
 	dd 0			; Width
 	dd 0			; Height
 	dd 32			; Depth
+
+	ret

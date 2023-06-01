@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/29 16:58:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/01 10:02:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,14 @@
 #include <memory/memory.h>
 #include <memory/memory_map.h>
 
+#include <system/backtrace/backtrace.h>
+
 #define KHEAP_START 0xC0000000
 #define KHEAP_MAX_SIZE 0xCFFFF000
 #define KHEAP_INITIAL_SIZE 0x100000
 #define KHEAP_MAGIC 0x123890AB
 #define HEAP_INDEX_SIZE 0x20000
 #define HEAP_MIN_SIZE 0x70000
-#define PHYSICAL_MEMORY_SIZE 0x1000000
 
 enum kheap_block_status
 {
@@ -90,6 +91,12 @@ extern void *kmalloc_a(uint32_t size);
 extern void *kmalloc_p(uint32_t size, uint32_t *phys);
 extern void *kmalloc_ap(uint32_t size, uint32_t *phys);
 extern void *kmalloc_v(uint32_t size);
+
+extern void *kbrk_int(uint32_t size, bool align, uint32_t *phys);
+extern void *kbrk_a(uint32_t size);
+extern void *kbrk_p(uint32_t size, uint32_t *phys);
+extern void *kbrk_ap(uint32_t size, uint32_t *phys);
+extern void *kbrk_v(uint32_t size);
 
 extern void *kmalloc(uint32_t size);
 extern void *krealloc(void *ptr, uint32_t size);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 16:35:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/01 23:22:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,17 +16,17 @@
 
 void speaker_phase(int hz) {
     int divisor = __CHIPSET_FREQUENCY / hz;
-    outb(__PIT_CMDREG, 0xb6);
-    outb(__PIT_CHANNEL2, divisor & PIT_MASK);
-    outb(__PIT_CHANNEL2, (divisor >> 8) & PIT_MASK);
+    outb(PIT_CMDREG, 0xb6);
+    outb(PIT_CHANNEL_2, divisor & PIT_MASK);
+    outb(PIT_CHANNEL_2, (divisor >> 8) & PIT_MASK);
 }
 
-void timer_phase(int hz) {
+static void __timer_phase(void) {
     // This frequency is 1.1931816666 MHz
-    int divisor = __CHIPSET_FREQUENCY / hz;
-    outportb(__PIT_CMDREG, PIT_SET);
-    outportb(__PIT_CHANNEL0, divisor & PIT_MASK);
-    outportb(__PIT_CHANNEL0, (divisor >> 8) & PIT_MASK);
+    int divisor = __CHIPSET_FREQUENCY / TIMER_PHASE;
+    outportb(PIT_CMDREG, PIT_SET);
+    outportb(PIT_CHANNEL_0, (uint8_t)(divisor & PIT_MASK));
+    outportb(PIT_CHANNEL_0, (uint8_t)((divisor >> 8) & PIT_MASK));
 }
 
 uint32_t timer_ticks = 0;
@@ -38,8 +38,11 @@ void timer_handler(struct regs *r) {
 
     timer_subtick++;
 
-    if (timer_subtick == __TIMER_HZ) {
+    if (timer_subtick == TIMER_PHASE) {
         timer_ticks++;
+    }
+
+    if (timer_subtick % TIMER_MAX_TICKS == 0) {
         timer_subtick = 0;
     }
 
@@ -63,12 +66,13 @@ void beep(unsigned int wait_time, unsigned int times) {
 }
 
 void timer_install() {
-    timer_phase(__TIMER_HZ);
-    speaker_phase(__TIMER_HZ);
-    irq_install_handler(IRQ_PIT, timer_handler);
+    irq_install_handler(0, timer_handler);
+    __timer_phase();
+    // speaker_phase(TIMER_PHASE);
 }
 
 void timer_wait(uint32_t ticks) {
+
     uint32_t start_tick = timer_subtick;
 
     while (timer_subtick - start_tick < ticks) {
@@ -88,13 +92,5 @@ void timer_display_ktimer(void) {
            " %d\n",
            timer_subtick);
     printk("%8%% Seconds: %d\n", timer_ticks);
-    printk("%8%% HZ: %d\n", (size_t)__TIMER_HZ);
+    printk("%8%% HZ: %d\n", (size_t)TIMER_PHASE);
 }
-
-#undef __PIT_CHANNEL0
-#undef __PIT_CHANNEL1
-#undef __PIT_CHANNEL2
-#undef __PIT_CMDREG
-
-#undef __CHIPSET_FREQUENCY
-#undef __TIMER_HZ

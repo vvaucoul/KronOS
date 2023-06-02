@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 16:38:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/02 16:34:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,18 @@ extern task_t *ready_queue;
 
 bool scheduler_initialized = false;
 
-void init_scheduler(void)
-{
+void init_scheduler(void) {
     scheduler_initialized = true;
 }
 
 void switch_task(void) {
+
+    printk("Switching task\n");
+    outportb(0x20, 0x20); // Send EOI to PIC
+
+    if (!scheduler_initialized)
+        return;
+
     uint32_t esp, ebp, eip;
 
     /* If we haven't initialised tasking yet, just return */

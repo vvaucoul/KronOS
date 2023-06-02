@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irq.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/12 12:45:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/02 16:39:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ void irq_remap(void)
 void irq_install()
 {
     irq_remap();
+
     idt_set_gate(32, (unsigned)irq0, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(33, (unsigned)irq1, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(34, (unsigned)irq2, IDT_SELECTOR, IDT_FLAG_GATE);

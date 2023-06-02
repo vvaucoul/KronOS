@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 16:38:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/02 16:40:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,6 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     kernel_log_info("LOG", "TERMINAL");
     init_kerrno();
     kernel_log_info("LOG", "KERRNO");
-
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
@@ -132,18 +131,21 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         return (__BSOD_UPDATE("Error: kernel memory map failed") | 1);
     kernel_log_info("LOG", "KERNEL MEMORY MAP");
 
+
     gdt_install();
     kernel_log_info("LOG", "GDT");
 
-    tss_init(5, 0x10, 0x0);
-    kernel_log_info("LOG", "TSS");
-
     idt_install();
     kernel_log_info("LOG", "IDT");
+
     isrs_install();
     kernel_log_info("LOG", "ISR");
+
     irq_install();
     kernel_log_info("LOG", "IRQ");
+    
+    tss_init(5, 0x10, 0x0);
+    kernel_log_info("LOG", "TSS");
 
     timer_install();
     kernel_log_info("LOG", "TIMER");
@@ -158,8 +160,8 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     keyboard_install();
     kernel_log_info("LOG", "KEYBOARD");
-    // enable_fpu();
-    // kernel_log_info("LOG", "FPU");
+    enable_fpu();
+    kernel_log_info("LOG", "FPU");
 
     init_paging();
     kernel_log_info("LOG", "PAGING");
@@ -191,15 +193,16 @@ __attribute__((unused)) void test_user_function() {
     printk("Hello from user space!\n");
 }
 
-void process_02(void) {
-    printk("Hello from task %02u !\n", getpid());
-    return;
+void process_03(void) {
+    while (1) {
+        printk("Hello from process_03 !\n");
+        ksleep(1);
+    }
 }
 
-void process_01(void) {
-    printk("Hello from task %02u !\n", getpid());
-    // kill_task(getpid());
-    return;
+void process_02(void) {
+    printk("Hello from task process_02!\n");
+    // exit_task(0);
 }
 
 void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size) {
@@ -207,6 +210,10 @@ void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size) {
     for (uint32_t i = 0; i < size; ++i) {
         ptr[i] = function[i];
     }
+}
+
+void process_01(void) {
+    printk("Hello from process_01 !\n");
 }
 
 int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
@@ -229,7 +236,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // switch_to_user_mode();
 
     init_task(process_01);
-    // init_task(process_02);
+    init_task(process_02);
+    init_task(process_03);
 
     kernel_log_info("LOG", "PROCESS");
 
@@ -245,6 +253,13 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // switch_user_mode();
     // kpause();
+
+    while (1)
+    {
+        // printk("Hello from kernel space!\n");
+        // ksleep(1);
+    }
+    
 
     kronos_shell();
     return (0);

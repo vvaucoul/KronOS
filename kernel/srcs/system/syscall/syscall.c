@@ -3,24 +3,34 @@
 /*                                                        :::      ::::::::   */
 /*   syscall.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 15:23:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 10:09:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/syscall.h>
 #include <system/irq.h>
 
+#include <multitasking/process.h>
+
 _syscall0(int, exit);
 _syscall0(int, fork);
 
 syscall_t __syscall[SYSCALL_SIZE];
 
-static sysfn_t __syscall_exit_test(void)
+static sysfn_t __syscall_exit_test(uint32_t status)
 {
+    exit_task(status);
+    // The task should not return from exit_task,
+    // so there's no need for code after this
     printk("Syscall exit test\n");
+}
+
+static sysfn_t __syscall_wait(void)
+{
+    printk("Syscall wait\n");
 }
 
 static void __add_syscall(uint32_t id, const char *name, sysfn_t *fn)
@@ -69,9 +79,12 @@ void init_syscall(void)
     // TMP syscall fn -> NULL -> Wait for KFS-5 & KFS-7
     __add_syscall(SYSCALL_RESTART, "restart", NULL);
     __add_syscall(SYSCALL_EXIT, "exit", &__syscall_exit_test);
-    __add_syscall(SYSCALL_FORK, "fork", NULL);
+    __add_syscall(SYSCALL_FORK, "fork", &task_fork);
     __add_syscall(SYSCALL_READ, "read", NULL);
     __add_syscall(SYSCALL_WRITE, "write", NULL);
+    //... Continue ...
+    __add_syscall(SYSCALL_WAIT, "wait", __syscall_wait);
+
 
     irq_install_handler(SYSCALL_IRQ, &__syscall_handler);
 

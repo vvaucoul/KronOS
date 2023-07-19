@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 16:38:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 13:26:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ task_t *current_task = NULL;
 uint32_t num_tasks = 0;
 
 task_t *ready_queue = NULL;
+task_t *wait_queue = NULL;
 
 extern page_directory_t *kernel_directory;
 extern page_directory_t *current_directory;
@@ -123,7 +124,9 @@ void init_tasking(void) {
         __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
 
     // printk("\t- Current task : %d\n", current_task->pid);
-    
+
+    wait_queue = NULL;
+
     ASM_STI();
 }
 
@@ -200,6 +203,10 @@ int32_t task_fork(void) {
     }
 }
 
+__attribute__((pure)) page_directory_t *get_task_directory(void) {
+    return current_task->page_directory;
+}
+
 int32_t getpid(void) {
     return current_task->pid;
 }
@@ -254,46 +261,61 @@ int32_t kill_task(int32_t pid) {
     task_t *tmp_task;
     task_t *par_task;
 
-    // printk("\n\n--- KILL TASK ---\n\n");
-
-    // printk("Killing task: %d\n", pid);
-
     if (!pid)
         return 0;
 
     tmp_task = get_task(pid);
-    if (!tmp_task)
-    {
+    if (!tmp_task) {
+
         __THROW("kill_task : task not found for pid %d", -1, pid);
     }
-
-    // printk("Found task: %d\n", tmp_task->pid);
-    // printk("Parent task: %d\n", tmp_task->ppid);
 
     /* Can we delete it? */
     if (tmp_task->ppid != 0) {
         par_task = get_task(tmp_task->ppid);
-        // printk("Found parent task: %d\n", par_task->pid);
         /* If its stack is reachable, delete it */
         if (tmp_task->kernel_stack) {
             kfree((void *)tmp_task->kernel_stack);
-            // printk("Freed kernel stack\n");
         }
         par_task->next = tmp_task->next;
         kfree((void *)tmp_task);
-
-        // printk("Waiting for task %u to die\n", pid);
         ksleep(1);
-        // printk("Killed task: %d\n", pid);
         return (pid);
     } else {
         return (0);
     }
 }
 
+void lock_task(task_t *task) {
+    ASM_CLI();
+    task->state = TASK_WAITING;
+    task->next = wait_queue;
+    wait_queue = task;
+    ASM_STI();
+}
+
+void unlock_task(task_t *task) {
+    ASM_CLI();
+    if (wait_queue) {
+        task_t *tmp = wait_queue;
+        if (tmp == task) {
+            wait_queue = tmp->next;
+        } else {
+            while (tmp->next && tmp->next != task)
+                tmp = tmp->next;
+            if (tmp->next) {
+                tmp->next = task->next;
+            }
+        }
+        task->next = NULL;
+        task->state = TASK_RUNNING;
+    }
+    ASM_STI();
+}
+
 void exit_task(uint32_t retval) {
+    current_task->exit_code = retval;
     kill_task(current_task->pid);
-    switch_to_user_mode();
 }
 
 void switch_to_user_mode(void) {
@@ -316,4 +338,64 @@ void switch_to_user_mode(void) {
 	iret; \
 	1: \
 	");
+}
+
+uint32_t getuid(void) {
+    return current_task->owner;
+}
+
+void signal(int pid, int signal) {
+    task_t *task = get_task(pid);
+    if (task) {
+        // Here you would add the signal to the task's signal queue
+        // This requires a way to represent signals and a signal queue in each task
+    }
+    __UNUSED(signal);
+}
+
+void kill(int pid) {
+    signal(pid, SIGKILL);
+}
+
+bool is_pid_valid(int pid) {
+    return get_task(pid) != NULL;
+}
+
+task_t *get_wait_queue(void) {
+    return wait_queue;
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                      UTILS                                     ||
+// ! ||--------------------------------------------------------------------------------||
+
+void print_task_info(task_t *task) {
+    printk("Task PID: %d, Parent PID: %d, Owner: %d, State: %d\n", task->pid, task->ppid, task->owner, task->state);
+}
+
+void print_all_tasks() {
+    task_t *task = ready_queue;
+    while (task) {
+        print_task_info(task);
+        task = task->next;
+    }
+}
+
+void print_parent_and_children(int pid) {
+    task_t *parent_task = get_task(pid);
+    if (!parent_task) {
+        printk("Invalid PID: %d\n", pid);
+        return;
+    }
+
+    print_task_info(parent_task);
+
+    printk("Children:\n");
+    task_t *task = ready_queue;
+    while (task) {
+        if (task->ppid == pid) {
+            print_task_info(task);
+        }
+        task = task->next;
+    }
 }

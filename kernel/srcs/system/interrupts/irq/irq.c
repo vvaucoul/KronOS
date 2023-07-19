@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 16:39:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/02 19:14:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,8 @@ void *irq_routines[16] =
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0};
 
-void pic8259_send_eoi(uint8_t irq)
-{
-    if (irq >= 0x28)
-    {
+void pic8259_send_eoi(uint8_t irq) {
+    if (irq >= 0x28) {
         /* Send reset signal to slave. */
         outportb(SLAVE_PIC, IRQ_EOI);
     }
@@ -45,18 +43,15 @@ void pic8259_send_eoi(uint8_t irq)
     outportb(MASTER_PIC, IRQ_EOI);
 }
 
-void irq_install_handler(int irq, void (*handler)(struct regs *r))
-{
+void irq_install_handler(int irq, void (*handler)(struct regs *r)) {
     irq_routines[irq] = handler;
 }
 
-void irq_uninstall_handler(int irq)
-{
+void irq_uninstall_handler(int irq) {
     irq_routines[irq] = 0;
 }
 
-void irq_remap(void)
-{
+void irq_remap(void) {
     /* Maybe remap to setup cascading */
 
     uint32_t master_mask = inb(MASTER_DATA);
@@ -78,8 +73,7 @@ void irq_remap(void)
     outportb(SLAVE_DATA, slave_mask);
 }
 
-void irq_install()
-{
+void irq_install() {
     irq_remap();
 
     idt_set_gate(32, (unsigned)irq0, IDT_SELECTOR, IDT_FLAG_GATE);
@@ -100,13 +94,11 @@ void irq_install()
     idt_set_gate(47, (unsigned)irq15, IDT_SELECTOR, IDT_FLAG_GATE);
 }
 
-void irq_handler(struct regs *r)
-{
-    void (*handler)(struct regs * r);
+void irq_handler(struct regs *r) {
+    void (*handler)(struct regs *r);
 
     handler = irq_routines[r->int_no - 32];
-    if (handler)
-    {
+    if (handler) {
         /* Call the handler. */
         if (handler)
             handler(r);

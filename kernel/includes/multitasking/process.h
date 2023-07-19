@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 16:36:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 11:48:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include <kernel.h>
 #include <memory/paging.h>
+
+#include <system/signal.h>
 
 #define KERNEL_STACK_SIZE 8192 // 2KB
 
@@ -43,6 +45,8 @@ typedef struct s_task {
     uint32_t exit_code;
 
     task_state_t state;
+
+    signal_node_t *signal_queue; // Queue of signals to be processed
 } task_t;
 
 void init_tasking(void);
@@ -65,5 +69,12 @@ void switch_to_user_mode(void);
 extern uint32_t read_eip(void);
 
 void exit_task(uint32_t retval);
+
+__attribute__((pure)) extern page_directory_t *get_task_directory(void);
+
+task_t *get_wait_queue(void);
+
+extern void lock_task(task_t *task);
+extern void unlock_task(task_t *task);
 
 #endif /* !PROCESS_H */

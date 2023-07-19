@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   syscall.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/10 21:34:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 10:08:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,20 @@ extern void init_syscall(void);
 ** EBX: unsigned int fd
 ** ECX: const char *buff
 ** EDX: unsigned int count
+** ESI: 0x00
+** EDI: 0x00
+** EBP: 0x00
+*/
+
+
+// ... Continue ...
+
+#define SYSCALL_WAIT 0x7F
+/*
+** EAX: 0x7F
+** EBX: int *status
+** ECX: 0x00
+** EDX: 0x00
 ** ESI: 0x00
 ** EDI: 0x00
 ** EBP: 0x00

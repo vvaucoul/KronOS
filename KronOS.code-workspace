@@ -6,6 +6,8 @@
 	],
 	"settings": {
 		"files.associations": {
+			"*.s": "nasm",
+			"*.ld": "mapfile",
 			"*.c": "c",
 			"cpu.h": "c",
 			"pit.h": "c",
@@ -18,7 +20,21 @@
 			"time.h": "c",
 			"printk.h": "c",
 			"scheduler.h": "c",
-			"memory.h": "c"
+			"memory.h": "c",
+			"getuid.C": "cpp",
+			"syscall.h": "c",
+			"bit": "cpp",
+			"compare": "cpp",
+			"cstddef": "cpp",
+			"string": "cpp",
+			"limits": "cpp",
+			"memory": "cpp",
+			"new": "cpp",
+			"functional": "cpp",
+			"tss.h": "c",
+			"workflows.h": "c",
+			"multiboot.h": "c",
+			"mutex.h": "c"
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 16:34:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/06/02 19:07:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ void init_scheduler(void) {
 
 void switch_task(void) {
 
-    printk("Switching task\n");
     outportb(0x20, 0x20); // Send EOI to PIC
 
     if (!scheduler_initialized)
@@ -59,8 +58,6 @@ void switch_task(void) {
     /* If we fell off the end of the linked list start again at the beginning */
     if (!current_task)
         current_task = ready_queue;
-
-    printk("Switching task: %d\n", current_task->pid);
 
     eip = current_task->eip;
     esp = current_task->esp;

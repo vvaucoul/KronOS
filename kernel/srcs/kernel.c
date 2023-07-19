@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 16:40:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 13:28:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include <system/irq.h>
 #include <system/isr.h>
 #include <system/kerrno.h>
+#include <system/mutex.h>
 #include <system/panic.h>
 #include <system/pit.h>
 #include <system/sections.h>
@@ -44,14 +45,20 @@
 #include <memory/memory_map.h>
 #include <memory/paging.h>
 
+#include <memory/mmap.h>
+
 #include <workflows/workflows.h>
 
-// #if __HIGHER_HALF_KERNEL__ == true
-// #error "Higher Half Kernel is not supported yet"
-// #endif
+#if __HIGHER_HALF_KERNEL__ == true
+#error "Higher Half Kernel is not supported yet"
+#endif
 
 uint32_t initial_esp;
 uint32_t *kernel_stack = NULL;
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                             KERNEL UTILS FUNCTIONS                             ||
+// ! ||--------------------------------------------------------------------------------||
 
 static inline void ksh_header(void) {
     printk(_RED "\n \
@@ -80,6 +87,10 @@ void kernel_log_info(const char *part, const char *name) {
                diff_time, part, name);
     }
 }
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                   KERNEL INIT                                  ||
+// ! ||--------------------------------------------------------------------------------||
 
 static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     terminal_initialize();
@@ -131,7 +142,6 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         return (__BSOD_UPDATE("Error: kernel memory map failed") | 1);
     kernel_log_info("LOG", "KERNEL MEMORY MAP");
 
-
     gdt_install();
     kernel_log_info("LOG", "GDT");
 
@@ -143,7 +153,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     irq_install();
     kernel_log_info("LOG", "IRQ");
-    
+
     tss_init(5, 0x10, 0x0);
     kernel_log_info("LOG", "TSS");
 
@@ -189,32 +199,9 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
     return (0);
 }
 
-__attribute__((unused)) void test_user_function() {
-    printk("Hello from user space!\n");
-}
-
-void process_03(void) {
-    while (1) {
-        printk("Hello from process_03 !\n");
-        ksleep(1);
-    }
-}
-
-void process_02(void) {
-    printk("Hello from task process_02!\n");
-    // exit_task(0);
-}
-
-void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size) {
-    uint32_t *ptr = (uint32_t *)addr;
-    for (uint32_t i = 0; i < size; ++i) {
-        ptr[i] = function[i];
-    }
-}
-
-void process_01(void) {
-    printk("Hello from process_01 !\n");
-}
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                   KERNEL MAIN                                  ||
+// ! ||--------------------------------------------------------------------------------||
 
 int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     ASM_CLI();
@@ -224,43 +211,32 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         printk("\n");
     ASM_STI();
 
-
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
     printk("Init Scheduler\n");
-    
+
     init_scheduler();
     init_tasking();
 
-    // switch_to_user_mode();
-
-    init_task(process_01);
-    init_task(process_02);
-    init_task(process_03);
-
-    kernel_log_info("LOG", "PROCESS");
+    process_test();
 
     // switch_to_user_mode();
-
-    // TODO: fork and exec
-    /* fork
-    ** exec kronos_shell
-    ** infinite pause
-    */
-
-    // switch to user mode
-
-    // switch_user_mode();
+    // printk("Hello from User space!\n");
     // kpause();
 
-    while (1)
-    {
-        // printk("Hello from kernel space!\n");
-        // ksleep(1);
-    }
-    
+    // init_task(kronos_shell);
 
-    kronos_shell();
+    /*
+    ** Task 0 -> Kernel
+    ** Must infinite loop
+    */
+
+    while (1) {
+        // printk("Hello from kernel space!\n");
+        ksleep(1);
+    }
+
+    // kronos_shell();
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 18:01:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 18:16:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,13 +66,12 @@ void beep(unsigned int wait_time, unsigned int times) {
 }
 
 void timer_install() {
-    irq_install_handler(0, timer_handler);
+    irq_install_handler(IRQ_PIT, timer_handler);
     __timer_phase();
     // speaker_phase(TIMER_PHASE);
 }
 
 void timer_wait(uint32_t ticks) {
-
     uint32_t start_tick = timer_subtick;
 
     while (timer_subtick - start_tick < ticks) {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 19:14:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 18:29:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,10 @@ void pic8259_send_eoi(uint8_t irq) {
     }
     /* Send reset signal to master. (As well as slave, if necessary). */
     outportb(MASTER_PIC, IRQ_EOI);
+}
+
+bool irq_check_install(int irq) {
+    return (irq_routines[irq] != 0);
 }
 
 void irq_install_handler(int irq, void (*handler)(struct regs *r)) {

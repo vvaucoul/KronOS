@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 19:07:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 22:27:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,22 @@ void switch_task(void) {
 
     /* Make sure the memory manager knows we've changed page directory */
     current_directory = current_task->page_directory;
+
+    /* Check if the current task has received a signal */
+    if (current_task->signal_queue != NULL) {
+        // Get the first signal from the queue
+        signal_node_t *signal = current_task->signal_queue;
+        current_task->signal_queue = signal->next;
+
+        // Check if a signal handler is defined for this signal
+        if (signal->handler != NULL) {
+            // Call the signal handler with the signal number as an argument
+            signal->handler(signal->signum);
+        }
+
+        // Free the allocated memory for the signal structure
+        kfree(signal);
+    }
 
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);

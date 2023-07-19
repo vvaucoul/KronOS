@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 13:26:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 21:05:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,6 +245,8 @@ int32_t init_task(void func(void)) {
     if (!ret) {
         /* Execute the requested function */
         func();
+        /* Set task to running state */
+        // get_task(pid)->state = TASK_RUNNING;
         /* Kill the current (child) process. On failure, freeze it */
         // printk("Child process returned from init_task\n");
         if (kill_task(pid) != 0) {
@@ -257,6 +259,28 @@ int32_t init_task(void func(void)) {
     return ret;
 }
 
+int32_t wait_task(int32_t pid) {
+    task_t *task = get_task(pid);
+    if (!task) {
+        printk("Invalid PID: %d\n", pid);
+        return -1;
+    }
+
+    // Wait for the task to finish
+    while (task->state != TASK_ZOMBIE) {
+        printk("Waiting for task %d to finish\n", pid);
+        printk("Task %d state: %d\n", pid, task->state);
+        ksleep(1);
+    }
+
+    // Task has finished, so clean it up
+    int32_t exit_code = task->exit_code;
+    kill_task(pid);
+
+    return exit_code;
+}
+
+
 int32_t kill_task(int32_t pid) {
     task_t *tmp_task;
     task_t *par_task;
@@ -266,7 +290,6 @@ int32_t kill_task(int32_t pid) {
 
     tmp_task = get_task(pid);
     if (!tmp_task) {
-
         __THROW("kill_task : task not found for pid %d", -1, pid);
     }
 
@@ -344,18 +367,18 @@ uint32_t getuid(void) {
     return current_task->owner;
 }
 
-void signal(int pid, int signal) {
-    task_t *task = get_task(pid);
-    if (task) {
-        // Here you would add the signal to the task's signal queue
-        // This requires a way to represent signals and a signal queue in each task
-    }
-    __UNUSED(signal);
-}
+// void signal(int pid, int signal) {
+//     task_t *task = get_task(pid);
+//     if (task) {
+//         // Here you would add the signal to the task's signal queue
+//         // This requires a way to represent signals and a signal queue in each task
+//     }
+//     __UNUSED(signal);
+// }
 
-void kill(int pid) {
-    signal(pid, SIGKILL);
-}
+// void kill(int pid) {
+//     signal(pid, SIGKILL);
+// }
 
 bool is_pid_valid(int pid) {
     return get_task(pid) != NULL;

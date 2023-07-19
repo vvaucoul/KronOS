@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   asm.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:06:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 20:23:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 14:33:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,5 +91,6 @@
 
 #define ASM_STI() __asm__ volatile("sti") // Set Interrupt Flag
 #define ASM_CLI() __asm__ volatile("cli") // Clear Interrupt Flag
+#define ASM_HLT() __asm__ volatile("hlt") // Halt
 
 #endif /* !ASM_H */

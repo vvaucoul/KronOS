@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 13:27:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 20:57:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,13 @@
 #include <system/panic.h>
 #include <system/pit.h>
 #include <workflows/workflows.h>
+
+extern void task_dummy(void) {
+    while (1) {
+        printk("Dummy task\n");
+        ksleep(1);
+    }
+}
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                     PROCESS                                    ||
@@ -97,6 +104,8 @@ void process_06(void) {
 
 void process_05(void) {
     // page_directory_t *pd = current_directory();
+    printk("- [%d] Hello from process_05 !\n", getpid());
+    printk("\t- virtual_memory_info !\n");
     print_virtual_memory_info(get_task_directory());
 }
 
@@ -127,6 +136,7 @@ void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size) {
 
 void process_01(void) {
     printk("- [%d] Hello from process_01 !\n", getpid());
+    exit_task(42);
 }
 
 void process_test(void) {
@@ -137,38 +147,38 @@ void process_test(void) {
     printk(_GREEN "Task 01"_END
                   "\n");
     int32_t pid_task_01 = init_task(process_01);
-    ksleep(3);
+    printk("Wait task 01 [%d]\n", pid_task_01);
+    int32_t ret_code = wait_task(pid_task_01);
+    printk("Task 01 finished with code [%d]\n", ret_code);
 
     printk(_GREEN "Task 02"_END
                   "\n");
     int32_t pid_task_02 = init_task(process_02);
-    ksleep(3);
+    // ksleep(3);
 
     printk(_GREEN "Task 03"_END
                   "\n");
     int32_t pid_task_03 = init_task(process_03);
-    ksleep(3);
+    // ksleep(3);
 
     printk(_GREEN "Task 03 + 04"_END
                   "\n");
     int32_t pid_task_04 = init_task(process_04);
-    ksleep(3);
+    // ksleep(3);
 
     printk(_GREEN "Task 03 + 04 + 05"_END
                   "\n");
     int32_t pid_task_05 = init_task(process_05);
-    ksleep(3);
+    // ksleep(3);
     // int32_t pid_task_06 = init_task(process_06);
 
-    // printk(_GREEN "Test Mutex"_END
-                //   "\n");
-    // test_mutex();
+    printk(_GREEN "Test Mutex"_END
+                  "\n");
+    test_mutex();
     // ksleep(3);
 
     // print_virtual_memory_info(current_directory);
     // kpause();
-
-    kernel_log_info("LOG", "PROCESS");
 
     // switch_to_user_mode();
 
@@ -185,11 +195,28 @@ void process_test(void) {
 
     // ksleep(20);
 
+    // while (get_task(pid_task_01) != NULL && get_task(pid_task_02) != NULL && get_task(pid_task_03) != NULL && get_task(pid_task_04) != NULL && get_task(pid_task_05) != NULL) {
+    //     printk("Waiting for tasks to finish...\n");
+    //     kusleep(TASK_FREQUENCY);
+    // }
+
+    // printk("Kill process 01 [%u]\n", pid_task_01);
+    // kill_task(pid_task_01);
+
+    // printk("Kill process 02 [%u]\n", pid_task_02);
+    // kill_task(pid_task_02);
+
     // printk("Kill process 03 [%u]\n", pid_task_03);
     // kill_task(pid_task_03);
 
     // printk("Kill process 04 [%u]\n", pid_task_04);
     // kill_task(pid_task_04);
+
+    // printk("Kill process 05 [%u]\n", pid_task_05);
+    // kill_task(pid_task_05);
+
+    // printk("Kill process 06 [%u]\n", pid_task_05);
+    // // kill_task(pid_task_06);
 
     __WORKFLOW_FOOTER();
 

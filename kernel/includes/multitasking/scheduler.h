@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 16:40:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 14:28:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <memory/memory.h>
 
 #define MAX_TASKS 4 // 4 tasks max
-#define TASK_FREQUENCY 50
+#define TASK_FREQUENCY 15
 
 extern bool scheduler_initialized;
 

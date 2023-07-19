@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 11:48:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 22:37:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef enum e_task_state {
     TASK_WAITING,
     TASK_STOPPED,
     TASK_ZOMBIE,
+    TASK_THREAD,
 } task_state_t;
 
 typedef struct s_task {
@@ -63,6 +64,7 @@ task_t *get_task(int32_t pid);
 int32_t init_task(void func(void));
 
 int32_t kill_task(int32_t pid);
+int32_t wait_task(int32_t pid);
 
 void switch_to_user_mode(void);
 
@@ -73,6 +75,7 @@ void exit_task(uint32_t retval);
 __attribute__((pure)) extern page_directory_t *get_task_directory(void);
 
 task_t *get_wait_queue(void);
+extern uint32_t getuid(void);
 
 extern void lock_task(task_t *task);
 extern void unlock_task(task_t *task);

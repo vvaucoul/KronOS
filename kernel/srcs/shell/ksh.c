@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 19:09:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 14:30:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void ksh_execute_command(void) {
 }
 
 void kronos_shell(void) {
+    // ASM_CLI();
     ksh_init();
     __ksh_init_builtins();
     printk("\nCreate Shell at "_GREEN
@@ -61,9 +62,11 @@ void kronos_shell(void) {
            "[%d]"_END
            "\n",
            ksh_buffer, getpid());
+    // ASM_STI();
     printk("Welcome to " _RED "KSH" _END " !\n");
     DISPLAY_PROMPT();
     UPDATE_CURSOR();
+
 
     while (1)
         ;

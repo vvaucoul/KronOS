@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 13:28:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 22:35:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 #include <system/pit.h>
 #include <system/sections.h>
 #include <system/serial.h>
+#include <system/signal.h>
 #include <system/syscall.h>
 #include <system/time.h>
 #include <system/tss.h>
@@ -86,6 +87,10 @@ void kernel_log_info(const char *part, const char *name) {
                     "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
                diff_time, part, name);
     }
+
+    // DEBUG ONLY
+    if (irq_check_install(IRQ_PIT))
+        kmsleep(100);
 }
 
 // ! ||--------------------------------------------------------------------------------||
@@ -180,6 +185,9 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     init_syscall();
     kernel_log_info("LOG", "SYSCALL");
 
+    init_signals();
+    kernel_log_info("LOG", "SIGNALS");
+
     // SMP -> Wait KFS -> Threads, processus
     // kpause();
     // Require x64 Broadwell Intel (5th Gen) or higher
@@ -189,6 +197,10 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // ksleep(1);
     // kheap_test();
     // kpause();
+
+    init_scheduler();
+    init_tasking();
+    kernel_log_info("LOG", "PROCESS");
 
     return (0);
 }
@@ -214,12 +226,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
-    printk("Init Scheduler\n");
-
-    init_scheduler();
-    init_tasking();
-
-    process_test();
+    // process_test();
 
     // switch_to_user_mode();
     // printk("Hello from User space!\n");
@@ -232,9 +239,20 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     ** Must infinite loop
     */
 
+    // restart();
+
+    printk("Create task dummy\n");
+    int32_t pid = init_task(task_dummy);
+    printk("Task dummy pid: %d\n", pid);
+
+    ksleep(2);
+    signal(pid, SIGKILL);
+    // kill(pid);
+
+    // ASM_CLI();
+
     while (1) {
-        // printk("Hello from kernel space!\n");
-        ksleep(1);
+        //  printk("Hello from kernel space!\n");
     }
 
     // kronos_shell();

@@ -34,7 +34,11 @@
 			"tss.h": "c",
 			"workflows.h": "c",
 			"multiboot.h": "c",
-			"mutex.h": "c"
+			"mutex.h": "c",
+			"array": "c",
+			"tuple": "c",
+			"type_traits": "c",
+			"utility": "c"
 		}
 	}
 }

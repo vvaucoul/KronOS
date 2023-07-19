@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 22:35:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 22:40:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,7 +226,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
-    // process_test();
+    process_test();
 
     // switch_to_user_mode();
     // printk("Hello from User space!\n");

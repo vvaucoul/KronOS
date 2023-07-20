@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 23:38:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 23:48:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,6 +267,9 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // pid_t pid_tmp2 = init_task(test_02);
     // pid_t pid_tmp3 = init_task(test_03);
     
+    ksleep(2);
+    print_parent_and_children(pid_tmp);
+
     ksleep(2);
     // Todo: Debug: lorsque l'on envoie un signal (SIGKILL)
     // Cela tue le processus mais aussi tous les processus parent

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:17:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 13:32:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,21 @@ extern int syscall_kill(pid_t pid, int sig) {
 }
 
 syscall_t __syscall[SYSCALL_SIZE];
+
+int64_t syscall(int64_t number, ...) {
+    sysfn_t *fn = __syscall[number].function;
+
+    if (fn) {
+        va_list args;
+        va_start(args, number);
+        int32_t ret = fn; //Todo: fix this [sysfn_t *function; to pointer function]
+        va_end(args);
+        return (ret);
+    } else {
+        __THROW("Syscall not found", 1);
+    }
+    return (0);
+}
 
 static void __add_syscall(uint32_t id, const char *name, sysfn_t *fn) {
     __syscall[id].id = id;

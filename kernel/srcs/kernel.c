@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:49:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 15:00:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <system/fpu.h>
 #include <system/gdt.h>
 #include <system/idt.h>
+#include <system/ipc.h>
 #include <system/irq.h>
 #include <system/isr.h>
 #include <system/kerrno.h>
@@ -236,8 +237,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     process_test();
 
-    // restart();
-
     pid_t pid = fork();
     if (pid == 0) {
         // Todo: Must enter in user space
@@ -249,10 +248,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         ** Must infinite loop
         */
 
-        waitpid(pid, NULL, 0);
-
         while (1) {
-            //  printk("Hello from kernel space!\n");
         }
     }
     return (0);

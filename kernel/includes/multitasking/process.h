@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:21:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 14:23:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ typedef int32_t pid_t;
 #define _PID_T
 #endif
 
+typedef struct s_id {
+    uint32_t uid;  // User ID
+    uint32_t gid;  // Group ID
+    uint32_t euid; // Effective User ID
+    uint32_t egid; // Effective Group ID
+} task_id_t;
+
 typedef struct s_task {
     pid_t pid;    // Process id
     int32_t ppid; // Parent pid
@@ -53,6 +60,7 @@ typedef struct s_task {
     task_state_t state;
 
     signal_node_t *signal_queue; // Queue of signals to be processed
+    task_id_t tid;               // Task id
 } task_t;
 
 void init_tasking(void);
@@ -84,5 +92,9 @@ extern uint32_t getuid(void);
 
 extern void lock_task(task_t *task);
 extern void unlock_task(task_t *task);
+
+extern void print_task_info(task_t *task);
+extern void print_all_tasks();
+extern void print_parent_and_children(int pid);
 
 #endif /* !PROCESS_H */

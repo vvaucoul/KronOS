@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ksh_builtins.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 15:26:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 14:21:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <multiboot/multiboot.h>
 #include <system/sections.h>
 #include <system/cpu.h>
+
+#include <cmds/ps.h>
 
 #include <drivers/keyboard.h>
 
@@ -38,6 +40,7 @@ static void __ksh_help(void)
     printk("- " _GREEN "kmmap" _END ": display kernel memory info\n");
     printk("- " _GREEN "setxkbmap" _END ": set keyboard layout\n");
     printk("- " _GREEN "cpuinfos" _END ": display cpu infos\n");
+    printk("- " _GREEN "ps" _END ": display process infos\n");
 }
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -69,6 +72,7 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"setxkbmap", ""}, &setxkbmap);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cpuinfos", ""}, &get_cpu_informations);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"ps", ""}, &ps);
 }
 
 void __ksh_execute_builtins(const ksh_args_t *arg)

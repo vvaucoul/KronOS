@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:48:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 14:24:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ void init_tasking(void) {
     current_task->exit_code = 0;
     current_task->state = TASK_RUNNING;
     current_task->owner = 0;
+    current_task->tid = (task_id_t){0, 0, 0, 0};
 
     if (!(current_task->kernel_stack))
         __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
@@ -162,6 +163,7 @@ int32_t task_fork(void) {
     new_task->exit_code = 0;
     new_task->state = TASK_RUNNING;
     new_task->owner = 0;
+    new_task->tid = (task_id_t){0, 0, 0, 0};
 
     if (!(current_task->kernel_stack))
         __THROW("task_fork : kmalloc failed", 1);
@@ -205,6 +207,22 @@ int32_t task_fork(void) {
 
 __attribute__((pure)) page_directory_t *get_task_directory(void) {
     return current_task->page_directory;
+}
+
+void set_task_uid(task_t *task, uint32_t uid) {
+    task->tid.uid = uid;
+}
+
+void set_task_gid(task_t *task, uint32_t gid) {
+    task->tid.gid = gid;
+}
+
+void set_task_euid(task_t *task, uint32_t euid) {
+    task->tid.euid = euid;
+}
+
+void set_task_egid(task_t *task, uint32_t egid) {
+    task->tid.egid = egid;
 }
 
 pid_t getpid(void) {
@@ -279,7 +297,6 @@ int32_t task_wait(int32_t pid) {
     ASM_STI();
     return exit_code;
 }
-
 
 int32_t kill_task(int32_t pid) {
     task_t *tmp_task;
@@ -394,7 +411,7 @@ task_t *get_wait_queue(void) {
 // ! ||--------------------------------------------------------------------------------||
 
 void print_task_info(task_t *task) {
-    printk("Task PID: %d, Parent PID: %d, Owner: %d, State: %d\n", task->pid, task->ppid, task->owner, task->state);
+    printk("Task PID: "_GREEN"[%d]"_END", Parent PID: "_GREEN"[%d]"_END", Owner: "_GREEN"[%d]"_END", State: "_GREEN"[%d]"_END"\n", task->pid, task->ppid, task->owner, task->state);
 }
 
 void print_all_tasks() {

@@ -40,7 +40,9 @@
 			"type_traits": "c",
 			"utility": "c",
 			"kill.h": "c",
-			"exit.h": "c"
+			"exit.h": "c",
+			"ipc.h": "c",
+			"cmos.h": "c"
 		}
 	}
 }

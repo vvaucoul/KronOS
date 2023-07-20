@@ -162,15 +162,17 @@ flowchart LR
 
 - [x]  Basic data structure for processus
 - [ ]  Processus interconnection, such as kinship, signals and sockets.
-  - [ ]  IPC
+  - [x]  IPC
   - [ ]  Kinship
   - [x]  Signals
   - [ ]  Sockets
 - [x]  Processus owner
 - [ ]  Rights on processus
-- [ ]  Helpers for the followings syscalls: fork, wait, _exit, getuid, signal, kill
+- [x]  Helpers for the followings syscalls: fork, wait, _exit, getuid, signal, kill
   - [x]  Fork
-  - [ ]  Wait
+  - [x]  Wait
+    - [x]  Waitpid
+    - [x]  Return status
   - [x]  Exit
   - [x]  Getuid
   - [x]  Signal

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:55:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 14:58:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <system/panic.h>
 #include <system/pit.h>
 #include <workflows/workflows.h>
+#include <system/ipc.h>
 
 extern void task_dummy(void) {
     while (1) {
@@ -123,7 +124,7 @@ void process_01(void) {
     while (1) {
         printk("- [%d] Hello from process_01 !\n", getpid());
         task_exit(42);
-        return ;
+        return;
         // ksleep(1);
     }
 }
@@ -189,7 +190,36 @@ void process_test(void) {
     ksleep(3);
     // int32_t pid_task_06 = init_task(process_06);
 
-    // ksleep(3);
+    ksleep(3);
+
+    pid_t pid_ipc = fork();
+
+    if (pid_ipc == -1) {
+        // Error: fork failed
+        printk("Error: fork failed\n");
+    } else if (pid_ipc == 0) {
+        // Child process
+        printk("Child process send message to parent\n");
+        ipc_send(getppid(), "Hello from Child process !");
+        exit(0);
+    } else {
+        // Parent process
+        char buffer[IPC_MSG_MAX];
+        int ret = 0;
+        do {
+            bzero(buffer, IPC_MSG_MAX);
+            ret = ipc_receive(pid_ipc, buffer);
+            printk("Waiting for message from child...\n");
+            ksleep(1);
+        } while (ret == 0);
+
+        int st = 0;
+        waitpid(pid_ipc, &st, 0);
+
+        printk("ST [%d] | Message from child: %s\n", st, buffer);
+    }
+
+    ksleep(3);
 
     // print_virtual_memory_info(current_directory);
     // kpause();
@@ -214,23 +244,23 @@ void process_test(void) {
     //     kusleep(TASK_FREQUENCY);
     // }
 
-    // printk("Kill process 01 [%u]\n", pid_task_01);
-    // kill_task(pid_task_01);
+    printk("Kill process 01 [%u]\n", pid_task_01);
+    kill_task(pid_task_01);
 
-    // printk("Kill process 02 [%u]\n", pid_task_02);
-    // kill_task(pid_task_02);
+    printk("Kill process 02 [%u]\n", pid_task_02);
+    kill_task(pid_task_02);
 
-    // printk("Kill process 03 [%u]\n", pid_task_03);
-    // kill_task(pid_task_03);
+    printk("Kill process 03 [%u]\n", pid_task_03);
+    kill_task(pid_task_03);
 
-    // printk("Kill process 04 [%u]\n", pid_task_04);
-    // kill_task(pid_task_04);
+    printk("Kill process 04 [%u]\n", pid_task_04);
+    kill_task(pid_task_04);
 
-    // printk("Kill process 05 [%u]\n", pid_task_05);
-    // kill_task(pid_task_05);
+    printk("Kill process 05 [%u]\n", pid_task_05);
+    kill_task(pid_task_05);
 
-    // printk("Kill process 06 [%u]\n", pid_task_05);
-    // // kill_task(pid_task_06);
+    printk("Kill process 06 [%u]\n", pid_task_05);
+    // kill_task(pid_task_06);
 
     __WORKFLOW_FOOTER();
 

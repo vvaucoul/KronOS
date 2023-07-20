@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 23:29:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 00:07:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,10 +51,10 @@ void switch_task(void) {
     /* Check if the current task has received a signal */
     __signal_handler(current_task);
 
-    printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
+    // printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
  
     // Just before we switch away from the current task, update its cpu_time
-    current_task->cpu_load.load_time += get_system_time() - current_task->cpu_load.last_start_time;
+    // current_task->cpu_load.load_time += get_system_time() - current_task->cpu_load.last_start_time;
 
     /* No, we didn't switch tasks. Let's save some register values and switch */
     current_task->eip = eip;
@@ -68,7 +68,7 @@ void switch_task(void) {
         current_task = ready_queue;
 
     // Just after we've switched to the new task, update its start_time
-    current_task->cpu_load.last_start_time = get_system_time();
+    // current_task->cpu_load.last_start_time = get_system_time();
     // printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
 
     eip = current_task->eip;

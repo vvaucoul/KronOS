@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 15:10:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 00:18:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,29 @@ int shared_resource = 0;
 
 // Mutex to protect the shared resource
 mutex_t mutex;
+
+static void __inter03() {
+    while (1) {
+        printk("Hello from inter03\n");
+        ksleep(1);
+    }
+}
+
+static void __inter02() {
+    init_task(__inter03);
+    while (1) {
+        printk("Hello from inter02\n");
+        ksleep(1);
+    }
+}
+
+static void __inter01() {
+    init_task(__inter02);
+    while (1) {
+        printk("Hello from inter01\n");
+        ksleep(1);
+    }
+}
 
 void task1() {
     for (int i = 0; i < 100; ++i) {
@@ -142,9 +165,12 @@ void process_test(void) {
     ksleep(2);
 
     printk("Kill task dummy\n");
-    kill(pid, SIGKILL);
+    
+    //Todo: Fix kill -> Cause Page Fault
+    // kill(pid, SIGKILL);
+    kill_task(pid);
 
-    ksleep(1);
+    ksleep(3);
     printk("Fork task from PID [%d]\n", getpid());
     pid = fork();
 
@@ -190,6 +216,14 @@ void process_test(void) {
     int32_t pid_task_05 = init_task(process_05);
     ksleep(3);
     // int32_t pid_task_06 = init_task(process_06);
+
+    ksleep(3);
+    printk("Inter Processus Test\n");
+    ksleep(1);
+    
+    init_task(__inter01);
+
+    ksleep(6);
 
     ksleep(3);
 

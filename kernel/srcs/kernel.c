@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 00:01:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 00:03:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,8 +259,10 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // // Don't trample our module with placement accesses, please!
     // placement_address = initrd_end;
 
-    // process_test();
+    process_test();
+    kpause();
 
+    
     pid_t pid_tmp = init_task(test_01);
     pid_t pid_tmp2 = init_task(test_02);
     pid_t pid_tmp3 = init_task(test_03);

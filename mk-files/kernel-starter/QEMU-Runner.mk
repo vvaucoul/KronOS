@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/05/29 20:17:00 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/07/19 23:22:36 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,7 +48,7 @@ run-debug: $(NAME)
 
 run-disk: $(NAME) $(DISK_NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
-	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -cdrom $(NAME).iso -drive file=$(DISK_NAME),format=raw -display gtk -vga std -full-screen
+	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -kernel isodir/boot/$(BIN) -drive file=$(DISK_NAME),format=raw -display gtk -vga std -full-screen
 
 clean-disk:
 	@rm -rf $(DISK_NAME)

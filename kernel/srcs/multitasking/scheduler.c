@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 22:27:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 12:54:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,9 @@ void switch_task(void) {
         // Free the allocated memory for the signal structure
         kfree(signal);
     }
+
+    /* Check if the current task can be woken up */
+    // Todo: Check if task is Zombie - Stopped - Waiting etc...
 
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);

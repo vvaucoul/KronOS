@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 10:10:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 22:34:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 11:09:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 signal_node_t *__signal_handlers = NULL;
 
 // Todo: Debug Signal send to PID 1 and should not
-void signal(int pid, int signum) {
+void signal(pid_t pid, int signum) {
     task_t *task = get_task(pid);
 
     if (task) {

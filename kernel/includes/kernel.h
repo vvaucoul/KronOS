@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 18:18:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 11:16:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ __attribute__((unused)) extern void switch_to_user_mode();
 #define __THROW(msg, err, ...)                     \
     {                                              \
         printk(_RED "WARNING: "                    \
-                    "[%s:%u] " msg _END "\n",      \
+                    "[%s:%u] \n\t\t- " msg _END "\n",      \
                __FILE__, __LINE__, ##__VA_ARGS__); \
         return (err);                              \
     }
@@ -40,7 +40,7 @@ __attribute__((unused)) extern void switch_to_user_mode();
 #define __THROW_NO_RETURN(msg, ...)                \
     {                                              \
         printk(_RED "WARNING: "                    \
-                    "[%s:%u] " msg _END "\n",      \
+                    "[%s:%u] \n\t\t- " msg _END "\n",      \
                __FILE__, __LINE__, ##__VA_ARGS__); \
         return;                                    \
     }

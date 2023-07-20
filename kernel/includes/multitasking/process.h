@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 22:37:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 12:21:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,13 @@ typedef enum e_task_state {
     TASK_THREAD,
 } task_state_t;
 
+#ifndef _PID_T
+typedef int32_t pid_t;
+#define _PID_T
+#endif
+
 typedef struct s_task {
-    int32_t pid;  // Process id
+    pid_t pid;    // Process id
     int32_t ppid; // Parent pid
 
     uint32_t owner; // Owner id (user id)
@@ -43,7 +48,7 @@ typedef struct s_task {
     uint32_t kernel_stack;      // Kernel stack
     struct s_task *next, *prev; // Next and previous task
 
-    uint32_t exit_code;
+    int32_t exit_code;
 
     task_state_t state;
 
@@ -64,13 +69,13 @@ task_t *get_task(int32_t pid);
 int32_t init_task(void func(void));
 
 int32_t kill_task(int32_t pid);
-int32_t wait_task(int32_t pid);
+int32_t task_wait(int32_t pid);
 
 void switch_to_user_mode(void);
 
 extern uint32_t read_eip(void);
 
-void exit_task(uint32_t retval);
+extern void task_exit(int32_t retval);
 
 __attribute__((pure)) extern page_directory_t *get_task_directory(void);
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 22:40:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 12:49:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
 
+#include <syscall/syscall.h>
 #include <system/bsod.h>
 #include <system/cmos.h>
 #include <system/cpu.h>
@@ -31,7 +32,6 @@
 #include <system/sections.h>
 #include <system/serial.h>
 #include <system/signal.h>
-#include <system/syscall.h>
 #include <system/time.h>
 #include <system/tss.h>
 
@@ -215,6 +215,8 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
 // ! ||                                   KERNEL MAIN                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
+uint32_t placement_address;
+
 int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     ASM_CLI();
     if ((init_kernel(magic_number, addr, kstack)))
@@ -226,35 +228,32 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
+    // assert(__multiboot_info->mods_count > 0);
+    // uint32_t initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
+    // uint32_t initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
+    // // Don't trample our module with placement accesses, please!
+    // placement_address = initrd_end;
+
     process_test();
-
-    // switch_to_user_mode();
-    // printk("Hello from User space!\n");
-    // kpause();
-
-    // init_task(kronos_shell);
-
-    /*
-    ** Task 0 -> Kernel
-    ** Must infinite loop
-    */
 
     // restart();
 
-    printk("Create task dummy\n");
-    int32_t pid = init_task(task_dummy);
-    printk("Task dummy pid: %d\n", pid);
+    pid_t pid = fork();
+    if (pid == 0) {
+        // Todo: Must enter in user space
+        kronos_shell();
+    } else {
 
-    ksleep(2);
-    signal(pid, SIGKILL);
-    // kill(pid);
+        /*
+        ** Task 0 -> Kernel
+        ** Must infinite loop
+        */
 
-    // ASM_CLI();
+        waitpid(pid, NULL, 0);
 
-    while (1) {
-        //  printk("Hello from kernel space!\n");
+        while (1) {
+            //  printk("Hello from kernel space!\n");
+        }
     }
-
-    // kronos_shell();
     return (0);
 }

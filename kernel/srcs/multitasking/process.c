@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 21:05:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 12:48:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,7 +207,7 @@ __attribute__((pure)) page_directory_t *get_task_directory(void) {
     return current_task->page_directory;
 }
 
-int32_t getpid(void) {
+pid_t getpid(void) {
     return current_task->pid;
 }
 
@@ -259,7 +259,8 @@ int32_t init_task(void func(void)) {
     return ret;
 }
 
-int32_t wait_task(int32_t pid) {
+int32_t task_wait(int32_t pid) {
+    ASM_CLI();
     task_t *task = get_task(pid);
     if (!task) {
         printk("Invalid PID: %d\n", pid);
@@ -267,9 +268,7 @@ int32_t wait_task(int32_t pid) {
     }
 
     // Wait for the task to finish
-    while (task->state != TASK_ZOMBIE) {
-        printk("Waiting for task %d to finish\n", pid);
-        printk("Task %d state: %d\n", pid, task->state);
+    while (task->state == TASK_RUNNING) {
         ksleep(1);
     }
 
@@ -277,6 +276,7 @@ int32_t wait_task(int32_t pid) {
     int32_t exit_code = task->exit_code;
     kill_task(pid);
 
+    ASM_STI();
     return exit_code;
 }
 
@@ -336,9 +336,10 @@ void unlock_task(task_t *task) {
     ASM_STI();
 }
 
-void exit_task(uint32_t retval) {
+void task_exit(int32_t retval) {
     current_task->exit_code = retval;
-    kill_task(current_task->pid);
+    current_task->state = TASK_ZOMBIE;
+    // kill_task(current_task->pid);
 }
 
 void switch_to_user_mode(void) {

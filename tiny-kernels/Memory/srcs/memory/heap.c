@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   heap.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/04 15:27:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/04 16:54:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 09:57:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 
-uint32_t placement_address = (uint32_t)&_end;
+extern uint32_t placement_address = (uint32_t)&_end;
 
 static uint32_t kmalloc_internal(uint32_t size, int align, void *physical_addr)
 {

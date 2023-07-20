@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 23:48:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 00:00:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -329,15 +329,54 @@ int32_t kill_task(int32_t pid) {
     }
 
     /* Can we delete it? */
-    if (tmp_task->ppid != 0) {
-        par_task = get_task(tmp_task->ppid);
+    // if (tmp_task->ppid != 0) {
+    //     par_task = get_task(tmp_task->ppid);
 
+    //     /* If its stack is reachable, delete it */
+    //     if (tmp_task->kernel_stack) {
+    //         kfree((void *)tmp_task->kernel_stack);
+    //     }
+    //     // todo: free page directory
+
+    //     printk("Parent task [%d] -> Task [%d] -> Next Task [%d]\n", par_task->pid, tmp_task->pid, tmp_task->next == NULL ? -1 : tmp_task->next->pid);
+
+    //     if (par_task->prev != NULL) {
+    //         par_task->prev->next = tmp_task->next;
+    //     } else {
+    //         ready_queue = tmp_task->next;
+    //     }
+    //     par_task->next = tmp_task->next;
+    //     kfree((void *)tmp_task);
+    //     ksleep(1);
+    //     return (pid);
+    // } else {
+    //     printk("Cannot kill task %d\n", pid);
+    //     return (0);
+    // }
+
+    if (tmp_task->ppid != 0) {
         /* If its stack is reachable, delete it */
         if (tmp_task->kernel_stack) {
             kfree((void *)tmp_task->kernel_stack);
         }
         // todo: free page directory
-        par_task->next = tmp_task->next;
+
+        /* Relink the previous and next tasks around the one we're removing */
+        if (tmp_task->prev != NULL) {
+            tmp_task->prev->next = tmp_task->next;
+        } else {
+            ready_queue = tmp_task->next; // tmp_task was the head of the ready queue
+        }
+
+        if (tmp_task->next != NULL) {
+            tmp_task->next->prev = tmp_task->prev;
+        }
+
+        printk("Prev Task [%d] -> Task [%d] -> Next Task [%d]\n",
+               tmp_task->prev ? tmp_task->prev->pid : -1,
+               tmp_task->pid,
+               tmp_task->next ? tmp_task->next->pid : -1);
+
         kfree((void *)tmp_task);
         ksleep(1);
         return (pid);
@@ -469,6 +508,12 @@ void print_parent_and_children(int pid) {
     while (task) {
         if (task->ppid == pid) {
             print_task_info(task);
+            if (task->next) {
+                print_parent_and_children(task->next->pid);
+            } else {
+                printk("No more children\n");
+                return;
+            }
         }
         task = task->next;
     }

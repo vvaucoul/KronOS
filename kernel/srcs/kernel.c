@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 23:48:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 00:01:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,7 @@ void test_03(void) {
 }
 
 void test_02(void) {
-    pid_t pid_tmp3 = init_task(test_03);
+    // pid_t pid_tmp3 = init_task(test_03);
     while (1) {
         printk("[%d] Test 02\n", getpid());
         ksleep(1);
@@ -231,7 +231,7 @@ void test_02(void) {
 }
 
 void test_01(void) {
-    pid_t pid_tmp2 = init_task(test_02);
+    // pid_t pid_tmp2 = init_task(test_02);
     while (1) {
         printk("[%d] Test 01\n", getpid());
         ksleep(1);
@@ -261,21 +261,14 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // process_test();
 
-
-    // Todo: la structure de donnee ne peut prendre en compte qu'un seul parent et un seul enfent
     pid_t pid_tmp = init_task(test_01);
-    // pid_t pid_tmp2 = init_task(test_02);
-    // pid_t pid_tmp3 = init_task(test_03);
+    pid_t pid_tmp2 = init_task(test_02);
+    pid_t pid_tmp3 = init_task(test_03);
     
     ksleep(2);
-    print_parent_and_children(pid_tmp);
+    print_parent_and_children(1);
 
     ksleep(2);
-    // Todo: Debug: lorsque l'on envoie un signal (SIGKILL)
-    // Cela tue le processus mais aussi tous les processus parent
-    // EX: Kill PID 2 -> Kill PID 1 
-    //     Kill PID 3 -> Kill PID 2 -> Kill PID 1
-    //     Kill PID 4 -> Kill PID 3 -> Kill PID 2 -> Kill PID 1
     signal(3, SIGKILL);
 
     // init_task(test_01);

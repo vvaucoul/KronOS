@@ -161,11 +161,11 @@ flowchart LR
 --- 
 
 - [x]  Basic data structure for processus
-- [ ]  Processus interconnection, such as kinship, signals and sockets.
+- [x]  Processus interconnection, such as kinship, signals and sockets.
   - [x]  IPC
-  - [ ]  Kinship
+  - [x]  Kinship (Child, Parent, Siblings)
   - [x]  Signals
-  - [ ]  Sockets
+  - [x]  Sockets
 - [x]  Processus owner
 - [x]  Rights on processus
 - [x]  Helpers for the followings syscalls: fork, wait, _exit, getuid, signal, kill

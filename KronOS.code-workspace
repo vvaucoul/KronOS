@@ -42,7 +42,8 @@
 			"kill.h": "c",
 			"exit.h": "c",
 			"ipc.h": "c",
-			"cmos.h": "c"
+			"cmos.h": "c",
+			"socket.h": "c"
 		}
 	}
 }

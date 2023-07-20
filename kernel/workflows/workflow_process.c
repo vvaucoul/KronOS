@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 14:58:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 15:10:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,12 @@
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
 #include <syscall/syscall.h>
+#include <system/ipc.h>
 #include <system/mutex.h>
 #include <system/panic.h>
 #include <system/pit.h>
+#include <system/socket.h>
 #include <workflows/workflows.h>
-#include <system/ipc.h>
 
 extern void task_dummy(void) {
     while (1) {
@@ -221,6 +222,36 @@ void process_test(void) {
 
     ksleep(3);
 
+    pid_t pid_socket = fork();
+
+    socket_t *socket = socket_create();
+    if (pid_socket == -1) {
+        // Error: fork failed
+        printk("Error: fork failed\n");
+    } else if (pid_socket == 0) {
+        // Child process
+        printk("Child process send message to parent\n");
+        socket_send(socket, "Hello from Child process !", 26);
+        exit(0);
+    } else {
+        // Parent process
+        char buffer[SOCKET_BUFFER_MAX];
+        int ret = 0;
+        do {
+            bzero(buffer, SOCKET_BUFFER_MAX);
+            ret = socket_receive(socket, buffer, SOCKET_BUFFER_MAX);
+            printk("Waiting for message from child...\n");
+            ksleep(1);
+        } while (ret == 0);
+
+        int st = 0;
+        waitpid(pid_socket, &st, 0);
+
+        printk("ST [%d] | Message from child: %s\n", st, buffer);
+    }
+
+    ksleep(3);
+
     // print_virtual_memory_info(current_directory);
     // kpause();
 
@@ -261,6 +292,12 @@ void process_test(void) {
 
     printk("Kill process 06 [%u]\n", pid_task_05);
     // kill_task(pid_task_06);
+
+    printk("Kill process IPC [%u]\n", pid_ipc);
+    kill_task(pid_ipc);
+
+    printk("Kill process Socket [%u]\n", pid_socket);
+    kill_task(pid_socket);
 
     __WORKFLOW_FOOTER();
 

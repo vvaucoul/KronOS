@@ -43,7 +43,8 @@
 			"exit.h": "c",
 			"ipc.h": "c",
 			"cmos.h": "c",
-			"socket.h": "c"
+			"socket.h": "c",
+			"stdbool.h": "c"
 		}
 	}
 }

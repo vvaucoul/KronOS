@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 15:00:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 15:35:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,13 +229,14 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
+    // Todo: EXT2 VFS
     // assert(__multiboot_info->mods_count > 0);
     // uint32_t initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
     // uint32_t initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
     // // Don't trample our module with placement accesses, please!
     // placement_address = initrd_end;
 
-    process_test();
+    // process_test();
 
     pid_t pid = fork();
     if (pid == 0) {

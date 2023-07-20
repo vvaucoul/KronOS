@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/05/29 15:30:17 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/07/20 15:41:39 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,7 +46,7 @@ INLCUDES_PATH		=	-I./kernel/includes/ \
 CFLAGS				=	-Wall -Wextra -Wfatal-errors \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs \
-						-std=c99 -ffreestanding -O2 
+						-std=c17 -ffreestanding -O2 
 CXXFLAGS			=	-Wall -Wextra -Wfatal-errors \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-fno-rtti -nostdlib -nodefaultlibs \
@@ -171,7 +171,6 @@ include $(MK_INCLUDE_DIR)/kernel-starter/QEMU-Runner.mk
 include $(MK_INCLUDE_DIR)/docker/Docker.mk
 include $(MK_INCLUDE_DIR)/kernel-maker/Kernel-Maker.mk
 include $(MK_INCLUDE_DIR)/dependencies/Dependencies.mk
-include $(MK_INCLUDE_DIR)/tiny-kernels/tiny-kernels.mk
 
 -include $(DEPENDS)
 -include $(WDEPENDS)

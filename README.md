@@ -186,5 +186,19 @@ flowchart LR
 - [ ] Improve Multitasking Algorithm
 - [ ] Improve Processus Management
 - [ ] Improve Processus Interruptions (Signals)
+- [ ] Complete helpers functions like UNIX system
+  - [ ] Wait
+  - [ ] Exit
+  - [ ] GetUID
+  - [ ] Signal
+  - [ ] Kill
+
+---
+
+> BONUS
+
+- [ ] MMAP function or equivalent to get processus virtual memory
+- [ ] Link the IDT and the processus to setup syscalls signals
+- [ ] BSS and DATA sectors in the process structure
 
 🚧 ... Next redaction pending ...🚧

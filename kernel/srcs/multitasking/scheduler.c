@@ -6,12 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:54:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 23:29:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multitasking/scheduler.h>
 
+#include <system/time.h>
 #include <system/tss.h>
 
 extern task_t *current_task;
@@ -24,11 +25,10 @@ void init_scheduler(void) {
 }
 
 void switch_task(void) {
-
-    outportb(0x20, 0x20); // Send EOI to PIC
-
     if (!scheduler_initialized)
         return;
+
+    outportb(0x20, 0x20); // Send EOI to PIC
 
     uint32_t esp, ebp, eip;
 
@@ -48,6 +48,14 @@ void switch_task(void) {
     if (eip == 0x12345)
         return;
 
+    /* Check if the current task has received a signal */
+    __signal_handler(current_task);
+
+    printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
+ 
+    // Just before we switch away from the current task, update its cpu_time
+    current_task->cpu_load.load_time += get_system_time() - current_task->cpu_load.last_start_time;
+
     /* No, we didn't switch tasks. Let's save some register values and switch */
     current_task->eip = eip;
     current_task->esp = esp;
@@ -59,6 +67,10 @@ void switch_task(void) {
     if (!current_task)
         current_task = ready_queue;
 
+    // Just after we've switched to the new task, update its start_time
+    current_task->cpu_load.last_start_time = get_system_time();
+    // printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
+
     eip = current_task->eip;
     esp = current_task->esp;
     ebp = current_task->ebp;
@@ -66,24 +78,17 @@ void switch_task(void) {
     /* Make sure the memory manager knows we've changed page directory */
     current_directory = current_task->page_directory;
 
-    /* Check if the current task has received a signal */
-    if (current_task->signal_queue != NULL) {
-        // Get the first signal from the queue
-        signal_node_t *signal = current_task->signal_queue;
-        current_task->signal_queue = signal->next;
-
-        // Check if a signal handler is defined for this signal
-        if (signal->handler != NULL) {
-            // Call the signal handler with the signal number as an argument
-            signal->handler(signal->signum);
-        }
-
-        // Free the allocated memory for the signal structure
-        kfree(signal);
-    }
-
     /* Check if the current task can be woken up */
     // Todo: Check if task is Zombie - Stopped - Waiting etc...
+
+    // if (current_task && current_task->pid > 1) {
+    //     uint64_t current_time;
+    //     tm_t time = gettime();
+    //     current_time = mktime(&time);
+    //     current_task->cpu_load.load_time += current_task->cpu_load.start_time - current_time;
+
+    //     printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
+    // }
 
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);

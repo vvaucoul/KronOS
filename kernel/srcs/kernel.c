@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 15:35:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 23:38:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,8 +172,6 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         kernel_log_info("LOG", "CPU TOPOLOGY");
     }
 
-    // init_scheduler();
-
     keyboard_install();
     kernel_log_info("LOG", "KEYBOARD");
     enable_fpu();
@@ -216,6 +214,31 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
 // ! ||                                   KERNEL MAIN                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
+
+void test_03(void) {
+    while (1) {
+        printk("[%d] Test 03\n", getpid());
+        ksleep(1);
+    }
+}
+
+void test_02(void) {
+    pid_t pid_tmp3 = init_task(test_03);
+    while (1) {
+        printk("[%d] Test 02\n", getpid());
+        ksleep(1);
+    }
+}
+
+void test_01(void) {
+    pid_t pid_tmp2 = init_task(test_02);
+    while (1) {
+        printk("[%d] Test 01\n", getpid());
+        ksleep(1);
+    }
+}
+
+
 uint32_t placement_address;
 
 int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
@@ -237,6 +260,26 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // placement_address = initrd_end;
 
     // process_test();
+
+
+    // Todo: la structure de donnee ne peut prendre en compte qu'un seul parent et un seul enfent
+    pid_t pid_tmp = init_task(test_01);
+    // pid_t pid_tmp2 = init_task(test_02);
+    // pid_t pid_tmp3 = init_task(test_03);
+    
+    ksleep(2);
+    // Todo: Debug: lorsque l'on envoie un signal (SIGKILL)
+    // Cela tue le processus mais aussi tous les processus parent
+    // EX: Kill PID 2 -> Kill PID 1 
+    //     Kill PID 3 -> Kill PID 2 -> Kill PID 1
+    //     Kill PID 4 -> Kill PID 3 -> Kill PID 2 -> Kill PID 1
+    signal(3, SIGKILL);
+
+    // init_task(test_01);
+    // init_task(test_02);
+
+    while (1)
+        ;
 
     pid_t pid = fork();
     if (pid == 0) {

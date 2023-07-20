@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 14:24:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 23:37:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <multitasking/scheduler.h>
 
 #include <system/tss.h>
+
+#include <system/time.h>
 
 #include <asm/asm.h>
 
@@ -120,6 +122,13 @@ void init_tasking(void) {
     current_task->state = TASK_RUNNING;
     current_task->owner = 0;
     current_task->tid = (task_id_t){0, 0, 0, 0};
+    current_task->cpu_load = (process_cpu_load_t){0, 0, 0};
+    // Set CPU load start time
+    // uint64_t start_time;
+    // tm_t time = gettime();
+    // start_time = mktime(&time);
+    // current_task->cpu_load.start_time = start_time;
+    // current_task->cpu_load.load_time = 0;
 
     if (!(current_task->kernel_stack))
         __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
@@ -157,13 +166,21 @@ int32_t task_fork(void) {
     new_task->esp = new_task->ebp = 0;
     new_task->eip = 0;
     new_task->page_directory = directory;
-    current_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE);
+    new_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE);
     new_task->next = NULL;
     new_task->prev = NULL; // Set prev task when added to ready queue
     new_task->exit_code = 0;
     new_task->state = TASK_RUNNING;
     new_task->owner = 0;
     new_task->tid = (task_id_t){0, 0, 0, 0};
+    new_task->cpu_load = (process_cpu_load_t){0, 0, 0};
+
+    // Set CPU load start time
+    // uint64_t start_time;
+    // tm_t time = gettime();
+    // start_time = mktime(&time);
+    // current_task->cpu_load.start_time = start_time;
+    // current_task->cpu_load.load_time = 0;
 
     if (!(current_task->kernel_stack))
         __THROW("task_fork : kmalloc failed", 1);
@@ -302,8 +319,9 @@ int32_t kill_task(int32_t pid) {
     task_t *tmp_task;
     task_t *par_task;
 
-    if (!pid)
+    if (!pid) {
         return 0;
+    }
 
     tmp_task = get_task(pid);
     if (!tmp_task) {
@@ -313,15 +331,18 @@ int32_t kill_task(int32_t pid) {
     /* Can we delete it? */
     if (tmp_task->ppid != 0) {
         par_task = get_task(tmp_task->ppid);
+
         /* If its stack is reachable, delete it */
         if (tmp_task->kernel_stack) {
             kfree((void *)tmp_task->kernel_stack);
         }
+        // todo: free page directory
         par_task->next = tmp_task->next;
         kfree((void *)tmp_task);
         ksleep(1);
         return (pid);
     } else {
+        printk("Cannot kill task %d\n", pid);
         return (0);
     }
 }
@@ -385,19 +406,6 @@ uint32_t getuid(void) {
     return current_task->owner;
 }
 
-// void signal(int pid, int signal) {
-//     task_t *task = get_task(pid);
-//     if (task) {
-//         // Here you would add the signal to the task's signal queue
-//         // This requires a way to represent signals and a signal queue in each task
-//     }
-//     __UNUSED(signal);
-// }
-
-// void kill(int pid) {
-//     signal(pid, SIGKILL);
-// }
-
 bool is_pid_valid(int pid) {
     return get_task(pid) != NULL;
 }
@@ -406,12 +414,37 @@ task_t *get_wait_queue(void) {
     return wait_queue;
 }
 
+double get_cpu_load(task_t *task) {
+
+    uint64_t sys_time = get_system_time();
+    uint64_t elapsed_time = sys_time - task->cpu_load.last_start_time;
+
+    if (elapsed_time == 0) {
+        // The task has just been created and hasn't had a chance to run yet
+        return 0.0;
+    }
+
+    // if (task->cpu_load.load_time < elapsed_time)
+    //     __THROW("get_cpu_load : load_time < elapsed_time", 0.0);
+
+    return (double)task->cpu_load.load_time / elapsed_time;
+}
+
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                      UTILS                                     ||
 // ! ||--------------------------------------------------------------------------------||
 
 void print_task_info(task_t *task) {
-    printk("Task PID: "_GREEN"[%d]"_END", Parent PID: "_GREEN"[%d]"_END", Owner: "_GREEN"[%d]"_END", State: "_GREEN"[%d]"_END"\n", task->pid, task->ppid, task->owner, task->state);
+    printk("Task PID: "_GREEN
+           "[%d]"_END
+           ", Parent PID: "_GREEN
+           "[%d]"_END
+           ", Owner: "_GREEN
+           "[%d]"_END
+           ", State: "_GREEN
+           "[%d]"_END
+           "\n",
+           task->pid, task->ppid, task->owner, task->state);
 }
 
 void print_all_tasks() {

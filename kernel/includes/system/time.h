@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   time.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 12:45:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 13:45:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 18:03:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,7 @@
 
 typedef uint64_t clock_t;
 
-typedef struct tm
-{
+typedef struct tm {
     uint32_t seconds; // Seconds
     uint32_t minutes; // Minutes
     uint32_t hours;   // Hours
@@ -70,5 +69,6 @@ extern uint64_t mktime(tm_t *time);
 extern char *asctime(tm_t *timeptr);
 extern uint64_t difftime(tm_t *time1, tm_t *time2);
 extern uint64_t mkdifftime(uint64_t time1, uint64_t time2);
+extern uint64_t get_system_time(void);
 
 #endif /* !TIME_H */

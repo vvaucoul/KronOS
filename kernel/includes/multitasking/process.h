@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 14:23:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 18:07:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,27 @@ typedef int32_t pid_t;
 #define _PID_T
 #endif
 
+/*
+**  Task ID
+**
+**  uid: User ID
+**  gid: Group ID
+**  euid: Effective User ID
+**  egid: Effective Group ID
+*/
+
 typedef struct s_id {
-    uint32_t uid;  // User ID
-    uint32_t gid;  // Group ID
-    uint32_t euid; // Effective User ID
-    uint32_t egid; // Effective Group ID
+    uint32_t uid;
+    uint32_t gid;
+    uint32_t euid;
+    uint32_t egid;
 } task_id_t;
+
+typedef struct s_process_cpu_load {
+    uint64_t start_time;
+    uint64_t last_start_time;
+    uint64_t load_time;
+} process_cpu_load_t;
 
 typedef struct s_task {
     pid_t pid;    // Process id
@@ -58,6 +73,8 @@ typedef struct s_task {
     int32_t exit_code;
 
     task_state_t state;
+
+    process_cpu_load_t cpu_load; // CPU load (Check task cpu load)
 
     signal_node_t *signal_queue; // Queue of signals to be processed
     task_id_t tid;               // Task id
@@ -92,6 +109,8 @@ extern uint32_t getuid(void);
 
 extern void lock_task(task_t *task);
 extern void unlock_task(task_t *task);
+
+extern double get_cpu_load(task_t *task);
 
 extern void print_task_info(task_t *task);
 extern void print_all_tasks();

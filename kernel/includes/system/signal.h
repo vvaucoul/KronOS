@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 09:59:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 22:11:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 22:45:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,8 @@ typedef enum {
     SIGSYS = 31,
     SIGUNUSED = 31,
 } signal_t;
+
+#define SIGNALS_COUNT 31
 
 typedef struct signal_node {
     signal_t signum;

@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   time.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 12:48:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/11 10:54:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 18:03:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <system/time.h>
 #include <system/cmos.h>
+#include <system/time.h>
 
 uint64_t startup_time = 0;
 tm_t startup_tm;
@@ -30,8 +30,7 @@ int month[12] = {
     __DAY * (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31),
     __DAY * (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30)};
 
-uint64_t mktime(tm_t *time)
-{
+uint64_t mktime(tm_t *time) {
     uint64_t __time = 0;
     uint32_t __year = 0;
 
@@ -47,12 +46,10 @@ uint64_t mktime(tm_t *time)
     return __time;
 }
 
-tm_t gettime(void)
-{
+tm_t gettime(void) {
     tm_t __current_time;
 
-    do
-    {
+    do {
         __current_time.seconds = cmos_read(CMOS_SECONDS);
         __current_time.minutes = cmos_read(CMOS_MINUTES);
         __current_time.hours = cmos_read(CMOS_HOURS);
@@ -71,20 +68,23 @@ tm_t gettime(void)
     return __current_time;
 }
 
-uint64_t difftime(tm_t *time1, tm_t *time2)
-{
+uint64_t difftime(tm_t *time1, tm_t *time2) {
     return (mktime(time1) - mktime(time2));
 }
 
-uint64_t mkdifftime(uint64_t time1, uint64_t time2)
-{
+uint64_t mkdifftime(uint64_t time1, uint64_t time2) {
     printk("Time1: %u\n", time1);
     printk("Time2: %u\n", time2);
     return (time1 - time2);
 }
 
-char *asctime(tm_t *time)
-{
+uint64_t get_system_time(void) {
+    tm_t time = gettime();
+
+    return (mktime(&time));
+}
+
+char *asctime(tm_t *time) {
     static char buf[26];
     static char *days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     static char *months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -134,8 +134,7 @@ char *asctime(tm_t *time)
     return buf;
 }
 
-void time_init(void)
-{
+void time_init(void) {
     tm_t time;
 
     time = gettime();

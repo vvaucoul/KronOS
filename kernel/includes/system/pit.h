@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:06:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/02 09:48:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 23:10:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@ extern void timer_handler(struct regs *r);
 extern void timer_wait(uint32_t ticks);
 
 #define ksleep(seconds) timer_wait(seconds *TIMER_PHASE)
-#define kusleep(microseconds) timer_wait((microseconds *TIMER_PHASE) / 1000000)
-#define kmsleep(milliseconds) timer_wait((milliseconds *TIMER_PHASE) / 1000)
+#define kusleep(microseconds) timer_wait((microseconds * TIMER_PHASE) / 1000000)
+#define kmsleep(milliseconds) timer_wait((milliseconds * TIMER_PHASE) / 1000)
 
 extern void kpause(void);
 

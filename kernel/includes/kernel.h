@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 11:16:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 17:27:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,24 +25,26 @@
 
 extern void kernel_log_info(const char *part, const char *name);
 
+extern int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack);
+
 // tmp
 __attribute__((unused)) extern void test_user_function();
 __attribute__((unused)) extern void switch_to_user_mode();
 
-#define __THROW(msg, err, ...)                     \
-    {                                              \
-        printk(_RED "WARNING: "                    \
-                    "[%s:%u] \n\t\t- " msg _END "\n",      \
-               __FILE__, __LINE__, ##__VA_ARGS__); \
-        return (err);                              \
+#define __THROW(msg, err, ...)                        \
+    {                                                 \
+        printk(_RED "WARNING: "                       \
+                    "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);    \
+        return (err);                                 \
     }
 
-#define __THROW_NO_RETURN(msg, ...)                \
-    {                                              \
-        printk(_RED "WARNING: "                    \
-                    "[%s:%u] \n\t\t- " msg _END "\n",      \
-               __FILE__, __LINE__, ##__VA_ARGS__); \
-        return;                                    \
+#define __THROW_NO_RETURN(msg, ...)                   \
+    {                                                 \
+        printk(_RED "WARNING: "                       \
+                    "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);    \
+        return;                                       \
     }
 
 #endif /* !KERNEL_H */

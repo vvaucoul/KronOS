@@ -44,7 +44,9 @@
 			"ipc.h": "c",
 			"cmos.h": "c",
 			"socket.h": "c",
-			"stdbool.h": "c"
+			"stdbool.h": "c",
+			"hephaistos.h": "c",
+			"signal.h": "c"
 		}
 	}
 }

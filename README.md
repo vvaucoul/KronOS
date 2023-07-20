@@ -167,7 +167,7 @@ flowchart LR
   - [x]  Signals
   - [ ]  Sockets
 - [x]  Processus owner
-- [ ]  Rights on processus
+- [x]  Rights on processus
 - [x]  Helpers for the followings syscalls: fork, wait, _exit, getuid, signal, kill
   - [x]  Fork
   - [x]  Wait

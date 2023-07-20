@@ -181,5 +181,10 @@ flowchart LR
 - [x]  Processus memory separation
 - [x]  Multitasking
 
+---
+
+- [ ] Improve Multitasking Algorithm
+- [ ] Improve Processus Management
+- [ ] Improve Processus Interruptions (Signals)
 
 🚧 ... Next redaction pending ...🚧

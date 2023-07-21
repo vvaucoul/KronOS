@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 17:01:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 17:24:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,6 @@ int32_t task_fork(void) {
 
     /* Take a pointer to this process' task struct for later reference */
     parent_task = (task_t *)current_task;
-    // printk("\t- Parent task : %d\n", parent_task->pid);
 
     /* Clone the address space */
     if (!(directory = clone_page_directory(current_directory)))
@@ -262,7 +261,6 @@ task_t *get_task(int32_t pid) {
 }
 
 int32_t init_task(void func(void)) {
-    // printk("\n\n--- INIT TASK ---\n\n");
 
     int32_t ret = task_fork();
     int32_t pid = getpid();

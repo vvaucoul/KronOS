@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 11:35:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 17:19:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,8 +248,15 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
 
     /* Make a new page table, which is page aligned */
     page_table_t *table = (page_table_t *)kmalloc_ap(sizeof(page_table_t), physAddr);
+
+    if (table == NULL) {
+        __THROW("Failed to allocate memory for new page table!", NULL);
+    } else if (*physAddr == 0) {
+        __THROW("Failed to obtain physical address of new page table!", NULL);
+    }
+
     /* Ensure that the new table is blank */
-    memset(table, 0, sizeof(page_directory_t));
+    memset(table, 0, sizeof(page_table_t));
 
     /* For every entry in the table... */
     for (i = 0; i < 1024; i++) {
@@ -257,6 +264,7 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
         if (src->pages[i].frame) {
             /* Get a new frame */
             alloc_frame(&table->pages[i], 0, 0);
+
             /* Clone the flags from source to destination */
             if (src->pages[i].present)
                 table->pages[i].present = 1;
@@ -278,8 +286,20 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
 page_directory_t *clone_page_directory(page_directory_t *src) {
     uint32_t phys, offset;
     int32_t i;
+
+    if (src == NULL) {
+        __THROW("Source page directory is NULL!", NULL);
+    }
+
     /* Make a new page directory and obtain its physical address */
     page_directory_t *dir = (page_directory_t *)kmalloc_ap(sizeof(page_directory_t), &phys);
+
+    if (dir == NULL) {
+        __THROW("Failed to allocate memory for new page directory!", NULL);
+    } else if (phys == 0) {
+        __THROW("Failed to obtain physical address of new page directory!", NULL);
+    }
+
     /* Ensure that it is blank */
     memset(dir, 0, sizeof(page_directory_t));
 
@@ -288,6 +308,10 @@ page_directory_t *clone_page_directory(page_directory_t *src) {
 
     /* Then the physical address of dir->tablesPhysical is */
     dir->physicalAddr = phys + offset;
+
+    if (dir->physicalAddr == 0) {
+        __THROW("Failed to obtain physical address of new page directory!", NULL);
+    }
 
     /* Go through each page table. If the page table is in the kernel directory, do not make a new copy */
     for (i = 0; i < 1024; i++) {

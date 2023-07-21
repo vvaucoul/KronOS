@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 11:32:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 13:05:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,7 +217,7 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
 void test_03(void) {
     // ksleep(3);
     // printk("[%d] Test 03\n", getpid());
-    
+
     while (1) {
         printk("[%d] Test 03\n", getpid());
         ksleep(3);
@@ -227,8 +227,8 @@ void test_03(void) {
 void test_02(void) {
     // ksleep(2);
     // printk("[%d] Test 02\n", getpid());
-    
-    pid_t pid_tmp3 = init_task(test_03);
+
+    // pid_t pid_tmp3 = init_task(test_03);
     while (1) {
         printk("[%d] Test 02\n", getpid());
         ksleep(2);
@@ -238,11 +238,12 @@ void test_02(void) {
 void test_01(void) {
     // ksleep(1);
     // printk("[%d] Test 01\n", getpid());
-    
-    pid_t pid_tmp2 = init_task(test_02);
+
+    // pid_t pid_tmp2 = init_task(test_02);
     while (1) {
         printk("[%d] Test 01\n", getpid());
         ksleep(1);
+        // kpause();
     }
 }
 
@@ -269,9 +270,11 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // process_test();
     // kpause();
 
-    // pid_t pid_tmp = init_task(test_01);
-    // pid_t pid_tmp2 = init_task(test_02);
-    // pid_t pid_tmp3 = init_task(test_03);
+    pid_t pid_tmp = init_task(test_01);
+    pid_t pid_tmp2 = init_task(test_02);
+
+    // task_set_priority(pid_tmp, TASK_PRIORITY_HIGH);
+    pid_t pid_tmp3 = init_task(test_03);
 
     // ksleep(2);
     // print_parent_and_children(1);
@@ -285,8 +288,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // init_task(test_01);
     // init_task(test_02);
 
-    // while (1)
-    //     ;
+    while (1)
+        ;
 
     pid_t pid = fork();
     if (pid == 0) {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 11:14:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 12:46:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,24 +111,22 @@ void init_tasking(void) {
     if (!(current_task))
         __THROW_NO_RETURN("init_tasking : kmalloc failed");
 
+    memset(current_task, 0, sizeof(task_t));
+
     current_task->pid = next_pid++;
     current_task->ppid = 0;
     current_task->esp = current_task->ebp = 0;
     current_task->eip = 0;
     current_task->page_directory = current_directory;
     current_task->next = current_task->prev = NULL;
-    current_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE);
-    current_task->exit_code = 0;
+    if (!(current_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE)))
+        __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
     current_task->state = TASK_RUNNING;
     current_task->owner = 0;
     current_task->tid = (task_id_t){0, 0, 0, 0};
     current_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     current_task->signal_queue = NULL;
-
-    if (!(current_task->kernel_stack))
-        __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
-
-    // printk("\t- Current task : %d\n", current_task->pid);
+    current_task->priority = TASK_PRIORITY_LOW;
 
     wait_queue = NULL;
 
@@ -157,6 +155,8 @@ int32_t task_fork(void) {
     if (!(new_task = (task_t *)kmalloc_a(sizeof(task_t))))
         __THROW("task_fork : kmalloc failed", 1);
 
+    memset(new_task, 0, sizeof(task_t));
+
     new_task->pid = next_pid++;
     new_task->esp = new_task->ebp = 0;
     new_task->eip = 0;
@@ -170,6 +170,7 @@ int32_t task_fork(void) {
     new_task->tid = (task_id_t){0, 0, 0, 0};
     new_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     new_task->signal_queue = NULL;
+    new_task->priority = TASK_PRIORITY_MEDIUM;
 
     if (!(current_task->kernel_stack))
         __THROW("task_fork : kmalloc failed", 1);
@@ -439,6 +440,16 @@ void switch_to_user_mode(void) {
 	iret; \
 	1: \
 	");
+}
+
+void task_set_priority(pid_t pid, task_priority_t priority) {
+    task_t *task = get_task(pid);
+    if (!task) {
+        printk("Invalid PID: %d\n", pid);
+        return;
+    }
+
+    task->priority = priority;
 }
 
 uint32_t getuid(void) {

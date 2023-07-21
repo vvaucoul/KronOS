@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 10:14:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 13:03:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,13 +75,39 @@ void timer_wait(uint32_t ticks) {
     uint32_t start_tick = timer_subtick;
 
     task_t *task = get_current_task();
+
+    if (!task || !scheduler_initialized) {
+        while (timer_subtick - start_tick < ticks) {
+            __asm__ volatile("sti\n\thlt\n\tcld");
+            return;
+        }
+    }
+
     task->state = TASK_SLEEPING;
+    task->wake_up_tick = timer_subtick + ticks;
+
+    // printk("Process %d is sleeping for %d ticks\n", task->pid, ticks);
 
     while (timer_subtick - start_tick < ticks) {
         __asm__ volatile("sti\n\thlt\n\tcld");
     }
-
     task->state = TASK_RUNNING;
+
+    // if (!task || !scheduler_initialized) {
+    //     while (timer_subtick - start_tick < ticks) {
+    //         __asm__ volatile("sti\n\thlt\n\tcld");
+    //     }
+    // } else {
+    //     if (task->pid == 0 || task->pid == 1) {
+    //         while (timer_subtick - start_tick < ticks) {
+    //             __asm__ volatile("sti\n\thlt\n\tcld");
+    //         }
+    //     } else {
+    //         task->state = TASK_SLEEPING;
+    //         task->wake_up_tick = timer_subtick + ticks;
+    //         // printk("Process %d is sleeping for %d ticks\n", task->pid, ticks);
+    //     }
+    // }
 }
 
 void kpause(void) {

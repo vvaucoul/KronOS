@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 11:26:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 13:04:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,9 @@ void switch_task(void) {
     /* Check if the current task has received a signal */
     __signal_handler(current_task);
 
+    /* Check if the current task is sleeping */
+    __process_sleeping(current_task);
+
     /* Revive Zombies / Orphans tasks and attach them to the INIT task (Like UNIX System) */
     __orphans_collector(current_task);
 
@@ -73,13 +76,20 @@ void switch_task(void) {
     current_task->ebp = ebp;
 
     /* Get the next task to run */
-    current_task = current_task->next;
+    // current_task = current_task->next;
 
-    // current_task = __process_selector(current_task);
+    // if (current_task != TASK_RUNNING)
+    //     return ;
+
+    current_task = __process_selector(current_task);
+    
 
     /* If we fell off the end of the linked list start again at the beginning */
     if (!current_task)
         current_task = ready_queue;
+        // return ;
+
+    // printk("Switching to task %d\n", current_task->pid);
 
     /* Check if the current task is Running */
     // {

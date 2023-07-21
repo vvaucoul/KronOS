@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 11:06:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 12:34:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,13 @@ typedef enum e_task_state {
     TASK_ZOMBIE,
     TASK_THREAD,
 } task_state_t;
+
+typedef enum e_task_priority {
+    TASK_PRIORITY_LOW,
+    TASK_PRIORITY_MEDIUM,
+    TASK_PRIORITY_HIGH,
+    TASK_PRIORITY_REALTIME,
+} task_priority_t;
 
 #ifndef _PID_T
 typedef int32_t pid_t;
@@ -74,6 +81,10 @@ typedef struct s_task {
 
     int32_t exit_code;
 
+    uint32_t wake_up_tick; // Wake up tick (Check task sleep)
+
+    task_priority_t priority; // Task priority
+
     task_state_t state;
 
     process_cpu_load_t cpu_load; // CPU load (Check task cpu load)
@@ -111,6 +122,8 @@ extern uint32_t getuid(void);
 
 extern void lock_task(task_t *task);
 extern void unlock_task(task_t *task);
+
+extern void task_set_priority(pid_t pid, task_priority_t priority);
 
 extern double get_cpu_load(task_t *task);
 

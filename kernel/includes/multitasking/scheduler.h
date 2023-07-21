@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 11:26:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 13:04:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 
 #define MAX_TASKS 4 // 4 tasks max
 
+// #define __DEBUG__ 0
+
 #ifdef __DEBUG__
 #define __DEBUG_TASK_FREQUENCY 15
 #define TASK_FREQUENCY __DEBUG_TASK_FREQUENCY
@@ -35,6 +37,7 @@ extern void init_scheduler(void);
 
 extern task_t *__process_selector(task_t *current_task);
 extern void __orphans_collector(task_t *current_task);
+extern void __process_sleeping(task_t *current_task);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                     SIGNALS                                    ||

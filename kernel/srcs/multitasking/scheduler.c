@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 15:47:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 16:33:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void switch_task(void) {
     if (eip == 0x12345)
         return;
 
-    printk("Current Task: %d\n", current_task->pid);
+    // printk("Current Task: %d\n", current_task->pid);
 
     /* Check if the current task has received a signal */
     __signal_handler(current_task);
@@ -69,14 +69,14 @@ void switch_task(void) {
         prev_task->cpu_load.load_time += timer_subtick;
         prev_task->cpu_load.total_load_time += prev_task->cpu_load.load_time;
 
-        if (prev_task->pid > 1) {
-            printk("Time: %lu | task start time %lu\n", sys_time, prev_task->cpu_load.start_time);
+        // if (prev_task->pid > 1) {
+        //     printk("Time: %lu | task start time %lu\n", sys_time, prev_task->cpu_load.start_time);
 
-            printk("- START Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.start_time);
-            printk("- LOAD Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.load_time);
-            printk("- CPU  Task %d: %lu\n", prev_task->pid, get_cpu_load(prev_task));
-            printk("- TOTAL Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.total_load_time);
-        }
+        //     printk("- START Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.start_time);
+        //     printk("- LOAD Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.load_time);
+        //     printk("- CPU  Task %d: %lu\n", prev_task->pid, get_cpu_load(prev_task));
+        //     printk("- TOTAL Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.total_load_time);
+        // }
     }
 
     /* No, we didn't switch tasks. Let's save some register values and switch */

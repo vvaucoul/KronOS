@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 14:39:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 17:01:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@
 #include <kernel.h>
 
 task_t *current_task = NULL;
-// volatile task_t *scheduler_tasks[MAX_TASKS] = {NULL};
 uint32_t num_tasks = 0;
 
 task_t *ready_queue = NULL;
@@ -39,7 +38,7 @@ extern uint32_t read_eip(void);
 
 extern uint32_t initial_esp;
 
-static int32_t next_pid = 1;
+// static int32_t next_pid = 1;
 
 static void move_stack(void *new_stack_start, uint32_t size) {
     uint32_t i, pd_addr, old_stack_pointer, old_base_pointer, new_stack_pointer, new_base_pointer, offset, tmp, *tmp2;
@@ -113,7 +112,8 @@ void init_tasking(void) {
 
     memset(current_task, 0, sizeof(task_t));
 
-    current_task->pid = next_pid++;
+    // current_task->pid = next_pid++;
+    current_task->pid = find_first_free_pid();
     current_task->ppid = 0;
     current_task->esp = current_task->ebp = 0;
     current_task->eip = 0;
@@ -157,7 +157,8 @@ int32_t task_fork(void) {
 
     memset(new_task, 0, sizeof(task_t));
 
-    new_task->pid = next_pid++;
+    // new_task->pid = next_pid++;
+    new_task->pid = find_first_free_pid();
     new_task->esp = new_task->ebp = 0;
     new_task->eip = 0;
     new_task->page_directory = directory;
@@ -440,6 +441,20 @@ void switch_to_user_mode(void) {
 	iret; \
 	1: \
 	");
+}
+
+pid_t find_first_free_pid(void) {
+    pid_t pid = 1;
+    task_t *task = ready_queue;
+    while (task) {
+        if (task->pid == pid) {
+            pid++;
+            task = ready_queue;
+        } else {
+            task = task->next;
+        }
+    }
+    return pid;
 }
 
 void task_set_priority(pid_t pid, task_priority_t priority) {

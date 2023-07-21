@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 15:45:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 16:24:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,17 +76,22 @@ void timer_wait(uint32_t ticks) {
 
     task_t *task = get_current_task();
 
-    if (!task || !scheduler_initialized || task->pid == 0 || task->pid == INIT_PID) {
-        while (timer_subtick - start_tick < ticks) {
-            __asm__ volatile("sti\n\thlt\n\tcld");
-        }
-        return;
-    }
+    // if (task == NULL) {
+    //     while (timer_subtick - start_tick < ticks) {
+    //         __asm__ volatile("sti\n\thlt\n\tcld");
+    //     }
+    //     return;
+    // }
+
+    // if (!task || !scheduler_initialized || task->pid == 0 || task->pid == INIT_PID) {
+    //     while (timer_subtick - start_tick < ticks) {
+    //         __asm__ volatile("sti\n\thlt\n\tcld");
+    //     }
+    //     return;
+    // }
 
     task->state = TASK_SLEEPING;
     task->wake_up_tick = timer_subtick + ticks;
-
-    // printk("Process %d is sleeping for %d ticks\n", task->pid, ticks);
 
     while (timer_subtick - start_tick < ticks) {
         __asm__ volatile("sti\n\thlt\n\tcld");

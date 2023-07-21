@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 22:32:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 10:19:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 16:24:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ void task_remove_signal(task_t *task, int signum) {
     signal_node_t *current = task->signal_queue;
     while (current->next != NULL) {
         if (current->next->signum == signum) {
-            // Supprimer le signal de la file
             signal_node_t *signal = current->next;
             current->next = current->next->next;
             kfree(signal);
@@ -70,6 +69,20 @@ void task_remove_signal(task_t *task, int signum) {
         }
         current = current->next;
     }
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                      UTILS                                     ||
+// ! ||--------------------------------------------------------------------------------||
+
+void task_print_signals(task_t *task) {
+    signal_node_t *current = task->signal_queue;
+    printk("Task: [%d] Signals: ", task->pid);
+    while (current != NULL) {
+        printk("[%d] ", current->signum);
+        current = current->next;
+    }
+    printk("\n");
 }
 
 // ! ||--------------------------------------------------------------------------------||
@@ -98,6 +111,6 @@ void __signal_handler(task_t *current_task) {
         signal->handler(signal->signum);
     }
 
-    // Libérer la mémoire allouée pour la structure de signal
+    /* Free and remove signal */
     task_remove_signal(current_task, signal->signum);
 }

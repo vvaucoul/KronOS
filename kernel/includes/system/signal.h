@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 09:59:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 22:45:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 16:15:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ typedef struct signal_node {
 
 typedef int32_t signal_handler_t;
 
-extern signal_node_t *__signal_handlers;
+extern signal_node_t signals[SIGNALS_COUNT];
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                    FUNCTIONS                                   ||

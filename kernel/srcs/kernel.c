@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 15:46:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 17:03:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,28 +270,36 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // process_test();
     // kpause();
 
+    // while (1) {
+    // pid_t pid_tmp = init_task(test_01);
+    // ksleep (1);
+    // }
+
     pid_t pid_tmp = init_task(test_01);
-    // pid_t pid_tmp2 = init_task(test_02);
-    // pid_t pid_tmp3 = init_task(test_03);
-    
+    pid_t pid_tmp2 = init_task(test_02);
+    pid_t pid_tmp3 = init_task(test_03);
 
-    //Todo: Fix priority
+        
+    // //Todo: Fix priority
     task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
-    // task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
-    // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
+    task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
+    task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
-    // ksleep(2);
-    print_parent_and_children(1);
+    // // ksleep(2);
+    // print_parent_and_children(1);
 
     ksleep(2);
+    // // kill_task(pid_tmp);
     signal(pid_tmp, SIGKILL);
 
     ksleep(2);
-    // pid_tmp = init_task(test_01);
-    // print_parent_and_children(1);
+    pid_tmp = init_task(test_01);
+    
+    pid_t pid_tmp4 = init_task(test_01);
+    pid_t pid_tmp5 = init_task(test_02);
+    pid_t pid_tmp6 = init_task(test_03);
 
-    // init_task(test_01);
-    // init_task(test_02);
+    // task_set_priority(pid_tmp, TASK_PRIORITY_HIGH);
 
     while (1)
         ;

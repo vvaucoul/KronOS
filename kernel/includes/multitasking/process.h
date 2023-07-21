@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 14:01:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 17:00:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,8 @@ extern void lock_task(task_t *task);
 extern void unlock_task(task_t *task);
 
 extern void task_set_priority(pid_t pid, task_priority_t priority);
+
+extern pid_t find_first_free_pid(void);
 
 extern double get_cpu_load(task_t *task);
 

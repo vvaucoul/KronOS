@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 11:43:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 13:04:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 16:33:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,30 @@
 
 extern task_t *ready_queue;
 
+static bool __process_is_in_queue_list(task_t *current_task) {
+    task_t *tmp = ready_queue;
+
+    do {
+        if (tmp == current_task)
+            return (true);
+        tmp = tmp->next;
+        if (!tmp) {
+
+            tmp = ready_queue;
+        }
+    } while (tmp != ready_queue);
+    return (false);
+}
+
 void __process_sleeping(task_t *current_task) {
     // If there are no tasks, return
     if (!current_task)
+        return;
+
+    // Todo: Improve this check
+    // Signal SIG_KILL -> Kill the process
+    // But process is not is queue list while looping, then infinite loop
+    if (__process_is_in_queue_list(current_task) == false)
         return;
 
     // Start from the beginning of the queue
@@ -38,6 +59,6 @@ void __process_sleeping(task_t *current_task) {
         if (!tmp)
             tmp = ready_queue;
 
-    // If we've reached the end of the queue, break the loop
+        // If we've reached the end of the queue, break the loop
     } while (tmp != current_task);
 }

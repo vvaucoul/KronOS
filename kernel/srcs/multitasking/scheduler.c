@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 13:04:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 15:47:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ void switch_task(void) {
     if (eip == 0x12345)
         return;
 
+    printk("Current Task: %d\n", current_task->pid);
+
     /* Check if the current task has received a signal */
     __signal_handler(current_task);
 
@@ -61,13 +63,20 @@ void switch_task(void) {
 
     // Just before we switch away from the current task, update its cpu_time
     if (prev_task) {
-        current_task->cpu_load.load_time = get_system_time() - current_task->cpu_load.start_time;
-        current_task->cpu_load.total_load_time += get_system_time() - current_task->cpu_load.start_time;
+        uint64_t sys_time = get_system_time();
 
-        // printk("- START Task %d: %u\n", current_task->pid, current_task->cpu_load.start_time);
-        // printk("- LOAD Task %d: %u\n", current_task->pid, current_task->cpu_load.load_time);
-        // printk("- CPU  Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
-        // printk("- TOTAL Task %d: %u\n", current_task->pid, current_task->cpu_load.total_load_time);
+        // prev_task->cpu_load.load_time = sys_time - prev_task->cpu_load.start_time;
+        prev_task->cpu_load.load_time += timer_subtick;
+        prev_task->cpu_load.total_load_time += prev_task->cpu_load.load_time;
+
+        if (prev_task->pid > 1) {
+            printk("Time: %lu | task start time %lu\n", sys_time, prev_task->cpu_load.start_time);
+
+            printk("- START Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.start_time);
+            printk("- LOAD Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.load_time);
+            printk("- CPU  Task %d: %lu\n", prev_task->pid, get_cpu_load(prev_task));
+            printk("- TOTAL Task %d: %lu\n", prev_task->pid, prev_task->cpu_load.total_load_time);
+        }
     }
 
     /* No, we didn't switch tasks. Let's save some register values and switch */
@@ -76,33 +85,13 @@ void switch_task(void) {
     current_task->ebp = ebp;
 
     /* Get the next task to run */
-    // current_task = current_task->next;
-
-    // if (current_task != TASK_RUNNING)
-    //     return ;
-
+    if (prev_task && current_task == prev_task)
+        current_task = current_task->next;
     current_task = __process_selector(current_task);
-    
 
     /* If we fell off the end of the linked list start again at the beginning */
     if (!current_task)
         current_task = ready_queue;
-        // return ;
-
-    // printk("Switching to task %d\n", current_task->pid);
-
-    /* Check if the current task is Running */
-    // {
-    //     // Todo: Instead of return, just switch to another task
-    //     if (current_task) {
-    //         if (current_task->state != TASK_RUNNING) {
-    //             return;
-    //             current_task = current_task->next;
-    //             if (!current_task)
-    //                 current_task = ready_queue;
-    //         }
-    //     }
-    // }
 
     // printk("Switching to task %d\n", current_task->pid);
 
@@ -111,6 +100,7 @@ void switch_task(void) {
 
     // Just after we've switched to the new task, update its start_time
     current_task->cpu_load.start_time = get_system_time();
+    prev_task->cpu_load.load_time = 0;
 
     eip = current_task->eip;
     esp = current_task->esp;
@@ -118,18 +108,6 @@ void switch_task(void) {
 
     /* Make sure the memory manager knows we've changed page directory */
     current_directory = current_task->page_directory;
-
-    /* Check if the current task can be woken up */
-    // Todo: Check if task is Zombie - Stopped - Waiting etc...
-
-    // if (current_task && current_task->pid > 1) {
-    //     uint64_t current_time;
-    //     tm_t time = gettime();
-    //     current_time = mktime(&time);
-    //     current_task->cpu_load.load_time += current_task->cpu_load.start_time - current_time;
-
-    //     printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
-    // }
 
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);

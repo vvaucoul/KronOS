@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 13:05:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 15:46:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,7 @@ void test_03(void) {
     // printk("[%d] Test 03\n", getpid());
 
     while (1) {
-        printk("[%d] Test 03\n", getpid());
+        printk("["_GREEN"%d"_END"] Test 03 -> [CPU: "_GREEN"%u"_END"]\n", getpid(), get_cpu_load(get_task(getpid())));
         ksleep(3);
     }
 }
@@ -230,7 +230,7 @@ void test_02(void) {
 
     // pid_t pid_tmp3 = init_task(test_03);
     while (1) {
-        printk("[%d] Test 02\n", getpid());
+         printk("["_GREEN"%d"_END"] Test 02 -> [CPU: "_GREEN"%u"_END"]\n", getpid(), get_cpu_load(get_task(getpid())));
         ksleep(2);
     }
 }
@@ -241,7 +241,7 @@ void test_01(void) {
 
     // pid_t pid_tmp2 = init_task(test_02);
     while (1) {
-        printk("[%d] Test 01\n", getpid());
+         printk("["_GREEN"%d"_END"] Test 01 -> [CPU: "_GREEN"%u"_END"]\n", getpid(), get_cpu_load(get_task(getpid())));
         ksleep(1);
         // kpause();
     }
@@ -271,18 +271,23 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // kpause();
 
     pid_t pid_tmp = init_task(test_01);
-    pid_t pid_tmp2 = init_task(test_02);
+    // pid_t pid_tmp2 = init_task(test_02);
+    // pid_t pid_tmp3 = init_task(test_03);
+    
 
-    // task_set_priority(pid_tmp, TASK_PRIORITY_HIGH);
-    pid_t pid_tmp3 = init_task(test_03);
-
-    // ksleep(2);
-    // print_parent_and_children(1);
-
-    // ksleep(2);
-    // signal(pid_tmp, SIGKILL);
+    //Todo: Fix priority
+    task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
     // ksleep(2);
+    print_parent_and_children(1);
+
+    ksleep(2);
+    signal(pid_tmp, SIGKILL);
+
+    ksleep(2);
+    // pid_tmp = init_task(test_01);
     // print_parent_and_children(1);
 
     // init_task(test_01);

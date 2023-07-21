@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 10:10:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 23:15:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 15:46:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void signal(pid_t pid, int signum) {
 void kill_handler(int32_t signum) {
     printk("Send "_GREEN
            "SIGKILL"_END
-           " to Task dummy pid: %d\n",
+           " to Task: [%d]\n",
            getpid());
     switch (signum) {
     case SIGKILL: {

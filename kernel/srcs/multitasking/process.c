@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 12:46:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 14:39:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void init_tasking(void) {
     current_task->tid = (task_id_t){0, 0, 0, 0};
     current_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     current_task->signal_queue = NULL;
-    current_task->priority = TASK_PRIORITY_LOW;
+    current_task->or_priority = current_task->priority = TASK_PRIORITY_LOW;
 
     wait_queue = NULL;
 
@@ -170,7 +170,7 @@ int32_t task_fork(void) {
     new_task->tid = (task_id_t){0, 0, 0, 0};
     new_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     new_task->signal_queue = NULL;
-    new_task->priority = TASK_PRIORITY_MEDIUM;
+    new_task->or_priority = new_task->priority = TASK_PRIORITY_MEDIUM;
 
     if (!(current_task->kernel_stack))
         __THROW("task_fork : kmalloc failed", 1);
@@ -465,13 +465,14 @@ task_t *get_wait_queue(void) {
 }
 
 double get_cpu_load(task_t *task) {
+    return task->cpu_load.total_load_time;
     uint64_t sys_time = get_system_time();
     uint64_t elapsed_time = sys_time - task->cpu_load.start_time;
 
     if (elapsed_time == 0) {
         return 0.0;
     }
-    return ((double)(task->cpu_load.load_time / elapsed_time));
+    return ((double)(task->cpu_load.load_time / elapsed_time) * 100.0);
 }
 
 // ! ||--------------------------------------------------------------------------------||

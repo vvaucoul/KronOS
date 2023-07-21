@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 12:34:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 14:01:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,8 @@ typedef struct s_task {
 
     uint32_t wake_up_tick; // Wake up tick (Check task sleep)
 
-    task_priority_t priority; // Task priority
+    task_priority_t or_priority; // Task priority at creation
+    task_priority_t priority;    // Task priority runtime
 
     task_state_t state;
 

@@ -6,14 +6,22 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 22:32:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 00:18:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 10:19:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 #include <multitasking/process.h>
 
-// Fonction : task_add_signal
+/**
+ * @brief Add a signal to a task
+ * @param task
+ * @param signum
+ * @param handler
+ *
+ * @note : Add signal to a specific task
+ * @note : If the signal already exists, nothing will be done
+ */
 void task_add_signal(task_t *task, int signum, void (*handler)(int)) {
     signal_node_t *new_signal = (signal_node_t *)kmalloc(sizeof(signal_node_t));
     new_signal->signum = signum;
@@ -31,7 +39,14 @@ void task_add_signal(task_t *task, int signum, void (*handler)(int)) {
     }
 }
 
-// Fonction : task_remove_signal
+/**
+ * @brief Remove a signal from a task
+ * @param task
+ * @param signum
+ *
+ * @note : Remove a signal from a specific task
+ * @note : If the signal is not found, nothing will be done
+ */
 void task_remove_signal(task_t *task, int signum) {
     if (task->signal_queue == NULL) {
         return;
@@ -61,6 +76,16 @@ void task_remove_signal(task_t *task, int signum) {
 // ! ||                                     HANDLER                                    ||
 // ! ||--------------------------------------------------------------------------------||
 
+/**
+ * @brief Handle a signal
+ *
+ * @param current_task
+ * @return void
+ *
+ * @note : This function must be called by the scheduler only !
+ *
+ * @see scheduler.c
+ */
 void __signal_handler(task_t *current_task) {
     if (current_task->signal_queue == NULL) {
         return;

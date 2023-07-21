@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 00:03:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 11:32:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,30 +214,37 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
 // ! ||                                   KERNEL MAIN                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
-
 void test_03(void) {
+    // ksleep(3);
+    // printk("[%d] Test 03\n", getpid());
+    
     while (1) {
         printk("[%d] Test 03\n", getpid());
-        ksleep(1);
+        ksleep(3);
     }
 }
 
 void test_02(void) {
-    // pid_t pid_tmp3 = init_task(test_03);
+    // ksleep(2);
+    // printk("[%d] Test 02\n", getpid());
+    
+    pid_t pid_tmp3 = init_task(test_03);
     while (1) {
         printk("[%d] Test 02\n", getpid());
-        ksleep(1);
+        ksleep(2);
     }
 }
 
 void test_01(void) {
-    // pid_t pid_tmp2 = init_task(test_02);
+    // ksleep(1);
+    // printk("[%d] Test 01\n", getpid());
+    
+    pid_t pid_tmp2 = init_task(test_02);
     while (1) {
         printk("[%d] Test 01\n", getpid());
         ksleep(1);
     }
 }
-
 
 uint32_t placement_address;
 
@@ -259,25 +266,27 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // // Don't trample our module with placement accesses, please!
     // placement_address = initrd_end;
 
-    process_test();
-    kpause();
+    // process_test();
+    // kpause();
 
-    
-    pid_t pid_tmp = init_task(test_01);
-    pid_t pid_tmp2 = init_task(test_02);
-    pid_t pid_tmp3 = init_task(test_03);
-    
-    ksleep(2);
-    print_parent_and_children(1);
+    // pid_t pid_tmp = init_task(test_01);
+    // pid_t pid_tmp2 = init_task(test_02);
+    // pid_t pid_tmp3 = init_task(test_03);
 
-    ksleep(2);
-    signal(3, SIGKILL);
+    // ksleep(2);
+    // print_parent_and_children(1);
+
+    // ksleep(2);
+    // signal(pid_tmp, SIGKILL);
+
+    // ksleep(2);
+    // print_parent_and_children(1);
 
     // init_task(test_01);
     // init_task(test_02);
 
-    while (1)
-        ;
+    // while (1)
+    //     ;
 
     pid_t pid = fork();
     if (pid == 0) {

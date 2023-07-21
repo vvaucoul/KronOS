@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 18:16:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 10:14:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,9 +74,14 @@ void timer_install() {
 void timer_wait(uint32_t ticks) {
     uint32_t start_tick = timer_subtick;
 
+    task_t *task = get_current_task();
+    task->state = TASK_SLEEPING;
+
     while (timer_subtick - start_tick < ticks) {
         __asm__ volatile("sti\n\thlt\n\tcld");
     }
+
+    task->state = TASK_RUNNING;
 }
 
 void kpause(void) {

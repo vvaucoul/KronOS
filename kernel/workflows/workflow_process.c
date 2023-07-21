@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 00:18:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 11:02:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,9 +166,8 @@ void process_test(void) {
 
     printk("Kill task dummy\n");
     
-    //Todo: Fix kill -> Cause Page Fault
-    // kill(pid, SIGKILL);
-    kill_task(pid);
+    kill(pid, SIGKILL);
+    // kill_task(pid);
 
     ksleep(3);
     printk("Fork task from PID [%d]\n", getpid());
@@ -221,9 +220,12 @@ void process_test(void) {
     printk("Inter Processus Test\n");
     ksleep(1);
     
-    init_task(__inter01);
-
+    pid_t inter_pid = init_task(__inter01);
     ksleep(6);
+
+    printk("Kill inter processus\n");
+    kill_task(inter_pid);
+    
 
     ksleep(3);
 

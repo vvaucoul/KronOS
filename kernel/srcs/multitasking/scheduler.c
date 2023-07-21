@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 00:07:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 11:26:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 
 extern task_t *current_task;
 extern task_t *ready_queue;
+
+static task_t *prev_task = NULL;
 
 bool scheduler_initialized = false;
 
@@ -51,10 +53,19 @@ void switch_task(void) {
     /* Check if the current task has received a signal */
     __signal_handler(current_task);
 
-    // printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
- 
+    /* Revive Zombies / Orphans tasks and attach them to the INIT task (Like UNIX System) */
+    __orphans_collector(current_task);
+
     // Just before we switch away from the current task, update its cpu_time
-    // current_task->cpu_load.load_time += get_system_time() - current_task->cpu_load.last_start_time;
+    if (prev_task) {
+        current_task->cpu_load.load_time = get_system_time() - current_task->cpu_load.start_time;
+        current_task->cpu_load.total_load_time += get_system_time() - current_task->cpu_load.start_time;
+
+        // printk("- START Task %d: %u\n", current_task->pid, current_task->cpu_load.start_time);
+        // printk("- LOAD Task %d: %u\n", current_task->pid, current_task->cpu_load.load_time);
+        // printk("- CPU  Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
+        // printk("- TOTAL Task %d: %u\n", current_task->pid, current_task->cpu_load.total_load_time);
+    }
 
     /* No, we didn't switch tasks. Let's save some register values and switch */
     current_task->eip = eip;
@@ -63,13 +74,33 @@ void switch_task(void) {
 
     /* Get the next task to run */
     current_task = current_task->next;
+
+    // current_task = __process_selector(current_task);
+
     /* If we fell off the end of the linked list start again at the beginning */
     if (!current_task)
         current_task = ready_queue;
 
+    /* Check if the current task is Running */
+    // {
+    //     // Todo: Instead of return, just switch to another task
+    //     if (current_task) {
+    //         if (current_task->state != TASK_RUNNING) {
+    //             return;
+    //             current_task = current_task->next;
+    //             if (!current_task)
+    //                 current_task = ready_queue;
+    //         }
+    //     }
+    // }
+
+    // printk("Switching to task %d\n", current_task->pid);
+
+    /* Save the context of our current task */
+    prev_task = current_task;
+
     // Just after we've switched to the new task, update its start_time
-    // current_task->cpu_load.last_start_time = get_system_time();
-    // printk("Task %d: %u\n", current_task->pid, get_cpu_load(current_task));
+    current_task->cpu_load.start_time = get_system_time();
 
     eip = current_task->eip;
     esp = current_task->esp;

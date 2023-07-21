@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 18:07:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 11:06:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 
 #include <system/signal.h>
 
-#define KERNEL_STACK_SIZE 8192 // 2KB
+#define KERNEL_STACK_SIZE 0x2000 // 2KB
+
+#define INIT_PID 0x1 // First process pid created
 
 typedef enum e_task_state {
     TASK_RUNNING,
@@ -51,9 +53,9 @@ typedef struct s_id {
 } task_id_t;
 
 typedef struct s_process_cpu_load {
-    uint64_t start_time;
-    uint64_t last_start_time;
-    uint64_t load_time;
+    uint64_t start_time;      // Time when the task started
+    uint64_t load_time;       // Time when the task was loaded and finished his task
+    uint64_t total_load_time; // Total time the task was loaded
 } process_cpu_load_t;
 
 typedef struct s_task {

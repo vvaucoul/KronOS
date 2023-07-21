@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 00:07:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 11:14:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,10 +103,10 @@ void init_tasking(void) {
 
     // printk("\t- Move stack\n");
 
-    move_stack((void *)0xE0000000, 0x2000);
+    move_stack((void *)0xE0000000, KERNEL_STACK_SIZE);
 
     /* Initialise the first task (kernel task) */
-    current_task = ready_queue = (task_t *)kmalloc(sizeof(task_t));
+    current_task = ready_queue = (task_t *)kmalloc_a(sizeof(task_t));
 
     if (!(current_task))
         __THROW_NO_RETURN("init_tasking : kmalloc failed");
@@ -123,12 +123,7 @@ void init_tasking(void) {
     current_task->owner = 0;
     current_task->tid = (task_id_t){0, 0, 0, 0};
     current_task->cpu_load = (process_cpu_load_t){0, 0, 0};
-    // Set CPU load start time
-    // uint64_t start_time;
-    // tm_t time = gettime();
-    // start_time = mktime(&time);
-    // current_task->cpu_load.start_time = start_time;
-    // current_task->cpu_load.load_time = 0;
+    current_task->signal_queue = NULL;
 
     if (!(current_task->kernel_stack))
         __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
@@ -159,7 +154,7 @@ int32_t task_fork(void) {
         __THROW("task_fork : clone_page_directory failed", 1);
 
     /* Create a new process */
-    if (!(new_task = (task_t *)kmalloc(sizeof(task_t))))
+    if (!(new_task = (task_t *)kmalloc_a(sizeof(task_t))))
         __THROW("task_fork : kmalloc failed", 1);
 
     new_task->pid = next_pid++;
@@ -174,13 +169,7 @@ int32_t task_fork(void) {
     new_task->owner = 0;
     new_task->tid = (task_id_t){0, 0, 0, 0};
     new_task->cpu_load = (process_cpu_load_t){0, 0, 0};
-
-    // Set CPU load start time
-    // uint64_t start_time;
-    // tm_t time = gettime();
-    // start_time = mktime(&time);
-    // current_task->cpu_load.start_time = start_time;
-    // current_task->cpu_load.load_time = 0;
+    new_task->signal_queue = NULL;
 
     if (!(current_task->kernel_stack))
         __THROW("task_fork : kmalloc failed", 1);
@@ -359,6 +348,17 @@ int32_t kill_task(int32_t pid) {
         if (tmp_task->kernel_stack) {
             kfree((void *)tmp_task->kernel_stack);
         }
+
+        /* Set all children to Zombies */
+        if (tmp_task->next) {
+            task_t *tmp = get_task(tmp_task->next->pid);
+            while (tmp) {
+                printk("Set task zombie [%d]\n", tmp->pid);
+                tmp->state = TASK_ZOMBIE;
+                tmp = tmp->next;
+            }
+        }
+
         // todo: free page directory
 
         /* Relink the previous and next tasks around the one we're removing */
@@ -378,7 +378,7 @@ int32_t kill_task(int32_t pid) {
                tmp_task->next ? tmp_task->next->pid : -1);
 
         kfree((void *)tmp_task);
-        ksleep(1);
+        // ksleep(1);
         return (pid);
     } else {
         printk("Cannot kill task %d\n", pid);
@@ -454,19 +454,13 @@ task_t *get_wait_queue(void) {
 }
 
 double get_cpu_load(task_t *task) {
-
     uint64_t sys_time = get_system_time();
-    uint64_t elapsed_time = sys_time - task->cpu_load.last_start_time;
+    uint64_t elapsed_time = sys_time - task->cpu_load.start_time;
 
     if (elapsed_time == 0) {
-        // The task has just been created and hasn't had a chance to run yet
         return 0.0;
     }
-
-    // if (task->cpu_load.load_time < elapsed_time)
-    //     __THROW("get_cpu_load : load_time < elapsed_time", 0.0);
-
-    return (double)task->cpu_load.load_time / elapsed_time;
+    return ((double)(task->cpu_load.load_time / elapsed_time));
 }
 
 // ! ||--------------------------------------------------------------------------------||

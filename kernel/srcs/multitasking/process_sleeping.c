@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 11:43:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 23:31:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 15:23:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ static bool __process_is_in_queue_list(task_t *current_task) {
             return (true);
         tmp = tmp->next;
         if (!tmp) {
-
             tmp = ready_queue;
         }
     } while (tmp != ready_queue);
@@ -35,9 +34,6 @@ void __process_sleeping(task_t *current_task) {
     if (!current_task)
         return;
 
-    // Todo: Improve this check
-    // Signal SIG_KILL -> Kill the process
-    // But process is not is queue list while looping, then infinite loop
     if (__process_is_in_queue_list(current_task) == false)
         return;
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 13:22:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 15:55:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,11 +145,16 @@ void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size) {
 }
 
 void process_01(void) {
-    // while (1) {
-    printk("- [%d] Hello from process_01 !\n", getpid());
-    // ksleep(1);
+    printk("- "_GREEN
+           "[%d]"_END
+           " Hello from process_01 !\n",
+           getpid());
+    ksleep(1);
+    printk("- "_GREEN
+           "[%d]"_END
+           " Exit process_01 ! Return "_YELLOW"[%d]"_END"\n",
+           getpid(), 42);
     task_exit(42);
-    // }
 }
 
 static int fibonacci(int n) {
@@ -160,7 +165,7 @@ static int fibonacci(int n) {
 
 void proc_fibo(void) {
     while (1) {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             printk("["_GREEN
                    "%d"_END
                    "] Fibonacci: "_GREEN
@@ -172,6 +177,10 @@ void proc_fibo(void) {
     }
 }
 
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                  PROCESS TEST                                  ||
+// ! ||--------------------------------------------------------------------------------||
+
 void process_test(void) {
     __WORKFLOW_HEADER();
 
@@ -181,6 +190,12 @@ void process_test(void) {
            getpid());
 
     ksleep(1);
+
+    goto mtt;
+
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                                  TASK - DUMMY                                  ||
+    // ! ||--------------------------------------------------------------------------------||
 
     pid_t pid = init_task(task_dummy);
     printk("\t- Create task dummy: "_GREEN
@@ -205,7 +220,12 @@ void process_test(void) {
 
     printk("- Tasks list\n");
     print_all_tasks();
-    ksleep(3);
+    ksleep(1);
+
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                                TASK - FIBONACCI                                ||
+    // ! ||--------------------------------------------------------------------------------||
+
     printk("Create Task Fibonacci\n");
 
     pid_t pidfibo = init_task(proc_fibo);
@@ -219,34 +239,34 @@ void process_test(void) {
     printk("- Tasks list\n");
     print_all_tasks();
 
-    kpause();
-    ksleep(3);
+    ksleep(1);
 
-    printk("Fork task from PID [%d]\n", getpid());
-    pid = fork();
-    if (pid == 0) {
-        while (1) {
-            printk("Hello from child process\n");
-            ksleep(3);
-            printk("Exit child process\n");
-            exit(0);
-        }
-    } else {
-        int status;
-        waitpid(pid, &status, 0);
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                                MULTIPLE - TASKS                                ||
+    // ! ||--------------------------------------------------------------------------------||
 
-        printk("Hello from parent process\n");
-        ksleep(1);
-    }
-
-    ksleep(3);
-
-    printk(_GREEN "Task 01"_END
-                  "\n");
+    mtt:
+    
+    printk("\n\n");
+    printk("- Task "_GREEN
+           "[01]"_END
+           "\n");
     int32_t pid_task_01 = init_task(process_01);
-    printk("Wait task 01 [%d]\n", pid_task_01);
+    printk("Wait task "_GREEN
+           "[01]"_END
+           " - "_GREEN
+           "[%d]"_END
+           "\n",
+           pid_task_01);
     int32_t ret_code = task_wait(pid_task_01);
-    printk("Task 01 finished with code [%d]\n", ret_code);
+    printk("Task "_GREEN
+           "[01]"_END
+           " finished with code "_YELLOW
+           "[%d]"_END
+           "\n",
+           ret_code);
+
+    kpause();
 
     printk(_GREEN "Task 02"_END
                   "\n");
@@ -279,7 +299,43 @@ void process_test(void) {
     printk("Kill inter processus\n");
     kill_task(inter_pid);
 
-    ksleep(3);
+    ksleep(5);
+
+    printk("Kill process 01 [%u]\n", pid_task_01);
+    kill_task(pid_task_01);
+
+    printk("Kill process 02 [%u]\n", pid_task_02);
+    kill_task(pid_task_02);
+
+    printk("Kill process 03 [%u]\n", pid_task_03);
+    kill_task(pid_task_03);
+
+    printk("Kill process 04 [%u]\n", pid_task_04);
+    kill_task(pid_task_04);
+
+    printk("Kill process 05 [%u]\n", pid_task_05);
+    kill_task(pid_task_05);
+
+    printk("Kill process 06 [%u]\n", pid_task_05);
+    // kill_task(pid_task_06);
+
+    pause();
+    // kpause();
+
+    printk("Fork task from PID [%d]\n", getpid());
+    pid = fork();
+    if (pid == 0) {
+        printk("Hello from child process [%d]\n", getpid());
+        ksleep(1);
+        printk("Exit child process\n");
+        exit(0);
+    } else {
+        int status;
+        waitpid(pid, &status, 0);
+        printk("Hello from parent process [%d]\n", getpid());
+        ksleep(2);
+        printk("Exit parent process\n");
+    }
 
     pid_t pid_ipc = fork();
 
@@ -363,24 +419,6 @@ void process_test(void) {
     //     kusleep(TASK_FREQUENCY);
     // }
 
-    printk("Kill process 01 [%u]\n", pid_task_01);
-    kill_task(pid_task_01);
-
-    printk("Kill process 02 [%u]\n", pid_task_02);
-    kill_task(pid_task_02);
-
-    printk("Kill process 03 [%u]\n", pid_task_03);
-    kill_task(pid_task_03);
-
-    printk("Kill process 04 [%u]\n", pid_task_04);
-    kill_task(pid_task_04);
-
-    printk("Kill process 05 [%u]\n", pid_task_05);
-    kill_task(pid_task_05);
-
-    printk("Kill process 06 [%u]\n", pid_task_05);
-    // kill_task(pid_task_06);
-
     printk("Kill process IPC [%u]\n", pid_ipc);
     kill_task(pid_ipc);
 
@@ -388,10 +426,4 @@ void process_test(void) {
     kill_task(pid_socket);
 
     __WORKFLOW_FOOTER();
-
-    __UNUSED(pid_task_01);
-    __UNUSED(pid_task_02);
-    __UNUSED(pid_task_03);
-    __UNUSED(pid_task_04);
-    __UNUSED(pid_task_05);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 13:05:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 15:56:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,24 +284,21 @@ int32_t init_task(void func(void)) {
 }
 
 int32_t task_wait(int32_t pid) {
-    ASM_CLI();
     task_t *task = get_task(pid);
     if (!task) {
-        printk("Invalid PID: %d\n", pid);
-        return -1;
+        __THROW("task_wait : task not found for pid %d", -1, pid);
     }
 
     // Wait for the task to finish
-    while (task->state == TASK_RUNNING) {
-        ksleep(1);
+    while (task && (task->state == TASK_RUNNING || task->state == TASK_SLEEPING)) {
+        kmsleep(TASK_FREQUENCY);
     }
 
     // Task has finished, so clean it up
     int32_t exit_code = task->exit_code;
-    kill_task(pid);
+    // kill_task(pid);
 
-    ASM_STI();
-    return exit_code;
+    return (exit_code);
 }
 
 int32_t kill_task(int32_t pid) {
@@ -360,6 +357,8 @@ int32_t kill_task(int32_t pid) {
             }
         }
 
+        tmp_task->state = TASK_STOPPED;
+
         // todo: free page directory
 
         // destroy_page_directory(tmp_task->page_directory);
@@ -370,9 +369,8 @@ int32_t kill_task(int32_t pid) {
         if (tmp_task->prev != NULL) {
             tmp_task->prev->next = tmp_task->next;
         } else {
-            ready_queue = tmp_task->next; // tmp_task was the head of the ready queue
+            ready_queue = tmp_task->next;
         }
-
         if (tmp_task->next != NULL) {
             tmp_task->next->prev = tmp_task->prev;
         }
@@ -421,8 +419,7 @@ void unlock_task(task_t *task) {
 
 void task_exit(int32_t retval) {
     current_task->exit_code = retval;
-    current_task->state = TASK_ZOMBIE;
-    // kill_task(current_task->pid);
+    current_task->state = TASK_STOPPED;
 }
 
 void switch_to_user_mode(void) {

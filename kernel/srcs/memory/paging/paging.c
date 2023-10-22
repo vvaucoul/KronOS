@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 17:19:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 20:25:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,8 +244,6 @@ void destroy_user_page(page_t *page, page_directory_t *dir) {
 }
 
 page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
-    int32_t i;
-
     /* Make a new page table, which is page aligned */
     page_table_t *table = (page_table_t *)kmalloc_ap(sizeof(page_table_t), physAddr);
 
@@ -256,10 +254,11 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
     }
 
     /* Ensure that the new table is blank */
-    memset(table, 0, sizeof(page_table_t));
+    memset(table, 0, sizeof(page_directory_t));
+    // memset(table, 0, sizeof(page_table_t));
 
     /* For every entry in the table... */
-    for (i = 0; i < 1024; i++) {
+    for (int32_t i = 0; i < 1024; i++) {
         /* If the source entry has a frame associated with it... */
         if (src->pages[i].frame) {
             /* Get a new frame */
@@ -285,7 +284,6 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
 
 page_directory_t *clone_page_directory(page_directory_t *src) {
     uint32_t phys, offset;
-    int32_t i;
 
     if (src == NULL) {
         __THROW("Source page directory is NULL!", NULL);
@@ -314,7 +312,7 @@ page_directory_t *clone_page_directory(page_directory_t *src) {
     }
 
     /* Go through each page table. If the page table is in the kernel directory, do not make a new copy */
-    for (i = 0; i < 1024; i++) {
+    for (int32_t i = 0; i < 1024; i++) {
         if (!src->tables[i])
             continue;
 
@@ -346,8 +344,9 @@ void destroy_page_directory(page_directory_t *dir) {
             if (dir->tables[i]) {
                 page_table_t *table = dir->tables[i];
                 for (int j = 0; j < 1024; ++j) {
-                    if (table->pages[j].frame)
+                    if (table->pages[j].frame) {
                         free_frame(&table->pages[j]);
+                    }
                 }
                 kfree(table);
             }

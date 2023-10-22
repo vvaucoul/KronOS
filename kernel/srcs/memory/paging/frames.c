@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 10:23:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 20:14:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,4 @@ void init_frames() {
     n_frames = 0x1000000 / PAGE_SIZE;
     frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames));
     memset(frames, 0, INDEX_FROM_BIT(n_frames));
-
-    // n_frames = GET_PHYSICAL_MEMORY_SIZE(__multiboot_info) / PAGE_SIZE;
-    // frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames));
-    // memset(frames, 0, INDEX_FROM_BIT(n_frames));
-    // __UNUSED(test_frame(0));
 }

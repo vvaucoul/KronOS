@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 17:26:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/21 13:21:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     irq_install();
     kernel_log_info("LOG", "IRQ");
 
-    tss_init(5, 0x10, 0x0);
+    tss_init(0x7, 0x10, 0x0);
     kernel_log_info("LOG", "TSS");
 
     timer_install();
@@ -198,8 +198,10 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // kpause();
 
     init_scheduler();
+    kernel_log_info("LOG", "SCHEDULER");
+
     init_tasking();
-    kernel_log_info("LOG", "PROCESS");
+    kernel_log_info("LOG", "TASKING");
 
     return (0);
 }
@@ -263,7 +265,7 @@ void test_01(void) {
                "%u"_END
                "]\n",
                getpid(), get_cpu_load(get_task(getpid())));
-        ksleep(1);
+        kmsleep(200);
     }
 }
 
@@ -280,6 +282,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
+    printk("Stringify: " _GREEN "%s\n" _END, (STRINGIFY(Hello World !)));
+
     // Todo: EXT2 VFS
     // assert(__multiboot_info->mods_count > 0);
     // uint32_t initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
@@ -287,42 +291,54 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // // Don't trample our module with placement accesses, please!
     // placement_address = initrd_end;
 
-    // process_test();
-    // kpause();
-    // pid_t pid_tmp = init_task(test_01);
+    process_test();
+    kpause();
 
-    // uint32_t lst = 0;
-    // while (1) {
-    //     pid_t pid_tmp = init_task(test_01);
-    //     ++lst;
-    //     printk("task created: %d\n", lst);
-    //     ksleep(1);
-    // }
+    pid_t pid_tmp = init_task(test_01);
+    pid_t pid_tmp2w = init_task(test_02);
 
-    // pid_t pid_tmp = init_task(test_01);
-    // pid_t pid_tmp2 = init_task(test_02);
-    // pid_t pid_tmp3 = init_task(test_03);
-
-    // // //Todo: Fix priority
     // task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
-    // task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
-    // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp2w, TASK_PRIORITY_LOW);
+
+    
+    ksleep(2);
+
+    signal(pid_tmp, SIGKILL);
+
+    while (1)
+    {
+    }
+    
+
+    pid_t pid_tmp2 = init_task(test_02);
+    pid_t pid_tmp3 = init_task(test_03);
+
+    
+
+    // Todo: Fix priority
+    task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
+    task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
+    task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
     // // // ksleep(2);
     // // print_parent_and_children(1);
 
-    // ksleep(2);
+    ksleep(2);
     // // // kill_task(pid_tmp);
     // signal(pid_tmp, SIGKILL);
+    kill_task(pid_tmp);
 
-    // ksleep(2);
-    // pid_tmp = init_task(test_01);
+    ksleep(2);
+    pid_tmp = init_task(test_01);
 
     // pid_t pid_tmp4 = init_task(test_01);
     // pid_t pid_tmp5 = init_task(test_02);
     // pid_t pid_tmp6 = init_task(test_03);
 
     // task_set_priority(pid_tmp, TASK_PRIORITY_HIGH);
+
+
+    // switch_to_user_mode();
 
     while (1)
         ;

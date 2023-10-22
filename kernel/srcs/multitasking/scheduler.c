@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 16:33:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/21 22:41:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,48 @@ extern task_t *ready_queue;
 
 static task_t *prev_task = NULL;
 
+static bool scheduler_rounded = false;
+
 bool scheduler_initialized = false;
 
 void init_scheduler(void) {
     scheduler_initialized = true;
+}
+
+/**
+ * @brief Wait for scheduler to round
+ * @note : Wait for the scheduler to round before switching task
+ *        This is used to avoid switching task while the scheduler is rounding
+ *       and avoid some bugs
+ */
+void wait_for_sheculer_rounded(void) {
+    bool any_task_has_signal;
+
+    do {
+        // Wait for the scheduler to round
+        while (!scheduler_rounded) {
+            __asm__ volatile("hlt");
+        }
+
+        // Reset the flag for subsequent checks
+        scheduler_rounded = false;
+
+        any_task_has_signal = false;
+        task_t *tmp = ready_queue;
+
+        // Check all tasks for pending signals
+        do {
+            if (!tmp) {
+                break;
+            }
+            if (tmp->state == TASK_RUNNING && tmp->signal_queue != NULL) {
+                any_task_has_signal = true;
+                break;
+            }
+            tmp = tmp->next;
+        } while (tmp != ready_queue);
+
+    } while (any_task_has_signal);
 }
 
 void switch_task(void) {
@@ -49,6 +87,8 @@ void switch_task(void) {
     /* Have we just switched tasks? */
     if (eip == 0x12345)
         return;
+
+    scheduler_rounded = false;
 
     // printk("Current Task: %d\n", current_task->pid);
 
@@ -87,7 +127,21 @@ void switch_task(void) {
     /* Get the next task to run */
     if (prev_task && current_task == prev_task)
         current_task = current_task->next;
+
     current_task = __process_selector(current_task);
+
+
+    // TODO: Debug
+    // if (current_task && current_task->state == TASK_STOPPED) {
+    //     kill_task(current_task->pid);
+    // }
+
+    // printk("Task = %d | State = %d\n", current_task->pid, current_task->state);
+
+    scheduler_rounded = true;
+
+
+    // printk("Switching to task %d\n", current_task->pid);
 
     /* If we fell off the end of the linked list start again at the beginning */
     if (!current_task)

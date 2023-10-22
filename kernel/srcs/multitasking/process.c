@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 17:24:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/21 13:51:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,7 +306,6 @@ int32_t task_wait(int32_t pid) {
 
 int32_t kill_task(int32_t pid) {
     task_t *tmp_task;
-    task_t *par_task;
 
     if (!pid) {
         return 0;
@@ -318,6 +317,7 @@ int32_t kill_task(int32_t pid) {
     }
 
     /* Can we delete it? */
+    // task_t *par_task;
     // if (tmp_task->ppid != 0) {
     //     par_task = get_task(tmp_task->ppid);
 
@@ -347,6 +347,7 @@ int32_t kill_task(int32_t pid) {
         /* If its stack is reachable, delete it */
         if (tmp_task->kernel_stack) {
             kfree((void *)tmp_task->kernel_stack);
+            tmp_task->kernel_stack = 0x0;
         }
 
         /* Set all children to Zombies */
@@ -360,6 +361,10 @@ int32_t kill_task(int32_t pid) {
         }
 
         // todo: free page directory
+
+        // destroy_page_directory(tmp_task->page_directory);
+        // printk("Pause\n");
+        // kpause();
 
         /* Relink the previous and next tasks around the one we're removing */
         if (tmp_task->prev != NULL) {
@@ -423,17 +428,34 @@ void switch_to_user_mode(void) {
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
 
     /* Set up a stack structure for switching to user mode */
+    // __asm__ __volatile__("cli; \
+	// mov $0x23, %ax; \
+	// mov %ax, %ds; \
+	// mov %ax, %es; \
+	// mov %ax, %fs; \
+	// mov %ax, %gs; \
+	// mov %esp, %eax; \
+	// pushl $0x23; \
+	// pushl %esp; \
+	// pushf; \
+	// pushl $0x1B; \
+	// push $1f; \
+	// sti; \
+	// iret; \
+	// 1: \
+	// ");
+
     __asm__ __volatile__("cli; \
-	mov $0x23, %ax; \
+	mov $0x2B, %ax; \
 	mov %ax, %ds; \
 	mov %ax, %es; \
 	mov %ax, %fs; \
 	mov %ax, %gs; \
 	mov %esp, %eax; \
-	pushl $0x23; \
+	pushl $0x2B; \
 	pushl %esp; \
 	pushf; \
-	pushl $0x1B; \
+	pushl $0x23; \
 	push $1f; \
 	sti; \
 	iret; \

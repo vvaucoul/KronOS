@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 11:43:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 16:33:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/21 23:31:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ void __process_sleeping(task_t *current_task) {
             // printk("Process %d woke up\n", tmp->pid);
             tmp->state = TASK_RUNNING;
             tmp->wake_up_tick = 0;
+        } else if (tmp->state == TASK_SLEEPING && tmp->wake_up_tick > timer_subtick) {
+            // printk("Process %d is sleeping for %d ticks / %d\n", tmp->pid, tmp->wake_up_tick, timer_subtick);
         }
 
         // Move to the next task

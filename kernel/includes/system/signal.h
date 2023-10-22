@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 09:59:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 16:15:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/21 22:33:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ typedef enum {
 #define SIGNALS_COUNT 31
 
 typedef struct signal_node {
+    char *name;
     signal_t signum;
     void (*handler)(int32_t);
     struct signal_node *next;

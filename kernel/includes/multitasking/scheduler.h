@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 16:34:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/21 22:16:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,5 +48,11 @@ void __signal_handler(task_t *current_task);
 extern void task_add_signal(task_t *task, int signum, void (*handler)(int));
 extern void task_remove_signal(task_t *task, int signum);
 extern void task_print_signals(task_t *task);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                     ROUNDED                                    ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern void wait_for_sheculer_rounded(void);
 
 #endif /* !SCHEDULER_H */

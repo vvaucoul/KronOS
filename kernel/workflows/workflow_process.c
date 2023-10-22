@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 11:02:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/21 22:24:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,34 +145,74 @@ void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size) {
 }
 
 void process_01(void) {
+    // while (1) {
+    printk("- [%d] Hello from process_01 !\n", getpid());
+    // ksleep(1);
+    task_exit(42);
+    // }
+}
+
+static int fibonacci(int n) {
+    if (n <= 1)
+        return (n);
+    return (fibonacci(n - 1) + fibonacci(n - 2));
+}
+
+void proc_fibo(void) {
+    // Display fibonacci suite
     while (1) {
-        printk("- [%d] Hello from process_01 !\n", getpid());
-        task_exit(42);
-        return;
-        // ksleep(1);
+        for (int i = 0; i < 10; i++) {
+            printk("["_GREEN
+                   "%d"_END
+                   "] Fibonacci: "_GREEN
+                   "%d"_END
+                   "\n",
+                   getpid(), fibonacci(i));
+                //    ksleep(1);
+                kmsleep(500);
+        }
     }
 }
 
 void process_test(void) {
     __WORKFLOW_HEADER();
 
-    printk("Kernel PID: %u\n", getpid());
+    printk("- Kernel PID: "_GREEN"[%u]"_END"\n", getpid());
 
-    printk("Create task dummy\n");
+    ksleep(1);
+
     pid_t pid = init_task(task_dummy);
-    printk("Task dummy pid: %d\n", pid);
+    printk("\t- Create task dummy: "_GREEN"[%u]"_END"\n", pid);
 
-    ksleep(2);
+    ksleep(3);
 
-    printk("Kill task dummy\n");
+    printk("\t - Kill task dummy: "_GREEN"[%u]"_END"\n", pid);
     
     kill(pid, SIGKILL);
     // kill_task(pid);
 
+    // kmsleep(1);
+
+    wait_for_sheculer_rounded();
+
+    printk("- Tasks list\n");
+    print_all_tasks();
+    kpause();
     ksleep(3);
+    printk("Create Task Fibonacci\n");
+
+    pid_t pidfibo = init_task(proc_fibo);
+
+    ksleep(3);
+    printk("Kill Task Fibonacci\n");
+    kill(pidfibo, SIGKILL);
+
+    ksleep(3);
+
+
+
     printk("Fork task from PID [%d]\n", getpid());
     pid = fork();
-
     if (pid == 0) {
         while (1) {
             printk("Hello from child process\n");
@@ -187,6 +227,8 @@ void process_test(void) {
         printk("Hello from parent process\n");
         ksleep(1);
     }
+
+    ksleep(3);
 
     printk(_GREEN "Task 01"_END
                   "\n");
@@ -219,13 +261,12 @@ void process_test(void) {
     ksleep(3);
     printk("Inter Processus Test\n");
     ksleep(1);
-    
+
     pid_t inter_pid = init_task(__inter01);
     ksleep(6);
 
     printk("Kill inter processus\n");
     kill_task(inter_pid);
-    
 
     ksleep(3);
 

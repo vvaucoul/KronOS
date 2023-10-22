@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 10:10:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/21 22:33:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 12:54:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 
 signal_node_t signals[SIGNALS_COUNT];
 
-// Todo: Debug Signal send to PID 1 and should not
 void signal(pid_t pid, int signum) {
     task_t *task = get_task(pid);
 
@@ -25,11 +24,6 @@ void signal(pid_t pid, int signum) {
         if (task->pid == 0 || task->pid == 1) {
             __THROW_NO_RETURN("Cannot send signal to PID 1");
         } else if (signum >= 0 && signum < SIGNALS_COUNT) {
-            printk("Found signal: %d\n", signum);
-            printk("Send "_GREEN
-                   "%s"_END
-                   " to Task: [%d]\n",
-                   signals[signum].name, task->pid);
             task_add_signal(task, signum, signals[signum].handler);
         } else {
             __THROW_NO_RETURN("Signal not found (maybe not implemented)");
@@ -40,10 +34,6 @@ void signal(pid_t pid, int signum) {
 }
 
 void kill_handler(int32_t signum) {
-    printk("Send "_GREEN
-           "SIGKILL"_END
-           " to Task: [%d]\n",
-           getpid());
     switch (signum) {
     case SIGKILL: {
         get_current_task()->exit_code = 0;

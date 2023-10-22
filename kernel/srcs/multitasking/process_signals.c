@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 22:32:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/21 22:34:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 13:01:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 #include <multitasking/process.h>
+
+#include <multitasking/scheduler.h>
 
 /**
  * @brief Add a signal to a task
@@ -108,7 +110,6 @@ void __signal_handler(task_t *current_task) {
     current_task->signal_queue = signal->next;
 
     if (signal->handler != NULL) {
-        printk("Found signal: %d\n", signal->signum);
         signal->handler(signal->signum);
     }
 

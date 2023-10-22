@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/21 22:41:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 13:20:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,9 @@ void init_scheduler(void) {
  *        This is used to avoid switching task while the scheduler is rounding
  *       and avoid some bugs
  */
-void wait_for_sheculer_rounded(void) {
+
+// Todo: Debug, this function need to wait for the scheduler to round
+void wait_for_scheduler_rounded(void) {
     bool any_task_has_signal;
 
     do {
@@ -48,17 +50,29 @@ void wait_for_sheculer_rounded(void) {
 
         any_task_has_signal = false;
         task_t *tmp = ready_queue;
+        
+        if (!tmp) {
+            printk("Queue is empty!\n");
+            return;
+        }
 
+        printk("Ready Queue:\n");
         // Check all tasks for pending signals
         do {
-            if (!tmp) {
-                break;
-            }
-            if (tmp->state == TASK_RUNNING && tmp->signal_queue != NULL) {
+            // __signal_handler(tmp);
+            if (tmp && tmp->state == TASK_RUNNING && tmp->signal_queue != NULL) {
                 any_task_has_signal = true;
+                printk("Task %d has signal\n", tmp->pid);
                 break;
             }
+            else
+                printk("Task %d has no signal\n", tmp->pid);
             tmp = tmp->next;
+
+            if (!tmp) {
+                printk("Queue is empty!\n");
+                return;
+            }
         } while (tmp != ready_queue);
 
     } while (any_task_has_signal);
@@ -88,18 +102,7 @@ void switch_task(void) {
     if (eip == 0x12345)
         return;
 
-    scheduler_rounded = false;
-
     // printk("Current Task: %d\n", current_task->pid);
-
-    /* Check if the current task has received a signal */
-    __signal_handler(current_task);
-
-    /* Check if the current task is sleeping */
-    __process_sleeping(current_task);
-
-    /* Revive Zombies / Orphans tasks and attach them to the INIT task (Like UNIX System) */
-    __orphans_collector(current_task);
 
     // Just before we switch away from the current task, update its cpu_time
     if (prev_task) {
@@ -130,16 +133,12 @@ void switch_task(void) {
 
     current_task = __process_selector(current_task);
 
-
     // TODO: Debug
     // if (current_task && current_task->state == TASK_STOPPED) {
     //     kill_task(current_task->pid);
     // }
 
     // printk("Task = %d | State = %d\n", current_task->pid, current_task->state);
-
-    scheduler_rounded = true;
-
 
     // printk("Switching to task %d\n", current_task->pid);
 
@@ -166,6 +165,17 @@ void switch_task(void) {
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
 
+    /* Check if the current task has received a signal */
+    __signal_handler(current_task);
+
+    /* Check if the current task is sleeping */
+    __process_sleeping(current_task);
+
+    /* Revive Zombies / Orphans tasks and attach them to the INIT task (Like UNIX System) */
+    __orphans_collector(current_task);
+
+    /* Switch to the new task's kernel stack */
+    /* 0x12345: just a magic number */
     __asm__ __volatile__("		\
     cli;			\
 	mov %0, %%ecx;		\

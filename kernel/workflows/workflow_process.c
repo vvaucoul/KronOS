@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/21 22:24:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 13:22:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,17 +159,15 @@ static int fibonacci(int n) {
 }
 
 void proc_fibo(void) {
-    // Display fibonacci suite
     while (1) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             printk("["_GREEN
                    "%d"_END
                    "] Fibonacci: "_GREEN
                    "%d"_END
                    "\n",
                    getpid(), fibonacci(i));
-                //    ksleep(1);
-                kmsleep(500);
+            kmsleep(TASK_FREQUENCY);
         }
     }
 }
@@ -177,39 +175,52 @@ void proc_fibo(void) {
 void process_test(void) {
     __WORKFLOW_HEADER();
 
-    printk("- Kernel PID: "_GREEN"[%u]"_END"\n", getpid());
+    printk("- Kernel PID: "_GREEN
+           "[%u]"_END
+           "\n",
+           getpid());
 
     ksleep(1);
 
     pid_t pid = init_task(task_dummy);
-    printk("\t- Create task dummy: "_GREEN"[%u]"_END"\n", pid);
-
-    ksleep(3);
-
-    printk("\t - Kill task dummy: "_GREEN"[%u]"_END"\n", pid);
-    
-    kill(pid, SIGKILL);
-    // kill_task(pid);
-
-    // kmsleep(1);
-
-    wait_for_sheculer_rounded();
+    printk("\t- Create task dummy: "_GREEN
+           "[%u]"_END
+           "\n",
+           pid);
 
     printk("- Tasks list\n");
     print_all_tasks();
-    kpause();
+
+    ksleep(3);
+
+    printk("\t - Kill task dummy: "_GREEN
+           "[%u]"_END
+           "\n",
+           pid);
+
+    kill(pid, SIGKILL);
+
+    // Needed to wait for scheduler
+    kmsleep(TASK_FREQUENCY);
+
+    printk("- Tasks list\n");
+    print_all_tasks();
     ksleep(3);
     printk("Create Task Fibonacci\n");
 
     pid_t pidfibo = init_task(proc_fibo);
 
-    ksleep(3);
+    ksleep(6);
     printk("Kill Task Fibonacci\n");
     kill(pidfibo, SIGKILL);
 
+    kmsleep(TASK_FREQUENCY);
+
+    printk("- Tasks list\n");
+    print_all_tasks();
+
+    kpause();
     ksleep(3);
-
-
 
     printk("Fork task from PID [%d]\n", getpid());
     pid = fork();

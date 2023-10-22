@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/21 22:16:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 12:53:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,6 @@ extern void task_print_signals(task_t *task);
 // ! ||                                     ROUNDED                                    ||
 // ! ||--------------------------------------------------------------------------------||
 
-extern void wait_for_sheculer_rounded(void);
+extern void wait_for_scheduler_rounded(void);
 
 #endif /* !SCHEDULER_H */

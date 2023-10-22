@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/21 13:51:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/22 13:05:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -377,13 +377,14 @@ int32_t kill_task(int32_t pid) {
             tmp_task->next->prev = tmp_task->prev;
         }
 
-        printk("Prev Task [%d] -> Task [%d] -> Next Task [%d]\n",
-               tmp_task->prev ? tmp_task->prev->pid : -1,
-               tmp_task->pid,
-               tmp_task->next ? tmp_task->next->pid : -1);
+        // printk("Prev Task [%d] -> Task [%d] -> Next Task [%d]\n",
+        //        tmp_task->prev ? tmp_task->prev->pid : -1,
+        //        tmp_task->pid,
+        //        tmp_task->next ? tmp_task->next->pid : -1);
 
         kfree((void *)tmp_task);
         // ksleep(1);
+        kmsleep(TASK_FREQUENCY);
         return (pid);
     } else {
         printk("Cannot kill task %d\n", pid);

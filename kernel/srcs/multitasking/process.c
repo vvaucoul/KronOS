@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 14:38:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 14:42:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -398,6 +398,8 @@ int32_t kill_task(int32_t pid) {
         //        tmp_task->pid,
         //        tmp_task->next ? tmp_task->next->pid : -1);
 
+        kfree(tmp_task->sectors.bss_segment);
+        kfree(tmp_task->sectors.data_segment);
         kfree((void *)tmp_task);
         kmsleep(TASK_FREQUENCY);
         return (pid);

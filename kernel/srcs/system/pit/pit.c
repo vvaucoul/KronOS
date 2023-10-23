@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:39:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 20:12:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,28 +71,37 @@ void timer_install() {
     // speaker_phase(TIMER_PHASE);
 }
 
+/**
+ * @brief Busy wait for a given number of ticks
+ * @param ticks Number of ticks to wait
+ *
+ * This function is used to wait for a given number of ticks.
+ */
+void busy_wait(uint32_t ticks) {
+    uint32_t start_tick = timer_subtick;
+    while (timer_subtick - start_tick < ticks) {
+        __asm__ volatile("sti\n\thlt\n\tcld");
+    }
+}
+
 void timer_wait(uint32_t ticks) {
     task_t *task = get_current_task();
 
     if (!task) {
+
         // If no multitasking, just busy-wait
-        uint32_t start_tick = timer_subtick;
-        while (timer_subtick - start_tick < ticks) {
-            __asm__ volatile("sti\n\thlt\n\tcld");
-        }
+        busy_wait(ticks);
         return;
     }
 
-    // if (task->state == TASK_RUNNING || task->state == TASK_SLEEPING) {
-        // If the task is running, just busy-wait
-        task->state = TASK_SLEEPING;
-        task->wake_up_tick = timer_subtick + ticks;
+    // If the task is running, just busy-wait
+    task->state = TASK_SLEEPING;
+    task->wake_up_tick = timer_subtick + ticks;
 
-        // Yield the CPU to allow other tasks to run.
-        while (task->state == TASK_SLEEPING) {
-            __asm__ volatile("sti\n\thlt\n\tcld");
-        }
-    // } 
+    // Yield the CPU to allow other tasks to run.
+    while (task->state == TASK_SLEEPING) {
+        __asm__ volatile("sti\n\thlt\n\tcld");
+    }
 }
 
 // void timer_wait(uint32_t ticks) {

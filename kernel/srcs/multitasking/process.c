@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 14:42:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 20:20:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ void init_tasking(void) {
         __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
     current_task->state = TASK_RUNNING;
     current_task->owner = current_task->effective_owner = 0;
-    current_task->tid = (task_id_t){0, 0, 0, 0};
+    current_task->task_id = (struct task_id_t){0, 0, 0, 0};
     current_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     current_task->signal_queue = NULL;
     current_task->or_priority = current_task->priority = TASK_PRIORITY_LOW;
@@ -182,7 +182,7 @@ int32_t task_fork(void) {
     new_task->exit_code = 0;
     new_task->state = TASK_RUNNING;
     new_task->owner = new_task->effective_owner = 0;
-    new_task->tid = (task_id_t){0, 0, 0, 0};
+    new_task->task_id = (struct task_id_t){0, 0, 0, 0};
     new_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     new_task->signal_queue = NULL;
     new_task->or_priority = new_task->priority = TASK_PRIORITY_MEDIUM;
@@ -225,7 +225,7 @@ int32_t task_fork(void) {
     } else {
         /* We are the child */
         ASM_STI();
-        return 0;
+        return (0);
     }
 }
 
@@ -234,19 +234,19 @@ __attribute__((pure)) page_directory_t *get_task_directory(void) {
 }
 
 void set_task_uid(task_t *task, uint32_t uid) {
-    task->tid.uid = uid;
+    task->task_id.uid = uid;
 }
 
 void set_task_gid(task_t *task, uint32_t gid) {
-    task->tid.gid = gid;
+    task->task_id.gid = gid;
 }
 
 void set_task_euid(task_t *task, uint32_t euid) {
-    task->tid.euid = euid;
+    task->task_id.euid = euid;
 }
 
 void set_task_egid(task_t *task, uint32_t egid) {
-    task->tid.egid = egid;
+    task->task_id.egid = egid;
 }
 
 pid_t getpid(void) {
@@ -289,8 +289,10 @@ int32_t init_task(void func(void)) {
         /* Set task to running state */
         // get_task(pid)->state = TASK_RUNNING;
         /* Kill the current (child) process. On failure, freeze it */
-        // printk("Child process returned from init_task\n");
+
+        __WARND("Task ended without calling task_exit");
         if (kill_task(pid) != 0) {
+            get_task(pid)->state = TASK_ZOMBIE;
             for (;;)
                 ;
         }
@@ -298,28 +300,37 @@ int32_t init_task(void func(void)) {
     return ret;
 }
 
+/**
+ * @brief Wait for a task to exit
+ * @param pid
+ * @return int32_t
+ * @note : Wait for a task to exit and return its exit code
+ *        If the task is still running, yield the CPU
+ */
 int32_t task_wait(int32_t pid) {
     task_t *task = get_task(pid);
     if (!task) {
-        __THROW("task_wait : task not found for pid %d", -1, pid);
+        __WARN("task_wait : task not found for pid %d", -1, pid);
     }
 
-    // Wait for the task to finish
-    while (task && (task->state == TASK_RUNNING)) {
-        kmsleep(TASK_FREQUENCY);
-        printk("Waiting for task %d to finish\n", pid);
-        printk("Task %d is %s\n", pid, task->state == TASK_RUNNING ? "running" : "sleeping");
+    while (1) {
+        // If the task has exited, return its exit code
+        if (task->state == TASK_ZOMBIE || task->state == TASK_STOPPED) {
+            int exit_code = task->exit_code;
+            return exit_code;
+        } else {
+            // If the task is still running, yield the CPU
+            busy_wait((100 * TIMER_PHASE) / 1000);
+        }
     }
 
-    // Task has finished, so clean it up
-    int32_t exit_code = task->exit_code;
-    // kill_task(pid);
-
-    return (exit_code);
+    return (-1);
 }
 
 int32_t kill_task(int32_t pid) {
     task_t *tmp_task;
+
+    printk("Kill task %d\n", pid);
 
     if (!pid) {
         return 0;
@@ -329,33 +340,6 @@ int32_t kill_task(int32_t pid) {
     if (!tmp_task) {
         __THROW("kill_task : task not found for pid %d", -1, pid);
     }
-
-    /* Can we delete it? */
-    // task_t *par_task;
-    // if (tmp_task->ppid != 0) {
-    //     par_task = get_task(tmp_task->ppid);
-
-    //     /* If its stack is reachable, delete it */
-    //     if (tmp_task->kernel_stack) {
-    //         kfree((void *)tmp_task->kernel_stack);
-    //     }
-    //     // todo: free page directory
-
-    //     printk("Parent task [%d] -> Task [%d] -> Next Task [%d]\n", par_task->pid, tmp_task->pid, tmp_task->next == NULL ? -1 : tmp_task->next->pid);
-
-    //     if (par_task->prev != NULL) {
-    //         par_task->prev->next = tmp_task->next;
-    //     } else {
-    //         ready_queue = tmp_task->next;
-    //     }
-    //     par_task->next = tmp_task->next;
-    //     kfree((void *)tmp_task);
-    //     ksleep(1);
-    //     return (pid);
-    // } else {
-    //     printk("Cannot kill task %d\n", pid);
-    //     return (0);
-    // }
 
     if (tmp_task->ppid != 0) {
         /* If its stack is reachable, delete it */
@@ -370,16 +354,17 @@ int32_t kill_task(int32_t pid) {
             while (tmp) {
                 printk("[%d] -> Set task zombie [%d]\n", pid, tmp->pid);
                 tmp->state = TASK_ZOMBIE;
+
+                // Todo: Unix system like : send SIGCHLD to parent
                 // signal(tmp_task->ppid, SIGCHLD);
                 tmp = tmp->next;
             }
         }
 
         tmp_task->state = TASK_STOPPED;
+        printk("Task %d exited with code %d\n", tmp_task->pid, tmp_task->exit_code);
+        busy_wait((1000 * TIMER_PHASE) / 1000); // Wait 1 second
 
-        // todo: free page directory
-
-        // destroy_page_directory(tmp_task->page_directory);
         // printk("Pause\n");
         // kpause();
 
@@ -398,14 +383,19 @@ int32_t kill_task(int32_t pid) {
         //        tmp_task->pid,
         //        tmp_task->next ? tmp_task->next->pid : -1);
 
+        // Todo: free page directory: Currently crash
+        // destroy_page_directory(tmp_task->page_directory);
+
         kfree(tmp_task->sectors.bss_segment);
         kfree(tmp_task->sectors.data_segment);
+
         kfree((void *)tmp_task);
-        kmsleep(TASK_FREQUENCY);
+
+        busy_wait((1000 * TIMER_PHASE) / 1000); // Wait 1 second
+        // kmsleep(TASK_FREQUENCY);
         return (pid);
     } else {
-        printk("Cannot kill task %d\n", pid);
-        return (0);
+        __WARN("kill_task : cannot kill kernel task %d", 0, pid);
     }
 }
 
@@ -448,8 +438,11 @@ void unlock_task(task_t *task) {
 }
 
 void task_exit(int32_t retval) {
-    current_task->exit_code = retval;
-    current_task->state = TASK_STOPPED;
+    get_current_task()->exit_code = retval;
+    get_current_task()->state = TASK_STOPPED;
+
+    /* Kill task before task reach the scheduler */
+    kill_task(get_current_task()->pid);
 }
 
 void switch_to_user_mode(void) {
@@ -472,6 +465,25 @@ void switch_to_user_mode(void) {
 	// iret; \
 	// 1: \
 	// ");
+
+    // unsigned int eflags, cs, ds, es, fs, gs;
+
+    // __asm__ volatile("pushf; pop %%eax" : "=a"(eflags));
+    // __asm__ volatile("mov %%cs, %%eax" : "=a"(cs));
+    // __asm__ volatile("mov %%ds, %%eax" : "=a"(ds));
+    // __asm__ volatile("mov %%es, %%eax" : "=a"(es));
+    // __asm__ volatile("mov %%fs, %%eax" : "=a"(fs));
+    // __asm__ volatile("mov %%gs, %%eax" : "=a"(gs));
+
+    // printk("EFLAGS: 0x%x\n", eflags);
+    // printk("CS: 0x%x\n", cs);
+    // printk("DS: 0x%x\n", ds);
+    // printk("ES: 0x%x\n", es);
+    // printk("FS: 0x%x\n", fs);
+    // printk("GS: 0x%x\n", gs);
+
+    // switch_user_mode();
+    kpause();
 
     __asm__ __volatile__("cli; \
 	mov $0x2B, %ax; \
@@ -531,6 +543,19 @@ bool is_pid_valid(int pid) {
 
 task_t *get_wait_queue(void) {
     return wait_queue;
+}
+
+uint32_t get_task_count(void) {
+    task_t *task = ready_queue;
+
+    uint32_t count = 0;
+    while (task) {
+        if (task->pid != 0 && task->pid != 1) {
+            count++;
+        }
+        task = task->next;
+    }
+    return count;
 }
 
 double get_cpu_load(task_t *task) {

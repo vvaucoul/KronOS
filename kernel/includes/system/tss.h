@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 18:56:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 13:22:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 15:45:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,20 @@
 #define TSS_H
 
 #include <kernel.h>
+
+
+/* Kernel tss, access(0xE9 = 1 11 0 1 0 0 1)
+    1   present
+    11  ring 3
+    0   should always be 1, why 0? may be this value doesn't matter at all
+    1   code?
+    0   can not be executed by ring lower or equal to DPL,
+    0   not readable
+    1   access bit, always 0, cpu set this to 1 when accessing this sector(why 0 now?)
+*/
+#define TSS_KERNEL_ACCESS 0b11100101 // 0xE9
+
+#define TSS_SIZE 0x02
 
 typedef volatile struct __tss {
     unsigned short link;
@@ -75,6 +89,7 @@ typedef volatile struct __tss {
 extern tss_entry_t tss_entry;
 
 extern void tss_flush(tss_entry_t *tss_entry);
+// extern void tss_flush();
 extern void tss_init(uint32_t idx, uint32_t kss, uint32_t kesp);
 extern void tss_set_stack_segment(uint32_t kss);
 extern void tss_set_stack_pointer(uint32_t kesp);

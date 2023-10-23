@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/21 13:21:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 15:51:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     irq_install();
     kernel_log_info("LOG", "IRQ");
 
-    tss_init(0x7, 0x10, 0x0);
+    tss_init(7, 0x10, 0x0);
     kernel_log_info("LOG", "TSS");
 
     timer_install();
@@ -216,59 +216,6 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
 // ! ||                                   KERNEL MAIN                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
-void test_03(void) {
-    // ksleep(3);
-    // printk("[%d] Test 03\n", getpid());
-
-    while (1) {
-        printk("["_GREEN
-               "%d"_END
-               "] Test 03 -> [CPU: "_GREEN
-               "%u"_END
-               "]\n",
-               getpid(), get_cpu_load(get_task(getpid())));
-        ksleep(3);
-    }
-}
-
-void test_02(void) {
-    // ksleep(2);
-    // printk("[%d] Test 02\n", getpid());
-
-    // pid_t pid_tmp3 = init_task(test_03);
-    while (1) {
-        printk("["_GREEN
-               "%d"_END
-               "] Test 02 -> [CPU: "_GREEN
-               "%u"_END
-               "]\n",
-               getpid(), get_cpu_load(get_task(getpid())));
-        ksleep(2);
-    }
-}
-
-static void print_virtual_memory_info(page_directory_t *dir) {
-    printk("Page directory: 0x%x\n", dir);
-    printk("Page directory physical address: 0x%x\n", dir->physicalAddr);
-    printk("Page directory virtual address: 0x%x\n", dir->tablesPhysical);
-}
-
-void test_01(void) {
-    // ksleep(1);
-    // printk("[%d] Test 01\n", getpid());
-
-    // pid_t pid_tmp2 = init_task(test_02);
-    while (1) {
-        printk("["_GREEN
-               "%d"_END
-               "] Test 01 -> [CPU: "_GREEN
-               "%u"_END
-               "]\n",
-               getpid(), get_cpu_load(get_task(getpid())));
-        kmsleep(200);
-    }
-}
-
 uint32_t placement_address;
 
 int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
@@ -291,54 +238,23 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // // Don't trample our module with placement accesses, please!
     // placement_address = initrd_end;
 
+
+    // uint32_t esp;
+    // GET_ESP(esp);
+    // tss_init(7, 0x10, esp);
+    // kernel_log_info("LOG", "TSS");
+    // switch_to_user_mode();
+
     process_test();
     kpause();
-
-    pid_t pid_tmp = init_task(test_01);
-    pid_t pid_tmp2w = init_task(test_02);
-
-    // task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
-    // task_set_priority(pid_tmp2w, TASK_PRIORITY_LOW);
-
-    
-    ksleep(2);
-
-    signal(pid_tmp, SIGKILL);
-
-    while (1)
-    {
-    }
-    
-
-    pid_t pid_tmp2 = init_task(test_02);
-    pid_t pid_tmp3 = init_task(test_03);
-
-    
+   
 
     // Todo: Fix priority
-    task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
-    task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
-    task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
-    // // // ksleep(2);
-    // // print_parent_and_children(1);
-
-    ksleep(2);
-    // // // kill_task(pid_tmp);
-    // signal(pid_tmp, SIGKILL);
-    kill_task(pid_tmp);
-
-    ksleep(2);
-    pid_tmp = init_task(test_01);
-
-    // pid_t pid_tmp4 = init_task(test_01);
-    // pid_t pid_tmp5 = init_task(test_02);
-    // pid_t pid_tmp6 = init_task(test_03);
-
-    // task_set_priority(pid_tmp, TASK_PRIORITY_HIGH);
-
-
-    // switch_to_user_mode();
+    switch_to_user_mode();
 
     while (1)
         ;

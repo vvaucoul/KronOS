@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 11:35:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 17:29:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,10 @@
 
 #define VIRTUAL_TO_PHYSICAL(vaddr) (get_physical_address(vaddr))
 #define PHYSICAL_TO_VIRTUAL(paddr) (get_virtual_address(paddr))
+
+#define PAGEDIR_INDEX(vaddr) (((uint32_t)vaddr) >> 22)
+#define PAGETBL_INDEX(vaddr) ((((uint32_t)vaddr) >>12) & 0x3FF)
+#define PAGEFRAME_INDEX(vaddr) (((uint32_t)vaddr) & 0xFFF)
 
 #define PAGE_PRESENT 0x1
 #define PAGE_WRITE 0x2
@@ -86,6 +90,7 @@ extern page_t *create_user_page(uint32_t address, uint32_t end_addr, page_direct
 extern void destroy_user_page(page_t *page, page_directory_t *dir);
 
 extern page_directory_t *create_page_directory();
+
 extern page_directory_t *clone_page_directory(page_directory_t *dir);
 extern page_table_t *clone_table(page_table_t *src, uint32_t *physAddr);
 extern void copy_page_physical(uint32_t, uint32_t);

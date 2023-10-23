@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 14:37:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 18:53:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include <system/signal.h>
 
 // #define KERNEL_STACK_SIZE 0x2000 // 2KB
-#define KERNEL_STACK_SIZE 0x6000 // 6KB
+#define KERNEL_STACK_SIZE 0x8000 // 32KB
 
 #define INIT_PID 0x1 // First process pid created
 
@@ -48,22 +48,6 @@ typedef int32_t pid_t;
 typedef uint32_t uid_t;
 #define _UID_T
 #endif
-
-/*
-**  Task ID
-**
-**  uid: User ID
-**  gid: Group ID
-**  euid: Effective User ID
-**  egid: Effective Group ID
-*/
-
-typedef struct s_id {
-    uint32_t uid;
-    uint32_t gid;
-    uint32_t euid;
-    uint32_t egid;
-} task_id_t;
 
 typedef struct s_process_cpu_load {
     uint64_t start_time;      // Time when the task started
@@ -98,12 +82,27 @@ typedef struct s_task {
     process_cpu_load_t cpu_load; // CPU load (Check task cpu load)
 
     signal_node_t *signal_queue; // Queue of signals to be processed
-    task_id_t tid;               // Task id
+
+    /*
+    **  Task ID
+    **
+    **  uid: User ID
+    **  gid: Group ID
+    **  euid: Effective User ID
+    **  egid: Effective Group ID
+    */
+
+    struct task_id_t {
+        uint32_t uid;  // User ID
+        uint32_t gid;  // Group ID
+        uint32_t euid; // Effective User ID
+        uint32_t egid; // Effective Group ID
+    } task_id;
 
 #define BSS_SIZE 0x1000
 #define DATA_SIZE 0x1000
 
-    struct sectors {
+    struct sectors_t {
         void *bss_segment;
         uint32_t bss_size;
         void *data_segment;
@@ -130,6 +129,7 @@ int32_t kill_all_tasks(void);
 int32_t task_wait(int32_t pid);
 
 void switch_to_user_mode(void);
+void switch_user_mode(void);
 
 extern uint32_t read_eip(void);
 
@@ -138,6 +138,7 @@ extern void task_exit(int32_t retval);
 __attribute__((pure)) extern page_directory_t *get_task_directory(void);
 
 task_t *get_wait_queue(void);
+uint32_t get_task_count(void);
 extern uint32_t getuid(void);
 
 extern void lock_task(task_t *task);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 11:31:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:38:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 18:26:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 uint32_t stack_canary = 0xDEADBEEF;
 
-void task_overflow_handler(void) {
+void __task_overflow_handler(void) {
     uint32_t esp;
 
     __asm__ __volatile__("mov %%esp, %0" : "=r"(esp));

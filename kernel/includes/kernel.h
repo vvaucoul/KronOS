@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 17:27:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 20:08:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,29 @@ __attribute__((unused)) extern void switch_to_user_mode();
                     "[%s:%u] \n\t\t- " msg _END "\n", \
                __FILE__, __LINE__, ##__VA_ARGS__);    \
         return;                                       \
+    }
+
+#define __WARN(msg, err, ...)                            \
+    {                                                    \
+        printk(_YELLOW "WARNING: "                       \
+                       "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);       \
+        return (err);                                    \
+    }
+
+#define __WARN_NO_RETURN(msg, ...)                       \
+    {                                                    \
+        printk(_YELLOW "WARNING: "                       \
+                       "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);       \
+        return;                                          \
+    }
+
+#define __WARND(msg, ...)                                \
+    {                                                    \
+        printk(_YELLOW "WARNING: "                       \
+                       "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);       \
     }
 
 #endif /* !KERNEL_H */

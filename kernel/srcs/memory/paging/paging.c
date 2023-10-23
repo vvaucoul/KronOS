@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 20:25:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 18:00:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,11 +254,13 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
     }
 
     /* Ensure that the new table is blank */
-    memset(table, 0, sizeof(page_directory_t));
-    // memset(table, 0, sizeof(page_table_t));
+
+    // Todo: Fix page_directory_t -> page_table_t
+    memset(table, 0, sizeof(page_directory_t)); // 8192
+    // memset(table, 0, sizeof(page_table_t)); // 4096
 
     /* For every entry in the table... */
-    for (int32_t i = 0; i < 1024; i++) {
+    for (int32_t i = 0; i < PAGE_TABLE_SIZE; i++) {
         /* If the source entry has a frame associated with it... */
         if (src->pages[i].frame) {
             /* Get a new frame */
@@ -312,7 +314,7 @@ page_directory_t *clone_page_directory(page_directory_t *src) {
     }
 
     /* Go through each page table. If the page table is in the kernel directory, do not make a new copy */
-    for (int32_t i = 0; i < 1024; i++) {
+    for (int32_t i = 0; i < PAGE_TABLE_SIZE; i++) {
         if (!src->tables[i])
             continue;
 
@@ -342,6 +344,12 @@ void destroy_page_directory(page_directory_t *dir) {
         // Free all page tables in the page directory
         for (int i = 0; i < PAGE_TABLE_SIZE; ++i) {
             if (dir->tables[i]) {
+                // Check if this table is also in the kernel directory.
+                // If it is, skip freeing this table.
+                if (kernel_directory->tables[i] == dir->tables[i]) {
+                    continue;
+                }
+
                 page_table_t *table = dir->tables[i];
                 for (int j = 0; j < 1024; ++j) {
                     if (table->pages[j].frame) {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 14:41:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 20:18:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,50 +56,64 @@ int shared_resource = 0;
 // Mutex to protect the shared resource
 mutex_t mutex;
 
-static void __inter03() {
+static void __orphan_03() {
     while (1) {
-        printk("Hello from inter03\n");
+        printk("Hello from orphan 03 "_GREEN
+               "[%d]"_END
+               "\n",
+               getpid());
         ksleep(1);
     }
 }
 
-static void __inter02() {
-    init_task(__inter03);
+static void __orphan_02() {
+    init_task(__orphan_03);
     while (1) {
-        printk("Hello from inter02\n");
+        printk("Hello from orphan 02 "_GREEN
+               "[%d]"_END
+               "\n",
+               getpid());
         ksleep(1);
     }
 }
 
-static void __inter01() {
-    init_task(__inter02);
+static void __orphan_01() {
+    init_task(__orphan_02);
     while (1) {
-        printk("Hello from inter01\n");
+        printk("Hello from orphan 01 "_GREEN
+               "[%d]"_END
+               "\n",
+               getpid());
         ksleep(1);
     }
 }
 
-void task1() {
+void task_shared_increase() {
     for (int i = 0; i < 100; ++i) {
         mutex_lock(&mutex);
         shared_resource++;
         printk("Task 1 increased shared resource to %d\n", shared_resource);
+        kmsleep(500);
         mutex_unlock(&mutex);
     }
+    exit(0);
 }
 
-void task2() {
+void task_shared_decrease() {
     for (int i = 0; i < 100; ++i) {
         mutex_lock(&mutex);
         shared_resource--;
         printk("Task 2 decreased shared resource to %d\n", shared_resource);
+        kmsleep(500);
         mutex_unlock(&mutex);
     }
+    exit(0);
 }
 
-void process_06(void) {
+void task_shared_parent(void) {
     uint32_t length = 128;
-    char *mmap_addr = (char *)mmap(NULL, length, PROT_WRITE, MAP_USER);
+
+    char *mmap_addr = (char *)mmap(kmalloc(128), length, PROT_WRITE, MAP_USER);
     if (mmap_addr == (char *)-1) {
         printk("mmap failed\n");
         return;
@@ -109,8 +123,11 @@ void process_06(void) {
         mmap_addr[i] = i % 128; // Fill with some data
     }
 
+    print_virtual_memory_info(get_task_directory());
+
     // Print the content of the allocated memory
     print_content(mmap_addr, length);
+    exit(0);
 }
 
 void process_05(void) {
@@ -176,7 +193,7 @@ void process_01(void) {
            "[%d]"_END
            "\n",
            getpid(), 42);
-    task_exit(42);
+    exit(42);
 }
 
 static int fibonacci(int n) {
@@ -234,6 +251,24 @@ void display() {
 }
 
 void tmp() {
+ 
+    // Check destroy page directory
+    pid_t p1 = init_task(process_01);
+ 
+    int st = 0;
+    waitpid(p1, &st, 0);
+    printk("ST: %d\n", st);
+
+    print_all_tasks();
+
+    ksleep(3);
+    print_all_tasks();
+
+
+    pause();
+ 
+
+
     pid_t p = init_task(display_tasks);
 
     pid_t t = init_task(display);
@@ -264,7 +299,8 @@ void process_test(void) {
 
     ksleep(1);
 
-    // goto mtt;
+    goto mtt;
+mtt: {}
 
     // ! ||--------------------------------------------------------------------------------||
     // ! ||                                  TASK - DUMMY                                  ||
@@ -445,7 +481,7 @@ void process_test(void) {
     printk("Inter Processus Test\n");
     ksleep(1);
 
-    pid_t inter_pid = init_task(__inter01);
+    pid_t inter_pid = init_task(__orphan_01);
     ksleep(6);
 
     printk("Kill inter processus\n");
@@ -485,6 +521,34 @@ void process_test(void) {
     kill_all_tasks();
 
     // ! ||--------------------------------------------------------------------------------||
+    // ! ||                               SHARED MEMORY TEST                               ||
+    // ! ||--------------------------------------------------------------------------------||
+
+    pid_t shared_01 = init_task(task_shared_parent);
+    ksleep(2);
+
+    pid_t shared_02 = init_task(task_shared_increase);
+    pid_t shared_03 = init_task(task_shared_decrease);
+
+    // TMP: debug waitpid
+    ksleep(3);
+
+    // waitpid(shared_02, NULL, 0);
+    // waitpid(shared_03, NULL, 0);
+
+    printk("Result: "_GREEN
+           "[%d]"_END
+           "\n",
+           shared_resource);
+
+    kill_all_tasks();
+
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+
+    ksleep(3);
+
+    // ! ||--------------------------------------------------------------------------------||
     // ! ||                                    IPC TEST                                    ||
     // ! ||--------------------------------------------------------------------------------||
 
@@ -522,8 +586,6 @@ void process_test(void) {
     // ! ||                                   SOCKET TEST                                  ||
     // ! ||--------------------------------------------------------------------------------||
 
-mtt: {}
-
     // Create shared socket before fork
     // socket_t *socket = (socket_t *)kmalloc_shared(sizeof(socket_t));
     socket_t *socket = socket_create(SOCKET_SHARED_DATA);
@@ -558,9 +620,10 @@ mtt: {}
     ksleep(1);
     printk("- Destroying socket\n");
     socket_destroy(socket);
-    ksleep(3);
+    ksleep(1);
     kill_all_tasks();
     print_all_tasks();
+    ksleep(1);
 
     // Destroy shared socket
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:34:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 19:42:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,51 +31,59 @@ void init_scheduler(void) {
 /**
  * @brief Wait for scheduler to round
  * @note : Wait for the scheduler to round before switching task
- *        This is used to avoid switching task while the scheduler is rounding
- *       and avoid some bugs
+ *         This is used to avoid switching task while the scheduler is rounding
+ *         and avoid some bugs
  */
-
 // Todo: Debug, this function need to wait for the scheduler to round
 void wait_for_scheduler_rounded(void) {
-    bool any_task_has_signal;
+
+    pid_t current_pid = get_current_task()->pid;
+    pid_t next_pid;
 
     do {
-        // Wait for the scheduler to round
-        while (!scheduler_rounded) {
-            __asm__ volatile("hlt");
-        }
+       __asm__ volatile("int $0x20");
+        next_pid = get_current_task()->pid;
+    } while (next_pid != current_pid);
 
-        // Reset the flag for subsequent checks
-        scheduler_rounded = false;
+    // bool any_task_has_signal;
 
-        any_task_has_signal = false;
-        task_t *tmp = ready_queue;
-        
-        if (!tmp) {
-            printk("Queue is empty!\n");
-            return;
-        }
+    // do {
+    //     // Wait for the scheduler to round
+    //     while (!scheduler_rounded) {
+    //         __asm__ volatile("hlt");
+    //     }
 
-        printk("Ready Queue:\n");
-        // Check all tasks for pending signals
-        do {
-            // __signal_handler(tmp);
-            if (tmp && tmp->state == TASK_RUNNING && tmp->signal_queue != NULL) {
-                any_task_has_signal = true;
-                printk("Task %d has signal\n", tmp->pid);
-                break;
-            }
-            else
-                printk("Task %d has no signal\n", tmp->pid);
-            tmp = tmp->next;
+    //     // Reset the flag for subsequent checks
+    //     scheduler_rounded = false;
 
-            if (!tmp) {
-                printk("Queue is empty!\n");
-                return;
-            }
-        } while (tmp != ready_queue);
+    //     any_task_has_signal = false;
+    //     task_t *tmp = ready_queue;
 
-    } while (any_task_has_signal);
+    //     if (!tmp) {
+    //         printk("Queue is empty!\n");
+    //         return;
+    //     }
+
+    //     printk("Ready Queue:\n");
+    //     // Check all tasks for pending signals
+    //     do {
+    //         // __signal_handler(tmp);
+    //         if (tmp && tmp->state == TASK_RUNNING && tmp->signal_queue != NULL) {
+    //             any_task_has_signal = true;
+    //             printk("Task %d has signal\n", tmp->pid);
+    //             break;
+    //         }
+    //         else
+    //             printk("Task %d has no signal\n", tmp->pid);
+    //         tmp = tmp->next;
+
+    //         if (!tmp) {
+    //             printk("Queue is empty!\n");
+    //             return;
+    //         }
+    //     } while (tmp != ready_queue);
+
+    // } while (any_task_has_signal);
 }
 
 void switch_task(void) {
@@ -165,7 +173,9 @@ void switch_task(void) {
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
 
-    task_overflow_handler();
+    // Todo: ...
+    /* Check if the current task has overflowed its stack */
+    __task_overflow_handler();
 
     /* Check if the current task has received a signal */
     __signal_handler(current_task);

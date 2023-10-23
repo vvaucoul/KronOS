@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 12:21:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 20:16:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 21:00:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,16 +35,12 @@ static pid_t __wait(pid_t pid, int *status, int options) {
                     continue; // Cant' wait for Kernel INIT Process
                 }
 
-                printk("Child: %d\n", child->pid);
-                if (child && child->state == TASK_ZOMBIE) {
+                if (child && (child->state == TASK_ZOMBIE || child->state == TASK_STOPPED)) {
                     *status = child->exit_code;
                     return (child->pid);
                 }
             }
-
-            // Not sure about this
-            // kmsleep(TASK_FREQUENCY);
-            printk("Waiting for child process\n");
+            busy_wait(TASK_FREQUENCY);
         } while (1);
     }
     // If pid >= 0, wait for the child process with the given pid

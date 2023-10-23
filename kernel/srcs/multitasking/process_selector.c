@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 10:20:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 18:43:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 23:38:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,6 @@ extern task_t *ready_queue;
 
 task_t *__process_selector(task_t *current_task) {
     task_t *highest_priority_task = NULL;
-
-    // If the current task is null, start from the beginning of the ready queue
-    if (!current_task)
-        current_task = ready_queue;
-
     task_t *tmp = current_task;
 
     do {

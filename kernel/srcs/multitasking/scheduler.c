@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 19:42:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 01:26:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@ extern task_t *current_task;
 extern task_t *ready_queue;
 
 static task_t *prev_task = NULL;
-
-static bool scheduler_rounded = false;
 
 bool scheduler_initialized = false;
 
@@ -41,7 +39,7 @@ void wait_for_scheduler_rounded(void) {
     pid_t next_pid;
 
     do {
-       __asm__ volatile("int $0x20");
+        __asm__ volatile("int $0x20");
         next_pid = get_current_task()->pid;
     } while (next_pid != current_pid);
 
@@ -86,6 +84,8 @@ void wait_for_scheduler_rounded(void) {
     // } while (any_task_has_signal);
 }
 
+// page_directory_t *d_page_directory = NULL;
+
 void switch_task(void) {
     if (!scheduler_initialized)
         return;
@@ -110,11 +110,16 @@ void switch_task(void) {
     if (eip == 0x12345)
         return;
 
+    // if (d_page_directory) {
+    //     destroy_page_directory(d_page_directory);
+    //     d_page_directory = NULL;
+    // }
+
     // printk("Current Task: %d\n", current_task->pid);
 
     // Just before we switch away from the current task, update its cpu_time
     if (prev_task) {
-        uint64_t sys_time = get_system_time();
+        // uint64_t sys_time = get_system_time();
 
         // prev_task->cpu_load.load_time = sys_time - prev_task->cpu_load.start_time;
         prev_task->cpu_load.load_time += timer_subtick;
@@ -138,6 +143,8 @@ void switch_task(void) {
     /* Get the next task to run */
     if (prev_task && current_task == prev_task)
         current_task = current_task->next;
+    if (!current_task)
+        current_task = ready_queue;
 
     current_task = __process_selector(current_task);
 
@@ -176,6 +183,15 @@ void switch_task(void) {
     // Todo: ...
     /* Check if the current task has overflowed its stack */
     __task_overflow_handler();
+
+    /* Kill stopped tasks */
+    int r = __process_killer();
+
+    // if (r)
+    //     d_page_directory = current_directory;
+
+    /* Check if the current task is a zombie */
+    __process_zombie(current_task);
 
     /* Check if the current task has received a signal */
     __signal_handler(current_task);

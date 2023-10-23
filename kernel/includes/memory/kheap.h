@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 10:02:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 01:40:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@
 #define HEAP_INDEX_SIZE 0x20000
 #define HEAP_MIN_SIZE 0x70000
 
-enum kheap_block_status
-{
+enum kheap_block_status {
     USED,
     FREE
 };
@@ -39,31 +38,27 @@ enum kheap_block_status
 
 typedef void *data_t;
 
-typedef struct s_heap_header
-{
+typedef struct s_heap_header {
     uint32_t magic;
     enum kheap_block_status state;
     uint32_t size;
 } heap_header_t;
 
-typedef struct s_heap_footer
-{
+typedef struct s_heap_footer {
     uint32_t magic;
     heap_header_t *header;
 } heap_footer_t;
 
 typedef bool (*heap_node_predicate_t)(data_t, data_t);
 
-typedef struct s_heap_array
-{
+typedef struct s_heap_array {
     data_t *array;
     uint32_t size;
     uint32_t max_size;
     heap_node_predicate_t predicate;
 } heap_array_t;
 
-typedef struct s_heap
-{
+typedef struct s_heap {
     heap_array_t array;
     struct
     {

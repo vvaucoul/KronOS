@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 10:10:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 14:17:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 00:14:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,10 @@ void sigchld_handler() {
 void kill_handler(int32_t signum) {
     switch (signum) {
     case SIGKILL: {
+        printk(_YELLOW "SIGNAL Killing task "_GREEN
+                       "[%d]"_END
+                       "\n",
+               getpid());
         get_current_task()->exit_code = 0;
         kill_task(getpid());
         break;
@@ -46,7 +50,6 @@ void kill_handler(int32_t signum) {
         __THROW_NO_RETURN("Signal not found");
         break;
     }
-    kpause();
 }
 
 static void __add_signal_handler(int signum, void (*handler)(int32_t), char *name) {

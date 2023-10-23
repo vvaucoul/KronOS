@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 20:12:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 00:36:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,20 +87,25 @@ void busy_wait(uint32_t ticks) {
 void timer_wait(uint32_t ticks) {
     task_t *task = get_current_task();
 
-    if (!task) {
-
+    if (!scheduler_initialized || !task || (task && task->pid == 0)) {
         // If no multitasking, just busy-wait
         busy_wait(ticks);
         return;
     }
 
     // If the task is running, just busy-wait
-    task->state = TASK_SLEEPING;
-    task->wake_up_tick = timer_subtick + ticks;
+    if (task->state == TASK_RUNNING) {
 
-    // Yield the CPU to allow other tasks to run.
-    while (task->state == TASK_SLEEPING) {
-        __asm__ volatile("sti\n\thlt\n\tcld");
+        task->state = TASK_SLEEPING;
+        task->wake_up_tick = timer_subtick + ticks;
+
+        // Yield the CPU to allow other tasks to run.
+        while (task->state == TASK_SLEEPING) {
+            __asm__ volatile("sti\n\thlt\n\tcld");
+        }
+    } else {
+        // If the task is not running, just busy-wait
+        busy_wait(ticks);
     }
 }
 

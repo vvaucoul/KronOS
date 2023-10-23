@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 18:53:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 01:41:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,16 @@
 #include <system/signal.h>
 
 // #define KERNEL_STACK_SIZE 0x2000 // 2KB
-#define KERNEL_STACK_SIZE 0x8000 // 32KB
+// #define KERNEL_STACK_SIZE 0x8000 // 32KB
+
+#warning "Kernel stack size is 32KB, it's too much, reduce it to 2KB"
+#define KERNEL_STACK_SIZE 0x8000 // 32KB // modifier cette valeur change entierement le kernel....
 
 #define INIT_PID 0x1 // First process pid created
+
+// Each ticks, increase counter by ZOMBIE_HUNGRY, zombie will die after ZOMBIE_HUNGRY_DIE ticks
+#define ZOMBIE_HUNGRY 0x3      // Zombie hungry counter
+#define ZOMBIE_HUNGRY_DIE 0x10 // Zombie hungry die counter
 
 typedef enum e_task_state {
     TASK_RUNNING,
@@ -30,6 +37,7 @@ typedef enum e_task_state {
     TASK_STOPPED,
     TASK_ZOMBIE,
     TASK_THREAD,
+    TASK_ORPHAN,
 } task_state_t;
 
 typedef enum e_task_priority {
@@ -109,6 +117,7 @@ typedef struct s_task {
         uint32_t data_size;
     } sectors;
 
+    int32_t zombie_hungry; // Counter for zombie process
 } task_t;
 
 void init_tasking(void);
@@ -125,6 +134,7 @@ task_t *get_task(int32_t pid);
 int32_t init_task(void func(void));
 
 int32_t kill_task(int32_t pid);
+int32_t free_task(task_t *task);
 int32_t kill_all_tasks(void);
 int32_t task_wait(int32_t pid);
 

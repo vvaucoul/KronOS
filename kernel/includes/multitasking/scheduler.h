@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 20:16:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 21:13:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 // ! ||                      MULTILEVEL FEEDBACK QUEUE SCHEDULING                      ||
 // ! ||--------------------------------------------------------------------------------||
 
-#define MAX_TASKS 4 // 4 tasks max
+#define MAX_TASKS 4           // 4 tasks max
 #define PID_MAX __INT32_MAX__ // Max pid
 
 // #define __DEBUG__ 1
@@ -39,6 +39,8 @@ extern void init_scheduler(void);
 extern task_t *__process_selector(task_t *current_task);
 extern void __orphans_collector(task_t *current_task);
 extern void __process_sleeping(task_t *current_task);
+extern int32_t __process_killer(void);
+extern int32_t __process_zombie(task_t *current_task);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                     SIGNALS                                    ||

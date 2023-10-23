@@ -47,7 +47,8 @@
 			"stdbool.h": "c",
 			"hephaistos.h": "c",
 			"signal.h": "c",
-			"uid.C": "cpp"
+			"uid.C": "cpp",
+			"kheap.h": "c"
 		}
 	}
 }

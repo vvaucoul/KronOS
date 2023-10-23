@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 20:18:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 01:29:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,23 +251,67 @@ void display() {
 }
 
 void tmp() {
- 
+
+    init_task(display_tasks);
+
+    ksleep(3);
+
+    kill_task(2);
+    printk("Kill task 2\n");
+
+    pid_t pid = init_task(process_01);
+
+    int st2;
+    waitpid(pid, &st2, 0);
+    printk("Task ended with code: %d\n", st2);
+
+    ksleep(2);
+
+    init_task(display_tasks);
+
+    ksleep(2);
+
+    kill_task(2);
+
+    pause();
+
+    // init_task(process_01);
+    // init_task(display_tasks);
+    // init_task(display);
+    // init_task(display2);
+
+    // ksleep(2);
+
+    // kill_task(4);
+
+    // ksleep(2);
+    // kill_task(6);
+
+    // ksleep(2);
+    // kill_task(5);
+
+    // ksleep(2);
+    // kill_task(3);
+
+    // ksleep(2);
+    // print_all_tasks();
+
+    // pause();
+
     // Check destroy page directory
     pid_t p1 = init_task(process_01);
- 
+    print_all_tasks();
+
     int st = 0;
     waitpid(p1, &st, 0);
     printk("ST: %d\n", st);
 
-    print_all_tasks();
-
-    ksleep(3);
-    print_all_tasks();
-
+    while (1) {
+        print_all_tasks();
+        ksleep(1);
+    }
 
     pause();
- 
-
 
     pid_t p = init_task(display_tasks);
 
@@ -299,6 +343,8 @@ void process_test(void) {
 
     ksleep(1);
 
+    // init_task(print_all_tasks);
+
     goto mtt;
 mtt: {}
 
@@ -322,7 +368,10 @@ mtt: {}
            "\n",
            pid);
 
-    kill(pid, SIGKILL);
+    kill_task(pid);
+    // kill(pid, SIGKILL);
+
+    // pause();
 
     // Needed to wait for scheduler
     kmsleep(TASK_FREQUENCY);
@@ -341,7 +390,7 @@ mtt: {}
 
     ksleep(6);
     printk("Kill Task Fibonacci\n");
-    kill(pidfibo, SIGKILL);
+    kill_task(pidfibo);
 
     kmsleep(TASK_FREQUENCY);
 
@@ -561,7 +610,8 @@ mtt: {}
         // Child process
         printk("Child process send message to parent\n");
         ipc_send(getppid(), "Hello from Child process !");
-        exit(0);
+        ksleep(2); // Must be > than parent sleep
+        exit(42);
     } else {
         // Parent process
         char buffer[IPC_MSG_MAX];
@@ -575,6 +625,7 @@ mtt: {}
 
         int st = 0;
         waitpid(pid_ipc, &st, 0);
+        // waitpid(-1, &st, 0); // both works !
 
         printk("ST [%d] | Message from child: %s\n", st, buffer);
     }
@@ -599,7 +650,8 @@ mtt: {}
         // Child process
         printk("Child process send message to parent\n");
         socket_send(socket, "Hello from Child process !", 26);
-        exit(0);
+        ksleep(2); // Must be > than parent sleep
+        exit(1234);
     } else {
         // Parent process
         char buffer[SOCKET_BUFFER_MAX];
@@ -613,6 +665,7 @@ mtt: {}
 
         int st = 0;
         waitpid(pid_socket, &st, 0);
+        // waitpid(-1, &st, 0); // both works !
 
         printk("ST [%d] | Message from child: %s\n", st, buffer);
     }

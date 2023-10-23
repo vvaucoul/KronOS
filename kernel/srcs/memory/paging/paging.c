@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 18:00:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 01:16:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -353,14 +353,17 @@ void destroy_page_directory(page_directory_t *dir) {
                 page_table_t *table = dir->tables[i];
                 for (int j = 0; j < 1024; ++j) {
                     if (table->pages[j].frame) {
+                        printk("Freeing frame %d\n", table->pages[j].frame);
                         free_frame(&table->pages[j]);
                     }
                 }
+                printk("Freeing table %d\n", i);
                 kfree(table);
             }
         }
 
         // Free the page directory
+        printk("Freeing page directory\n");
         kfree(dir);
     }
 }

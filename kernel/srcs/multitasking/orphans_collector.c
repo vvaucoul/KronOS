@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 11:05:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 18:57:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 00:41:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void __orphans_collector(task_t *init_task) {
         task_t *tmp = ready_queue; // Start from the beginning of the process list
 
         while (tmp) {
-            if (tmp->state == TASK_ZOMBIE && tmp->ppid != INIT_PID) {
+            if (tmp->state == TASK_ORPHAN) {
                 printk(_YELLOW "Orphan task found, attaching "_GREEN
                                "[%d]"_END
                                " to INIT task"_END

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 20:20:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 01:39:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,11 +98,13 @@ static void move_stack(void *new_stack_start, uint32_t size) {
 static void __process_sectors(task_t *process) {
     /* Initialise BSS / DATA segment */
     process->sectors.bss_size = BSS_SIZE;
-    process->sectors.bss_segment = kmalloc(process->sectors.bss_size);
+    if (!(process->sectors.bss_segment = kmalloc(process->sectors.bss_size)))
+        __THROW_NO_RETURN("init_tasking : kmalloc failed");
     memset(process->sectors.bss_segment, 0, process->sectors.bss_size);
 
     process->sectors.data_size = DATA_SIZE;
-    process->sectors.data_segment = kmalloc(process->sectors.data_size);
+    if (!(process->sectors.data_segment = kmalloc(process->sectors.data_size)))
+        __THROW_NO_RETURN("init_tasking : kmalloc failed");
 
     /* Copy initial data */
     memcpy(process->sectors.data_segment, process->sectors.data_segment, process->sectors.data_size);
@@ -140,6 +142,7 @@ void init_tasking(void) {
     current_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     current_task->signal_queue = NULL;
     current_task->or_priority = current_task->priority = TASK_PRIORITY_LOW;
+    current_task->zombie_hungry = 0;
 
     __process_sectors(current_task);
 
@@ -186,6 +189,7 @@ int32_t task_fork(void) {
     new_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     new_task->signal_queue = NULL;
     new_task->or_priority = new_task->priority = TASK_PRIORITY_MEDIUM;
+    new_task->zombie_hungry = 0;
 
     __process_sectors(new_task);
 
@@ -290,9 +294,22 @@ int32_t init_task(void func(void)) {
         // get_task(pid)->state = TASK_RUNNING;
         /* Kill the current (child) process. On failure, freeze it */
 
-        __WARND("Task ended without calling task_exit");
-        if (kill_task(pid) != 0) {
-            get_task(pid)->state = TASK_ZOMBIE;
+        if (get_task(pid)->state == TASK_RUNNING) {
+            __WARND("Task ended without calling task_exit");
+            if (kill_task(pid) != 0) {
+                printk("init_Task 1\n");
+                get_task(pid)->state = TASK_ZOMBIE;
+                printk("init_Task 2\n");
+                for (;;)
+                    ;
+            }
+        }
+        // Not sure about that, to check
+        else {
+            // __WARND("Task ended without calling task_exit");
+            // printk("init_Task 3\n");
+            // get_task(pid)->state = TASK_ZOMBIE;
+            // printk("init_Task 4\n");
             for (;;)
                 ;
         }
@@ -315,12 +332,15 @@ int32_t task_wait(int32_t pid) {
 
     while (1) {
         // If the task has exited, return its exit code
-        if (task->state == TASK_ZOMBIE || task->state == TASK_STOPPED) {
+        if (task->state == TASK_ZOMBIE) {
             int exit_code = task->exit_code;
+            task->state = TASK_STOPPED;
+            printk("Task [%d] exited with code %d\n", pid, exit_code);
             return exit_code;
         } else {
             // If the task is still running, yield the CPU
             busy_wait((100 * TIMER_PHASE) / 1000);
+            // printk("Task [%d] state : %d\n", pid, task->state);
         }
     }
 
@@ -330,15 +350,15 @@ int32_t task_wait(int32_t pid) {
 int32_t kill_task(int32_t pid) {
     task_t *tmp_task;
 
-    printk("Kill task %d\n", pid);
-
     if (!pid) {
-        return 0;
+        __WARN("kill_task : cannot kill kernel task", 0);
+    } else if (pid == 1) {
+        __WARN("kill_task : cannot kill INIT task", 0);
     }
 
     tmp_task = get_task(pid);
     if (!tmp_task) {
-        __THROW("kill_task : task not found for pid %d", -1, pid);
+        __THROW("kill_task : task not found for pid %d", 0, pid);
     }
 
     if (tmp_task->ppid != 0) {
@@ -352,51 +372,101 @@ int32_t kill_task(int32_t pid) {
         if (tmp_task->next) {
             task_t *tmp = get_task(tmp_task->next->pid);
             while (tmp) {
-                printk("[%d] -> Set task zombie [%d]\n", pid, tmp->pid);
-                tmp->state = TASK_ZOMBIE;
+                printk("[%d] -> Set task orphan [%d]\n", pid, tmp->pid);
+                tmp->state = TASK_ORPHAN;
 
-                // Todo: Unix system like : send SIGCHLD to parent
+                // Todo: Unix system like : send SIGCHLD to parent to get exit code
                 // signal(tmp_task->ppid, SIGCHLD);
                 tmp = tmp->next;
             }
         }
 
-        tmp_task->state = TASK_STOPPED;
-        printk("Task %d exited with code %d\n", tmp_task->pid, tmp_task->exit_code);
-        busy_wait((1000 * TIMER_PHASE) / 1000); // Wait 1 second
-
-        // printk("Pause\n");
-        // kpause();
-
-        /* Relink the previous and next tasks around the one we're removing */
-        if (tmp_task->prev != NULL) {
-            tmp_task->prev->next = tmp_task->next;
-        } else {
-            ready_queue = tmp_task->next;
-        }
-        if (tmp_task->next != NULL) {
-            tmp_task->next->prev = tmp_task->prev;
-        }
-
-        // printk("Prev Task [%d] -> Task [%d] -> Next Task [%d]\n",
-        //        tmp_task->prev ? tmp_task->prev->pid : -1,
-        //        tmp_task->pid,
-        //        tmp_task->next ? tmp_task->next->pid : -1);
-
-        // Todo: free page directory: Currently crash
-        // destroy_page_directory(tmp_task->page_directory);
-
-        kfree(tmp_task->sectors.bss_segment);
-        kfree(tmp_task->sectors.data_segment);
-
-        kfree((void *)tmp_task);
-
-        busy_wait((1000 * TIMER_PHASE) / 1000); // Wait 1 second
+        tmp_task->state = TASK_ZOMBIE;
+        // tmp_task->state = TASK_STOPPED;
         // kmsleep(TASK_FREQUENCY);
+        // busy_wait((1 * TIMER_PHASE) / 1000); // Wait 1 second
+
+        // kpause();
         return (pid);
+
+        //  /* Relink the previous and next tasks around the one we're removing */
+        // if (tmp_task->prev != NULL) {
+        //     tmp_task->prev->next = tmp_task->next;
+        // } else {
+        //     ready_queue = tmp_task->next;
+        // }
+        // if (tmp_task->next != NULL) {
+        //     tmp_task->next->prev = tmp_task->prev;
+        // }
+        // printk("2\n");
+
+        // // printk("Prev Task [%d] -> Task [%d] -> Next Task [%d]\n",
+        // //        tmp_task->prev ? tmp_task->prev->pid : -1,
+        // //        tmp_task->pid,
+        // //        tmp_task->next ? tmp_task->next->pid : -1);
+
+        // // Todo: free page directory: Currently crash
+        // // destroy_page_directory(tmp_task->page_directory);
+
+        // kfree(tmp_task->sectors.bss_segment);
+        // kfree(tmp_task->sectors.data_segment);
+
+        // kfree((void *)tmp_task);
+        // printk("3\n");
+
+        // // busy_wait((100 * TIMER_PHASE) / 1000); // Wait 1 second
+        // printk("4\n");
+        // kmsleep(TASK_FREQUENCY);
+        // return (pid);
     } else {
         __WARN("kill_task : cannot kill kernel task %d", 0, pid);
     }
+}
+
+/**
+ * @brief Free a task
+ * @param task
+ * @return int32_t
+ * @note : Called only by scheduler to free a task
+ *         First, terminate task, then wait for scheduler to find it and free it
+ */
+int32_t free_task(task_t *task) {
+    if (!task) {
+        __WARN("free_task : task is NULL", -1);
+    } else if (task->pid == 0 || task->pid == 1) {
+        __WARN("free_task : cannot free kernel task", -1);
+    } else if (task->state == TASK_RUNNING) {
+        __WARN("free_task : cannot free running task", -1);
+        return kill_task(task->pid);
+    } else {
+
+        pid_t task_pid = task->pid;
+
+        task->state = TASK_STOPPED;
+
+        /* Relink the previous and next tasks around the one we're removing */
+        if (task->prev != NULL) {
+            task->prev->next = task->next;
+        } else {
+            ready_queue = task->next;
+        }
+        if (task->next != NULL) {
+            task->next->prev = task->prev;
+        }
+
+        // Todo: free page directory: Currently crash
+        // destroy_page_directory(task->page_directory);
+
+        kfree(task->sectors.bss_segment);
+        kfree(task->sectors.data_segment);
+
+        kfree((void *)task);
+        
+        // busy_wait((100 * TIMER_PHASE) / 1000); // Wait 1 second
+        // kmsleep(TASK_FREQUENCY);
+        return (task_pid);
+    }
+    return (-1);
 }
 
 int32_t kill_all_tasks(void) {
@@ -439,7 +509,7 @@ void unlock_task(task_t *task) {
 
 void task_exit(int32_t retval) {
     get_current_task()->exit_code = retval;
-    get_current_task()->state = TASK_STOPPED;
+    get_current_task()->state = TASK_ZOMBIE;
 
     /* Kill task before task reach the scheduler */
     kill_task(get_current_task()->pid);

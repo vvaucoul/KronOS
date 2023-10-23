@@ -1,31 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   spinlock.c                                         :+:      :+:    :+:   */
+/*   shared.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/21 23:18:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 12:08:05 by vvaucoul         ###   ########.fr       */
+/*   Created: 2023/10/23 12:21:22 by vvaucoul          #+#    #+#             */
+/*   Updated: 2023/10/23 12:31:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <system/spinlock.h>
+#ifndef SHARED_H
+#define SHARED_H
 
-/**
- * Spinlock
- * - A spinlock is a lock which causes a thread trying to acquire it to simply wait in a loop ("spin")
- */
-void spinlock_acquire(spinlock_t *lock) {
-    while (*lock || __sync_lock_test_and_set(lock, 1)) {
-        // Spin
-    }
-}
+#include <memory/memory.h>
 
-/**
- * Spinlock release
- * - Release a spinlock
- */
-void spinlock_release(spinlock_t *lock) {
-    *lock = 0;
-}
+typedef struct shared_heap_header {
+    uint32_t ref_count;   // Number of processes sharing this memory
+    heap_header_t header; // Existing header
+} shared_heap_header_t;
+
+extern void *kmalloc_shared(uint32_t size);
+extern void kfree_shared(void *ptr);
+extern void *kdup_shared(void *ptr);
+
+#endif /* !SHARED_H */

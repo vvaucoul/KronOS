@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:40:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:47:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include <system/signal.h>
 
 // #define KERNEL_STACK_SIZE 0x2000 // 2KB
-#define KERNEL_STACK_SIZE 0x10000 // 64KB
+#define KERNEL_STACK_SIZE 0x6000 // 6KB
 
 #define INIT_PID 0x1 // First process pid created
 
@@ -109,6 +109,7 @@ task_t *get_task(int32_t pid);
 int32_t init_task(void func(void));
 
 int32_t kill_task(int32_t pid);
+int32_t kill_all_tasks(void);
 int32_t task_wait(int32_t pid);
 
 void switch_to_user_mode(void);

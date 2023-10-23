@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:13:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 12:30:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/mmap.h>
+#include <memory/shared.h>
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
 #include <syscall/syscall.h>
@@ -284,7 +285,6 @@ void process_test(void) {
            "[%d]"_END
            "\n",
            ret_code);
-mtt: {}
 
     int32_t pid_01 = init_task(process_02);
     int32_t pid_02 = init_task(process_03);
@@ -327,9 +327,6 @@ mtt: {}
     kill_task(pid_03);
     kill_task(pid_04);
 
-    kmsleep(TASK_FREQUENCY);
-    print_all_tasks();
-
     // Needed to wait for scheduler
     kmsleep(TASK_FREQUENCY);
     print_all_tasks();
@@ -339,7 +336,6 @@ mtt: {}
     // ! ||--------------------------------------------------------------------------------||
 
     ksleep(3);
-
 
     printk("- Task "_GREEN
            "[02]"_END
@@ -370,7 +366,6 @@ mtt: {}
     kmsleep(TASK_FREQUENCY);
     print_all_tasks();
 
-
     // printk("Kill process 01 [%u]\n", pid_task_01);
     // kill_task(pid_task_01);
 
@@ -392,8 +387,6 @@ mtt: {}
     kmsleep(TASK_FREQUENCY);
     print_all_tasks();
 
-    kpause();
-
     // ! ||--------------------------------------------------------------------------------||
     // ! ||                              INTER PROCESSUS TEST                              ||
     // ! ||--------------------------------------------------------------------------------||
@@ -409,23 +402,40 @@ mtt: {}
 
     // kill_task(pid_task_06);
 
-    pause();
-    // kpause();
+    ksleep(3);
+
+    kill_all_tasks();
+    // Needed to wait for scheduler
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+
+    ksleep(3);
+
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                                    FORK TEST                                   ||
+    // ! ||--------------------------------------------------------------------------------||
 
     printk("Fork task from PID [%d]\n", getpid());
     pid = fork();
     if (pid == 0) {
         printk("Hello from child process [%d]\n", getpid());
-        ksleep(1);
+        kmsleep(500);
         printk("Exit child process\n");
         exit(0);
     } else {
         int status;
         waitpid(pid, &status, 0);
         printk("Hello from parent process [%d]\n", getpid());
-        ksleep(2);
+        kmsleep(1000);
         printk("Exit parent process\n");
     }
+
+    ksleep(3);
+    kill_all_tasks();
+
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                                    IPC TEST                                    ||
+    // ! ||--------------------------------------------------------------------------------||
 
     pid_t pid_ipc = fork();
 
@@ -455,10 +465,46 @@ mtt: {}
     }
 
     ksleep(3);
+    kill_all_tasks();
+
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                                   SOCKET TEST                                  ||
+    // ! ||--------------------------------------------------------------------------------||
+
+mtt: {}
+
+    // Test for kmalloc_shared
+    {
+        // Allocate shared memory
+        char *shared_data = (char *)kmalloc_shared(100);
+
+        // Fill the memory
+        strcpy(shared_data, "Hello, World!");
+
+        // Duplicate the shared memory
+        char *another_ptr = (char *)kdup_shared(shared_data);
+
+        // Both should point to the same data
+        printk("Shared data: %s\n", shared_data);          // Output should be "Hello, World!"
+        printk("Another pointer data: %s\n", another_ptr); // Output should be "Hello, World!"
+
+        // Free one of the pointers
+        kfree_shared(another_ptr);
+
+        // Data should still be accessible
+        printk("Shared data after free: %s\n", shared_data); // Output should be "Hello, World!"
+
+        // Free the other pointer
+        kfree_shared(shared_data);
+    }
+
+    kpause();
+
+    // Create shared socket before fork
+    socket_t *socket = (socket_t *)kmalloc_shared(sizeof(socket_t));
 
     pid_t pid_socket = fork();
 
-    socket_t *socket = socket_create();
     if (pid_socket == -1) {
         // Error: fork failed
         printk("Error: fork failed\n");
@@ -474,7 +520,7 @@ mtt: {}
         do {
             bzero(buffer, SOCKET_BUFFER_MAX);
             ret = socket_receive(socket, buffer, SOCKET_BUFFER_MAX);
-            printk("Waiting for message from child...\n");
+            printk("Waiting for message from child... Ret: [%d]\n", ret);
             ksleep(1);
         } while (ret == 0);
 
@@ -485,35 +531,10 @@ mtt: {}
     }
 
     ksleep(3);
+    kill_all_tasks();
 
-    // print_virtual_memory_info(current_directory);
-    // kpause();
-
-    // switch_to_user_mode();
-
-    // TODO: fork and exec
-    /* fork
-    ** exec kronos_shell
-    ** infinite pause
-    */
-
-    // switch to user mode
-
-    // switch_user_mode();
-    // kpause();
-
-    // ksleep(20);
-
-    // while (get_task(pid_task_01) != NULL && get_task(pid_task_02) != NULL && get_task(pid_task_03) != NULL && get_task(pid_task_04) != NULL && get_task(pid_task_05) != NULL) {
-    //     printk("Waiting for tasks to finish...\n");
-    //     kusleep(TASK_FREQUENCY);
-    // }
-
-    printk("Kill process IPC [%u]\n", pid_ipc);
-    kill_task(pid_ipc);
-
-    printk("Kill process Socket [%u]\n", pid_socket);
-    kill_task(pid_socket);
+    // Destroy shared socket
+    socket_destroy(socket);
 
     __WORKFLOW_FOOTER();
 }

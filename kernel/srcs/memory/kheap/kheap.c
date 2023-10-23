@@ -6,12 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 10:27:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 12:28:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/kheap.h>
 #include <memory/paging.h>
+#include <memory/shared.h>
 
 #include <system/panic.h>
 

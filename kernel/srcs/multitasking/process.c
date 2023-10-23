@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:43:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:57:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,8 +288,10 @@ int32_t task_wait(int32_t pid) {
     }
 
     // Wait for the task to finish
-    while (task && (task->state == TASK_RUNNING || task->state == TASK_SLEEPING)) {
+    while (task && (task->state == TASK_RUNNING)) {
         kmsleep(TASK_FREQUENCY);
+        printk("Waiting for task %d to finish\n", pid);
+        printk("Task %d is %s\n", pid, task->state == TASK_RUNNING ? "running" : "sleeping");
     }
 
     // Task has finished, so clean it up
@@ -385,6 +387,17 @@ int32_t kill_task(int32_t pid) {
         printk("Cannot kill task %d\n", pid);
         return (0);
     }
+}
+
+int32_t kill_all_tasks(void) {
+    task_t *tmp_task = ready_queue;
+    while (tmp_task) {
+        if (tmp_task->pid != 0 && tmp_task->pid != 1) {
+            kill_task(tmp_task->pid);
+        }
+        tmp_task = tmp_task->next;
+    }
+    return (0);
 }
 
 void lock_task(task_t *task) {

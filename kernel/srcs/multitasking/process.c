@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:57:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 14:38:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,19 @@ static void move_stack(void *new_stack_start, uint32_t size) {
                          : "r"(new_base_pointer));
 }
 
+static void __process_sectors(task_t *process) {
+    /* Initialise BSS / DATA segment */
+    process->sectors.bss_size = BSS_SIZE;
+    process->sectors.bss_segment = kmalloc(process->sectors.bss_size);
+    memset(process->sectors.bss_segment, 0, process->sectors.bss_size);
+
+    process->sectors.data_size = DATA_SIZE;
+    process->sectors.data_segment = kmalloc(process->sectors.data_size);
+
+    /* Copy initial data */
+    memcpy(process->sectors.data_segment, process->sectors.data_segment, process->sectors.data_size);
+}
+
 void init_tasking(void) {
     // printk("\n\n--- INIT TASKING ---\n\n");
 
@@ -122,11 +135,13 @@ void init_tasking(void) {
     if (!(current_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE)))
         __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
     current_task->state = TASK_RUNNING;
-    current_task->owner = 0;
+    current_task->owner = current_task->effective_owner = 0;
     current_task->tid = (task_id_t){0, 0, 0, 0};
     current_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     current_task->signal_queue = NULL;
     current_task->or_priority = current_task->priority = TASK_PRIORITY_LOW;
+
+    __process_sectors(current_task);
 
     wait_queue = NULL;
 
@@ -166,11 +181,13 @@ int32_t task_fork(void) {
     new_task->prev = NULL; // Set prev task when added to ready queue
     new_task->exit_code = 0;
     new_task->state = TASK_RUNNING;
-    new_task->owner = 0;
+    new_task->owner = new_task->effective_owner = 0;
     new_task->tid = (task_id_t){0, 0, 0, 0};
     new_task->cpu_load = (process_cpu_load_t){0, 0, 0};
     new_task->signal_queue = NULL;
     new_task->or_priority = new_task->priority = TASK_PRIORITY_MEDIUM;
+
+    __process_sectors(new_task);
 
     if (!(current_task->kernel_stack))
         __THROW("task_fork : kmalloc failed", 1);
@@ -351,8 +368,9 @@ int32_t kill_task(int32_t pid) {
         if (tmp_task->next) {
             task_t *tmp = get_task(tmp_task->next->pid);
             while (tmp) {
-                // printk("[%d] -> Set task zombie [%d]\n", pid, tmp->pid);
+                printk("[%d] -> Set task zombie [%d]\n", pid, tmp->pid);
                 tmp->state = TASK_ZOMBIE;
+                // signal(tmp_task->ppid, SIGCHLD);
                 tmp = tmp->next;
             }
         }
@@ -503,10 +521,6 @@ void task_set_priority(pid_t pid, task_priority_t priority) {
     }
 
     task->priority = priority;
-}
-
-uint32_t getuid(void) {
-    return current_task->owner;
 }
 
 bool is_pid_valid(int pid) {

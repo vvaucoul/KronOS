@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 11:47:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 14:37:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,11 @@ typedef int32_t pid_t;
 #define _PID_T
 #endif
 
+#ifndef _UID_T
+typedef uint32_t uid_t;
+#define _UID_T
+#endif
+
 /*
 **  Task ID
 **
@@ -70,7 +75,8 @@ typedef struct s_task {
     pid_t pid;    // Process id
     int32_t ppid; // Parent pid
 
-    uint32_t owner; // Owner id (user id)
+    uid_t owner;           // Owner id (user id)
+    uid_t effective_owner; // Effective owner id (effective user id)
 
     uint32_t esp, ebp; // Stack and base pointer
     uint32_t eip;      // Instruction pointer
@@ -93,6 +99,17 @@ typedef struct s_task {
 
     signal_node_t *signal_queue; // Queue of signals to be processed
     task_id_t tid;               // Task id
+
+#define BSS_SIZE 0x1000
+#define DATA_SIZE 0x1000
+
+    struct sectors {
+        void *bss_segment;
+        uint32_t bss_size;
+        void *data_segment;
+        uint32_t data_size;
+    } sectors;
+
 } task_t;
 
 void init_tasking(void);

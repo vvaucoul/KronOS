@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 10:10:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 12:54:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 14:17:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,7 @@ void signal(pid_t pid, int signum) {
     task_t *task = get_task(pid);
 
     if (task) {
-        if (task->pid == 0 || task->pid == 1) {
-            __THROW_NO_RETURN("Cannot send signal to PID 1");
-        } else if (signum >= 0 && signum < SIGNALS_COUNT) {
+        if (signum >= 0 && signum < SIGNALS_COUNT) {
             task_add_signal(task, signum, signals[signum].handler);
         } else {
             __THROW_NO_RETURN("Signal not found (maybe not implemented)");
@@ -31,6 +29,10 @@ void signal(pid_t pid, int signum) {
     } else {
         __THROW_NO_RETURN("Task not found");
     }
+}
+
+void sigchld_handler() {
+    
 }
 
 void kill_handler(int32_t signum) {
@@ -78,4 +80,5 @@ static void __add_signal_handler(int signum, void (*handler)(int32_t), char *nam
 void init_signals(void) {
     bzero((uint8_t *)signals, sizeof(signal_node_t) * SIGNALS_COUNT);
     __add_signal_handler(SIGKILL, kill_handler, STRINGIFY(SIGKILL));
+    // __add_signal_handler(SIGCHLD, sigchld_handler, STRINGIFY(SIGCHLD));
 }

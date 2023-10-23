@@ -46,7 +46,8 @@
 			"socket.h": "c",
 			"stdbool.h": "c",
 			"hephaistos.h": "c",
-			"signal.h": "c"
+			"signal.h": "c",
+			"uid.C": "cpp"
 		}
 	}
 }

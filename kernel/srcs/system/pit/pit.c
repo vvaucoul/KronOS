@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 15:53:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:39:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void timer_wait(uint32_t ticks) {
         return;
     }
 
-    if (task->state == TASK_RUNNING) {
+    // if (task->state == TASK_RUNNING || task->state == TASK_SLEEPING) {
         // If the task is running, just busy-wait
         task->state = TASK_SLEEPING;
         task->wake_up_tick = timer_subtick + ticks;
@@ -92,7 +92,7 @@ void timer_wait(uint32_t ticks) {
         while (task->state == TASK_SLEEPING) {
             __asm__ volatile("sti\n\thlt\n\tcld");
         }
-    }
+    // } 
 }
 
 // void timer_wait(uint32_t ticks) {

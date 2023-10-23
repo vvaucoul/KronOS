@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 12:53:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:39:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,12 @@
 // ! ||--------------------------------------------------------------------------------||
 
 #define MAX_TASKS 4 // 4 tasks max
+#define PID_MAX __INT32_MAX__ // Max pid
 
-// #define __DEBUG__ 0
+//#define __DEBUG__ 0
 
 #ifdef __DEBUG__
-#define __DEBUG_TASK_FREQUENCY 15
+#define __DEBUG_TASK_FREQUENCY 4
 #define TASK_FREQUENCY __DEBUG_TASK_FREQUENCY
 #else
 #define TASK_FREQUENCY 1
@@ -54,5 +55,11 @@ extern void task_print_signals(task_t *task);
 // ! ||--------------------------------------------------------------------------------||
 
 extern void wait_for_scheduler_rounded(void);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                    OVERFLOW                                    ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern void task_overflow_handler(void);
 
 #endif /* !SCHEDULER_H */

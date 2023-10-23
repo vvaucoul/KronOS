@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 15:55:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:13:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,27 +114,46 @@ void process_06(void) {
 
 void process_05(void) {
     // page_directory_t *pd = current_directory();
-    printk("- [%d] Hello from process_05 !\n", getpid());
-    printk("\t- virtual_memory_info !\n");
-    print_virtual_memory_info(get_task_directory());
+    while (1) {
+
+        printk("- "_GREEN
+               "[%d]"_END
+               " Hello from process_05 !\n",
+               getpid());
+        ksleep(1);
+        // printk("\t- virtual_memory_info !\n");
+        // print_virtual_memory_info(get_task_directory());
+    }
 }
 
 void process_04(void) {
     while (1) {
-        printk("- [%d] Hello from process_04 !\n", getpid());
+        printk("- "_GREEN
+               "[%d]"_END
+               " Hello from process_04 !\n",
+               getpid());
         ksleep(1);
     }
 }
 
 void process_03(void) {
     while (1) {
-        printk("- [%d] Hello from process_03 !\n", getpid());
+        printk("- "_GREEN
+               "[%d]"_END
+               " Hello from process_03 !\n",
+               getpid());
         ksleep(1);
     }
 }
 
 void process_02(void) {
-    printk("- [%d] Hello from process_02 !\n", getpid());
+    while (1) {
+        printk("- "_GREEN
+               "[%d]"_END
+               " Hello from process_02 !\n",
+               getpid());
+        ksleep(1);
+    }
 }
 
 void exec_fn(uint32_t *addr, uint32_t *function, uint32_t size) {
@@ -152,7 +171,9 @@ void process_01(void) {
     ksleep(1);
     printk("- "_GREEN
            "[%d]"_END
-           " Exit process_01 ! Return "_YELLOW"[%d]"_END"\n",
+           " Exit process_01 ! Return "_YELLOW
+           "[%d]"_END
+           "\n",
            getpid(), 42);
     task_exit(42);
 }
@@ -245,8 +266,6 @@ void process_test(void) {
     // ! ||                                MULTIPLE - TASKS                                ||
     // ! ||--------------------------------------------------------------------------------||
 
-    mtt:
-    
     printk("\n\n");
     printk("- Task "_GREEN
            "[01]"_END
@@ -265,44 +284,95 @@ void process_test(void) {
            "[%d]"_END
            "\n",
            ret_code);
+mtt: {}
 
-    kpause();
+    int32_t pid_01 = init_task(process_02);
+    int32_t pid_02 = init_task(process_03);
+    int32_t pid_03 = init_task(process_04);
+    int32_t pid_04 = init_task(process_05);
 
-    printk(_GREEN "Task 02"_END
-                  "\n");
-    int32_t pid_task_02 = init_task(process_02);
-    ksleep(3);
-
-    printk(_GREEN "Task 03"_END
-                  "\n");
-    int32_t pid_task_03 = init_task(process_03);
-    ksleep(3);
-
-    printk(_GREEN "Task 03 + 04"_END
-                  "\n");
-    int32_t pid_task_04 = init_task(process_04);
-    ksleep(3);
-
-    printk(_GREEN "Task 03 + 04 + 05"_END
-                  "\n");
-    int32_t pid_task_05 = init_task(process_05);
-    ksleep(3);
-    // int32_t pid_task_06 = init_task(process_06);
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
 
     ksleep(3);
-    printk("Inter Processus Test\n");
+
+    printk("- Kill task "_GREEN
+           "[2]"_END
+           " and "_GREEN
+           "[3]"_END
+           "\n");
+
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+
+    kill_task(pid_01);
+
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+    kill_task(pid_02);
+
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+
     ksleep(1);
 
-    pid_t inter_pid = init_task(__inter01);
+    print_all_tasks();
+
+    printk("- Kill task "_GREEN
+           "[4]"_END
+           " and "_GREEN
+           "[5]"_END
+           "\n");
+
+    kill_task(pid_03);
+    kill_task(pid_04);
+
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+
+    // Needed to wait for scheduler
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                               MULTIPLE TASKS - 02                              ||
+    // ! ||--------------------------------------------------------------------------------||
+
+    ksleep(3);
+
+
+    printk("- Task "_GREEN
+           "[02]"_END
+           "\n");
+    int32_t pid_task_02 = init_task(process_02);
+
+    ksleep(3);
+    printk("- Task "_GREEN
+           "[03]"_END
+           "\n");
+    int32_t pid_task_03 = init_task(process_03);
+
+    ksleep(3);
+    printk("- Task "_GREEN
+           "[04]"_END
+           "\n");
+    int32_t pid_task_04 = init_task(process_04);
+
+    ksleep(3);
+    printk("- Task "_GREEN
+           "[05]"_END
+           "\n");
+    int32_t pid_task_05 = init_task(process_05);
+
     ksleep(6);
 
-    printk("Kill inter processus\n");
-    kill_task(inter_pid);
+    // Needed to wait for scheduler
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
 
-    ksleep(5);
 
-    printk("Kill process 01 [%u]\n", pid_task_01);
-    kill_task(pid_task_01);
+    // printk("Kill process 01 [%u]\n", pid_task_01);
+    // kill_task(pid_task_01);
 
     printk("Kill process 02 [%u]\n", pid_task_02);
     kill_task(pid_task_02);
@@ -316,7 +386,27 @@ void process_test(void) {
     printk("Kill process 05 [%u]\n", pid_task_05);
     kill_task(pid_task_05);
 
-    printk("Kill process 06 [%u]\n", pid_task_05);
+    ksleep(1);
+
+    // Needed to wait for scheduler
+    kmsleep(TASK_FREQUENCY);
+    print_all_tasks();
+
+    kpause();
+
+    // ! ||--------------------------------------------------------------------------------||
+    // ! ||                              INTER PROCESSUS TEST                              ||
+    // ! ||--------------------------------------------------------------------------------||
+
+    printk("Inter Processus Test\n");
+    ksleep(1);
+
+    pid_t inter_pid = init_task(__inter01);
+    ksleep(6);
+
+    printk("Kill inter processus\n");
+    kill_task(inter_pid);
+
     // kill_task(pid_task_06);
 
     pause();

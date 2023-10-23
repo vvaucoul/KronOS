@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 17:00:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:40:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 
 #include <system/signal.h>
 
-#define KERNEL_STACK_SIZE 0x2000 // 2KB
+// #define KERNEL_STACK_SIZE 0x2000 // 2KB
+#define KERNEL_STACK_SIZE 0x10000 // 64KB
 
 #define INIT_PID 0x1 // First process pid created
 

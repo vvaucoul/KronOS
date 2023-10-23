@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 15:42:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:34:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,8 @@ void switch_task(void) {
 
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
+
+    task_overflow_handler();
 
     /* Check if the current task has received a signal */
     __signal_handler(current_task);

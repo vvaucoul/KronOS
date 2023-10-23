@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 15:56:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 11:43:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ static void move_stack(void *new_stack_start, uint32_t size) {
     uint32_t i, pd_addr, old_stack_pointer, old_base_pointer, new_stack_pointer, new_base_pointer, offset, tmp, *tmp2;
 
     /* Allocate some space for the new stack */
-    for (i = (uint32_t)new_stack_start; i >= ((uint32_t)new_stack_start - size); i -= 0x1000) {
+    for (i = (uint32_t)new_stack_start; i >= ((uint32_t)new_stack_start - size); i -= PAGE_SIZE) {
         /* General-purpose stack is in user-mode */
         const page_t *page = get_page(i, current_directory);
         if (!page) {
@@ -102,7 +102,7 @@ void init_tasking(void) {
 
     // printk("\t- Move stack\n");
 
-    move_stack((void *)0xE0000000, KERNEL_STACK_SIZE);
+    move_stack((void *)0xDEADBEEF, KERNEL_STACK_SIZE);
 
     /* Initialise the first task (kernel task) */
     current_task = ready_queue = (task_t *)kmalloc_a(sizeof(task_t));
@@ -274,11 +274,9 @@ int32_t init_task(void func(void)) {
         /* Kill the current (child) process. On failure, freeze it */
         // printk("Child process returned from init_task\n");
         if (kill_task(pid) != 0) {
-            // printk("Child process failed to die, freezing\n");
             for (;;)
                 ;
         }
-        // printk("Child process failed to die\n");
     }
     return ret;
 }
@@ -351,7 +349,7 @@ int32_t kill_task(int32_t pid) {
         if (tmp_task->next) {
             task_t *tmp = get_task(tmp_task->next->pid);
             while (tmp) {
-                printk("Set task zombie [%d]\n", tmp->pid);
+                // printk("[%d] -> Set task zombie [%d]\n", pid, tmp->pid);
                 tmp->state = TASK_ZOMBIE;
                 tmp = tmp->next;
             }
@@ -381,7 +379,6 @@ int32_t kill_task(int32_t pid) {
         //        tmp_task->next ? tmp_task->next->pid : -1);
 
         kfree((void *)tmp_task);
-        // ksleep(1);
         kmsleep(TASK_FREQUENCY);
         return (pid);
     } else {
@@ -463,16 +460,26 @@ void switch_to_user_mode(void) {
 
 pid_t find_first_free_pid(void) {
     pid_t pid = 1;
-    task_t *task = ready_queue;
-    while (task) {
-        if (task->pid == pid) {
-            pid++;
-            task = ready_queue;
-        } else {
+    task_t *task = NULL;
+
+    // Safeguard against overflow
+    while (pid < PID_MAX) {
+        task = ready_queue;
+        while (task) {
+            if (task->pid == pid) {
+                pid++;
+                break;
+            }
             task = task->next;
         }
+        // If loop finished without a break, PID is free
+        if (!task) {
+            return (pid);
+        }
     }
-    return pid;
+
+    // Log or handle the error - no free PIDs
+    __THROW("find_first_free_pid : no free PIDs", -1);
 }
 
 void task_set_priority(pid_t pid, task_priority_t priority) {

@@ -6,12 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/06/01 12:15:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 12:41:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <memory/kheap.h>
+#include <memory/shared.h>
 #include <memory/paging.h>
 #include <system/panic.h>
 #include <workflows/workflows.h>
@@ -707,6 +708,32 @@ void kheap_test(void) {
     // volatile uint32_t *ptr_fault = (volatile uint32_t *)0xdeadbeef;
     // uint32_t val = *ptr_fault;
     // __UNUSED(val);
+
+
+    // Test for kmalloc_shared
+    {
+        // Allocate shared memory
+        char *shared_data = (char *)kmalloc_shared(100);
+
+        // Fill the memory
+        strcpy(shared_data, "Hello, World!");
+
+        // Duplicate the shared memory
+        char *another_ptr = (char *)kdup_shared(shared_data);
+
+        // Both should point to the same data
+        printk("Shared data: %s\n", shared_data);          // Output should be "Hello, World!"
+        printk("Another pointer data: %s\n", another_ptr); // Output should be "Hello, World!"
+
+        // Free one of the pointers
+        kfree_shared(another_ptr);
+
+        // Data should still be accessible
+        printk("Shared data after free: %s\n", shared_data); // Output should be "Hello, World!"
+
+        // Free the other pointer
+        kfree_shared(shared_data);
+    }
 
     __WORKFLOW_FOOTER();
 }

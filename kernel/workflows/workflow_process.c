@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 12:30:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 12:54:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -473,35 +473,9 @@ void process_test(void) {
 
 mtt: {}
 
-    // Test for kmalloc_shared
-    {
-        // Allocate shared memory
-        char *shared_data = (char *)kmalloc_shared(100);
-
-        // Fill the memory
-        strcpy(shared_data, "Hello, World!");
-
-        // Duplicate the shared memory
-        char *another_ptr = (char *)kdup_shared(shared_data);
-
-        // Both should point to the same data
-        printk("Shared data: %s\n", shared_data);          // Output should be "Hello, World!"
-        printk("Another pointer data: %s\n", another_ptr); // Output should be "Hello, World!"
-
-        // Free one of the pointers
-        kfree_shared(another_ptr);
-
-        // Data should still be accessible
-        printk("Shared data after free: %s\n", shared_data); // Output should be "Hello, World!"
-
-        // Free the other pointer
-        kfree_shared(shared_data);
-    }
-
-    kpause();
-
     // Create shared socket before fork
-    socket_t *socket = (socket_t *)kmalloc_shared(sizeof(socket_t));
+    // socket_t *socket = (socket_t *)kmalloc_shared(sizeof(socket_t));
+    socket_t *socket = socket_create(SOCKET_SHARED_DATA);
 
     pid_t pid_socket = fork();
 
@@ -530,11 +504,14 @@ mtt: {}
         printk("ST [%d] | Message from child: %s\n", st, buffer);
     }
 
+    ksleep(1);
+    printk("- Destroying socket\n");
+    socket_destroy(socket);
     ksleep(3);
     kill_all_tasks();
+    print_all_tasks();
 
     // Destroy shared socket
-    socket_destroy(socket);
 
     __WORKFLOW_FOOTER();
 }

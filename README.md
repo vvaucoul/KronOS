@@ -188,10 +188,10 @@ flowchart LR
 - [ ] Improve Processus Interruptions (Signals)
 - [ ] Complete helpers functions like UNIX system
   - [ ] Wait
-  - [ ] Exit
-  - [ ] GetUID
+  - [x] Exit
+  - [x] GetUID
   - [ ] Signal
-  - [ ] Kill
+  - [x] Kill
 
 ---
 
@@ -199,6 +199,6 @@ flowchart LR
 
 - [ ] MMAP function or equivalent to get processus virtual memory
 - [ ] Link the IDT and the processus to setup syscalls signals
-- [ ] BSS and DATA sectors in the process structure
+- [x] BSS and DATA sectors in the process structure
 
 🚧 ... Next redaction pending ...🚧

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 10:20:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 23:38:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 13:04:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,10 @@ task_t *__process_selector(task_t *current_task) {
             highest_priority_task = tmp;
         } else if (tmp->state == TASK_RUNNING && tmp->priority < highest_priority_task->priority) {
             tmp->priority = tmp->or_priority;
+        }
+
+        if (!tmp->next) {
+            return (current_task);
         }
 
         tmp = tmp->next;

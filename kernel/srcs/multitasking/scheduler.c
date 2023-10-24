@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 01:26:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 13:04:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,6 @@ void wait_for_scheduler_rounded(void) {
     // } while (any_task_has_signal);
 }
 
-// page_directory_t *d_page_directory = NULL;
 
 void switch_task(void) {
     if (!scheduler_initialized)
@@ -145,8 +144,10 @@ void switch_task(void) {
         current_task = current_task->next;
     if (!current_task)
         current_task = ready_queue;
+    
 
     current_task = __process_selector(current_task);
+
 
     // TODO: Debug
     // if (current_task && current_task->state == TASK_STOPPED) {
@@ -185,10 +186,7 @@ void switch_task(void) {
     __task_overflow_handler();
 
     /* Kill stopped tasks */
-    int r = __process_killer();
-
-    // if (r)
-    //     d_page_directory = current_directory;
+    __process_killer();
 
     /* Check if the current task is a zombie */
     __process_zombie(current_task);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 12:41:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 13:51:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,13 +42,13 @@ void test_get_physical_address() {
     assert(ptr != NULL);
 
     // Test NULL address
-    assert(get_physical_address(NULL) == NULL);
+    assert(get_physical_address(kernel_directory, NULL) == NULL);
 
     // Test unaligned address
-    assert(get_physical_address(ptr + 1) == NULL);
+    assert(get_physical_address(kernel_directory, ptr + 1) == NULL);
 
     // Test valid address
-    void *phys_addr = get_physical_address(ptr);
+    void *phys_addr = get_physical_address(kernel_directory, ptr);
     assert(phys_addr != NULL);
     assert((uint32_t)phys_addr % PAGE_SIZE == 0);
 
@@ -65,13 +65,13 @@ void test_get_virtual_address() {
     assert(ptr != NULL);
 
     // Test NULL address
-    assert(get_virtual_address(NULL) == NULL);
+    assert(get_virtual_address(kernel_directory, NULL) == NULL);
 
     // Test unaligned address
-    assert(get_virtual_address(ptr + 1) == NULL);
+    assert(get_virtual_address(kernel_directory, ptr + 1) == NULL);
 
     // Test valid address
-    void *virt_addr = get_virtual_address(ptr);
+    void *virt_addr = get_virtual_address(kernel_directory, ptr);
     assert(virt_addr != NULL);
     assert((uint32_t)virt_addr % PAGE_SIZE == 0);
 

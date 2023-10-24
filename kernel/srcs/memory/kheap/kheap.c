@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 12:28:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 14:30:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,29 @@
 
 #include <system/panic.h>
 
-uint32_t placement_addr = (uint32_t)(&__kernel_section_end);
+uint32_t placement_addr = (uint32_t)(uint32_t *)(&__kernel_section_end);
 heap_t *kheap = NULL;
 
-static void *__kbrk(uint32_t size)
-{
+static void *__kbrk(uint32_t size) {
     void *addr = NULL;
 
     if (size == 0)
         return (NULL);
-    else
-    {
+    else {
         addr = (void *)placement_addr;
         placement_addr += size;
     }
     return (addr);
 }
 
-static void *__kbrk_int(uint32_t size, bool align, uint32_t *phys)
-{
+static void *__kbrk_int(uint32_t size, bool align, uint32_t *phys) {
     void *addr = NULL;
 
-    if (align && (placement_addr & 0xFFFFF000))
-    {
+    if (align && (placement_addr & 0xFFFFF000)) {
         placement_addr &= 0xFFFFF000;
         placement_addr += 0x1000;
     }
-    if (phys)
-    {
+    if (phys) {
         *phys = placement_addr;
     }
     addr = (void *)placement_addr;
@@ -51,32 +46,32 @@ static void *__kbrk_int(uint32_t size, bool align, uint32_t *phys)
     return (addr);
 }
 
-static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
-{
+static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys) {
     /* If Heap exists -> Heap Algorithm with Virtual Memory */
-    if (kheap)
-    {
+    if (kheap) {
         void *addr = kheap_alloc(size, align, kheap);
-        if (phys)
-        {
+        if (phys) {
             page_t *page = get_page((uint32_t)addr, kernel_directory);
             if (page)
                 *phys = page->frame * PAGE_SIZE + ((uint32_t)addr & 0xFFF);
             else
                 *phys = 0;
         }
+        if (align) {
+            if ((placement_addr & 0xFFFFF000)) {
+                placement_addr &= 0xFFFFF000;
+                placement_addr += PAGE_SIZE;
+            }
+        }
         return (addr);
     }
     /* Either, use physical Memory */
-    else
-    {
-        if (align && (placement_addr & 0xFFFFF000))
-        {
+    else {
+        if (align && (placement_addr & 0xFFFFF000)) {
             placement_addr &= 0xFFFFF000;
             placement_addr += PAGE_SIZE;
         }
-        if (phys)
-        {
+        if (phys) {
             *phys = placement_addr;
         }
         /* Don't need to store data in block -> reverved for system */
@@ -84,19 +79,16 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys)
     }
 }
 
-static uint32_t __ksize(void *ptr)
-{
+static uint32_t __ksize(void *ptr) {
     return (kheap_get_ptr_size(ptr));
 }
 
-static void *__krealloc(void *ptr, uint32_t size)
-{
+static void *__krealloc(void *ptr, uint32_t size) {
     void *new_ptr = NULL;
 
     if (ptr == NULL)
         return (NULL);
-    else
-    {
+    else {
         new_ptr = kmalloc(size);
         if (new_ptr == NULL)
             return (NULL);
@@ -106,8 +98,7 @@ static void *__krealloc(void *ptr, uint32_t size)
     return (new_ptr);
 }
 
-static void *__kcalloc(uint32_t count, uint32_t size)
-{
+static void *__kcalloc(uint32_t count, uint32_t size) {
     void *ptr = kmalloc(count * size);
 
     if (ptr == NULL)
@@ -116,19 +107,16 @@ static void *__kcalloc(uint32_t count, uint32_t size)
     return (ptr);
 }
 
-static void __kfree(void *ptr)
-{
+static void __kfree(void *ptr) {
     if (kheap)
         kheap_free(ptr, kheap);
 }
 
-static uint8_t header_t_less_than(void *a, void *b)
-{
+static uint8_t header_t_less_than(void *a, void *b) {
     return (((heap_header_t *)a)->size < ((heap_header_t *)b)->size) ? 1 : 0;
 }
 
-static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly)
-{
+static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly) {
     if (!IS_ALIGNED(start_addr) || !IS_ALIGNED(end_addr))
         __PANIC("KHEAP : Start and End address must be aligned to 0x1000");
 
@@ -141,8 +129,7 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
 
     start_addr += sizeof(data_t) * HEAP_INDEX_SIZE;
 
-    if (start_addr & 0xFFFFF000)
-    {
+    if (start_addr & 0xFFFFF000) {
         start_addr &= 0xFFFFF000;
         start_addr += 0x1000;
     }
@@ -165,98 +152,79 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
  *                             INTERFACE FUNCTIONS                             *
  ******************************************************************************/
 
-void init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly)
-{
+void init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly) {
     kheap = __init_heap(start_addr, end_addr, max_addr, supervisor, readonly);
     assert(kheap != NULL);
 }
 
-void *kmalloc_int(uint32_t size, bool align, uint32_t *phys)
-{
+void *kmalloc_int(uint32_t size, bool align, uint32_t *phys) {
     return (__kmalloc_int(size, align, phys));
 }
 
-void *kmalloc_a(uint32_t size)
-{
+void *kmalloc_a(uint32_t size) {
     return (__kmalloc_int(size, 1, 0));
 }
 
-void *kmalloc_p(uint32_t size, uint32_t *phys)
-{
+void *kmalloc_p(uint32_t size, uint32_t *phys) {
     return (__kmalloc_int(size, 0, phys));
 }
 
-void *kmalloc_ap(uint32_t size, uint32_t *phys)
-{
+void *kmalloc_ap(uint32_t size, uint32_t *phys) {
     return (__kmalloc_int(size, 1, phys));
 }
 
-void *kmalloc(uint32_t size)
-{
+void *kmalloc(uint32_t size) {
     return (__kmalloc_int(size, 0, 0));
 }
 
-void *kmalloc_v(uint32_t size)
-{
+void *kmalloc_v(uint32_t size) {
     return (__kmalloc_int(size, 0, 0));
 }
 
-void kfree_v(void *ptr)
-{
+void kfree_v(void *ptr) {
     __kfree(ptr);
 }
 
-void kfree_p(void *ptr)
-{
-    __kfree(get_virtual_address(ptr));
+void kfree_p(void *ptr) {
+    __kfree(get_virtual_address(kernel_directory, ptr));
 }
 
-void kfree(void *ptr)
-{
+void kfree(void *ptr) {
     __kfree(ptr);
 }
 
-void *krealloc(void *ptr, uint32_t size)
-{
+void *krealloc(void *ptr, uint32_t size) {
     return (__krealloc(ptr, size));
 }
 
-void *kcalloc(uint32_t count, uint32_t size)
-{
+void *kcalloc(uint32_t count, uint32_t size) {
     return (__kcalloc(count, size));
 }
 
-void *kbrk(uint32_t size)
-{
+void *kbrk(uint32_t size) {
     return (__kbrk(size));
 }
 
-void *kbrk_int(uint32_t size, bool align, uint32_t *phys)
-{
+void *kbrk_int(uint32_t size, bool align, uint32_t *phys) {
     return (__kbrk_int(size, align, phys));
 }
 
-void *kbrk_a(uint32_t size)
-{
+void *kbrk_a(uint32_t size) {
     return (__kbrk_int(size, 1, 0));
 }
 
-void *kbrk_p(uint32_t size, uint32_t *phys)
-{
+void *kbrk_p(uint32_t size, uint32_t *phys) {
     return (__kbrk_int(size, 0, phys));
 }
 
-void *kbrk_ap(uint32_t size, uint32_t *phys)
-{
+void *kbrk_ap(uint32_t size, uint32_t *phys) {
     return (__kbrk_int(size, 1, phys));
 }
 
-void *kbrk_v(uint32_t size)
-{
+void *kbrk_v(uint32_t size) {
     return (__kbrk_int(size, 0, 0));
 }
 
-uint32_t ksize(void *ptr)
-{
+uint32_t ksize(void *ptr) {
     return (__ksize(ptr));
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 01:29:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 15:04:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,16 +131,12 @@ void task_shared_parent(void) {
 }
 
 void process_05(void) {
-    // page_directory_t *pd = current_directory();
     while (1) {
-
         printk("- "_GREEN
                "[%d]"_END
                " Hello from process_05 !\n",
                getpid());
         ksleep(1);
-        // printk("\t- virtual_memory_info !\n");
-        // print_virtual_memory_info(get_task_directory());
     }
 }
 
@@ -216,6 +212,20 @@ void proc_fibo(void) {
     }
 }
 
+void process_zombie_02(void) {
+    while (1) {
+        printk("I'am a Zombie [%d] !\n", getpid());
+    }
+}
+
+void process_zombie_01(void) {
+    while (1) {
+        printk("I'am the Zombie OWNER [%d] !\n", getpid());
+        kmsleep(100);
+        pid_t pid = init_task(process_zombie_02);
+    }
+}
+
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                       TMP                                      ||
 // ! ||--------------------------------------------------------------------------------||
@@ -252,46 +262,53 @@ void display() {
 
 void tmp() {
 
-    init_task(display_tasks);
+    init_task(process_zombie_01);
 
-    ksleep(3);
-
-    kill_task(2);
-    printk("Kill task 2\n");
-
-    pid_t pid = init_task(process_01);
-
-    int st2;
-    waitpid(pid, &st2, 0);
-    printk("Task ended with code: %d\n", st2);
-
-    ksleep(2);
-
-    init_task(display_tasks);
-
-    ksleep(2);
-
-    kill_task(2);
+    ksleep(10);
+    kill(3, SIGKILL);
 
     pause();
 
-    // init_task(process_01);
     // init_task(display_tasks);
-    // init_task(display);
-    // init_task(display2);
+
+    // ksleep(3);
+
+    // kill_task(2);
+    // printk("Kill task 2\n");
+
+    // pid_t pid = init_task(process_01);
+
+    // int st2;
+    // waitpid(pid, &st2, 0);
+    // printk("Task ended with code: %d\n", st2);
 
     // ksleep(2);
 
-    // kill_task(4);
+    // init_task(display_tasks);
 
     // ksleep(2);
-    // kill_task(6);
+
+    // kill_task(2);
+
+    // pause();
+
+    // pid_t pid_01 = init_task(process_01);
+    // pid_t pid_02 = init_task(display_tasks);
+    // pid_t pid_03 = init_task(display);
+    // pid_t pid_04 = init_task(display2);
 
     // ksleep(2);
-    // kill_task(5);
+
+    // kill_task(pid_02);
 
     // ksleep(2);
-    // kill_task(3);
+    // kill_task(pid_04);
+
+    // ksleep(2);
+    // kill_task(pid_03);
+
+    // ksleep(2);
+    // kill_task(pid_01);
 
     // ksleep(2);
     // print_all_tasks();
@@ -334,7 +351,7 @@ void tmp() {
 void process_test(void) {
     __WORKFLOW_HEADER();
 
-    tmp();
+    // tmp();
 
     printk("- Kernel PID: "_GREEN
            "[%u]"_END
@@ -464,7 +481,7 @@ mtt: {}
     kill_task(pid_04);
 
     // Needed to wait for scheduler
-    kmsleep(TASK_FREQUENCY);
+    ksleep(3);
     print_all_tasks();
 
     // ! ||--------------------------------------------------------------------------------||
@@ -507,12 +524,15 @@ mtt: {}
 
     printk("Kill process 02 [%u]\n", pid_task_02);
     kill_task(pid_task_02);
+    // ksleep(1);
 
     printk("Kill process 03 [%u]\n", pid_task_03);
     kill_task(pid_task_03);
+    // ksleep(1);
 
     printk("Kill process 04 [%u]\n", pid_task_04);
     kill_task(pid_task_04);
+    // ksleep(1);
 
     printk("Kill process 05 [%u]\n", pid_task_05);
     kill_task(pid_task_05);

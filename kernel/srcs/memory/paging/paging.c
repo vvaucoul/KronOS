@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 01:16:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 14:28:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,50 @@ page_directory_t *kernel_directory = NULL;
 page_directory_t *current_directory = NULL;
 bool paging_enabled = false;
 
-void *get_physical_address(void *addr) {
+uint32_t translate_virtual_address(page_directory_t *dir, uint32_t virtual_addr) {
+    uint32_t pd_index = (virtual_addr >> 22) & 0x3FF;
+    uint32_t pt_index = (virtual_addr >> 12) & 0x3FF;
+    uint32_t offset = virtual_addr & 0xFFF;
+
+    if (!dir->tables[pd_index]) {
+        __THROW("Page table not present!", 1);
+    }
+
+    page_table_t *table = dir->tables[pd_index];
+    if (!table->pages[pt_index].present) {
+        __THROW("Page not present!", 1);
+    }
+
+    uint32_t physical_addr = (table->pages[pt_index].frame << 12) | offset;
+    return physical_addr;
+}
+
+void *get_physical_address(page_directory_t *dir, void *addr) {
     __addr_validator(addr, true);
 
-    uint32_t page_idx = (uint32_t)addr / PAGE_SIZE;
-    uint32_t offset = (uint32_t)addr % PAGE_SIZE;
+    if (paging_enabled == false) {
+        return (void *)((uint32_t)addr - KERNEL_VIRTUAL_BASE);
+    }
+    uint32_t page_dir_idx = PAGEDIR_INDEX(addr);
+    uint32_t page_tbl_idx = PAGETBL_INDEX(addr);
+    uint32_t offset = PAGEFRAME_INDEX(addr);
 
-    page_t *page = get_page(page_idx, kernel_directory);
-    if (!page)
-        __THROW("Page not found", NULL);
-    if (!(page->present))
-        __THROW("Page not present", NULL);
+    if (dir->tables[page_dir_idx] == 0x0) {
+        __THROW("Page directory not present!", NULL);
+    }
 
-    uint32_t physical_addr = (page->frame * PAGE_SIZE) + offset;
+    page_table_t *table = dir->tables[page_dir_idx];
 
-    if (physical_addr >= KHEAP_START)
-        physical_addr -= KHEAP_START;
+    if (table->pages[page_tbl_idx].present == false) {
+        __THROW("Page table not present!", NULL);
+    }
 
+    uint32_t physical_addr = table->pages[page_tbl_idx].frame;
+    physical_addr = (physical_addr << 12) + offset;
     return ((void *)physical_addr);
 }
 
-void *get_virtual_address(void *addr) {
+void *get_virtual_address(page_directory_t *dir, void *addr) {
     __addr_validator(addr, false);
 
     uint32_t page_idx = (uint32_t)addr / PAGE_SIZE;
@@ -111,7 +134,7 @@ int verify_page_table(page_table_t *table, uint32_t table_idx) {
     } else if (!(table->pages[0].present & PAGE_PRESENT)) {
         __THROW("Page table is not present!", 1);
     } else {
-        printk("Page table %d is properly set up.\n", table_idx);
+        // printk("Page table %d is properly set up.\n", table_idx);
         return (0);
     }
 }
@@ -162,7 +185,10 @@ int verify_page_directory(page_directory_t *dir) {
     // Verify that the page directory is mapped to the correct physical address
     uint32_t physical_dir_addr = ((uint32_t)dir->tables & PAGE_MASK);
     uint32_t physical_dir_addr_from_virt = (uint32_t)(dir);
+
     if (physical_dir_addr != physical_dir_addr_from_virt) {
+        printk("Physical Address: 0x%x\n", physical_dir_addr);
+        printk("Physical Address (Masked): 0x%x\n", physical_dir_addr_from_virt);
         __THROW("Page directory not mapped to correct physical address!", 1);
     }
 
@@ -183,12 +209,21 @@ int verify_page_directory(page_directory_t *dir) {
             page_table_t *table = dir->tables[i];
             for (uint32_t j = 0; j < PAGE_TABLE_SIZE; ++j) {
                 if (table->pages[j].present) {
-                    if (!IS_PAGE_ALIGNED((uint32_t) & (table->pages[j]))) {
+                    if (!IS_FRAME_ALIGNED(table->pages[j].frame)) {
                         __THROW("Page %d in table %d not aligned!", 1, j, i);
                     }
+                    verify_page_table(table, i);
+                    // uint32_t physical_page_addr = (table->pages[j].frame << 12);
+                    // uint32_t physical_page_addr_from_virt = (uint32_t)get_physical_address((void *)(table->pages[j].frame << 12));
+                    // if (physical_page_addr != physical_page_addr_from_virt) {
+                    //     __THROW("Page %d in table %d not mapped to correct physical address!", 1, j, i);
+                    // }
                     uint32_t physical_page_addr = (table->pages[j].frame << 12);
-                    uint32_t physical_page_addr_from_virt = ((uint32_t) & (table->pages[j]) & PAGE_MASK);
+                    uint32_t physical_page_addr_from_virt = translate_virtual_address(dir, (uint32_t)(table->pages[j].frame << 12));
+
                     if (physical_page_addr != physical_page_addr_from_virt) {
+                        printk("Physical Address: 0x%x\n", physical_page_addr);
+                        printk("Physical Address from virt: 0x%x\n", physical_page_addr_from_virt);
                         __THROW("Page %d in table %d not mapped to correct physical address!", 1, j, i);
                     }
                 }
@@ -243,6 +278,34 @@ void destroy_user_page(page_t *page, page_directory_t *dir) {
     dir->tables[table_idx]->pages[page_idx].user = 0;
 }
 
+// Todo: check
+page_t *map_page(uint32_t address, uint32_t flags, page_directory_t *dir) {
+    // Determine the table index and page index for the page
+    uint32_t current_table_idx = address / PAGE_SIZE / PAGE_TABLE_SIZE;
+    uint32_t current_page_idx = (address / PAGE_SIZE) % PAGE_TABLE_SIZE;
+
+    // Allocate a new page table if one does not exist for the current table index
+    if (!dir->tables[current_table_idx]) {
+        dir->tables[current_table_idx] = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &dir->tablesPhysical[current_table_idx]);
+        memset(dir->tables[current_table_idx], 0, PAGE_SIZE);
+        dir->tablesPhysical[current_table_idx] |= PAGE_PRESENT | PAGE_WRITE | PAGE_USER;
+    }
+
+    // Set the appropriate flags for the page table entry
+    dir->tables[current_table_idx]->pages[current_page_idx].present = 1;
+    dir->tables[current_table_idx]->pages[current_page_idx].rw = (flags & PAGE_WRITE) ? 1 : 0;
+    dir->tables[current_table_idx]->pages[current_page_idx].user = (flags & PAGE_USER) ? 1 : 0;
+
+    // Set the appropriate flags for the page
+    page_t *page = &dir->tables[current_table_idx]->pages[current_page_idx];
+    page->present = 1;
+    page->rw = (flags & PAGE_WRITE) ? 1 : 0;
+    page->user = (flags & PAGE_USER) ? 1 : 0;
+
+    // Return a pointer to the page table entry
+    return page;
+}
+
 page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
     /* Make a new page table, which is page aligned */
     page_table_t *table = (page_table_t *)kmalloc_ap(sizeof(page_table_t), physAddr);
@@ -256,8 +319,8 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
     /* Ensure that the new table is blank */
 
     // Todo: Fix page_directory_t -> page_table_t
-    memset(table, 0, sizeof(page_directory_t)); // 8192
-    // memset(table, 0, sizeof(page_table_t)); // 4096
+    // memset(table, 0, sizeof(page_directory_t)); // 8192
+    memset(table, 0, sizeof(page_table_t)); // 4096
 
     /* For every entry in the table... */
     for (int32_t i = 0; i < PAGE_TABLE_SIZE; i++) {
@@ -265,6 +328,11 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
         if (src->pages[i].frame) {
             /* Get a new frame */
             alloc_frame(&table->pages[i], 0, 0);
+
+            if (!table->pages[i].frame) {
+                __WARND("Failed to allocate frame for page %d!", i);
+                continue;
+            }
 
             /* Clone the flags from source to destination */
             if (src->pages[i].present)
@@ -279,6 +347,28 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
                 table->pages[i].dirty = 1;
 
             copy_page_physical(src->pages[i].frame * PAGE_SIZE, table->pages[i].frame * PAGE_SIZE);
+
+            if (!src->pages[i].frame || !table->pages[i].frame) {
+                __WARND("Invalid frame for page %d!", i);
+                continue;
+            }
+
+            if (!IS_PAGE_MAPPED(src->pages[i].frame) || !IS_PAGE_MAPPED(table->pages[i].frame)) {
+                __WARND("Page %d not mapped!", i);
+                map_page(src->pages[i].frame * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE, kernel_directory);
+                continue;
+            }
+
+            if (!IS_PAGE_READABLE(src->pages[i].frame) || !IS_PAGE_READABLE(table->pages[i].frame)) {
+                __WARND("Page %d not readable!", i);
+                src->pages[i].rw = 1;
+                continue;
+            }
+
+            /* Check if the physical pages are identical */
+            if (memcmp((void *)(src->pages[i].frame * PAGE_SIZE), (void *)(table->pages[i].frame * PAGE_SIZE), PAGE_SIZE) != 0) {
+                __WARND("Physical pages %d are not identical!", i);
+            }
         }
     }
     return table;
@@ -326,7 +416,13 @@ page_directory_t *clone_page_directory(page_directory_t *src) {
             /* Copy the table */
             /* uint32_t phys; */
             dir->tables[i] = clone_table(src->tables[i], &phys);
-            dir->tablesPhysical[i] = phys | 0x07;
+
+            if (!dir->tables[i]) {
+                __WARND("Failed to clone table %d!", i);
+                continue;
+            }
+
+            dir->tablesPhysical[i] = phys | PAGE_PRESENT | PAGE_WRITE | PAGE_USER;
         }
     }
     return dir;

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 17:29:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 13:48:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 #include <kernel.h>
 #include <system/pit.h>
 
-#define PAGE_SIZE 0x1000
-#define PAGE_TABLE_SIZE 1024
+#define PAGE_SIZE 0x1000 // 4KB
+#define PAGE_TABLE_SIZE 0x0400 // 1024
 
 #define MEMORY_END_PAGE 0x1000000 // 16MB
 
@@ -28,10 +28,13 @@
 
 #define IS_ALIGNED(x) ((x & PAGE_MASK))
 #define IS_PAGE_ALIGNED(x) ((x & PAGE_MASK) == x)
+#define IS_FRAME_ALIGNED(FRAME) (((FRAME) << 12) % PAGE_SIZE == 0)
+#define IS_PAGE_MAPPED(x) (get_page(x, current_directory)->frame != 0)
+#define IS_PAGE_READABLE(x) (get_page(x, current_directory)->rw)
 #define ALIGN(x) (x = ((x & PAGE_MASK) + PAGE_SIZE))
 
-#define VIRTUAL_TO_PHYSICAL(vaddr) (get_physical_address(vaddr))
-#define PHYSICAL_TO_VIRTUAL(paddr) (get_virtual_address(paddr))
+#define VIRTUAL_TO_PHYSICAL(dir, vaddr) (get_physical_address(dir, vaddr))
+#define PHYSICAL_TO_VIRTUAL(dir, paddr) (get_virtual_address(dir, paddr))
 
 #define PAGEDIR_INDEX(vaddr) (((uint32_t)vaddr) >> 22)
 #define PAGETBL_INDEX(vaddr) ((((uint32_t)vaddr) >>12) & 0x3FF)
@@ -80,8 +83,8 @@ extern void page_fault(struct regs *r);
 extern void enable_paging(page_directory_t *dir);
 extern uint32_t get_cr2(void);
 
-extern void *get_physical_address(void *addr);
-extern void *get_virtual_address(void *addr);
+extern void *get_physical_address(page_directory_t *dir, void *addr);
+extern void *get_virtual_address(page_directory_t *dir, void *addr);
 
 extern void switch_page_directory(page_directory_t *dir);
 extern void flush_tlb_entry(uint32_t addr);

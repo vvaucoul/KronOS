@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/21 20:14:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/24 12:14:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,13 @@ void free_frame(page_t *page) {
 }
 
 void init_frames() {
-
-    n_frames = 0x1000000 / PAGE_SIZE;
+    // n_frames = 0x1000000 / PAGE_SIZE;
+    n_frames = kernel_memory_map.total.total_memory_length * 1024 / PAGE_SIZE;
     frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames));
+
+    if (!frames) {
+        __PANIC("Failed to allocate frames");
+    }
+
     memset(frames, 0, INDEX_FROM_BIT(n_frames));
 }

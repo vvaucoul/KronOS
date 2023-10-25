@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Rules.mk                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/11/20 12:18:28 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 11:30:50 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,3 +26,9 @@ LIBKFS_DIR				=	Hephaistos
 LIBKFS					=	$(LIBKFS_DIR)/Hephaistos.a
 
 DEPENDENCIES_DIR		=	dependencies
+
+VFS_DIR					=	disk
+VFS_FILENAME			=	floppy.img
+
+INITRD_DIR				= 	isodir/boot
+INITRD					=	initrd.img

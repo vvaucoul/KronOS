@@ -6,20 +6,13 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/20 10:23:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/07/20 10:53:15 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 11:21:09 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #!/bin/bash
 
 # Create floppy.img
-
-# Check if bochs is installed
-
-if ! [ -x "$(command -v bochs)" ]; then
-    echo "Bochs is not installed, please install it"
-    exit 1
-fi
 
 # Check if mkfs.ext2 is installed
 

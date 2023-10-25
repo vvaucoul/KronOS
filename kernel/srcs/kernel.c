@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 15:51:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 11:46:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,9 @@
 #include <memory/memory.h>
 #include <memory/memory_map.h>
 #include <memory/paging.h>
+
+#include <filesystem/ext2/vfs_ext2.h>
+#include <filesystem/initrd.h>
 
 #include <memory/mmap.h>
 
@@ -177,6 +180,22 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     enable_fpu();
     kernel_log_info("LOG", "FPU");
 
+    /* Basic INITRD - VFS - EXT2 Implementation */
+    if (__multiboot_info->mods_count > 0) {
+        kernel_log_info("LOADING", "INITRD - FILESYSTEM");
+        // ksleep(2);
+        uint32_t initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
+        uint32_t initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
+        fs_root = initialise_initrd(initrd_location);
+        placement_addr = initrd_end;
+        kernel_log_info("LOG", "INITRD");
+        // ksleep(2);
+        kernel_log_info("LOG", "VFS - EXT2");
+        // ksleep(2);
+    } else {
+        __WARND("No multi boot modules found, kernel will not use filesystem.");
+    }
+
     init_paging();
     kernel_log_info("LOG", "PAGING");
     kernel_log_info("LOG", "HEAP");
@@ -231,13 +250,39 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     printk("Stringify: " _GREEN "%s\n" _END, (STRINGIFY(Hello World !)));
 
-    // Todo: EXT2 VFS
-    // assert(__multiboot_info->mods_count > 0);
-    // uint32_t initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
-    // uint32_t initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
-    // // Don't trample our module with placement accesses, please!
-    // placement_address = initrd_end;
+    // Display initrd files
 
+    // list the contents of /
+
+    printk("Initrd files:\n");
+
+    int i = 0;
+    struct dirent *node = 0;
+    while ((node = readdir_fs(fs_root, i)) != 0) {
+        printk("Found file ");
+        printk(node->name);
+        fs_node_t *fsnode = finddir_fs(fs_root, node->name);
+
+        if ((fsnode->flags & 0x7) == FS_DIRECTORY) {
+            printk("\n\t(directory)\n");
+        } else {
+            printk("\n\t contents: \"");
+            uint8_t buf[256];
+            uint32_t sz = read_fs(fsnode, 0, 256, buf);
+            uint32_t j;
+            for (j = 0; j < sz; j++) {
+                char temp_str[2] = {buf[j], '\0'};
+                printk(temp_str);
+            }
+
+            printk("\"\n");
+        }
+        i++;
+    }
+
+    kpause();
+    // Don't trample our module with placement accesses, please!
+    // placement_address = initrd_end;
 
     // uint32_t esp;
     // GET_ESP(esp);
@@ -245,9 +290,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // kernel_log_info("LOG", "TSS");
     // switch_to_user_mode();
 
-    process_test();
+    // process_test();
     kpause();
-   
 
     // Todo: Fix priority
     // task_set_priority(pid_tmp, TASK_PRIORITY_LOW);

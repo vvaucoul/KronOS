@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 09:52:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 10:53:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 
 #define EXT2_MAGIC 0xEF53
 #define EXT2_FILE_NAME_MAX_SIZE 128
+
+struct fs_node;
 
 typedef uint32_t (*read_type_t)(struct fs_node *, uint32_t, uint32_t, uint8_t *);
 typedef uint32_t (*write_type_t)(struct fs_node *, uint32_t, uint32_t, uint8_t *);
@@ -49,25 +51,25 @@ typedef struct dirent // One of these is returned by the readdir call, according
     uint32_t ino;                       // Inode number. Required by POSIX.
 } dirent_t;
 
-#define FS_FILE 0x01
-#define FS_DIRECTORY 0x02
-#define FS_CHARDEVICE 0x03
-#define FS_BLOCKDEVICE 0x04
-#define FS_PIPE 0x05
-#define FS_SYMLINK 0x06
-#define FS_MOUNTPOINT 0x08 // Is the file an active mountpoint?
+#define FS_FILE 0x01        // File
+#define FS_DIRECTORY 0x02   // Directory
+#define FS_CHARDEVICE 0x03  // Character device
+#define FS_BLOCKDEVICE 0x04 // Block device
+#define FS_PIPE 0x05        // FIFO
+#define FS_SYMLINK 0x06     // Symlink
+#define FS_MOUNTPOINT 0x08  // Mountpoint
 
 extern fs_node_t *fs_root; // The root of the filesystem.
 
 // Standard read/write/open/close functions. Note that these are all suffixed with
 // _fs to distinguish them from the read/write/open/close which deal with file descriptors
 // not file nodes.
-uint32_t read_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-uint32_t write_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-void open_fs(fs_node_t *node, uint8_t read, uint8_t write);
-void close_fs(fs_node_t *node);
-struct dirent *readdir_fs(fs_node_t *node, uint32_t index);
-fs_node_t *finddir_fs(fs_node_t *node, char *name);
+extern uint32_t read_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+extern uint32_t write_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+extern void open_fs(fs_node_t *node, uint8_t read, uint8_t write);
+extern void close_fs(fs_node_t *node);
+extern struct dirent *readdir_fs(fs_node_t *node, uint32_t index);
+extern fs_node_t *finddir_fs(fs_node_t *node, char *name);
 
 /*
 ◦ Name

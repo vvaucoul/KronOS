@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/07/20 16:09:52 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 11:31:31 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -112,7 +112,7 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
 all: $(NAME)
 
-$(NAME): ascii $(XORRISO) $(CCACHE) lkfs $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) helper
+$(NAME): ascii $(XORRISO) $(CCACHE) lkfs $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) initrd helper
 	@true
 
 lkfs-install:

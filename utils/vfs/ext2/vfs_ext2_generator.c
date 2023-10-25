@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:43:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 09:40:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 11:20:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,11 @@ struct initrd_header {
 };
 
 int main(char argc, char **argv) {
+    if (argc < 2) {
+        printf("%s <files...>\n", argv[0]);
+        return 1;
+    }
+
     int nheaders = (argc - 1) / 2;
     struct initrd_header headers[64];
     printf("size of header: %ld\n", sizeof(struct initrd_header));

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/07/19 23:22:36 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 11:32:57 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,8 @@ else
 	QEMU			:=	kvm
 endif
 
-DISK_NAME			=	$(NAME).img
+DISK_PATH			=	./disks
+DISK_NAME			=	floppy.img
 DISK_SIZE			=	256M
 
 #******************************************************************************#
@@ -46,9 +47,13 @@ run-debug: $(NAME)
 	@x-terminal-emulator -e gdb -q -x scripts/gdb-commands.txt 
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -serial file:serial.log
 
+run-iso-disk: $(NAME) $(DISK_NAME)
+	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) and $(_LYELLOW)disk$(_LWHITE) !\n"
+	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -cdrom $(NAME).iso -boot order=cd -drive file=$(DISK_PATH)/$(DISK_NAME),format=raw -display gtk -vga std -full-screen
+
 run-disk: $(NAME) $(DISK_NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
-	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -kernel isodir/boot/$(BIN) -drive file=$(DISK_NAME),format=raw -display gtk -vga std -full-screen
+	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -kernel isodir/boot/$(BIN) -drive file=$(DISK_PATH)/$(DISK_NAME),format=raw -display gtk -vga std -full-screen
 
 clean-disk:
 	@rm -rf $(DISK_NAME)

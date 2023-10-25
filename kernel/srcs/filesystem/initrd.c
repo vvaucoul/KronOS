@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 09:50:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 11:36:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/initrd.h>
+#include <memory/memory.h>
 
 initrd_header_t *initrd_header;     // The header.
 initrd_file_header_t *file_headers; // The list of file headers.
@@ -38,7 +39,7 @@ static struct dirent *initrd_readdir(fs_node_t *node, uint32_t index) {
         return &dirent;
     }
 
-    if (index - 1 >= nroot_nodes)
+    if (index - 1 >= (uint32_t)nroot_nodes)
         return 0;
     strcpy(dirent.name, root_nodes[index - 1].name);
     dirent.ino = root_nodes[index - 1].inode;
@@ -85,17 +86,19 @@ fs_node_t *initialise_initrd(uint32_t location) {
     initrd_dev->finddir = &initrd_finddir;
     initrd_dev->ptr = 0;
     initrd_dev->impl = 0;
+
+    // kpause();
+
     root_nodes = (fs_node_t *)kmalloc(sizeof(fs_node_t) * initrd_header->nfiles);
     nroot_nodes = initrd_header->nfiles;
     // For every file...
-    int i;
-    for (i = 0; i < initrd_header->nfiles; i++) {
+    for (uint32_t i = 0; i < initrd_header->nfiles; i++) {
         // Edit the file's header - currently it holds the file offset
         // relative to the start of the ramdisk. We want it relative to the start
         // of memory.
         file_headers[i].offset += location;
         // Create a new file node.
-        strcpy(root_nodes[i].name, &file_headers[i].name);
+        strcpy(root_nodes[i].name, (char *)&file_headers[i].name);
         root_nodes[i].mask = root_nodes[i].uid = root_nodes[i].gid = 0;
         root_nodes[i].length = file_headers[i].length;
         root_nodes[i].inode = i;

@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 13:51:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 13:39:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <memory/kheap.h>
-#include <memory/shared.h>
 #include <memory/paging.h>
+#include <memory/shared.h>
 #include <system/panic.h>
 #include <workflows/workflows.h>
 
@@ -709,7 +709,6 @@ void kheap_test(void) {
     // uint32_t val = *ptr_fault;
     // __UNUSED(val);
 
-
     // Test for kmalloc_shared
     {
         // Allocate shared memory
@@ -722,14 +721,14 @@ void kheap_test(void) {
         char *another_ptr = (char *)kdup_shared(shared_data);
 
         // Both should point to the same data
-        printk("Shared data: %s\n", shared_data);          // Output should be "Hello, World!"
-        printk("Another pointer data: %s\n", another_ptr); // Output should be "Hello, World!"
+        printk("Shared data: %s (should be Hello World !)\n", shared_data);          // Output should be "Hello, World!"
+        printk("Another pointer data: %s (should be Hello World !)\n", another_ptr); // Output should be "Hello, World!"
 
         // Free one of the pointers
         kfree_shared(another_ptr);
 
         // Data should still be accessible
-        printk("Shared data after free: %s\n", shared_data); // Output should be "Hello, World!"
+        printk("Shared data after free first ptr: %s (should be Hello World !)\n", shared_data); // Output should be "Hello, World!"
 
         // Free the other pointer
         kfree_shared(shared_data);

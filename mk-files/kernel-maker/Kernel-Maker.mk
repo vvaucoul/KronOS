@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/10/25 12:24:41 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 12:28:01 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,7 +47,7 @@ bin: $(OBJS_ASM) $(OBJS)
 $(INITRD_DIR)/$(INITRD):
 	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(DISK_NAME)"
 	@cd ./utils/vfs/ext2/ && gcc -o make_initrd vfs_ext2_generator.c
-	@cd ./utils/vfs/ext2/ && ./make_initrd test.txt test
+	@cd ./utils/vfs/ext2/ && ./make_initrd test.txt test > /dev/null 2>&1
 	@cd ./utils/vfs/ext2/ && cp $(INITRD) ../../../$(INITRD_DIR)/$(INITRD)
 
 initrd: $(OBJS_ASM) $(OBJS)

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 21:13:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 13:51:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@
 #define MAX_TASKS 4           // 4 tasks max
 #define PID_MAX __INT32_MAX__ // Max pid
 
-// #define __DEBUG__ 1
+#define __DEBUG__ 1
 
 #ifdef __DEBUG__
-#define __DEBUG_TASK_FREQUENCY 4
+#define __DEBUG_TASK_FREQUENCY 16
 #define TASK_FREQUENCY __DEBUG_TASK_FREQUENCY
 #else
 #define TASK_FREQUENCY 1

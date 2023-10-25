@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:43:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 10:57:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 12:46:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,5 +27,6 @@ typedef struct {
 } initrd_file_header_t;
 
 extern fs_node_t *initialise_initrd(uint32_t location);
+extern void read_disk(void);
 
 #endif /* INITRD_H */

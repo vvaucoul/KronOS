@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 21:11:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 23:37:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 14:06:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,9 @@ int32_t __process_zombie(task_t *current_task) {
                                "\n",
                        tmp->pid);
                 int ret = free_task(tmp);
+
+                if (ret)
+                    return ret;
                 tmp = next;
 
             } else {

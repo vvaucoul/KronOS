@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 14:30:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 13:18:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys) {
             else
                 *phys = 0;
         }
-        if (align) {
+        if (align && (placement_addr & 0xFFFFF000)) {
             if ((placement_addr & 0xFFFFF000)) {
                 placement_addr &= 0xFFFFF000;
                 placement_addr += PAGE_SIZE;

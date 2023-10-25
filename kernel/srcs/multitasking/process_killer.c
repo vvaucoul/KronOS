@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 20:33:35 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 01:37:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 14:01:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,12 @@ int32_t __process_killer(void) {
                            "\n",
                    tmp->pid);
             int ret = free_task(tmp);
+            printk("Ret: %d\n", ret);
 
-            // if (ret)
-            //     return (ret);
-            
+            if (ret) {
+            return (ret);
+            }
+
             tmp = next;
             return (ret);
         } else {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 13:48:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 13:36:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,11 +122,11 @@ extern bool paging_enabled;
 #define __addr_validator(addr, is_virtual)        \
     do {                                          \
         if (!paging_enabled)                      \
-            __THROW(E_PAGING_NOT_ENABLED, NULL);  \
+            __WARN(E_PAGING_NOT_ENABLED, NULL);  \
         if (!addr)                                \
-            __THROW(E_INVALID_ADDRESS, NULL);     \
+            __WARN(E_INVALID_ADDRESS, NULL);     \
         if ((uint32_t)addr % PAGE_SIZE != 0)      \
-            __THROW(E_ADDRESS_NOT_ALIGNED, NULL); \
+            __WARN(E_ADDRESS_NOT_ALIGNED, NULL); \
     } while (0)
 
 #define READ_CR3() ({                \

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 12:58:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 14:05:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -381,8 +381,9 @@ int32_t kill_task(int32_t pid) {
             }
         }
 
-        tmp_task->state = TASK_ZOMBIE;
-        // tmp_task->state = TASK_STOPPED;
+        tmp_task->state = TASK_ZOMBIE; // works to waitpid
+        // tmp_task->state = TASK_STOPPED; // works to stop while task immediatly
+        
         // kmsleep(TASK_FREQUENCY);
         // busy_wait((1 * TIMER_PHASE) / 1000); // Wait 1 second
 

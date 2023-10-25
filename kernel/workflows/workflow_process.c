@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 15:12:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 14:09:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,12 +260,43 @@ void display() {
     }
 }
 
+void wait_pid_task(void) {
+    printk("[%d] -> Hello from waitpid task\n", getpid());
+    ksleep(2);
+    printk("[%d] -> End waitpid task\n", getpid());
+    exit(42);
+}
+
+void while_task() {
+    while (1) {
+        for (int i = 0; i < 10; i++) {
+            printk("["_GREEN
+                   "%d"_END
+                   "] ["_GREEN
+                   "%d"_END
+                   "] Fibonacci: "_GREEN
+                   "%d"_END
+                   "\n",
+                   getpid(), get_task(getpid())->state, fibonacci(i));
+            kmsleep(TASK_FREQUENCY);
+        }
+    }
+}
+
 void tmp() {
+    // pid_t pid = init_task(wait_pid_task);
+    // int st = 0;
+    // waitpid(pid, &st, 0);
+    // printk("ST: %d\n", st);
 
-    init_task(process_zombie_01);
+    pid_t pid = init_task(while_task);
+    ksleep(3);
+    printk("Kill task [%d]\n", pid);
+    kill_task(pid);
 
-    ksleep(10);
-    kill(3, SIGKILL);
+    // ksleep(2);
+
+    // printk("Kill all tasks\n");
 
     pause();
 
@@ -351,7 +382,7 @@ void tmp() {
 void process_test(void) {
     __WORKFLOW_HEADER();
 
-    // tmp();
+    tmp();
 
     printk("- Kernel PID: "_GREEN
            "[%u]"_END
@@ -362,8 +393,8 @@ void process_test(void) {
 
     // init_task(print_all_tasks);
 
-//     goto mtt;
-// mtt: {}
+    //     goto mtt;
+    // mtt: {}
 
     // ! ||--------------------------------------------------------------------------------||
     // ! ||                                  TASK - DUMMY                                  ||

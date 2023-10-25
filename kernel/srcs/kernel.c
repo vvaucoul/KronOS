@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 11:46:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 13:39:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,43 +254,21 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // list the contents of /
 
-    printk("Initrd files:\n");
-
-    int i = 0;
-    struct dirent *node = 0;
-    while ((node = readdir_fs(fs_root, i)) != 0) {
-        printk("Found file ");
-        printk(node->name);
-        fs_node_t *fsnode = finddir_fs(fs_root, node->name);
-
-        if ((fsnode->flags & 0x7) == FS_DIRECTORY) {
-            printk("\n\t(directory)\n");
-        } else {
-            printk("\n\t contents: \"");
-            uint8_t buf[256];
-            uint32_t sz = read_fs(fsnode, 0, 256, buf);
-            uint32_t j;
-            for (j = 0; j < sz; j++) {
-                char temp_str[2] = {buf[j], '\0'};
-                printk(temp_str);
-            }
-
-            printk("\"\n");
-        }
-        i++;
-    }
-
-    kpause();
-    // Don't trample our module with placement accesses, please!
-    // placement_address = initrd_end;
+    //Todo: KFS-6
+    // printk("Initrd files:\n");
+    // read_disk();
+    // uint8_t buffer[] = "Hello, World!";
+    // write_fs(fs_root, 0, strlen((const char *)buffer), buffer);
+    // read_disk();
 
     // uint32_t esp;
     // GET_ESP(esp);
     // tss_init(7, 0x10, esp);
     // kernel_log_info("LOG", "TSS");
     // switch_to_user_mode();
-
-    // process_test();
+    
+        
+    process_test();
     kpause();
 
     // Todo: Fix priority

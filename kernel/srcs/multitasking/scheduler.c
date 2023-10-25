@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 13:04:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 14:10:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,6 @@ void wait_for_scheduler_rounded(void) {
     // } while (any_task_has_signal);
 }
 
-
 void switch_task(void) {
     if (!scheduler_initialized)
         return;
@@ -144,10 +143,8 @@ void switch_task(void) {
         current_task = current_task->next;
     if (!current_task)
         current_task = ready_queue;
-    
 
     current_task = __process_selector(current_task);
-
 
     // TODO: Debug
     // if (current_task && current_task->state == TASK_STOPPED) {
@@ -162,7 +159,7 @@ void switch_task(void) {
     if (!current_task)
         current_task = ready_queue;
 
-    // printk("Switching to task %d\n", current_task->pid);
+    printk("Switching to task %d\n", current_task->pid);
 
     /* Save the context of our current task */
     prev_task = current_task;
@@ -186,7 +183,13 @@ void switch_task(void) {
     __task_overflow_handler();
 
     /* Kill stopped tasks */
-    __process_killer();
+    int32_t killed_task = __process_killer();
+
+    // We just killed current task
+    if (killed_task) {
+        printk("Killed task [%d]\n", killed_task);
+        return;
+    }
 
     /* Check if the current task is a zombie */
     __process_zombie(current_task);
@@ -199,6 +202,10 @@ void switch_task(void) {
 
     /* Revive Zombies / Orphans tasks and attach them to the INIT task (Like UNIX System) */
     __orphans_collector(current_task);
+
+    /* Do not execute Zombie or Stopped tasks */
+    if (current_task && (current_task->state == TASK_ZOMBIE || current_task->state == TASK_STOPPED))
+        return;
 
     /* Switch to the new task's kernel stack */
     /* 0x12345: just a magic number */

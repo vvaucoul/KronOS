@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 10:52:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 12:51:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,25 @@
 fs_node_t *fs_root = 0; // The root of the filesystem.
 
 uint32_t read_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
-    if (node->read != 0)
+    if (node->read != 0) {
+        printk("Reading from disk...\n");
         return node->read(node, offset, size, buffer);
-    else
+    }
+    else {
+        __WARND("Cannot read from disk");
         return 0;
+    }
 }
 
 uint32_t write_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
-    if (node->write != 0)
+    if (node->write != 0) {
+        printk("Writing to disk...\n");
         return node->write(node, offset, size, buffer);
-    else
+    }
+    else {
+        __WARND("Cannot write to disk");
         return 0;
+    }
 }
 
 void open_fs(fs_node_t *node, uint8_t read, uint8_t write) {

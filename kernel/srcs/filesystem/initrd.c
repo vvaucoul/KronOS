@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 11:36:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 12:56:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,14 @@ static fs_node_t *initrd_finddir(fs_node_t *node, char *name) {
     return 0;
 }
 
+static uint32_t initrd_write(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+    initrd_file_header_t header = file_headers[node->inode];
+    if (offset + size > header.length)
+        return 0;  // Not enough space
+    memcpy((uint8_t *)(header.offset + offset), buffer, size);
+    return size;
+}
+
 fs_node_t *initialise_initrd(uint32_t location) {
     // Initialise the main and file header pointers and populate the root directory.
     initrd_header = (initrd_header_t *)location;
@@ -87,8 +95,6 @@ fs_node_t *initialise_initrd(uint32_t location) {
     initrd_dev->ptr = 0;
     initrd_dev->impl = 0;
 
-    // kpause();
-
     root_nodes = (fs_node_t *)kmalloc(sizeof(fs_node_t) * initrd_header->nfiles);
     nroot_nodes = initrd_header->nfiles;
     // For every file...
@@ -104,7 +110,7 @@ fs_node_t *initialise_initrd(uint32_t location) {
         root_nodes[i].inode = i;
         root_nodes[i].flags = FS_FILE;
         root_nodes[i].read = &initrd_read;
-        root_nodes[i].write = 0;
+        root_nodes[i].write = &initrd_write;
         root_nodes[i].readdir = 0;
         root_nodes[i].finddir = 0;
         root_nodes[i].open = 0;
@@ -112,4 +118,34 @@ fs_node_t *initialise_initrd(uint32_t location) {
         root_nodes[i].impl = 0;
     }
     return initrd_root;
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                 DEBUG FUNCTION                                 ||
+// ! ||--------------------------------------------------------------------------------||
+
+void read_disk(void) {
+    int i = 0;
+    struct dirent *node = 0;
+    while ((node = readdir_fs(fs_root, i)) != 0) {
+        printk("Found file ");
+        printk(node->name);
+        fs_node_t *fsnode = finddir_fs(fs_root, node->name);
+
+        if ((fsnode->flags & 0x7) == FS_DIRECTORY) {
+            printk("\n\t(directory)\n");
+        } else {
+            printk("\n\t contents: \"");
+            uint8_t buf[256];
+            uint32_t sz = read_fs(fsnode, 0, 256, buf);
+            uint32_t j;
+            for (j = 0; j < sz; j++) {
+                char temp_str[2] = {buf[j], '\0'};
+                printk(temp_str);
+            }
+
+            printk("\"\n");
+        }
+        i++;
+    }
 }

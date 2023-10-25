@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/10/25 11:31:31 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 12:03:26 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -112,7 +112,7 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
 all: $(NAME)
 
-$(NAME): ascii $(XORRISO) $(CCACHE) lkfs $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) initrd helper
+$(NAME): ascii $(XORRISO) $(CCACHE) lkfs $(BOOT) $(KDSRCS) $(HEADERS) $(BIN_DIR)/$(BIN) $(ISO) initrd vfs helper
 	@true
 
 lkfs-install:
@@ -142,8 +142,8 @@ check:
 
 clean:
 	@make -s -C $(LIBKFS_DIR) clean
-	@make -s -C . clean-disk
 	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM) $(DEPENDSXX)
+	@make -s clean-vfs
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 fclean: clean docker-clear
@@ -166,6 +166,12 @@ ascii:
 
 helper:
 	@printf "\n$(_LWHITE)- Now you use: '$(_LYELLOW)make run$(_END)$(_LWHITE)' or '$(_LYELLOW)make run-iso$(_END)$(_LWHITE)' to start the kernel !$(_END)\n"
+
+clean-vfs:
+	# @printf "$(_LWHITE)    $(_DIM)- Cleaning: $(_END)$(_DIM)---------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "VFS"
+	@sh $(VFS_CLEAN_SCRIPT)
+
+.PHONY: clean-vfs
 
 include $(MK_INCLUDE_DIR)/kernel-starter/QEMU-Runner.mk
 include $(MK_INCLUDE_DIR)/docker/Docker.mk

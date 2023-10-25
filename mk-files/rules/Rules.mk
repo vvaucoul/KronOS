@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/10/25 11:30:50 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 12:03:21 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,8 +27,18 @@ LIBKFS					=	$(LIBKFS_DIR)/Hephaistos.a
 
 DEPENDENCIES_DIR		=	dependencies
 
+# ! ||--------------------------------------------------------------------------------||
+# ! ||                                   FILESYSTEM                                   ||
+# ! ||--------------------------------------------------------------------------------||
+
 VFS_DIR					=	disk
 VFS_FILENAME			=	floppy.img
 
 INITRD_DIR				= 	isodir/boot
 INITRD					=	initrd.img
+
+DISK_PATH				=	isodir/boot
+DISK_NAME				=	floppy.img
+DISK_SIZE				=	256M
+
+VFS_CLEAN_SCRIPT		=	./utils/vfs/clean.sh

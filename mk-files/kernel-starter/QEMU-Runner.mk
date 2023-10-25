@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/10/25 11:32:57 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 12:27:02 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,10 +17,6 @@ ifeq ($(CHECK_USE_KVM), false)
 else
 	QEMU			:=	kvm
 endif
-
-DISK_PATH			=	./disks
-DISK_NAME			=	floppy.img
-DISK_SIZE			=	256M
 
 #******************************************************************************#
 #*                         START KERNEL WITH KVM/QEMU                         *#
@@ -47,19 +43,12 @@ run-debug: $(NAME)
 	@x-terminal-emulator -e gdb -q -x scripts/gdb-commands.txt 
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -serial file:serial.log
 
-run-iso-disk: $(NAME) $(DISK_NAME)
-	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) and $(_LYELLOW)disk$(_LWHITE) !\n"
+run-iso-disk: $(NAME) initrd vfs
+	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) and $(_LYELLOW)disk$(_LWHITE): $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -cdrom $(NAME).iso -boot order=cd -drive file=$(DISK_PATH)/$(DISK_NAME),format=raw -display gtk -vga std -full-screen
 
-run-disk: $(NAME) $(DISK_NAME)
+run-disk: $(NAME) initrd vfs
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -kernel isodir/boot/$(BIN) -drive file=$(DISK_PATH)/$(DISK_NAME),format=raw -display gtk -vga std -full-screen
-
-clean-disk:
-	@rm -rf $(DISK_NAME)
-
-$(DISK_NAME):
-	@printf "\n- $(_LWHITE)Creating disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) for $(_LYELLOW)KFS$(_LWHITE) !\n"
-	@sh ./scripts/kvm-create-disk.sh $(DISK_NAME) $(DISK_SIZE) .
 
 .PHONY: run run-sdl run-iso run-curses run-debug run-disk clean-disk

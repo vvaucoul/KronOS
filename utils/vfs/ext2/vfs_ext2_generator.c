@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:43:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 11:20:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/25 11:54:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,17 @@ struct initrd_header {
 };
 
 int main(char argc, char **argv) {
-    if (argc < 2) {
-        printf("%s <files...>\n", argv[0]);
+    if (argc < 3 || argc % 2 == 0) {
+        printf("%s <source_file> <dest_name> ...\n", argv[0]);
         return 1;
     }
 
     int nheaders = (argc - 1) / 2;
+    if (nheaders > 64) {
+        printf("Too many files, max is 64\n");
+        return 1;
+    }
+
     struct initrd_header headers[64];
     printf("size of header: %ld\n", sizeof(struct initrd_header));
     unsigned int off = sizeof(struct initrd_header) * 64 + sizeof(int);
@@ -48,13 +53,23 @@ int main(char argc, char **argv) {
         headers[i].magic = 0xBF;
     }
 
-    FILE *wstream = fopen("../../../kfs.img", "w");
+    FILE *wstream = fopen("initrd.img", "w");
+    if (wstream == NULL) {
+        perror("Could not open output file");
+        return 1;
+    }
+
     unsigned char *data = (unsigned char *)malloc(off);
     fwrite(&nheaders, sizeof(int), 1, wstream);
     fwrite(headers, sizeof(struct initrd_header), 64, wstream);
 
     for (i = 0; i < nheaders; i++) {
         FILE *stream = fopen(argv[i * 2 + 1], "r");
+        if (stream == NULL) {
+            perror("Could not open input file");
+            fclose(wstream);
+            return 1;
+        }
         unsigned char *buf = (unsigned char *)malloc(headers[i].length);
         fread(buf, 1, headers[i].length, stream);
         fwrite(buf, 1, headers[i].length, wstream);

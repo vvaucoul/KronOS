@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/10/25 11:30:03 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/25 12:24:41 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,21 +45,20 @@ bin: $(OBJS_ASM) $(OBJS)
 	@make -s -C . $(BIN_DIR)/$(BIN)
 
 $(INITRD_DIR)/$(INITRD):
-	@cp ./utils/vfs/initrd.img $(INITRD_DIR)/$(INITRD)
+	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(DISK_NAME)"
+	@cd ./utils/vfs/ext2/ && gcc -o make_initrd vfs_ext2_generator.c
+	@cd ./utils/vfs/ext2/ && ./make_initrd test.txt test
+	@cd ./utils/vfs/ext2/ && cp $(INITRD) ../../../$(INITRD_DIR)/$(INITRD)
 
 initrd: $(OBJS_ASM) $(OBJS)
+	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(INITRD)"
 	@mkdir -p $(INITRD_DIR)
 	@make -s -C . $(INITRD_DIR)/$(INITRD)
 
 $(DISK_PATH)/$(DISK_NAME): 
-	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(DISK_NAME)"
-	@gcc -o ./utils/vfs/ext2/make_initrd ./utils/vfs/ext2/vfs_ext2_generator.c
-	# @./utils/vfs/ext2/make_initrd ./utils/vfs/ext2/test.txt
-	@./utils/vfs/create_image.sh
-	@cp ./utils/vfs/floppy.img $(DISK_PATH)/$(DISK_NAME)
+	@cd ./utils/vfs/ && sh create_image.sh > /dev/null 2>&1
 
 vfs: $(OBJS_ASM) $(OBJS)
-	@rm -rf $(DISK_PATH)
 	@mkdir -p $(DISK_PATH)
 	@make -s -C . $(BIN_DIR)/$(BIN)
 	@make -s -C . $(DISK_PATH)/$(DISK_NAME)

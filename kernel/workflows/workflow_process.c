@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 14:09:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 13:33:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,15 +284,33 @@ void while_task() {
 }
 
 void tmp() {
-    // pid_t pid = init_task(wait_pid_task);
-    // int st = 0;
-    // waitpid(pid, &st, 0);
-    // printk("ST: %d\n", st);
+    pid_t pid_dummy = init_task(task_dummy);
+     init_task(task_dummy);
+     init_task(task_dummy);
+     init_task(task_dummy);
+     init_task(task_dummy);
+     init_task(task_dummy);
+    
+    printk("PID: %d\n", pid_dummy);
 
-    pid_t pid = init_task(while_task);
     ksleep(3);
-    printk("Kill task [%d]\n", pid);
-    kill_task(pid);
+    // kill(pid_dummy, SIGKILL);
+    kill_all_tasks();
+
+
+    pause();
+
+
+
+    pid_t pid = init_task(wait_pid_task);
+    int st = 0;
+    waitpid(pid, &st, 0);
+    printk("ST: %d\n", st);
+
+    // pid_t pid = init_task(while_task);
+    // ksleep(3);
+    // printk("Kill task [%d]\n", pid);
+    // kill_task(pid);
 
     // ksleep(2);
 
@@ -350,7 +368,7 @@ void tmp() {
     pid_t p1 = init_task(process_01);
     print_all_tasks();
 
-    int st = 0;
+     st = 0;
     waitpid(p1, &st, 0);
     printk("ST: %d\n", st);
 
@@ -382,7 +400,7 @@ void tmp() {
 void process_test(void) {
     __WORKFLOW_HEADER();
 
-    tmp();
+    // tmp();
 
     printk("- Kernel PID: "_GREEN
            "[%u]"_END

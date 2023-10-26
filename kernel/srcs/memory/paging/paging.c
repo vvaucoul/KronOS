@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 13:30:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 13:39:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,7 +354,7 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
             }
 
             if (!IS_PAGE_MAPPED(src->pages[i].frame) || !IS_PAGE_MAPPED(table->pages[i].frame)) {
-                __WARND("Page %d not mapped!", i);
+                // __WARND("Page %d not mapped!", i);
                 map_page(src->pages[i].frame * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE, kernel_directory);
                 continue;
             }

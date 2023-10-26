@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 14:05:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 13:38:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,7 +194,7 @@ int32_t task_fork(void) {
     __process_sectors(new_task);
 
     if (!(current_task->kernel_stack))
-        __THROW("task_fork : kmalloc failed", 1);
+        __THROW("task_fork : failed to alloc kernel task", 1);
 
     /* Add it to the end of the ready queue */
     tmp_task = (task_t *)ready_queue;
@@ -456,7 +456,7 @@ int32_t free_task(task_t *task) {
         }
 
         // Todo: free page directory: Currently crash
-        // destroy_page_directory(task->page_directory);
+        destroy_page_directory(task->page_directory);
 
         kfree(task->sectors.bss_segment);
         kfree(task->sectors.data_segment);

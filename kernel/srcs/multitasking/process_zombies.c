@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 21:11:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 14:06:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 13:32:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,24 @@ int32_t __process_zombie(task_t *current_task) {
                                "[%d]"_END
                                "\n",
                        tmp->pid);
-                int ret = free_task(tmp);
 
-                if (ret)
-                    return ret;
+                /* Secure, Kill task only if it's not the current task */
+                if (tmp->pid != current_task->pid) {
+                    int ret = free_task(tmp);
+
+                    if (ret)
+                        return ret;
+                }
                 tmp = next;
 
             } else {
                 tmp->zombie_hungry += ZOMBIE_HUNGRY;
+                printk(_YELLOW "Task "_GREEN
+                               "[%d]"_YELLOW
+                               " is a zombie, waiting for it to die, Hungry: "_GREEN
+                               "[%d]"_END
+                               "\n",
+                       tmp->pid, tmp->zombie_hungry);
                 tmp = tmp->next;
             }
         } else {

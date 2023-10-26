@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 14:10:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:18:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,11 @@ extern task_t *current_task;
 extern task_t *ready_queue;
 
 static task_t *prev_task = NULL;
+
+/* Import Waiting Queue from scheduler.h:
+** Defined in 'process.c'
+*/
+extern task_t *waiting_queue;
 
 bool scheduler_initialized = false;
 
@@ -159,7 +164,7 @@ void switch_task(void) {
     if (!current_task)
         current_task = ready_queue;
 
-    printk("Switching to task %d\n", current_task->pid);
+    // printk("Switching to task %d\n", current_task->pid);
 
     /* Save the context of our current task */
     prev_task = current_task;
@@ -177,6 +182,9 @@ void switch_task(void) {
 
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
+
+    // check if tasks < MAX_TASKS then, add task to ready_queue
+    __process_waiting();
 
     // Todo: ...
     /* Check if the current task has overflowed its stack */

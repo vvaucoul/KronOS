@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 12:47:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:12:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,9 @@
 
 #include <system/signal.h>
 
-// #define KERNEL_STACK_SIZE 0x2000 // 2KB
-// #define KERNEL_STACK_SIZE 0x8000 // 32KB
-
-#warning "Kernel stack size is 32KB, it's too much, reduce it to 2KB"
-#define KERNEL_STACK_SIZE 0x8000 // 32KB // modifier cette valeur change entierement le kernel....
-
-#define INIT_PID 0x1 // First process pid created
+// #warning "Kernel stack size is 32KB, it's too much, reduce it to 2KB"
+#define KERNEL_STACK_SIZE 0x1000 // 4KB - Kernel Stack === PAGE_SIZE
+#define INIT_PID 0x1             // First process pid created
 
 // Each ticks, increase counter by ZOMBIE_HUNGRY, zombie will die after ZOMBIE_HUNGRY_DIE ticks
 #define ZOMBIE_HUNGRY 0x3      // Zombie hungry counter
@@ -147,8 +143,9 @@ extern void task_exit(int32_t retval);
 
 __attribute__((pure)) extern page_directory_t *get_task_directory(void);
 
-task_t *get_wait_queue(void);
+task_t *get_waiting_queue(void);
 uint32_t get_task_count(void);
+uint32_t get_waiting_task_count(void);
 extern uint32_t getuid(void);
 
 extern void lock_task(task_t *task);
@@ -163,5 +160,40 @@ extern double get_cpu_load(task_t *task);
 extern void print_task_info(task_t *task);
 extern void print_all_tasks();
 extern void print_parent_and_children(int pid);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                   READY QUEUE                                  ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern task_t *ready_queue;
+
+/* Ready Queue:
+** - Ready queue is a queue of running tasks
+** - Each tick, we check if a task in ready queue can be executed
+** - If a task can be executed, we execute it
+** - If a task can't be executed, we switch to another task
+*/
+
+extern void __ready_queue_init(void);
+extern void __ready_queue_add_task(task_t *task);
+extern void __ready_queue_remove_task(task_t *task);
+extern void __ready_queue_print(void);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                  WAITING QUEUE                                 ||
+// ! ||--------------------------------------------------------------------------------||
+
+/* Waiting Queue:
+** - Waiting queue is a queue of sleeping tasks
+** - Each tick, we check if a task in waiting queue can be added to ready queue
+** - If a task can be added to ready queue, we add it to ready queue
+*/
+
+extern task_t *waiting_queue;
+
+extern void __waiting_queue_init(void);
+extern void __waiting_queue_add_task(task_t *task);
+extern void __waiting_queue_remove_task(task_t *task);
+extern void __waiting_queue_print(void);
 
 #endif /* !PROCESS_H */

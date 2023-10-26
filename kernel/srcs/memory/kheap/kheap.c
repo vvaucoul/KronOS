@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 14:56:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 15:55:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,9 +148,9 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
     return (heap);
 }
 
-/*******************************************************************************
- *                             INTERFACE FUNCTIONS                             *
- ******************************************************************************/
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                               INTERFACE FUNCTIONS                              ||
+// ! ||--------------------------------------------------------------------------------||
 
 void init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly) {
     kheap = __init_heap(start_addr, end_addr, max_addr, supervisor, readonly);
@@ -227,4 +227,59 @@ void *kbrk_v(uint32_t size) {
 
 uint32_t ksize(void *ptr) {
     return (__ksize(ptr));
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                 DEBUG FUNCTIONS                                ||
+// ! ||--------------------------------------------------------------------------------||
+
+/**
+ * @brief Allocate memory with debug informations
+ */
+void *__kmalloc_debug(uint32_t size, bool align, uint32_t *phys, int line, const char *file, const char *function) {
+    void *ptr = kmalloc_int(size, align, phys);
+    if (!ptr) {
+        __THROW("Failed to allocate memory\nFile [%s] - [%s] - [%d]", NULL, line, file, function);
+    } else {
+        printk(_RED "[DEBUG] " _END "Allocating memory at "_RED
+                    "[%p]"_END
+                    "\n"_YELLOW
+                    "[%s]"_END
+                    " -"_YELLOW
+                    " [%d]"_END
+                    " -"_YELLOW
+                    " [%s]"_END
+                    "\n",
+               ptr, file, line, function);
+    }
+    uint32_t ptr_size = kheap_get_ptr_size(ptr);
+    printk(_RED "[DEBUG] " _END "Memory size "_RED
+                "[%u]"_END
+                "\n"_YELLOW
+                "[%s]"_END
+                " -"_YELLOW
+                " [%d]"_END
+                " -"_YELLOW
+                " [%s]"_END
+                "\n",
+           ptr_size, file, line, function);
+
+    return (ptr);
+}
+
+/**
+ * @brief Free memory with debug informations
+ */
+void __kfree_debug(void *ptr, int line, const char *file, const char *function) {
+    printk(_RED "[DEBUG] " _END "Freeing memory at "_RED
+                "[%p]"_END
+                "\n"_YELLOW
+                "[%s]"_END
+                "- "_YELLOW
+                "[%d] "_END
+                "- "_YELLOW
+                "[%s]"_END
+                "\n",
+           ptr, file, line, function);
+    kfree(ptr);
 }

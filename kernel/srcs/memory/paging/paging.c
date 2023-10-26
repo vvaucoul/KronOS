@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 13:39:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 14:48:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,23 +20,9 @@ page_directory_t *kernel_directory = NULL;
 page_directory_t *current_directory = NULL;
 bool paging_enabled = false;
 
-uint32_t translate_virtual_address(page_directory_t *dir, uint32_t virtual_addr) {
-    uint32_t pd_index = (virtual_addr >> 22) & 0x3FF;
-    uint32_t pt_index = (virtual_addr >> 12) & 0x3FF;
-    uint32_t offset = virtual_addr & 0xFFF;
-
-    if (!dir->tables[pd_index]) {
-        __THROW("Page table not present!", 1);
-    }
-
-    page_table_t *table = dir->tables[pd_index];
-    if (!table->pages[pt_index].present) {
-        __THROW("Page not present!", 1);
-    }
-
-    uint32_t physical_addr = (table->pages[pt_index].frame << 12) | offset;
-    return physical_addr;
-}
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                            UTILS - TRANSLATE ADDRESS                           ||
+// ! ||--------------------------------------------------------------------------------||
 
 void *get_physical_address(page_directory_t *dir, void *addr) {
     __addr_validator(addr, true);
@@ -115,15 +101,6 @@ int is_paging_enabled(void) {
     return (cr0 & CR0_PG_BIT) != 0;
 }
 
-int verify_paging_enabled() {
-    if (!is_paging_enabled()) {
-        __THROW("Paging is not enabled!", 1);
-    } else {
-        printk("Paging is enabled.\n");
-        return (0);
-    }
-}
-
 int verify_page_table(page_table_t *table, uint32_t table_idx) {
     if (!table) {
         __THROW("Page table is not allocated!", 1);
@@ -134,7 +111,6 @@ int verify_page_table(page_table_t *table, uint32_t table_idx) {
     } else if (!(table->pages[0].present & PAGE_PRESENT)) {
         __THROW("Page table is not present!", 1);
     } else {
-        // printk("Page table %d is properly set up.\n", table_idx);
         return (0);
     }
 }
@@ -219,7 +195,7 @@ int verify_page_directory(page_directory_t *dir) {
                     //     __THROW("Page %d in table %d not mapped to correct physical address!", 1, j, i);
                     // }
                     uint32_t physical_page_addr = (table->pages[j].frame << 12);
-                    uint32_t physical_page_addr_from_virt = translate_virtual_address(dir, (uint32_t)(table->pages[j].frame << 12));
+                    uint32_t physical_page_addr_from_virt = (uint32_t)VIRTUAL_TO_PHYSICAL(dir, (void *)((uint32_t)(table->pages[j].frame << 12)));
 
                     if (physical_page_addr != physical_page_addr_from_virt) {
                         printk("Physical Address: 0x%x\n", physical_page_addr);
@@ -354,7 +330,7 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
             }
 
             if (!IS_PAGE_MAPPED(src->pages[i].frame) || !IS_PAGE_MAPPED(table->pages[i].frame)) {
-                // __WARND("Page %d not mapped!", i);
+                __WARND("Page %d not mapped!", i);
                 map_page(src->pages[i].frame * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE, kernel_directory);
                 continue;
             }
@@ -430,11 +406,6 @@ page_directory_t *clone_page_directory(page_directory_t *src) {
 
 page_table_t kernel_page_tables[1024] __attribute__((aligned(4096)));
 
-page_directory_t *create_page_directory() {
-    __PANIC("create_page_directory() is not implemented yet");
-    return NULL;
-}
-
 void destroy_page_directory(page_directory_t *dir) {
     if (dir) {
         // Free all page tables in the page directory
@@ -490,6 +461,10 @@ void switch_page_directory(page_directory_t *dir) {
     // Write back to CR0
     __asm__ volatile("mov %0, %%cr0" ::"r"(cr0));
 }
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                   INIT PAGING                                  ||
+// ! ||--------------------------------------------------------------------------------||
 
 void init_paging(void) {
     init_frames();

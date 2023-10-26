@@ -48,7 +48,9 @@
 			"hephaistos.h": "c",
 			"signal.h": "c",
 			"uid.C": "cpp",
-			"kheap.h": "c"
+			"kheap.h": "c",
+			"string_view": "c",
+			"initializer_list": "c"
 		}
 	}
 }

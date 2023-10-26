@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/10/25 14:11:31 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/26 15:08:09 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -140,13 +140,17 @@ check:
 	@grub-file --is-x86-multiboot $(BIN_DIR)/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"
 	printf "$(_END)$(_DIM) -> ISO CHECKER $(_END)\n"
 
+clean-ccache:
+	@printf "$(_LWHITE)- CLEAN CCACHE $(_END)$(_DIM)----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@$(CCACHE) -c -C > /dev/null 2>&1
+
 clean:
 	@make -s -C $(LIBKFS_DIR) clean
 	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM) $(DEPENDSXX)
 	@make -s clean-vfs
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-fclean: clean docker-clear
+fclean: clean docker-clear clean-ccache
 	@make -s -C $(LIBKFS_DIR) fclean
 	@rm -rf $(DEPENDENCIES_DIR)/$(XORRISO) $(BIN_DIR) $(DEPENDENCIES_DIR)/$(CCACHE_DIR)
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
@@ -183,4 +187,4 @@ include $(MK_INCLUDE_DIR)/dependencies/Dependencies.mk
 -include $(DEPENDS_ASM)
 -include $(DEPENDSXX)
 
-.PHONY: all clean fclean re debug ascii helper check 
+.PHONY: all clean fclean re debug ascii helper check clean-ccache

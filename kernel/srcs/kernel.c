@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 13:39:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 15:39:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,20 +254,19 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // list the contents of /
 
-    //Todo: KFS-6
-    // printk("Initrd files:\n");
-    // read_disk();
-    // uint8_t buffer[] = "Hello, World!";
-    // write_fs(fs_root, 0, strlen((const char *)buffer), buffer);
-    // read_disk();
+    // Todo: KFS-6
+    //  printk("Initrd files:\n");
+    //  read_disk();
+    //  uint8_t buffer[] = "Hello, World!";
+    //  write_fs(fs_root, 0, strlen((const char *)buffer), buffer);
+    //  read_disk();
 
     // uint32_t esp;
     // GET_ESP(esp);
     // tss_init(7, 0x10, esp);
     // kernel_log_info("LOG", "TSS");
     // switch_to_user_mode();
-    
-        
+
     process_test();
     kpause();
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 13:36:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 14:44:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,8 +92,6 @@ extern void flush_tlb_entry(uint32_t addr);
 extern page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *dir);
 extern void destroy_user_page(page_t *page, page_directory_t *dir);
 
-extern page_directory_t *create_page_directory();
-
 extern page_directory_t *clone_page_directory(page_directory_t *dir);
 extern page_table_t *clone_table(page_table_t *src, uint32_t *physAddr);
 extern void copy_page_physical(uint32_t, uint32_t);
@@ -103,7 +101,6 @@ extern void destroy_page_directory(page_directory_t *dir);
 extern int is_paging_enabled(void);
 
 extern int verify_page_directory(page_directory_t *dir);
-extern int verify_paging_enabled();
 extern int verify_page_table(page_table_t *table, uint32_t table_idx);
 extern int verify_page(page_t *page, uint32_t page_idx, uint32_t table_idx);
 extern void display_page_directory(page_directory_t *dir);

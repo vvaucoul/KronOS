@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 13:39:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 13:58:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ void test_create_page() {
 
 void test_create_page_directory() {
     // Allocate a new page directory
-    page_directory_t *dir = create_page_directory();
+    page_directory_t *dir = clone_page_directory(kernel_directory);
     assert(dir != NULL);
 
     verify_page_directory(dir);

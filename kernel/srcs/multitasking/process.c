@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 13:38:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:11:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ task_t *current_task = NULL;
 uint32_t num_tasks = 0;
 
 task_t *ready_queue = NULL;
-task_t *wait_queue = NULL;
+task_t *waiting_queue;
 
 extern page_directory_t *kernel_directory;
 extern page_directory_t *current_directory;
@@ -119,6 +119,8 @@ void init_tasking(void) {
 
     move_stack((void *)0xDEADBEEF, KERNEL_STACK_SIZE);
 
+    __ready_queue_init();
+
     /* Initialise the first task (kernel task) */
     current_task = ready_queue = (task_t *)kmalloc_a(sizeof(task_t));
 
@@ -146,8 +148,8 @@ void init_tasking(void) {
 
     __process_sectors(current_task);
 
-    wait_queue = NULL;
-
+    /* Init waiting queue */
+    __waiting_queue_init();
     ASM_STI();
 }
 
@@ -179,7 +181,8 @@ int32_t task_fork(void) {
     new_task->esp = new_task->ebp = 0;
     new_task->eip = 0;
     new_task->page_directory = directory;
-    new_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE);
+    // new_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE); // Todo: Enable after debug
+    new_task->kernel_stack = (uint32_t)kmalloc_debug(KERNEL_STACK_SIZE, true, NULL);
     new_task->next = NULL;
     new_task->prev = NULL; // Set prev task when added to ready queue
     new_task->exit_code = 0;
@@ -196,12 +199,22 @@ int32_t task_fork(void) {
     if (!(current_task->kernel_stack))
         __THROW("task_fork : failed to alloc kernel task", 1);
 
-    /* Add it to the end of the ready queue */
-    tmp_task = (task_t *)ready_queue;
-    while (tmp_task->next)
-        tmp_task = tmp_task->next;
-    tmp_task->next = new_task;
-    new_task->prev = tmp_task;
+    /* If we reached the max tasks, then, add it to the wait queue */
+    if (get_task_count() >= MAX_TASKS) {
+        new_task->state = TASK_WAITING;
+        __waiting_queue_add_task(new_task);
+    }
+    /* Either, add it to the ready queue */
+    else {
+        /* Add it to the end of the ready queue */
+        // tmp_task = (task_t *)ready_queue;
+        // while (tmp_task->next)
+        //     tmp_task = tmp_task->next;
+        // tmp_task->next = new_task;
+        // new_task->prev = tmp_task;
+
+        __ready_queue_add_task(new_task);
+    }
 
     // printk("\t- Prev Task [%d] -> Task [%d] -> Next Task [%d]\n", tmp_task->pid, new_task->pid, new_task->next == NULL ? -1 : new_task->next->pid);
 
@@ -364,7 +377,8 @@ int32_t kill_task(int32_t pid) {
     if (tmp_task->ppid != 0) {
         /* If its stack is reachable, delete it */
         if (tmp_task->kernel_stack) {
-            kfree((void *)tmp_task->kernel_stack);
+            // kfree((void *)tmp_task->kernel_stack);
+            kfree_debug((void *)tmp_task->kernel_stack);
             tmp_task->kernel_stack = 0x0;
         }
 
@@ -383,7 +397,7 @@ int32_t kill_task(int32_t pid) {
 
         tmp_task->state = TASK_ZOMBIE; // works to waitpid
         // tmp_task->state = TASK_STOPPED; // works to stop while task immediatly
-        
+
         // kmsleep(TASK_FREQUENCY);
         // busy_wait((1 * TIMER_PHASE) / 1000); // Wait 1 second
 
@@ -462,7 +476,7 @@ int32_t free_task(task_t *task) {
         kfree(task->sectors.data_segment);
 
         kfree((void *)task);
-        
+
         // busy_wait((100 * TIMER_PHASE) / 1000); // Wait 1 second
         // kmsleep(TASK_FREQUENCY);
         return (task_pid);
@@ -484,17 +498,17 @@ int32_t kill_all_tasks(void) {
 void lock_task(task_t *task) {
     ASM_CLI();
     task->state = TASK_WAITING;
-    task->next = wait_queue;
-    wait_queue = task;
+    task->next = waiting_queue;
+    waiting_queue = task;
     ASM_STI();
 }
 
 void unlock_task(task_t *task) {
     ASM_CLI();
-    if (wait_queue) {
-        task_t *tmp = wait_queue;
+    if (waiting_queue) {
+        task_t *tmp = waiting_queue;
         if (tmp == task) {
-            wait_queue = tmp->next;
+            waiting_queue = tmp->next;
         } else {
             while (tmp->next && tmp->next != task)
                 tmp = tmp->next;
@@ -573,7 +587,6 @@ void switch_to_user_mode(void) {
 	1: \
 	");
 }
-
 pid_t find_first_free_pid(void) {
     pid_t pid = 1;
     task_t *task = NULL;
@@ -587,6 +600,16 @@ pid_t find_first_free_pid(void) {
                 break;
             }
             task = task->next;
+        }
+        if (!task) {
+            task = waiting_queue;
+            while (task) {
+                if (task->pid == pid) {
+                    pid++;
+                    break;
+                }
+                task = task->next;
+            }
         }
         // If loop finished without a break, PID is free
         if (!task) {
@@ -612,12 +635,25 @@ bool is_pid_valid(int pid) {
     return get_task(pid) != NULL;
 }
 
-task_t *get_wait_queue(void) {
-    return wait_queue;
+task_t *get_waiting_queue(void) {
+    return waiting_queue;
 }
 
 uint32_t get_task_count(void) {
     task_t *task = ready_queue;
+
+    uint32_t count = 0;
+    while (task) {
+        if (task->pid != 0 && task->pid != 1) {
+            count++;
+        }
+        task = task->next;
+    }
+    return count;
+}
+
+uint32_t get_waiting_task_count(void) {
+    task_t *task = waiting_queue;
 
     uint32_t count = 0;
     while (task) {
@@ -638,6 +674,117 @@ double get_cpu_load(task_t *task) {
         return 0.0;
     }
     return ((double)(task->cpu_load.load_time / elapsed_time) * 100.0);
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                   READY QUEUE                                  ||
+// ! ||--------------------------------------------------------------------------------||
+
+void __ready_queue_init(void) {
+    ready_queue = NULL;
+}
+
+void __ready_queue_add_task(task_t *task) {
+    if (!ready_queue) {
+        ready_queue = task;
+    } else {
+        task_t *tmp = ready_queue;
+        while (tmp->next) {
+            tmp = tmp->next;
+        }
+        tmp->next = task;
+        task->prev = tmp;
+    }
+}
+
+void __ready_queue_remove_task(task_t *task) {
+    if (!ready_queue) {
+        return;
+    } else {
+        task_t *tmp = ready_queue;
+        if (tmp == task) {
+            ready_queue = tmp->next;
+        } else {
+            while (tmp->next && tmp->next != task)
+                tmp = tmp->next;
+            if (tmp->next) {
+                tmp->next = task->next;
+            }
+        }
+        task->next = NULL;
+    }
+}
+
+void __ready_queue_print(void) {
+    task_t *task = ready_queue;
+    while (task) {
+        printk("Task PID: "_GREEN
+               "[%d]"_END
+               ", Parent PID: "_GREEN
+               "[%d]"_END
+               ", Owner: "_GREEN
+               "[%d]"_END
+               ", State: "_GREEN
+               "[%d]"_END
+               "\n",
+               task->pid, task->ppid, task->owner, task->state);
+        task = task->next;
+    }
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                  WAITING QUEUE                                 ||
+// ! ||--------------------------------------------------------------------------------||
+
+void __waiting_queue_init(void) {
+    waiting_queue = NULL;
+}
+
+void __waiting_queue_add_task(task_t *task) {
+    if (!waiting_queue) {
+        waiting_queue = task;
+    } else {
+        task_t *tmp = waiting_queue;
+        while (tmp->next) {
+            tmp = tmp->next;
+        }
+        tmp->next = task;
+    }
+}
+
+void __waiting_queue_remove_task(task_t *task) {
+    if (!waiting_queue) {
+        return;
+    } else {
+        task_t *tmp = waiting_queue;
+        if (tmp == task) {
+            waiting_queue = tmp->next;
+        } else {
+            while (tmp->next && tmp->next != task)
+                tmp = tmp->next;
+            if (tmp->next) {
+                tmp->next = task->next;
+            }
+        }
+        task->next = NULL;
+    }
+}
+
+void __waiting_queue_print(void) {
+    task_t *task = waiting_queue;
+    while (task) {
+        printk("Task PID: "_GREEN
+               "[%d]"_END
+               ", Parent PID: "_GREEN
+               "[%d]"_END
+               ", Owner: "_GREEN
+               "[%d]"_END
+               ", State: "_GREEN
+               "[%d]"_END
+               "\n",
+               task->pid, task->ppid, task->owner, task->state);
+        task = task->next;
+    }
 }
 
 // ! ||--------------------------------------------------------------------------------||

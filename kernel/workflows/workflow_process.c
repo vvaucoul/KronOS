@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 13:33:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:16:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,14 +214,15 @@ void proc_fibo(void) {
 
 void process_zombie_02(void) {
     while (1) {
-        printk("I'am a Zombie [%d] !\n", getpid());
+        // printk("I'am a Zombie [%d] !\n", getpid());
+        ksleep(1);
     }
 }
 
 void process_zombie_01(void) {
     while (1) {
         printk("I'am the Zombie OWNER [%d] !\n", getpid());
-        kmsleep(100);
+        // kmsleep(100);
         pid_t pid = init_task(process_zombie_02);
     }
 }
@@ -283,24 +284,71 @@ void while_task() {
     }
 }
 
+void waiting_queue_loop() {
+    while (1) {
+        if (get_task_count() + get_waiting_task_count() > MAX_TASKS) {
+            printk("Kill task [%d]\n", get_task_count() - 1);
+            kill_task(get_task_count() - 1);
+        }
+        kmsleep(500);
+    }
+}
+
+#define OFFSET_WAITING_QUEUE 10
+
+void ready_queue_loop() {
+    while (1) {
+        if (get_task_count() + get_waiting_task_count() <= MAX_TASKS + OFFSET_WAITING_QUEUE) {
+            pid_t pid = init_task(task_dummy);
+            printk("Create task dummy: "_GREEN
+                   "[%u]"_END
+                   "\n",
+                   pid);
+        }
+        kmsleep(500);
+    }
+}
+
 void tmp() {
-    pid_t pid_dummy = init_task(task_dummy);
-     init_task(task_dummy);
-     init_task(task_dummy);
-     init_task(task_dummy);
-     init_task(task_dummy);
-     init_task(task_dummy);
+
+    // init_task(ready_queue_loop);
+    // init_task(waiting_queue_loop);
+
+    init_task(task_dummy);
+    init_task(task_dummy);
+    init_task(task_dummy);
+    init_task(task_dummy);
     
-    printk("PID: %d\n", pid_dummy);
+
+    init_task(task_dummy);
+    init_task(task_dummy);
+    init_task(task_dummy);
+    init_task(task_dummy);
+
+    __waiting_queue_print();
+
+
+
+
+    // pid_t pid_dummy = init_task(process_zombie_01);
+
+    // uint32_t counter = 0;
+    // while (1) {
+    //     init_task(process_zombie_02);
+    //     printk("Create [%d] process\n", counter++);
+    // }
+
+    // printk("PID: %d\n", pid_dummy);
 
     ksleep(3);
-    // kill(pid_dummy, SIGKILL);
-    kill_all_tasks();
 
+    kill_task(2);
+    __waiting_queue_print();
+    
+    // kill(pid_dummy, SIGKILL);
+    // kill_all_tasks();
 
     pause();
-
-
 
     pid_t pid = init_task(wait_pid_task);
     int st = 0;
@@ -368,7 +416,7 @@ void tmp() {
     pid_t p1 = init_task(process_01);
     print_all_tasks();
 
-     st = 0;
+    st = 0;
     waitpid(p1, &st, 0);
     printk("ST: %d\n", st);
 
@@ -400,7 +448,7 @@ void tmp() {
 void process_test(void) {
     __WORKFLOW_HEADER();
 
-    // tmp();
+    tmp();
 
     printk("- Kernel PID: "_GREEN
            "[%u]"_END
@@ -700,7 +748,7 @@ void process_test(void) {
     }
 
     ksleep(3);
-    kill_all_tasks();
+    // kill_task(pid_ipc);
 
     // ! ||--------------------------------------------------------------------------------||
     // ! ||                                   SOCKET TEST                                  ||

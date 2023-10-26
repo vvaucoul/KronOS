@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 01:40:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 15:47:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,12 @@ typedef struct s_heap {
 extern heap_t *kheap;
 extern uint32_t placement_addr;
 
-/*******************************************************************************
- *                             INTERFACE FUNCTIONS                             *
- ******************************************************************************/
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                               INTERFACE FUNCTIONS                              ||
+// ! ||--------------------------------------------------------------------------------||
 
 extern void *kmalloc_int(uint32_t size, bool align, uint32_t *phys);
+
 extern void *kmalloc_a(uint32_t size);
 extern void *kmalloc_p(uint32_t size, uint32_t *phys);
 extern void *kmalloc_ap(uint32_t size, uint32_t *phys);
@@ -118,9 +119,9 @@ extern void *vrealloc(void *addr, uint32_t size);
 extern void *vcalloc(uint32_t count, uint32_t size);
 extern uint32_t vsize(void *addr);
 
-/*******************************************************************************
- *                                 HEAP ARRAY                                  *
- ******************************************************************************/
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                   HEAP ARRAY                                   ||
+// ! ||--------------------------------------------------------------------------------||
 
 extern heap_array_t heap_array_create(void *addr, uint32_t max_size, heap_node_predicate_t predicate);
 extern void heap_array_insert_element(data_t data, heap_array_t *array);
@@ -128,5 +129,15 @@ extern data_t heap_array_get_element(uint32_t index, heap_array_t *array);
 extern void heap_array_remove_element(uint32_t index, heap_array_t *array);
 extern void heap_destroy(heap_array_t *array);
 extern bool heap_predicate(data_t a, data_t b);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                     MACROS                                     ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern void *__kmalloc_debug(uint32_t size, bool align, uint32_t *phys, int line, const char *file, const char *function);
+#define kmalloc_debug(size, align, phys) __kmalloc_debug(size, align, phys, __LINE__, __FILE__, __FUNCTION__)
+
+extern void __kfree_debug(void *ptr, int line, const char *file, const char *function);
+#define kfree_debug(ptr) __kfree_debug(ptr, __LINE__, __FILE__, __FUNCTION__)
 
 #endif /* !KHEAP_H */

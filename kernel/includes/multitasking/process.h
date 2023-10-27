@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 20:34:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 11:29:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <system/signal.h>
 #include <system/threads.h>
 
-// #warning "Kernel stack size is 32KB, it's too much, reduce it to 2KB"
 #define KERNEL_STACK_SIZE 0x1000 // 4KB - Kernel Stack === PAGE_SIZE
 #define INIT_PID 0x1             // First process pid created
 

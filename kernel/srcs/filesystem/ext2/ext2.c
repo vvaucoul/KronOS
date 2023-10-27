@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 12:57:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 14:59:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,50 +14,88 @@
 
 Ext2Inode *fs_root = 0; // The root of the filesystem.
 
-
-
-uint32_t read_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
-    if (node->read != 0) {
-        printk("Reading from disk...\n");
-        return node->read(node, offset, size, buffer);
+void ext2_create_directory(Ext2Inode *inode, char *name, uint16_t permission) {
+    if (inode->fops.mkdir != 0) {
+        inode->fops.mkdir(inode, name, permission);
+    } else {
+        __WARND("Cannot create directory");
     }
-    else {
+}
+
+void ext2_flush_disk_cache(Ext2Inode *inode) {
+    if (inode->fops.flush != 0) {
+        inode->fops.flush(inode);
+    } else {
+        __WARND("Cannot flush the disk cache");
+    }
+}
+
+uint32_t ext2_read_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+    if (node == NULL || buffer == NULL) {
+        __THROW("EXT2: Cannot read from disk", 1);
+    }
+
+    if (node->fops.read != 0) {
+        printk("Reading from disk...\n");
+        return node->fops.read(node, offset, size, buffer);
+    } else {
         __WARND("Cannot read from disk");
         return 0;
     }
 }
 
-uint32_t write_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
-    if (node->write != 0) {
+uint32_t ext2_write_fs_full(Ext2Inode *node, uint32_t size, uint8_t *buffer) {
+    if (node->fops.write != 0) {
         printk("Writing to disk...\n");
-        return node->write(node, offset, size, buffer);
-    }
-    else {
+        // Écrire les données sur tout le fichier
+        uint32_t result = node->fops.write(node, 0, size, buffer);
+        // Remplir le reste du fichier avec des zéros
+        uint8_t zero = 0;
+        for (uint32_t i = size; i < node->length; i++) {
+            node->fops.write(node, i, 1, &zero);
+        }
+        // Tronquer le fichier à la taille des données écrites
+        node->length = size;
+
+        // node->fops.flush(node); // Flush the disk cache
+
+        return result;
+    } else {
         __WARND("Cannot write to disk");
         return 0;
     }
 }
 
-void open_fs(Ext2Inode *node, uint8_t read, uint8_t write) {
-    if (node->open != 0)
-        return node->open(node);
+uint32_t ext2_write_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+    if (node->fops.write != 0) {
+        printk("Writing to disk...\n");
+        return node->fops.write(node, offset, size, buffer);
+    } else {
+        __WARND("Cannot write to disk");
+        return 0;
+    }
 }
 
-void close_fs(Ext2Inode *node) {
-    if (node->close != 0)
-        return node->close(node);
+void ext2_open_fs(Ext2Inode *node, uint8_t read, uint8_t write) {
+    if (node->fops.open != 0)
+        return node->fops.open(node);
 }
 
-struct dirent *readdir_fs(Ext2Inode *node, uint32_t index) {
-    if ((node->flags & 0x07) == FS_DIRECTORY && node->readdir != 0)
-        return node->readdir(node, index);
+void ext2_close_fs(Ext2Inode *node) {
+    if (node->fops.close != 0)
+        return node->fops.close(node);
+}
+
+struct dirent *ext2_readdir_fs(Ext2Inode *node, uint32_t index) {
+    if ((node->flags & 0x07) == FS_DIRECTORY && node->fops.readdir != 0)
+        return node->fops.readdir(node, index);
     else
         return 0;
 }
 
-Ext2Inode *finddir_fs(Ext2Inode *node, char *name) {
-    if ((node->flags & 0x07) == FS_DIRECTORY && node->finddir != 0)
-        return node->finddir(node, name);
+Ext2Inode *ext2_finddir_fs(Ext2Inode *node, char *name) {
+    if ((node->flags & 0x07) == FS_DIRECTORY && node->fops.finddir != 0)
+        return node->fops.finddir(node, name);
     else
         return 0;
 }

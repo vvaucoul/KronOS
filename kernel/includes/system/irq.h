@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:54:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 18:16:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 16:42:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@
 extern void irq_install();
 extern void irq_handler(struct regs *r);
 extern void irq_install_handler(int irq, void (*handler)(struct regs *r));
+extern void irq_uninstall_handler(int irq);
 extern void pic8259_send_eoi(uint8_t irq);
 extern bool irq_check_install(int irq);
 

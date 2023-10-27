@@ -37,11 +37,19 @@ _start:
 	
 	cli
 	call kmain
-	pop eax
+	test eax, eax
+	jz .hang
 	cmp eax, 1
-	jmp display_error_msg
+	jz .error
+
+.error:
+	call display_error_msg
+	hlt
+	jmp .error
+
 .hang:
 	hlt
 	jmp .hang
+
 .end:
 

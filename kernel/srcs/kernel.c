@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 12:58:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 16:03:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,7 +187,13 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         // ksleep(2);
         uint32_t initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
         uint32_t initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
-        fs_root = initialise_initrd(initrd_location);
+        fs_root = initrd_init(initrd_location);
+
+        if (fs_root == NULL) {
+            __BSOD_UPDATE("Error: initrd_init failed");
+            return (1);
+        }
+
         placement_addr = initrd_end;
         kernel_log_info("LOG", "INITRD");
         // ksleep(2);
@@ -258,10 +264,17 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // Todo: KFS-6
     printk("Initrd files:\n");
-    read_disk();
+    initrd_debug_read_disk();
     uint8_t buffer[] = "Hello, World!";
-    write_fs(fs_root, 0, strlen((const char *)buffer), buffer);
-    read_disk();
+
+    Ext2Inode *node = ext2_finddir_fs(fs_root, "test");
+    if (node == NULL) {
+        printk("Cannot find file !");
+        kpause();
+    }
+
+    ext2_write_fs_full(node, strlen((const char *)buffer), buffer);
+    initrd_debug_read_disk();
 
     // uint32_t esp;
     // GET_ESP(esp);

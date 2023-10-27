@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:43:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 12:58:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 15:00:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,22 @@
  * pour monter le véritable système de fichiers racine, qui pourrait être sur un disque dur, un réseau, etc.
  */
 
+#define FS_OPEN 0x01
+
 typedef struct {
     uint32_t nfiles;
-} initrd_header_t;
+} InitrdHeader;
 
 typedef struct {
     uint8_t magic;
     int8_t name[64];
     uint32_t offset;
     uint32_t length;
-} initrd_file_header_t;
+} InitrdFileHeader;
 
-extern Ext2Inode *initialise_initrd(uint32_t location);
-extern void read_disk(void);
+extern Ext2Inode *initrd_init(uint32_t location);
+
+// Debug
+extern void initrd_debug_read_disk(void);
 
 #endif /* INITRD_H */

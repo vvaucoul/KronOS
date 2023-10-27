@@ -51,7 +51,8 @@
 			"kheap.h": "c",
 			"string_view": "c",
 			"initializer_list": "c",
-			"threads.h": "c"
+			"threads.h": "c",
+			"terminal.h": "c"
 		}
 	}
 }

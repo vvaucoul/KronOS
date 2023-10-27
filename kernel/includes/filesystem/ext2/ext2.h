@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 15:50:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 18:20:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ typedef struct s_file_operations {
     finddir_type_t finddir;
     flush_type_t flush;
     mkdir_type_t mkdir;
-} Ext2FileOperations;
+} __attribute__((packed)) Ext2FileOperations;
 
 typedef struct fs_node {
     char name[EXT2_FILE_NAME_MAX_SIZE]; // The filename.

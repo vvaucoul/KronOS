@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 16:03:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 18:17:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,16 +265,20 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // Todo: KFS-6
     printk("Initrd files:\n");
     initrd_debug_read_disk();
-    uint8_t buffer[] = "Hello, World!";
 
-    Ext2Inode *node = ext2_finddir_fs(fs_root, "test");
+    Ext2Inode *node = ext2_finddir_fs(fs_root, "bin");
     if (node == NULL) {
-        printk("Cannot find file !");
-        kpause();
+        printk("File system not initialized\n");
+    } else {
+        uint8_t buffer[] = "Hello, World!";
+        while (strcmp("ls", node->name) != 0) {
+            node = node->childs[0];
+        }
+        ext2_write_fs_full(node, strlen((const char *)buffer), buffer);
+        initrd_display_hierarchy();
     }
 
-    ext2_write_fs_full(node, strlen((const char *)buffer), buffer);
-    initrd_debug_read_disk();
+    // initrd_debug_read_disk();
 
     // uint32_t esp;
     // GET_ESP(esp);

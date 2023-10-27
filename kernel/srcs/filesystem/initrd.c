@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 16:02:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 18:21:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,19 +49,23 @@ static struct dirent *initrd_readdir(Ext2Inode *node, uint32_t index) {
 }
 
 static Ext2Inode *initrd_finddir(Ext2Inode *node, char *name) {
-    // if (node == initrd_root && !strcmp(name, "dev")) {
-    //     return initrd_dev;
-    // }
+    if (node == NULL) {
+        return NULL;
+    } else if (!strcmp(name, node->name)) {
+        return node;
+    } else if (node->flags & FS_DIRECTORY && node->childs != NULL) {
+        for (uint32_t j = 0; j < node->n_children; j++) {
+            if (node->childs[j] == NULL) {
+                continue;
+            }
+            Ext2Inode *ret = initrd_finddir(node->childs[j], name);
 
-    for (uint32_t i = 0; i < nroot_nodes; i++)
-        if (!strcmp(name, root_nodes[i].name)) {
-            return &root_nodes[i];
-        } else if (node->flags & FS_DIRECTORY && node->childs != NULL) {
-            for (uint32_t j = 0; j < node->n_children; j++) {
-                initrd_finddir(node->childs[j], name);
+            if (ret != NULL) {
+                return (ret);
             }
         }
-    return 0;
+    }
+    return (NULL);
 }
 
 static uint32_t initrd_read(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
@@ -160,10 +164,11 @@ static void create_node(Ext2Inode *parent, const char *name, uint32_t flags) {
     node->fops.write = flags == FS_DIRECTORY ? 0 : &initrd_write;
     node->fops.readdir = &initrd_readdir;
     node->fops.finddir = &initrd_finddir;
-    node->fops.open = 0;
-    node->fops.close = 0;
+    node->fops.open = flags == FS_FILE ? &initrd_open : 0;
+    node->fops.close = flags == FS_FILE ? &initrd_close : 0;
     node->parent = parent;
     node->impl = 0;
+    node->n_children = 0;
 
     int n = parent->n_children++;
 
@@ -176,8 +181,8 @@ static void create_node(Ext2Inode *parent, const char *name, uint32_t flags) {
         parent->childs[n] = node;
     }
     printk("Created node: "_GREEN
-           "[%s]\n"_END,
-           node->name);
+           "[%s] -> [%s]\n"_END,
+           parent->name, node->name);
 }
 
 static uint32_t __initrd_initialize_hierarchy(void) {
@@ -187,7 +192,6 @@ static uint32_t __initrd_initialize_hierarchy(void) {
     create_node(initrd_root, "etc", FS_DIRECTORY);
 
     Ext2Inode *dev_node = initrd_finddir(initrd_root, "dev");
-
     if (dev_node == NULL) {
         __THROW("Cannot find /dev directory", 1);
     }
@@ -201,7 +205,7 @@ static uint32_t __initrd_initialize_hierarchy(void) {
     }
     create_node(bin_node, "ls", FS_FILE);
     create_node(bin_node, "cat", FS_FILE);
-    
+
     return 0;
 }
 
@@ -214,6 +218,8 @@ Ext2Inode *initrd_init(uint32_t location) {
 
     if (initrd_root == NULL) {
         __THROW("Failed to allocate memory for initrd_root", NULL);
+    } else {
+        memset(initrd_root, 0, sizeof(Ext2Inode));
     }
 
     /* Initialise root directory */
@@ -224,15 +230,16 @@ Ext2Inode *initrd_init(uint32_t location) {
 
     initrd_root->parent = NULL;
     initrd_root->impl = 0;
+    initrd_root->n_children = 0;
 
     /* Initialise /dev directory */
-    initrd_dev = (Ext2Inode *)kmalloc(sizeof(Ext2Inode));
-    strcpy(initrd_dev->name, "dev");
-    initrd_dev->mask = initrd_dev->uid = initrd_dev->gid = initrd_dev->inode = initrd_dev->length = 0;
-    __initrd_setup_directory_fops(initrd_dev);
-    initrd_dev->parent = initrd_root;
-    initrd_dev->impl = 0;
-    initrd_dev->flags = FS_DIRECTORY;
+    // initrd_dev = (Ext2Inode *)kmalloc(sizeof(Ext2Inode));
+    // strcpy(initrd_dev->name, "dev");
+    // initrd_dev->mask = initrd_dev->uid = initrd_dev->gid = initrd_dev->inode = initrd_dev->length = 0;
+    // __initrd_setup_directory_fops(initrd_dev);
+    // initrd_dev->parent = initrd_root;
+    // initrd_dev->impl = 0;
+    // initrd_dev->flags = FS_DIRECTORY;
 
     if ((__initrd_initialize_hierarchy())) {
         __THROW("Failed to initialize filesystem hierarchy", NULL);
@@ -260,6 +267,7 @@ Ext2Inode *initrd_init(uint32_t location) {
         root_nodes[i].parent = initrd_root;
         root_nodes[i].impl = 0;
     }
+    
     return initrd_root;
 }
 
@@ -267,7 +275,39 @@ Ext2Inode *initrd_init(uint32_t location) {
 // ! ||                                 DEBUG FUNCTION                                 ||
 // ! ||--------------------------------------------------------------------------------||
 
+static void __initrd_display_hierarchy(Ext2Inode *root, uint32_t index, char *prefix) {
+    kmsleep(500);
+    if (root == NULL) {
+        return;
+    }
+
+    printk("%s|-- %s\n", prefix, root->name);
+
+    char new_prefix[256];
+    strcpy(new_prefix, prefix);
+    strcat(new_prefix, "|   ");
+
+    if (root->flags & FS_DIRECTORY && root->childs != NULL) {
+        for (uint32_t j = 0; j < root->n_children; j++) {
+            if (j == root->n_children - 1) {
+                strcpy(new_prefix, prefix);
+                strcat(new_prefix, "    ");
+            }
+            if (root->childs[j] == NULL) {
+                continue;
+            }
+            __initrd_display_hierarchy(root->childs[j], index + 1, new_prefix);
+        }
+    }
+}
+
+void initrd_display_hierarchy(void) {
+    char initial_prefix[256] = "";
+    __initrd_display_hierarchy(initrd_root, 0, initial_prefix);
+}
+
 void initrd_debug_read_disk(void) {
+    return;
     int i = 0;
     struct dirent *node = 0;
 

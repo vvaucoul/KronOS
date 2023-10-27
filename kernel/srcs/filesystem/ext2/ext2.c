@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 14:59:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 18:05:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/ext2/ext2.h>
 
-Ext2Inode *fs_root = 0; // The root of the filesystem.
+Ext2Inode *fs_root = NULL;
 
 void ext2_create_directory(Ext2Inode *inode, char *name, uint16_t permission) {
     if (inode->fops.mkdir != 0) {

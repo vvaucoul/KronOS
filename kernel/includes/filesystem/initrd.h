@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:43:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 15:00:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 17:36:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,5 +42,5 @@ extern Ext2Inode *initrd_init(uint32_t location);
 
 // Debug
 extern void initrd_debug_read_disk(void);
-
+extern void initrd_display_hierarchy(void);
 #endif /* INITRD_H */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 13:00:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 18:24:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,8 +181,8 @@ int32_t task_fork(void) {
     new_task->esp = new_task->ebp = 0;
     new_task->eip = 0;
     new_task->page_directory = directory;
-    // new_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE); // Todo: Enable after debug
-    new_task->kernel_stack = (uint32_t)kmalloc_debug(KERNEL_STACK_SIZE, true, NULL);
+    new_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE); // Todo: Enable after debug
+    // new_task->kernel_stack = (uint32_t)kmalloc_debug(KERNEL_STACK_SIZE, true, NULL);
     new_task->next = NULL;
     new_task->prev = NULL; // Set prev task when added to ready queue
     new_task->exit_code = 0;

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 12:59:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 18:25:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,20 +331,20 @@ page_table_t *clone_table(page_table_t *src, uint32_t *physAddr) {
             }
 
             if (!IS_PAGE_MAPPED(src->pages[i].frame) || !IS_PAGE_MAPPED(table->pages[i].frame)) {
-                __WARND("Page %d not mapped!", i);
+                // __WARND("Page %d not mapped!", i);
                 map_page(src->pages[i].frame * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE, kernel_directory);
                 continue;
             }
 
             if (!IS_PAGE_READABLE(src->pages[i].frame) || !IS_PAGE_READABLE(table->pages[i].frame)) {
-                __WARND("Page %d not readable!", i);
+                // __WARND("Page %d not readable!", i);
                 src->pages[i].rw = 1;
                 continue;
             }
 
             /* Check if the physical pages are identical */
             if (memcmp((void *)(src->pages[i].frame * PAGE_SIZE), (void *)(table->pages[i].frame * PAGE_SIZE), PAGE_SIZE) != 0) {
-                __WARND("Physical pages %d are not identical!", i);
+                // __WARND("Physical pages %d are not identical!", i);
             }
         }
     }

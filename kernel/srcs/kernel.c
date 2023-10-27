@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 18:17:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 18:27:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -298,7 +298,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // tss_set_stack_segment(0x10);
 
     // switch_to_user_mode();
-    kpause();
 
     // Todo: Fix priority
     // task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
@@ -307,7 +306,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // switch_to_user_mode();
 
-    kpause();
+    // kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

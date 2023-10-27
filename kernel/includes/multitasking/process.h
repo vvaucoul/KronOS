@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 17:12:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 20:34:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <memory/paging.h>
 
 #include <system/signal.h>
+#include <system/threads.h>
 
 // #warning "Kernel stack size is 32KB, it's too much, reduce it to 2KB"
 #define KERNEL_STACK_SIZE 0x1000 // 4KB - Kernel Stack === PAGE_SIZE
@@ -32,7 +33,6 @@ typedef enum e_task_state {
     TASK_WAITING,
     TASK_STOPPED,
     TASK_ZOMBIE,
-    TASK_THREAD,
     TASK_ORPHAN,
 } task_state_t;
 
@@ -114,6 +114,8 @@ typedef struct s_task {
     } sectors;
 
     int32_t zombie_hungry; // Counter for zombie process
+
+    thread_t *threads;
 } task_t;
 
 void init_tasking(void);

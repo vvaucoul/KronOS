@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 11:35:41 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 13:21:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 20:48:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define MUTEX_H
 
 #include <kernel.h>
+
+#include <multitasking/process.h>
 
 typedef enum {
     MUTEX_UNLOCKED = 0,

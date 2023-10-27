@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 17:16:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 17:38:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,7 +448,7 @@ void tmp() {
 void process_test(void) {
     __WORKFLOW_HEADER();
 
-    tmp();
+    // tmp();
 
     printk("- Kernel PID: "_GREEN
            "[%u]"_END

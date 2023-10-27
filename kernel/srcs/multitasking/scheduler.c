@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 17:18:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 21:02:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,6 +210,9 @@ void switch_task(void) {
 
     /* Revive Zombies / Orphans tasks and attach them to the INIT task (Like UNIX System) */
     __orphans_collector(current_task);
+
+    /* Check if the current task has threads, then switch to the runnable thread */
+    __process_threads(current_task);
 
     /* Do not execute Zombie or Stopped tasks */
     if (current_task && (current_task->state == TASK_ZOMBIE || current_task->state == TASK_STOPPED))

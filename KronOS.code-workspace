@@ -50,7 +50,8 @@
 			"uid.C": "cpp",
 			"kheap.h": "c",
 			"string_view": "c",
-			"initializer_list": "c"
+			"initializer_list": "c",
+			"threads.h": "c"
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 15:39:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 11:27:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 #include <system/sections.h>
 #include <system/serial.h>
 #include <system/signal.h>
+#include <system/threads.h>
 #include <system/time.h>
 #include <system/tss.h>
 
@@ -222,6 +223,9 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     init_tasking();
     kernel_log_info("LOG", "TASKING");
 
+    thread_init();
+    kernel_log_info("LOG", "THREADS");
+
     return (0);
 }
 int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
@@ -267,7 +271,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // kernel_log_info("LOG", "TSS");
     // switch_to_user_mode();
 
-    process_test();
+    // threads_test();
+    // process_test();
     kpause();
 
     // Todo: Fix priority

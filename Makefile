@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/10/26 15:08:09 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/27 13:06:34 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -95,7 +95,22 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 #*******************************************************************************
 
 %.o: %.c
-	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@if echo $< | grep -q "workflow"; then \
+		COLOR="$(_LRED)"; \
+	elif echo $< | grep -q "multitasking"; then \
+        COLOR="$(_LGREEN)"; \
+	elif echo $< | grep -q "filesystem"; then \
+		COLOR="$(_LYELLOW)"; \
+	elif echo $< | grep -q "shell"; then \
+		COLOR="$(_LPURPLE)"; \
+	elif echo $< | grep -q "drivers"; then \
+		COLOR="$(_LCYAN)"; \
+	elif echo $< | grep -q "memory"; then \
+		COLOR="$(_LYELLOW)"; \
+	else \
+		COLOR="$(_LCYAN)"; \
+	fi; \
+	printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$$COLOR %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.c=.o}
 
 %.o: %.s

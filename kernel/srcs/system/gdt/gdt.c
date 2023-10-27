@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 15:51:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:03:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,10 @@ extern void print_gdt(void) {
     printk("   0x%x ", gdt[0].access);
     printk("\n");
 
-    for (size_t i = 1; i < __GDT_SIZE; i++) {
+    for (size_t i = 1; i < 100; i++) {
+        if ((gdt[i].granularity) == 0x0) {
+            break;
+        }
         printk("%8%% 0x%x ", gdt[i].base_low);
         printk("   \t0x%x ", gdt[i].base_middle);
         printk("  \t\t0x%x ", gdt[i].base_high);

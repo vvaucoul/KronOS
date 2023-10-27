@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 00:36:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 11:35:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,61 +108,6 @@ void timer_wait(uint32_t ticks) {
         busy_wait(ticks);
     }
 }
-
-// void timer_wait(uint32_t ticks) {
-//     uint32_t start_tick = timer_subtick;
-
-//     task_t *task = get_current_task();
-
-//     if (!task) {
-//         while (timer_subtick - start_tick < ticks) {
-//             __asm__ volatile("sti\n\thlt\n\tcld");
-//         }
-//         return;
-//     }
-
-//     // if (task == NULL) {
-//     //     while (timer_subtick - start_tick < ticks) {
-//     //         __asm__ volatile("sti\n\thlt\n\tcld");
-//     //     }
-//     //     return;
-//     // }
-
-//     // if (!task || !scheduler_initialized || task->pid == 0 || task->pid == INIT_PID) {
-//     //     while (timer_subtick - start_tick < ticks) {
-//     //         __asm__ volatile("sti\n\thlt\n\tcld");
-//     //     }
-//     //     return;
-//     // }
-
-//     task->state = TASK_SLEEPING;
-//     task->wake_up_tick = timer_subtick + ticks;
-
-//     // printk("Task %d is sleeping for %d ticks\n", task->pid, task->wake_up_tick);
-
-//     // kpause();
-
-//     while (timer_subtick - start_tick < ticks) {
-//         __asm__ volatile("sti\n\thlt\n\tcld");
-//     }
-//     // task->state = TASK_RUNNING;
-
-//     // if (!task || !scheduler_initialized) {
-//     //     while (timer_subtick - start_tick < ticks) {
-//     //         __asm__ volatile("sti\n\thlt\n\tcld");
-//     //     }
-//     // } else {
-//     //     if (task->pid == 0 || task->pid == 1) {
-//     //         while (timer_subtick - start_tick < ticks) {
-//     //             __asm__ volatile("sti\n\thlt\n\tcld");
-//     //         }
-//     //     } else {
-//     //         task->state = TASK_SLEEPING;
-//     //         task->wake_up_tick = timer_subtick + ticks;
-//     //         // printk("Process %d is sleeping for %d ticks\n", task->pid, ticks);
-//     //     }
-//     // }
-// }
 
 void kpause(void) {
     ASM_CLI();

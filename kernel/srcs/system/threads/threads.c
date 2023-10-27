@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 17:43:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 11:11:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:59:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,7 @@ void thread_schedule(thread_t *list) {
 
 void thread_sleep(uint32_t ms) {
     thread_t *tmp = get_current_task()->threads;
+    __UNUSED(ms);
 
     while (tmp) {
         if (tmp == get_current_task()->threads) {

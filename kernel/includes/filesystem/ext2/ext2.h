@@ -1,17 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vfs_ext2.h                                         :+:      :+:    :+:   */
+/*   ext2.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 10:53:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:57:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef VFS_EXT2_H
-#define VFS_EXT2_H
+#ifndef EXT2_H
+#define EXT2_H
+
+/**
+ * @brief      EXT2 Filesystem
+ * 
+ * EXT2: Second Extended Filesystem
+ * 
+ * ext2 est un système de fichiers spécifique utilisé principalement sur les systèmes Linux.
+ * Il stocke les fichiers, les métadonnées des fichiers et les répertoires sur le disque dur.
+ */
 
 #include <kernel.h>
 
@@ -43,13 +52,13 @@ typedef struct fs_node {
     readdir_type_t readdir;
     finddir_type_t finddir;
     struct fs_node *ptr; // Used by mountpoints and symlinks.
-} fs_node_t;
+} Ext2Inode;
 
 typedef struct dirent // One of these is returned by the readdir call, according to POSIX.
 {
     char name[EXT2_FILE_NAME_MAX_SIZE]; // Filename.
     uint32_t ino;                       // Inode number. Required by POSIX.
-} dirent_t;
+} Ext2Dirent;
 
 #define FS_FILE 0x01        // File
 #define FS_DIRECTORY 0x02   // Directory
@@ -59,17 +68,17 @@ typedef struct dirent // One of these is returned by the readdir call, according
 #define FS_SYMLINK 0x06     // Symlink
 #define FS_MOUNTPOINT 0x08  // Mountpoint
 
-extern fs_node_t *fs_root; // The root of the filesystem.
+extern Ext2Inode *fs_root; // The root of the filesystem.
 
 // Standard read/write/open/close functions. Note that these are all suffixed with
 // _fs to distinguish them from the read/write/open/close which deal with file descriptors
 // not file nodes.
-extern uint32_t read_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-extern uint32_t write_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-extern void open_fs(fs_node_t *node, uint8_t read, uint8_t write);
-extern void close_fs(fs_node_t *node);
-extern struct dirent *readdir_fs(fs_node_t *node, uint32_t index);
-extern fs_node_t *finddir_fs(fs_node_t *node, char *name);
+extern uint32_t read_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+extern uint32_t write_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+extern void open_fs(Ext2Inode *node, uint8_t read, uint8_t write);
+extern void close_fs(Ext2Inode *node);
+extern struct dirent *readdir_fs(Ext2Inode *node, uint32_t index);
+extern Ext2Inode *finddir_fs(Ext2Inode *node, char *name);
 
 /*
 ◦ Name
@@ -84,4 +93,4 @@ extern fs_node_t *finddir_fs(fs_node_t *node, char *name);
 ◦ Next of kin
 */
 
-#endif /* VFS_EXT2_H */
+#endif /* EXT2_H */

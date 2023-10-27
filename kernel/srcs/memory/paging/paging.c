@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 14:48:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:59:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void *get_physical_address(page_directory_t *dir, void *addr) {
 
 void *get_virtual_address(page_directory_t *dir, void *addr) {
     __addr_validator(addr, false);
+    __UNUSED(dir);
 
     uint32_t page_idx = (uint32_t)addr / PAGE_SIZE;
     uint32_t offset = (uint32_t)addr % PAGE_SIZE;

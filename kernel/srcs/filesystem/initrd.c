@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/25 12:56:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:58:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 
 initrd_header_t *initrd_header;     // The header.
 initrd_file_header_t *file_headers; // The list of file headers.
-fs_node_t *initrd_root;             // Our root directory node.
-fs_node_t *initrd_dev;              // We also add a directory node for /dev, so we can mount devfs later on.
-fs_node_t *root_nodes;              // List of file nodes.
+Ext2Inode *initrd_root;             // Our root directory node.
+Ext2Inode *initrd_dev;              // We also add a directory node for /dev, so we can mount devfs later on.
+Ext2Inode *root_nodes;              // List of file nodes.
 int nroot_nodes;                    // Number of file nodes.
 
 struct dirent dirent;
 
-static uint32_t initrd_read(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+static uint32_t initrd_read(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
     initrd_file_header_t header = file_headers[node->inode];
     if (offset > header.length)
         return 0;
@@ -32,7 +32,7 @@ static uint32_t initrd_read(fs_node_t *node, uint32_t offset, uint32_t size, uin
     return size;
 }
 
-static struct dirent *initrd_readdir(fs_node_t *node, uint32_t index) {
+static struct dirent *initrd_readdir(Ext2Inode *node, uint32_t index) {
     if (node == initrd_root && index == 0) {
         strcpy(dirent.name, "dev");
         dirent.ino = 0;
@@ -46,7 +46,7 @@ static struct dirent *initrd_readdir(fs_node_t *node, uint32_t index) {
     return &dirent;
 }
 
-static fs_node_t *initrd_finddir(fs_node_t *node, char *name) {
+static Ext2Inode *initrd_finddir(Ext2Inode *node, char *name) {
     if (node == initrd_root && !strcmp(name, "dev"))
         return initrd_dev;
 
@@ -56,7 +56,7 @@ static fs_node_t *initrd_finddir(fs_node_t *node, char *name) {
     return 0;
 }
 
-static uint32_t initrd_write(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+static uint32_t initrd_write(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
     initrd_file_header_t header = file_headers[node->inode];
     if (offset + size > header.length)
         return 0;  // Not enough space
@@ -64,12 +64,12 @@ static uint32_t initrd_write(fs_node_t *node, uint32_t offset, uint32_t size, ui
     return size;
 }
 
-fs_node_t *initialise_initrd(uint32_t location) {
+Ext2Inode *initialise_initrd(uint32_t location) {
     // Initialise the main and file header pointers and populate the root directory.
     initrd_header = (initrd_header_t *)location;
     file_headers = (initrd_file_header_t *)(location + sizeof(initrd_header_t));
     // Initialise the root directory.
-    initrd_root = (fs_node_t *)kmalloc(sizeof(fs_node_t));
+    initrd_root = (Ext2Inode *)kmalloc(sizeof(Ext2Inode));
     strcpy(initrd_root->name, "initrd");
     initrd_root->mask = initrd_root->uid = initrd_root->gid = initrd_root->inode = initrd_root->length = 0;
     initrd_root->flags = FS_DIRECTORY;
@@ -82,7 +82,7 @@ fs_node_t *initialise_initrd(uint32_t location) {
     initrd_root->ptr = 0;
     initrd_root->impl = 0;
     // Initialise the /dev directory (required!)
-    initrd_dev = (fs_node_t *)kmalloc(sizeof(fs_node_t));
+    initrd_dev = (Ext2Inode *)kmalloc(sizeof(Ext2Inode));
     strcpy(initrd_dev->name, "dev");
     initrd_dev->mask = initrd_dev->uid = initrd_dev->gid = initrd_dev->inode = initrd_dev->length = 0;
     initrd_dev->flags = FS_DIRECTORY;
@@ -95,7 +95,7 @@ fs_node_t *initialise_initrd(uint32_t location) {
     initrd_dev->ptr = 0;
     initrd_dev->impl = 0;
 
-    root_nodes = (fs_node_t *)kmalloc(sizeof(fs_node_t) * initrd_header->nfiles);
+    root_nodes = (Ext2Inode *)kmalloc(sizeof(Ext2Inode) * initrd_header->nfiles);
     nroot_nodes = initrd_header->nfiles;
     // For every file...
     for (uint32_t i = 0; i < initrd_header->nfiles; i++) {
@@ -130,7 +130,7 @@ void read_disk(void) {
     while ((node = readdir_fs(fs_root, i)) != 0) {
         printk("Found file ");
         printk(node->name);
-        fs_node_t *fsnode = finddir_fs(fs_root, node->name);
+        Ext2Inode *fsnode = finddir_fs(fs_root, node->name);
 
         if ((fsnode->flags & 0x7) == FS_DIRECTORY) {
             printk("\n\t(directory)\n");

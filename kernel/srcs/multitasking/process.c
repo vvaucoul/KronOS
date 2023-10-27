@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 17:39:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 13:00:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ int32_t task_fork(void) {
     // printk("\t- Fork\n");
 
     uint32_t eip, esp, ebp;
-    task_t *parent_task, *new_task, *tmp_task;
+    task_t *parent_task, *new_task;
     page_directory_t *directory;
 
     /* We are modifying kernel structures, and so cannot preempt */
@@ -206,13 +206,6 @@ int32_t task_fork(void) {
     }
     /* Either, add it to the ready queue */
     else {
-        /* Add it to the end of the ready queue */
-        // tmp_task = (task_t *)ready_queue;
-        // while (tmp_task->next)
-        //     tmp_task = tmp_task->next;
-        // tmp_task->next = new_task;
-        // new_task->prev = tmp_task;
-
         __ready_queue_add_task(new_task);
     }
 
@@ -567,25 +560,46 @@ void switch_to_user_mode(void) {
     // printk("FS: 0x%x\n", fs);
     // printk("GS: 0x%x\n", gs);
 
-    // switch_user_mode();
-    kpause();
+    // kpause();
 
-    __asm__ __volatile__("cli; \
-	mov $0x2B, %ax; \
-	mov %ax, %ds; \
-	mov %ax, %es; \
-	mov %ax, %fs; \
-	mov %ax, %gs; \
-	mov %esp, %eax; \
-	pushl $0x2B; \
-	pushl %esp; \
-	pushf; \
-	pushl $0x23; \
-	push $1f; \
-	sti; \
-	iret; \
-	1: \
-	");
+    // __asm__ __volatile__("cli; \
+	// mov $0x2B, %ax; \
+	// mov %ax, %ds; \
+	// mov %ax, %es; \
+	// mov %ax, %fs; \
+	// mov %ax, %gs; \
+	// mov %esp, %eax; \
+	// pushl $0x2B; \
+	// pushl %esp; \
+	// pushf; \
+	// pushl $0x23; \
+	// push $1f; \
+	// sti; \
+	// iret; \
+	// 1: \
+	// ");
+    // __asm__ volatile(
+    // "  \
+    // cli; \
+    // mov $0x2B, %%ax; \
+    // mov %%ax, %%ds; \
+    // mov %%ax, %%es; \
+    // mov %%ax, %%fs; \
+    // mov %%ax, %%gs; \
+    // \
+    // pushl $0x2B; \
+    // mov %%esp, %%eax; \
+    // pushl %%eax; \
+    // pushf; \
+    // pushl $0x1B; \
+    // push $1f; \
+    // iret; \
+    // 1: \
+    // "
+    // : : : "ax", "eax"
+    // );
+    switch_user_mode();
+
 }
 pid_t find_first_free_pid(void) {
     pid_t pid = 1;

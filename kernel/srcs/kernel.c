@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 11:27:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:58:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@
 #include <memory/memory_map.h>
 #include <memory/paging.h>
 
-#include <filesystem/ext2/vfs_ext2.h>
+#include <filesystem/ext2/ext2.h>
 #include <filesystem/initrd.h>
 
 #include <memory/mmap.h>
@@ -252,18 +252,16 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
-    printk("Stringify: " _GREEN "%s\n" _END, (STRINGIFY(Hello World !)));
-
     // Display initrd files
 
     // list the contents of /
 
     // Todo: KFS-6
-    //  printk("Initrd files:\n");
-    //  read_disk();
-    //  uint8_t buffer[] = "Hello, World!";
-    //  write_fs(fs_root, 0, strlen((const char *)buffer), buffer);
-    //  read_disk();
+    printk("Initrd files:\n");
+    read_disk();
+    uint8_t buffer[] = "Hello, World!";
+    write_fs(fs_root, 0, strlen((const char *)buffer), buffer);
+    read_disk();
 
     // uint32_t esp;
     // GET_ESP(esp);
@@ -273,6 +271,16 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // threads_test();
     // process_test();
+
+    // uint32_t esp;
+
+    // GET_ESP(esp);
+    // printk("ESP: " _GREEN "0x%x\n" _END, esp);
+
+    // tss_set_stack_pointer(esp);
+    // tss_set_stack_segment(0x10);
+
+    // switch_to_user_mode();
     kpause();
 
     // Todo: Fix priority
@@ -280,10 +288,9 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
     // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
-    switch_to_user_mode();
+    // switch_to_user_mode();
 
-    while (1)
-        ;
+    kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

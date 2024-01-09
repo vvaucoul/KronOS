@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ksh.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:34:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "../kernel.h"
 #include "../terminal.h"
 
-#include "../system/pit.h"
+#include <system/pit.h>
 
 #include "ksh_buffer.h"
 #include "ksh_builtins.h"

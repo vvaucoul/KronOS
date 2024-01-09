@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 18:20:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 10:46:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ typedef struct dirent *(*readdir_type_t)(Ext2Inode *inode, uint32_t index);
 typedef Ext2Inode *(*finddir_type_t)(Ext2Inode *inode, char *name);
 typedef void (*flush_type_t)(Ext2Inode *inode);
 typedef uint32_t (*mkdir_type_t)(Ext2Inode *inode, char *name, uint16_t permission);
+typedef uint32_t (*unlink_type_t)(Ext2Inode *inode, char *name);
+typedef uint32_t (*move_type_t)(Ext2Inode *inode, char *name, char *new_name);
 
 typedef struct s_file_operations {
     read_type_t read;
@@ -47,6 +49,8 @@ typedef struct s_file_operations {
     finddir_type_t finddir;
     flush_type_t flush;
     mkdir_type_t mkdir;
+    unlink_type_t unlink;
+    move_type_t move;
 } __attribute__((packed)) Ext2FileOperations;
 
 typedef struct fs_node {

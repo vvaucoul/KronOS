@@ -6,13 +6,29 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 18:05:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 10:42:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/ext2/ext2.h>
 
 Ext2Inode *fs_root = NULL;
+
+void ext2_delete_fs(Ext2Inode *inode, char *name) {
+    if (inode->fops.unlink != 0) {
+        inode->fops.unlink(inode, name);
+    } else {
+        __WARND("Cannot delete file");
+    }
+}
+
+void ext2_move_fs(Ext2Inode *inode, char *name, char *new_name) {
+    if (inode->fops.move != 0) {
+        inode->fops.move(inode, name, new_name);
+    } else {
+        __WARND("Cannot move file or directory");
+    }
+}
 
 void ext2_create_directory(Ext2Inode *inode, char *name, uint16_t permission) {
     if (inode->fops.mkdir != 0) {

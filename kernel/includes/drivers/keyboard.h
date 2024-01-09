@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   keyboard.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/02/15 11:30:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,10 @@
 
 #include "../kernel.h"
 #include "../terminal.h"
-#include "../system/io.h"
-#include "../system/isr.h"
-#include "../system/irq.h"
+
+#include <system/io.h>
+#include <system/irq.h>
+#include <system/isr.h>
 
 #define KEYBOARD_KEY_ESCAPE 1
 #define KEYBOARD_KEY_BACK 14

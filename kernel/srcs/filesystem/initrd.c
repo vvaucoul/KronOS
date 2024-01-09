@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 18:21:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 10:46:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,42 @@ static uint32_t initrd_write(Ext2Inode *node, uint32_t offset, uint32_t size, ui
     return size;
 }
 
+static uint32_t initrd_unlink(Ext2Inode *node, char *name) {
+    if (node == NULL || name == NULL) {
+        return 1;
+    }
+
+    Ext2Inode *child = initrd_finddir(node, name);
+    if (child == NULL) {
+        return 1;
+    }
+
+    for (uint32_t i = 0; i < node->n_children; i++) {
+        if (node->childs[i] == child) {
+            node->childs[i] = NULL;
+            break;
+        }
+    }
+
+    child->parent = NULL;
+    kfree(child);
+    return 0;
+}
+
+static uint32_t initrd_move(Ext2Inode *node, char *name, char *new_name) {
+    if (node == NULL || name == NULL || new_name == NULL) {
+        return 1;
+    }
+
+    Ext2Inode *child = initrd_finddir(node, name);
+    if (child == NULL) {
+        return 1;
+    }
+
+    strcpy(child->name, new_name);
+    return 0;
+}
+
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                      MKDIR                                     ||
 // ! ||--------------------------------------------------------------------------------||
@@ -121,6 +157,10 @@ static uint32_t intird_mkdir(Ext2Inode *node, char *name, uint16_t permission) {
     new_dir->fops.readdir = &initrd_readdir;
     new_dir->fops.finddir = &initrd_finddir;
     new_dir->fops.flush = 0;
+    new_dir->fops.unlink = &initrd_unlink;
+    new_dir->fops.mkdir = &intird_mkdir;
+    new_dir->fops.move = &initrd_move;
+
     new_dir->impl = 0;
 
     // Link the new directory to the parent directory (this is pseudocode and will depend on your specific FS layout)
@@ -134,17 +174,18 @@ static uint32_t intird_mkdir(Ext2Inode *node, char *name, uint16_t permission) {
 // ! ||--------------------------------------------------------------------------------||
 
 static void __initrd_setup_directory_fops(Ext2Inode *node) {
-    node->fops.read = 0;
-    node->fops.write = 0;
-    node->fops.open = 0;
-    node->fops.close = 0;
+    memset(&node->fops, 0, sizeof(Ext2FileOperations));
+
     node->fops.readdir = &initrd_readdir;
     node->fops.finddir = &initrd_finddir;
-    node->fops.flush = 0;
-    node->fops.mkdir = 0;
+    node->fops.flush = &initrd_flush;
+    node->fops.mkdir = &intird_mkdir;
+    node->fops.unlink = &initrd_unlink;
 }
 
 static void __initrd_setup_file_fops(Ext2Inode *node) {
+    memset(&node->fops, 0, sizeof(Ext2FileOperations));
+
     node->fops.read = &initrd_read;
     node->fops.write = &initrd_write;
     node->fops.open = &initrd_open;
@@ -153,6 +194,8 @@ static void __initrd_setup_file_fops(Ext2Inode *node) {
     node->fops.finddir = &initrd_finddir;
     node->fops.flush = &initrd_flush;
     node->fops.mkdir = &intird_mkdir;
+    node->fops.unlink = &initrd_unlink;
+    node->fops.move = &initrd_move;
 }
 
 static void create_node(Ext2Inode *parent, const char *name, uint32_t flags) {
@@ -166,6 +209,13 @@ static void create_node(Ext2Inode *parent, const char *name, uint32_t flags) {
     node->fops.finddir = &initrd_finddir;
     node->fops.open = flags == FS_FILE ? &initrd_open : 0;
     node->fops.close = flags == FS_FILE ? &initrd_close : 0;
+
+    node->fops.flush = &initrd_flush;
+    node->fops.mkdir = flags == FS_DIRECTORY ? &intird_mkdir : 0;
+    node->fops.unlink = flags == FS_DIRECTORY ? &initrd_unlink : 0;
+
+    node->fops.move = flags == FS_FILE ? &initrd_move : 0;
+
     node->parent = parent;
     node->impl = 0;
     node->n_children = 0;
@@ -190,6 +240,11 @@ static uint32_t __initrd_initialize_hierarchy(void) {
     create_node(initrd_root, "bin", FS_DIRECTORY);
     create_node(initrd_root, "usr", FS_DIRECTORY);
     create_node(initrd_root, "etc", FS_DIRECTORY);
+
+    create_node(initrd_root, "sys", FS_DIRECTORY);
+    create_node(initrd_root, "var", FS_DIRECTORY);
+    create_node(initrd_root, "dev", FS_DIRECTORY);
+    create_node(initrd_root, "proc", FS_DIRECTORY);
 
     Ext2Inode *dev_node = initrd_finddir(initrd_root, "dev");
     if (dev_node == NULL) {
@@ -267,7 +322,7 @@ Ext2Inode *initrd_init(uint32_t location) {
         root_nodes[i].parent = initrd_root;
         root_nodes[i].impl = 0;
     }
-    
+
     return initrd_root;
 }
 

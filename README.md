@@ -9,7 +9,10 @@ img/>
 
  **KronOS** is a lightweight Unix-like kernel writen in C and ASM.<br>
 This is the result of the **KFS** projects available at School 42.
-The kernel is currently not finished. I will make major improvements as soon as possible.
+
+> The kernel is currently not finished. <br>
+> Use it only for testing purposes. <br>
+> It lacks many features but I try to improve it as I go along.
 
 [![Kronos Workflow](https://github.com/vvaucoul/KronOS/actions/workflows/workflow.yml/badge.svg)](https://github.com/vvaucoul/KronOS/actions/workflows/workflow.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/vvaucoul/kronos/badge)](https://www.codefactor.io/repository/github/vvaucoul/kronos)
@@ -60,8 +63,8 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 * [x] <strong>KFS-2</strong> : GDT & Stack
 * [x] <strong>KFS-3</strong> : Memory
 * [x] <strong>KFS-4</strong> : Interrupts
-* [ ] <strong>KFS-5</strong> : Processes -----------> **<i>in progress</i>**
-* [ ] <strong>KFS-6</strong> : Filesystem
+* [x] <strong>KFS-5</strong> : Processes -----------> **<i>waiting for validation</i>**
+* [ ] <strong>KFS-6</strong> : Filesystem -----------> **<i>in progress</i>**
 * [ ] <strong>KFS-7</strong> : Syscalls, Sockets & env
 * [ ] <strong>KFS-8</strong> : Kernel Modules
 * [ ] <strong>KFS-9</strong> : ELF Parser
@@ -80,16 +83,23 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 ### Features
 
 * [x] Basic Kernel System
-* [x] Boot via Grub 2
-* [x] ASM Bootable base
+* [x] Boot via Grub 2 and Multiboot 1
 * [x] Kernel Library with basics functions and types (cf. <strong>[HEPHAISTOS](https://github.com/vvaucoul/hephaistos)</strong>)
-* [x] Keyboard Support
-* [x] VGA Driver
+* [x] PS/2 Keyboard Support
+* [x] VGA text Driver
 * [x] GDT implementation
 * [x] Interrupts and IRQs support
 * [x] A Complete Memory system
-* [x] Physical and Virtual Memory
+    * [x] Paging
+    * [x] Physical and Virtual Memory
 * [x] Multi-Tasking System
+    * [x] Round Robin
+    * [x] Threads
+    * [x] Concurrent access
+        * [x] Mutexes
+        * [x] Semaphores
+* [x] Bios interactions
+* [x] Some syscall done
 
 ### GRUB 2 with Multiboot 1
 

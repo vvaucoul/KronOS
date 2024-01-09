@@ -3,18 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   ksh.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 13:04:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/20 12:43:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <shell/ksh.h>
-#include <shell/ksh_builtins.h>
 #include <shell/ksh_args.h>
+#include <shell/ksh_builtins.h>
 
 #include <memory/kheap.h>
+
+#include <multitasking/process.h>
 
 uint32_t ksh_max_line = VGA_HEIGHT - __HEADER_HEIGHT__;
 uint32_t ksh_min_line = __HEADER_HEIGHT__;
@@ -23,8 +25,7 @@ uint32_t ksh_current_max_line = __HEADER_HEIGHT__;
 
 uint32_t *ksh_buffer = (uint32_t *)0x0000B000;
 
-void ksh_clear(void)
-{
+void ksh_clear(void) {
     KSH_CLR_TERM_SH();
     CLEAR_SCREEN();
     ksh_current_line = __HEADER_HEIGHT__;
@@ -32,15 +33,13 @@ void ksh_clear(void)
     ksh_min_line = __HEADER_HEIGHT__;
 }
 
-void ksh_execute_command(void)
-{
+void ksh_execute_command(void) {
     /* SIMPLE COMMAND EXECUTOR */
     char __formated_command[128];
 
     bzero(__formated_command, 128);
     strclr(__formated_command, ksh_line_buffer);
-    if (__formated_command[0] != 0)
-    {
+    if (__formated_command[0] != 0) {
         const ksh_args_t *args = ksh_parse_args(__formated_command);
         __ksh_execute_builtins(args);
         ksh_add_line_history(__formated_command);
@@ -53,14 +52,21 @@ void ksh_execute_command(void)
     UPDATE_CURSOR();
 }
 
-void kronos_shell(void)
-{
-    // printk("KSHBuffer ADDR : 0x%x\n", ksh_buffer);
+void kronos_shell(void) {
+    ASM_CLI();
     ksh_init();
     __ksh_init_builtins();
+    printk("\nCreate Shell at "_GREEN
+           "[0x%x]"_END
+           " with PID: "_GREEN
+           "[%d]"_END
+           "\n",
+           ksh_buffer, getpid());
+    ASM_STI();
     printk("Welcome to " _RED "KSH" _END " !\n");
     DISPLAY_PROMPT();
     UPDATE_CURSOR();
+
 
     while (1)
         ;

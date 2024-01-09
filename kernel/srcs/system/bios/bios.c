@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bios.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 19:57:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 23:25:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 15:56:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <system/panic.h>
 
-void (*exec_bios32_function)() = (void *)0x7c00;
+void (*exec_bios32_function)() = (void *)BIOS_DEFAULT_MEMORY;
 
 static void __bios32_service(uint8_t interrupt, regs16_t *in, regs16_t *out)
 {
@@ -34,8 +34,10 @@ static void __bios32_service(uint8_t interrupt, regs16_t *in, regs16_t *out)
     memcpy(bios32_service, BIOS32_START, size);
     if (size > PAGE_SIZE)
         __PANIC("BIOS32 Service is too big !");
-    exec_bios32_function();
+    printk("Executing BIOS32 Service at address %p\n", bios32_service);
+
     kpause();
+    exec_bios32_function();
 
     in_reg16_address = REBASE_ADDRESS(&bios32_out_reg16_ptr);
     memcpy(out, in_reg16_address, sizeof(regs16_t));

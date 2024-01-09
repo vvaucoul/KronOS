@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sections.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:11:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:35:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/30 11:52:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ extern uint32_t __kernel_physical_memory_start;
 extern uint32_t __kernel_physical_memory_end;
 extern uint32_t __kernel_virtual_memory_start;
 extern uint32_t __kernel_virtual_memory_end;
+extern uint32_t __kernel_section_start;
+extern uint32_t __kernel_section_end;
 
 extern void display_sections(void);
 

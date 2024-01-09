@@ -16,9 +16,8 @@ section .data
 	align 0x1000
 
 ; Multiboot Section
-extern __lhk_multiboot
 align 4
-call __lhk_multiboot
+extern __lhk_multiboot
 
 section .bss
 	align 32
@@ -32,15 +31,25 @@ section .text
 _start:
 	xor ebp, ebp
 	mov esp, stack + STACK_SIZE 
-	push ebx
-	push eax
+	push esp ; stack
+	push ebx ; Multiboot Info
+	push eax ; Magic Number
 	
 	cli
 	call kmain
-	pop eax
+	test eax, eax
+	jz .hang
 	cmp eax, 1
-	jmp display_error_msg
+	jz .error
+
+.error:
+	call display_error_msg
+	hlt
+	jmp .error
+
 .hang:
 	hlt
 	jmp .hang
+
 .end:
+

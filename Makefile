@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2022/12/09 01:05:32 by vvaucoul         ###   ########.fr        #
+#    Updated: 2023/10/27 13:06:34 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,7 +46,11 @@ INLCUDES_PATH		=	-I./kernel/includes/ \
 CFLAGS				=	-Wall -Wextra -Wfatal-errors \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs \
-						-std=gnu99 -ffreestanding -O2 
+						-std=c17 -ffreestanding -O2 
+CXXFLAGS			=	-Wall -Wextra -Wfatal-errors \
+						-fno-builtin -fno-exceptions -fno-stack-protector \
+						-fno-rtti -nostdlib -nodefaultlibs \
+						-std=c++17 -ffreestanding -O2
 LDFLAGS				= 	-g3 -m32
 LD_FLAGS			=	-m elf_i386
 
@@ -73,14 +77,16 @@ else
 	CCACHE 			=	ccache
 endif
 
-# Todo: Check clang version / do not use gcc -> error
 ifeq ($(CLANG_INSTALLED), false)
 	CC				=	$(CCACHE) gcc
+	CXX				=	$(CCACHE) g++
 else
 	CC				=	$(CCACHE) clang
+	CXX				=	$(CCACHE) clang++
 endif
 
 DEPENDS				=	$(KOBJS:.o=.d)
+DEPENDSXX			=	$(KOBJSXX:.o=.d)
 WDEPENDS			=	$(WOBJS:.o=.d)
 DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
@@ -89,12 +95,31 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 #*******************************************************************************
 
 %.o: %.c
-	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LCYAN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@if echo $< | grep -q "workflow"; then \
+		COLOR="$(_LRED)"; \
+	elif echo $< | grep -q "multitasking"; then \
+        COLOR="$(_LGREEN)"; \
+	elif echo $< | grep -q "filesystem"; then \
+		COLOR="$(_LYELLOW)"; \
+	elif echo $< | grep -q "shell"; then \
+		COLOR="$(_LPURPLE)"; \
+	elif echo $< | grep -q "drivers"; then \
+		COLOR="$(_LCYAN)"; \
+	elif echo $< | grep -q "memory"; then \
+		COLOR="$(_LYELLOW)"; \
+	else \
+		COLOR="$(_LCYAN)"; \
+	fi; \
+	printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$$COLOR %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.c=.o}
 
 %.o: %.s
 	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
 	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
+
+%.o: %.cpp
+	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LGREEN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
+	@$(CXX) $(LDFLAGS) $(CXXFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.cpp=.o}
 
 #*******************************************************************************
 #*                                    RULES                                    *
@@ -117,7 +142,7 @@ lkfs: lkfs-install
 $(BOOT): $(KBOOT_OBJS)
 	@printf "$(_LWHITE)- ASM BOOT $(_END)$(_DIM)--------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-$(KDSRCS): $(KOBJS) $(KOBJS_ASM) $(WOBJS)
+$(KDSRCS): $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS)
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(XORRISO):
@@ -130,13 +155,17 @@ check:
 	@grub-file --is-x86-multiboot $(BIN_DIR)/$(BIN) && printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)" || printf "$(_LWHITE)- $(BIN) $(_END)$(_DIM)------------$(_END) $(_LRED)[$(_LWHITE)✗$(_LRED)]$(_END)"
 	printf "$(_END)$(_DIM) -> ISO CHECKER $(_END)\n"
 
+clean-ccache:
+	@printf "$(_LWHITE)- CLEAN CCACHE $(_END)$(_DIM)----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+	@$(CCACHE) -c -C > /dev/null 2>&1
+
 clean:
 	@make -s -C $(LIBKFS_DIR) clean
-	@make -s -C . clean-disk
-	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM)
+	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM) $(DEPENDSXX)
+	@make -s clean-vfs
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-fclean: clean docker-clear
+fclean: clean docker-clear clean-ccache
 	@make -s -C $(LIBKFS_DIR) fclean
 	@rm -rf $(DEPENDENCIES_DIR)/$(XORRISO) $(BIN_DIR) $(DEPENDENCIES_DIR)/$(CCACHE_DIR)
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
@@ -147,25 +176,30 @@ re: clean
 	@make -s -C . all
 
 ascii:
-	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)      $(_LRED)██╗  ██╗\n$(_END)"
-	@printf "$(_LRED)\r██║ ██╔╝██╔════╝██╔════╝$(_LWHITE)      $(_LRED)██║  ██║\n$(_END)"
-	@printf "$(_LRED)\r█████╔╝ █████╗  ███████╗$(_LWHITE)█████╗$(_LRED)███████║\n$(_END)"
+	@printf "$(_LRED)\r██╗  ██╗███████╗███████╗$(_LWHITE)      $(_LRED)███████╗\n$(_END)"
+	@printf "$(_LRED)\r██║ ██╔╝██╔════╝██╔════╝$(_LWHITE)      $(_LRED)██╔════╝\n$(_END)"
+	@printf "$(_LRED)\r█████╔╝ █████╗  ███████╗$(_LWHITE)█████╗$(_LRED)███████╗\n$(_END)"
 	@printf "$(_LRED)\r██╔═██╗ ██╔══╝  ╚════██║$(_LWHITE)╚════╝$(_LRED)╚════██║\n$(_END)"
-	@printf "$(_LRED)\r██║  ██╗██║     ███████║$(_LWHITE)      $(_LRED)     ██║\n$(_END)"
-	@printf "$(_LRED)\r╚═╝  ╚═╝╚═╝     ╚══════╝$(_LWHITE)      $(_LRED)     ╚═╝\n$(_END)"
-                                      
+	@printf "$(_LRED)\r██║  ██╗██║     ███████║$(_LWHITE)      $(_LRED)███████║\n$(_END)"
+	@printf "$(_LRED)\r╚═╝  ╚═╝╚═╝     ╚══════╝$(_LWHITE)      $(_LRED)╚══════╝\n$(_END)"
 
 helper:
 	@printf "\n$(_LWHITE)- Now you use: '$(_LYELLOW)make run$(_END)$(_LWHITE)' or '$(_LYELLOW)make run-iso$(_END)$(_LWHITE)' to start the kernel !$(_END)\n"
+
+clean-vfs:
+	# @printf "$(_LWHITE)    $(_DIM)- Cleaning: $(_END)$(_DIM)---------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "VFS"
+	@sh $(VFS_CLEAN_SCRIPT)
+
+.PHONY: clean-vfs
 
 include $(MK_INCLUDE_DIR)/kernel-starter/QEMU-Runner.mk
 include $(MK_INCLUDE_DIR)/docker/Docker.mk
 include $(MK_INCLUDE_DIR)/kernel-maker/Kernel-Maker.mk
 include $(MK_INCLUDE_DIR)/dependencies/Dependencies.mk
-include $(MK_INCLUDE_DIR)/tiny-kernels/tiny-kernels.mk
 
 -include $(DEPENDS)
 -include $(WDEPENDS)
 -include $(DEPENDS_ASM)
+-include $(DEPENDSXX)
 
-.PHONY: all clean fclean re debug ascii helper
+.PHONY: all clean fclean re debug ascii helper check clean-ccache

@@ -3,23 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   gdt.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 12:03:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <system/pit.h>
 #include <system/gdt.h>
-#include <system/panic.h>
-#include <system/kerrno.h>
+#include <system/pit.h>
+#include <system/tss.h>
 
 GDTEntry *gdt = (GDTEntry *)__GDT_ADDR;
 GDTPtr gp;
 
-void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity)
-{
+void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity) {
     (&gdt[index])->base_low = (base & 0xFFFF);
     (&gdt[index])->base_middle = (base >> 16) & 0xFF;
     (&gdt[index])->base_high = (base >> 24) & 0xFF;
@@ -29,45 +27,31 @@ void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access,
     (&gdt[index])->access = access;
 }
 
-void gdt_install(void)
-{
-    if (__GDT_LOGS__)
-    {
-        printk("(0x00000800 + 0xC0000000): %p\n", (0x00000800 + 0xC0000000));
-        printk("__GDT_ADDR HEXA: %u\n", __GDT_ADDR);
-        printk("__GDT_ADDR PTR: %p\n", gdt);
-    }
-
-    gdt_add_entry(0, 0, 0, 0, 0);
-    gdt_add_entry(1, 0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE);
-    gdt_add_entry(2, 0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE);
-    gdt_add_entry(3, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE);
-    gdt_add_entry(4, 0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL3), GDT_ENTRY_FLAG_BASE);
-    gdt_add_entry(5, 0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE);
-    gdt_add_entry(6, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE);
+void gdt_install(void) {
 
     /* Setup the GDT pointer and limit */
-    gp.limit = (sizeof(&gdt[0]) * __GDT_SIZE) - 1;
+    // gp.limit = (sizeof(&gdt[0]) * (__GDT_SIZE + TSS_SIZE)) - 1;
+    gp.limit = (sizeof(GDTEntry) * (__GDT_SIZE + TSS_SIZE)) - 1;
     gp.base = __GDT_ADDR;
 
-    /* Check if GDT don't reach the limit */
-    if (gp.limit > __GDT_LIMIT)
-    {
-        KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_GDT, KERRNO_GDT_LIMIT);
-        kernel_panic(__GDT_ERROR_LIMIT);
-    }
+    /* NULL descriptor */
+    gdt_add_entry(0, 0, 0, 0, 0);
+    /* Kernel code segment */
+    gdt_add_entry(1, 0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL0), GDT_ENTRY_FLAG_BASE);
+    /* Kernel data segment */
+    gdt_add_entry(2, 0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL0), GDT_ENTRY_FLAG_BASE);
+    /* Kernel stack segment */
+    gdt_add_entry(3, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL0), GDT_ENTRY_FLAG_BASE);
 
-    if (__GDT_LOGS__)
-    {
-        printk("__GDT: Limit: %u\n", gp.limit);
-        printk("__GDT Base: %u\n", gp.base);
-        printk("__GDT ADDR : %p\n", __GDT_ADDR);
-    }
+    /* User code segment */
+    gdt_add_entry(4, 0, 0xFFFFFFFF, (uint8_t)(GDT_CODE_PL3), GDT_ENTRY_FLAG_BASE);
+    /* User data segment */
+    gdt_add_entry(5, 0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE);
+    /* User stack segment */
+    gdt_add_entry(6, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE);
 
     /* Flush the GDT */
     gdt_flush((uint32_t)(&gp));
-    if (__GDT_LOGS__)
-        printk("Flush GDT SUCCESS !\n");
 }
 
 /*
@@ -77,8 +61,7 @@ void gdt_install(void)
   EBP : Bottom stack pointer
 */
 
-extern void print_gdt(void)
-{
+extern void print_gdt(void) {
     printk("%8%% GDT Entry: " _GREEN "%p\n" _END, __GDT_ADDR);
     printk("%8%% GDT Base: " _GREEN "%p\n" _END, gp.base);
     printk("%8%% GDT Limit: " _GREEN "%u\n" _END, gp.limit);
@@ -93,8 +76,10 @@ extern void print_gdt(void)
     printk("   0x%x ", gdt[0].access);
     printk("\n");
 
-    for (size_t i = 1; i < __GDT_SIZE; i++)
-    {
+    for (size_t i = 1; i < 100; i++) {
+        if ((gdt[i].granularity) == 0x0) {
+            break;
+        }
         printk("%8%% 0x%x ", gdt[i].base_low);
         printk("   \t0x%x ", gdt[i].base_middle);
         printk("  \t\t0x%x ", gdt[i].base_high);
@@ -105,8 +90,7 @@ extern void print_gdt(void)
     }
 }
 
-extern void gdt_test(void)
-{
+extern void gdt_test(void) {
     uint32_t ebp;
     uint32_t esp;
 
@@ -122,19 +106,15 @@ extern void gdt_test(void)
     uint32_t i = 0;
 
     ebp = (uint32_t)tmp - 64;
-    do
-    {
-        if (ebp == (uint32_t)tmp)
-        {
+    do {
+        if (ebp == (uint32_t)tmp) {
             printk("\n%8%% PTR Found: " _GREEN "[EBP: 0x%u]\n" _END, ebp);
             printk("%8%% TMP " _GREEN "[PTR: 0x%u]\n\n" _END, (int32_t *)&tmp);
             printk("%8%% 0x%u[0]: " _GREEN "%c\n" _END, ebp, (char)(*(char *)ebp));
             printk("%8%% 0x%u: " _GREEN "%s\n\n" _END, ebp, ((char *)ebp));
             khexdump(ebp - 32, 80);
             return;
-        }
-        else if ((char)(*(char *)ebp) > 0)
-        {
+        } else if ((char)(*(char *)ebp) > 0) {
             printk(_CYAN "0x%u <==> 0x%u: " _END "%2%% %s: %s\n" _END, ebp, (char)(*(char *)ebp), ebp, tmp);
         }
         ebp += 1;
@@ -142,8 +122,7 @@ extern void gdt_test(void)
     } while (i < limit);
 }
 
-extern void print_stack(void)
-{
+extern void print_stack(void) {
     uint32_t esp;
     uint32_t ebp;
 

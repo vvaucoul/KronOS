@@ -1,0 +1,58 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.s": "nasm",
+			"*.ld": "mapfile",
+			"*.c": "c",
+			"cpu.h": "c",
+			"pit.h": "c",
+			"process.h": "c",
+			"serial.h": "c",
+			"kernel.h": "c",
+			"bsod.h": "c",
+			"irq.h": "c",
+			"vesa.h": "c",
+			"time.h": "c",
+			"printk.h": "c",
+			"scheduler.h": "c",
+			"memory.h": "c",
+			"getuid.C": "cpp",
+			"syscall.h": "c",
+			"bit": "cpp",
+			"compare": "cpp",
+			"cstddef": "cpp",
+			"string": "cpp",
+			"limits": "cpp",
+			"memory": "cpp",
+			"new": "cpp",
+			"functional": "cpp",
+			"tss.h": "c",
+			"workflows.h": "c",
+			"multiboot.h": "c",
+			"mutex.h": "c",
+			"array": "c",
+			"tuple": "c",
+			"type_traits": "c",
+			"utility": "c",
+			"kill.h": "c",
+			"exit.h": "c",
+			"ipc.h": "c",
+			"cmos.h": "c",
+			"socket.h": "c",
+			"stdbool.h": "c",
+			"hephaistos.h": "c",
+			"signal.h": "c",
+			"uid.C": "cpp",
+			"kheap.h": "c",
+			"string_view": "c",
+			"initializer_list": "c",
+			"threads.h": "c",
+			"terminal.h": "c"
+		}
+	}
+}

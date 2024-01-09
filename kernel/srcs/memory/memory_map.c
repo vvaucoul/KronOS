@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   memory_map.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:18:24 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/19 12:50:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/31 18:34:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,7 @@
 kernel_memory_map_t kernel_memory_map;
 memory_map_t memory_map[MMAP_SIZE];
 
-static memory_map_t __setup_memory_entry(MultibootMemoryType type, uint32_t size, uint32_t addr_low, uint32_t addr_high, uint32_t len_low, uint32_t len_high)
-{
+static memory_map_t __setup_memory_entry(MultibootMemoryType type, uint32_t size, uint32_t addr_low, uint32_t addr_high, uint32_t len_low, uint32_t len_high) {
     memory_map_t mmap;
 
     mmap.type = type;
@@ -28,44 +27,42 @@ static memory_map_t __setup_memory_entry(MultibootMemoryType type, uint32_t size
     return (mmap);
 }
 
-static void __fix_memory_entry(memory_map_t *__memory_map)
-{
+static void __fix_memory_entry(memory_map_t *__memory_map) {
     __memory_map->addr_high = __memory_map->addr_low + __memory_map->len_low;
 }
 
-static int __init_memory_map(MultibootInfo *multiboot_info)
-{
+static int __init_memory_map(MultibootInfo *multiboot_info) {
     MultibootMemoryMap *mmap = NULL;
 
     uint32_t i = 0;
     uint32_t mmap_index = 0;
 
-    do
-    {
+    do {
+
+#if __HIGHER_HALF_KERNEL__ == true
+        mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + i + 0xC0000000);
+#else
         mmap = (MultibootMemoryMap *)(multiboot_info->mmap_addr + i);
+#endif
+
         assert(mmap != NULL);
 
-        if (mmap->type > MMAP_MIN_TYPE && mmap->type <= MMAP_MAX_TYPE)
-        {
+        if (mmap->type > MMAP_MIN_TYPE && mmap->type <= MMAP_MAX_TYPE) {
             memory_map[mmap_index] = __setup_memory_entry(mmap->type, mmap->size, mmap->addr_low, mmap->addr_high, mmap->len_low, mmap->len_high);
             __fix_memory_entry(&memory_map[mmap_index]);
 
-            if (mmap_index == 5)
-            {
+            if (mmap_index == 5) {
                 memory_map[mmap_index].len_low = 0xFFFFFFFF - memory_map[mmap_index].addr_low;
             }
-
             ++mmap_index;
         }
-
         i += sizeof(MultibootMemoryMap);
     } while (i < multiboot_info->mmap_length);
 
     return (0);
 }
 
-int get_memory_map(MultibootInfo *multiboot_info)
-{
+int get_memory_map(MultibootInfo *multiboot_info) {
     assert(multiboot_info != NULL);
 
     KMAP_SECTIONS.kernel.kernel_start = (uint32_t)&__kernel_section_start;

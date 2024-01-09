@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cpu.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 15:28:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/05/29 09:45:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@
 #define CPUID_VENDOR_PARALLELS_ALT " lrpepyh vr " // Sometimes Parallels incorrectly encodes "prl hyperv" as "lrpepyh vr" due to an endianness mismatch.
 #define CPUID_VENDOR_BHYVE "bhyve bhyve "
 #define CPUID_VENDOR_QNX " QNXQVMBSQG "
+
+#define CPUID_APIC (1 << 9)
 
 typedef enum e_cpu_info
 {
@@ -124,10 +126,42 @@ extern bool __cpuid_available;
 #define CPU_INFOS_SIZE 13
 
 extern char cpu_vendor[CPU_INFOS_SIZE];
-extern char cpu_brand[CPU_INFOS_SIZE];
 extern uint32_t cpu_family;
 extern uint32_t cpu_model;
 
 extern char hypervisor[CPU_INFOS_SIZE];
+
+/*******************************************************************************
+ *                                CPU TOPOLOGY                                 *
+ ******************************************************************************/
+
+#define CPU_BAND_STRING_SIZE 0x40 // 64 bytes
+
+typedef struct cpu_topology
+{
+    uint32_t physicalCoresPerPackage;
+    uint32_t logicalCoresPerPhysicalCore;
+    uint32_t socketCount;
+    uint32_t coreCount;
+    uint32_t threadCount;
+
+    uint32_t l1CacheSize; // per core
+    uint32_t l2CacheSize; // per core
+    uint32_t l3CacheSize; // per package
+
+    uint32_t currentFrequency; // in MHz
+
+    char brandString[CPU_BAND_STRING_SIZE];
+} cpu_topology_t;
+
+extern cpu_topology_t cpu_topology;
+
+extern void get_cpu_topology(void);
+
+/*
+** ============================= CPU FREQUENCY ================================
+*/
+
+extern double get_cpu_frequency();
 
 #endif /* !CPU_H */

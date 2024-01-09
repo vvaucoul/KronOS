@@ -3,57 +3,61 @@
 /*                                                        :::      ::::::::   */
 /*   pit.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/27 11:35:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <system/pit.h>
 #include <asm/asm.h>
+#include <multitasking/scheduler.h>
+#include <system/pit.h>
 
-void speaker_phase(int hz)
-{
+void speaker_phase(int hz) {
     int divisor = __CHIPSET_FREQUENCY / hz;
-    outb(__PIT_CMDREG, 0xb6);
-    outb(__PIT_CHANNEL2, divisor & 0xFF);
-    outb(__PIT_CHANNEL2, (divisor >> 8) & 0xFF);
+    outb(PIT_CMDREG, 0xb6);
+    outb(PIT_CHANNEL_2, divisor & PIT_MASK);
+    outb(PIT_CHANNEL_2, (divisor >> 8) & PIT_MASK);
 }
 
-void timer_phase(int hz)
-{
+static void __timer_phase(void) {
     // This frequency is 1.1931816666 MHz
-    int divisor = __CHIPSET_FREQUENCY / hz;
-    outportb(__PIT_CMDREG, 0x36);
-    outportb(__PIT_CHANNEL0, divisor & 0xFF);
-    outportb(__PIT_CHANNEL0, divisor >> 8);
+    int divisor = __CHIPSET_FREQUENCY / TIMER_PHASE;
+    outportb(PIT_CMDREG, PIT_SET);
+    outportb(PIT_CHANNEL_0, (uint8_t)(divisor & PIT_MASK));
+    outportb(PIT_CHANNEL_0, (uint8_t)((divisor >> 8) & PIT_MASK));
 }
 
-int timer_ticks = 0;
-int timer_seconds = 0;
+uint32_t timer_ticks = 0;
+uint32_t timer_subtick = 0;
 
-void timer_handler(struct regs *r)
-{
-    (void)r;
-    timer_ticks++;
+void timer_handler(struct regs *r) {
 
-    if (timer_ticks % (__TIMER_HZ * 100) == 0)
-    {
-        timer_seconds++;
+    __UNUSED(r);
+
+    timer_subtick++;
+
+    if (timer_subtick == TIMER_PHASE) {
+        timer_ticks++;
+    }
+
+    if (timer_subtick % TIMER_MAX_TICKS == 0) {
+        timer_subtick = 0;
+    }
+
+    if (timer_subtick % TASK_FREQUENCY == 0 && scheduler_initialized) {
+        switch_task();
     }
 }
 
-void beep(unsigned int wait_time, unsigned int times)
-{
+void beep(unsigned int wait_time, unsigned int times) {
     unsigned char tempA = inportb(0x61);
     unsigned char tempB = (inportb(0x61) & 0xFC);
     unsigned int count;
 
-    for (count = 0; count == times; count++)
-    {
-        if (tempA != (tempA | 3))
-        {
+    for (count = 0; count == times; count++) {
+        if (tempA != (tempA | 3)) {
             outportb(0x61, tempA | 3);
         }
         timer_wait(wait_time); // Wait is one more PIT function
@@ -61,53 +65,61 @@ void beep(unsigned int wait_time, unsigned int times)
     }
 }
 
-void timer_install()
-{
-    timer_phase(__TIMER_HZ);
-    speaker_phase(__TIMER_HZ);
-    irq_install_handler(0, timer_handler);
+void timer_install() {
+    irq_install_handler(IRQ_PIT, timer_handler);
+    __timer_phase();
+    // speaker_phase(TIMER_PHASE);
 }
 
-void timer_wait(int ticks)
-{
-    int eticks;
-
-    eticks = timer_ticks + ticks;
-    while (timer_ticks < eticks)
-        asm volatile("sti\n\thlt\n\tcld");
-    asm volatile("sti");
+/**
+ * @brief Busy wait for a given number of ticks
+ * @param ticks Number of ticks to wait
+ *
+ * This function is used to wait for a given number of ticks.
+ */
+void busy_wait(uint32_t ticks) {
+    uint32_t start_tick = timer_subtick;
+    while (timer_subtick - start_tick < ticks) {
+        __asm__ volatile("sti\n\thlt\n\tcld");
+    }
 }
 
-void kpause(void)
-{
+void timer_wait(uint32_t ticks) {
+    task_t *task = get_current_task();
+
+    if (!scheduler_initialized || !task || (task && task->pid == 0)) {
+        // If no multitasking, just busy-wait
+        busy_wait(ticks);
+        return;
+    }
+
+    // If the task is running, just busy-wait
+    if (task->state == TASK_RUNNING) {
+
+        task->state = TASK_SLEEPING;
+        task->wake_up_tick = timer_subtick + ticks;
+
+        // Yield the CPU to allow other tasks to run.
+        while (task->state == TASK_SLEEPING) {
+            __asm__ volatile("sti\n\thlt\n\tcld");
+        }
+    } else {
+        // If the task is not running, just busy-wait
+        busy_wait(ticks);
+    }
+}
+
+void kpause(void) {
     ASM_CLI();
-    while (1)
-        ;
+    while (1) {
+        __asm__ volatile("nop");
+    }
 }
 
-void ksleep(int seconds)
-{
-    int eseconds;
-
-    eseconds = timer_seconds + seconds;
-    while (timer_seconds < eseconds)
-        asm volatile("sti\n\thlt\n\tcld");
-    asm volatile("sti");
-}
-
-void timer_display_ktimer(void)
-{
+void timer_display_ktimer(void) {
     printk("%8%% Phase: "
-            " %d\n",
-            timer_ticks);
-    printk("%8%% Seconds: %d\n", timer_seconds);
-    printk("%8%% HZ: %d\n", (size_t)__TIMER_HZ);
+           " %d\n",
+           timer_subtick);
+    printk("%8%% Seconds: %d\n", timer_ticks);
+    printk("%8%% HZ: %d\n", (size_t)TIMER_PHASE);
 }
-
-#undef __PIT_CHANNEL0
-#undef __PIT_CHANNEL1
-#undef __PIT_CHANNEL2
-#undef __PIT_CMDREG
-
-#undef __CHIPSET_FREQUENCY
-#undef __TIMER_HZ

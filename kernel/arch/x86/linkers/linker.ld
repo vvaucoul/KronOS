@@ -1,9 +1,8 @@
-OUTPUT_FORMAT(elf32-i386)
+OUTPUT_FORMAT("elf32-i386")
 ENTRY(_start)
 
 SECTIONS
 {
-	__align_size = 0x1000; /* Align to 4K (Page-Align) */
 	__kernel_physical_memory_start = 0x00100000; /* Start Kernel at 1MB (Physical address space) */
 	__kernel_virtual_memory_start = 0x00100000; /* Start Kernel at 1MB (Virtual address space) */
 
@@ -72,6 +71,4 @@ SECTIONS
 	__kernel_section_end = .;
 	__kernel_virtual_memory_end = .;
 	__kernel_physical_memory_end = .;
-
-	. = ASSERT(__kernel_virtual_memory_end <= 0x1000000, "Kernel is too big!");
 }

@@ -3,49 +3,71 @@
 /*                                                        :::      ::::::::   */
 /*   scheduler.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 12:58:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 20:51:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <system/isr.h>
-#include <memory/paging.h>
+#include <memory/memory.h>
+#include <multitasking/process.h>
 
-#define UCODE_START (uint32_t)0x00600000 // 6MB
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                      MULTILEVEL FEEDBACK QUEUE SCHEDULING                      ||
+// ! ||--------------------------------------------------------------------------------||
 
-typedef enum e_process_state
-{
-    PROCESS_STATE_RUNNING,
-    PROCESS_STATE_ZOMBIE,
-    PROCESS_STATE_THREAD,
-} process_state_t;
+// #define __DEBUG__ 1
 
-typedef struct s_process
-{
-    t_regs regs;                      // CPU registers
-    page_directory_t *page_directory; // Page directory
-    page_t *process_page;             // Current process page
+#ifdef __DEBUG__
+#define MAX_TASKS 4
+#else
+#define MAX_TASKS 32 // 4 tasks max
+#endif
+#define PID_MAX __INT32_MAX__ // Max pid
 
-    uint32_t pid;          // Process ID
-    process_state_t state; // Process state (Running, Zombie, Thread)
+#ifdef __DEBUG__
+#define __DEBUG_TASK_FREQUENCY 1
+#define TASK_FREQUENCY __DEBUG_TASK_FREQUENCY
+#else
+#define TASK_FREQUENCY 1
+#endif
 
-    uint32_t esp; // Stack pointer
-    uint32_t ebp; // Base pointer
+extern bool scheduler_initialized;
 
-    uint32_t owner_id; // Owner ID
+extern void init_scheduler(void);
 
-    struct s_process *parent; // Parent process
-    struct s_process *next;   // Next process in the list (children)
-} process_t;
+extern task_t *__process_selector(task_t *current_task);
+extern void __orphans_collector(task_t *current_task);
+extern void __process_sleeping(task_t *current_task);
+extern int32_t __process_killer(void);
+extern int32_t __process_zombie(task_t *current_task);
+extern void __process_waiting(void);
+extern void __process_threads(task_t *current_task);
 
-extern process_t *process_queue;
-extern process_t *current_process;
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                     SIGNALS                                    ||
+// ! ||--------------------------------------------------------------------------------||
 
-extern void load_binary(uint8_t *data, uint32_t size);
+void __signal_handler(task_t *current_task);
+
+extern void task_add_signal(task_t *task, int signum, void (*handler)(int));
+extern void task_remove_signal(task_t *task, int signum);
+extern void task_print_signals(task_t *task);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                     ROUNDED                                    ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern void wait_for_scheduler_rounded(void);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                    OVERFLOW                                    ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern void __task_overflow_handler(void);
 
 #endif /* !SCHEDULER_H */

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   irq.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 00:48:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/07/19 18:29:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,8 @@ void *irq_routines[16] =
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0};
 
-void pic8259_send_eoi(uint8_t irq)
-{
-    if (irq >= 0x28)
-    {
+void pic8259_send_eoi(uint8_t irq) {
+    if (irq >= 0x28) {
         /* Send reset signal to slave. */
         outportb(SLAVE_PIC, IRQ_EOI);
     }
@@ -45,18 +43,21 @@ void pic8259_send_eoi(uint8_t irq)
     outportb(MASTER_PIC, IRQ_EOI);
 }
 
-void irq_install_handler(int irq, void (*handler)(struct regs *r))
-{
+bool irq_check_install(int irq) {
+    return (irq_routines[irq] != 0);
+}
+
+void irq_install_handler(int irq, void (*handler)(struct regs *r)) {
     irq_routines[irq] = handler;
 }
 
-void irq_uninstall_handler(int irq)
-{
+void irq_uninstall_handler(int irq) {
     irq_routines[irq] = 0;
 }
 
-void irq_remap(void)
-{
+void irq_remap(void) {
+    /* Maybe remap to setup cascading */
+
     uint32_t master_mask = inb(MASTER_DATA);
     uint32_t slave_mask = inb(SLAVE_DATA);
 
@@ -76,9 +77,9 @@ void irq_remap(void)
     outportb(SLAVE_DATA, slave_mask);
 }
 
-void irq_install()
-{
+void irq_install() {
     irq_remap();
+
     idt_set_gate(32, (unsigned)irq0, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(33, (unsigned)irq1, IDT_SELECTOR, IDT_FLAG_GATE);
     idt_set_gate(34, (unsigned)irq2, IDT_SELECTOR, IDT_FLAG_GATE);
@@ -97,13 +98,11 @@ void irq_install()
     idt_set_gate(47, (unsigned)irq15, IDT_SELECTOR, IDT_FLAG_GATE);
 }
 
-void irq_handler(struct regs *r)
-{
-    void (*handler)(struct regs * r);
+void irq_handler(struct regs *r) {
+    void (*handler)(struct regs *r);
 
     handler = irq_routines[r->int_no - 32];
-    if (handler)
-    {
+    if (handler) {
         /* Call the handler. */
         if (handler)
             handler(r);

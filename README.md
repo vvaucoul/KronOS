@@ -1,4 +1,4 @@
-<!-- <center>
+<!--<center>
 <img
     style="display: block; margin-left: none; margin-right: none; width: 75%"
     src="https://user-images.githubusercontent.com/66129673/198560670-53f699ea-2ca4-4604-ab33-3eafbb0869da.png"
@@ -22,6 +22,10 @@ The kernel is currently not finished. I will make major improvements as soon as 
 * <strong>KVM</strong> (<https://www.linux-kvm.org/>)
 * <strong>QEMU</strong> (<https://qemu.org/>)
 
+### Otional tools
+
+* <strong>CCACHE</strong> (<https://github.com/ccache/ccache>)
+
 ### Setup
 
 * Clone Kernel Repository
@@ -42,7 +46,7 @@ make install-dependencies
 make 
 ```
 
-* Start the Kernel
+* Start the Kernel with one of the following commands:
 
 ```bash
 make run / make run-iso / make run-sdl / make run-curses / make run-debug
@@ -73,41 +77,24 @@ make run / make run-iso / make run-sdl / make run-curses / make run-debug
 
 ---
 
-### Compilation
-
-```bash
-make
-```
-
-### Running
-
-```bash
-make run
-make run-iso
-```
-
 ### Features
 
 * [x] Basic Kernel System
 * [x] Boot via Grub 2
 * [x] ASM Bootable base
-* [x] Kernel Library with basics functions and types
+* [x] Kernel Library with basics functions and types (cf. <strong>[HEPHAISTOS](https://github.com/vvaucoul/hephaistos)</strong>)
 * [x] Keyboard Support
-* [x] VGA Support
-* [x] Scroll and Cursor support
-* [x] Colors support
-* [x] A Complete GDT system
+* [x] VGA Driver
+* [x] GDT implementation
+* [x] Interrupts and IRQs support
 * [x] A Complete Memory system
-* [x] Kernel Heap
 * [x] Physical and Virtual Memory
+* [x] Multi-Tasking System
 
 ### GRUB 2 with Multiboot 1
 
 > Grub 2 Usage: [OSDEV](https://wiki.osdev.org/GRUB)<br>
 > Multiboot 1 Usage: [GNU](https://www.gnu.org/software/grub/manual/multiboot/multiboot.html)
-
-> Magic Number: **0x1BADB002**<br>
-> Magic Bootloader Number: **0x2BADB002**
 
 ### Boot Sequence
 
@@ -160,17 +147,5 @@ flowchart LR
 
 <img align="left" src="https://user-images.githubusercontent.com/66129673/198578135-22a31ce5-4818-48a5-aa49-10b455246907.png" width="45%"></img>
 <img src="https://user-images.githubusercontent.com/66129673/198578277-04a26731-7116-47b8-9308-1e8927d388cd.png" width="45%"></img>
-
---- 
-
-- [ ]  Basic data structure for processus
-- [ ]  Processus interconnection, such as kinship, signals and sockets.
-- [ ]  Processus owner
-- [ ]  Rights on processus
-- [ ]  Helpers for the followings syscalls: fork, wait, _exit, getuid, signal, kill
-- [ ]  Processus interruptions
-- [ ]  Processus memory separation
-- [ ]  Multitasking
-
 
 🚧 ... Next redaction pending ...🚧

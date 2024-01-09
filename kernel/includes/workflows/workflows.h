@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   workflows.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/08 13:06:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/26 20:43:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,5 +44,14 @@ extern void interrupts_test(void);
 
 /* Process test */
 extern void process_test(void);
+
+/* Threads test */
+extern void threads_test(void);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                      UTILS                                     ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern void task_dummy(void);
 
 #endif /* !__WORKFLOWS_H */

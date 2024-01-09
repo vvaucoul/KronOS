@@ -12,12 +12,17 @@ CHECKSUM equ -(MAGIC + FLAGS)
 
 global BOOTLOADER_MAGIC
 
+[GLOBAL __lhk_multiboot]
+[EXTERN __kernel_text_section_start]
+[EXTERN __kernel_bss_section_start]
+[EXTERN __kernel_section_end]
+[EXTERN _start]
+
 ;*******************************************************************************
 ;*                           MULTIBOOT INIT FUNCTION                           *
 ;*******************************************************************************
 
 bits 32
-global __lhk_multiboot
 
 __lhk_multiboot:
 section .multiboot.data
@@ -27,13 +32,15 @@ section .multiboot.data
 	dd FLAGS		; Flags
 	dd CHECKSUM		; Checksum
 
-	dd 0			; Header address
-	dd 0			; Load address
-	dd 0			; Load end address
-	dd 0			; BSS end address
-	dd 0			; Entry address
+	dd __lhk_multiboot						; Descriptor address
+	dd __kernel_text_section_start			; Load start address (.txt kernel section)
+	dd __kernel_bss_section_start			; BSS start address (end .data section)
+	dd __kernel_section_end					; Load end address
+	dd _start								; Entry address (Kernel entrypoint initial EIP)
 
 	dd 1			; Mode type
 	dd 0			; Width
 	dd 0			; Height
 	dd 32			; Depth
+
+	ret

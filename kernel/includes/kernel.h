@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   kernel.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/11 18:20:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2023/10/23 20:08:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KERNEL_H
-# define KERNEL_H
+#define KERNEL_H
 
 #pragma once
 
 #include <hephaistos.h>
 
-#define __KERNEL_VERSION__ "0.4.0"
+#define __KERNEL_VERSION__ "0.5.0"
 #define __KERNEL_NAME__ "KronOS"
 
 #define __DISPLAY_INIT_LOG__ true
@@ -25,8 +25,49 @@
 
 extern void kernel_log_info(const char *part, const char *name);
 
-//tmp
-extern void test_user_function();
-extern void switch_user_mode();
+extern int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack);
+
+// tmp
+__attribute__((unused)) extern void test_user_function();
+__attribute__((unused)) extern void switch_to_user_mode();
+
+#define __THROW(msg, err, ...)                        \
+    {                                                 \
+        printk(_RED "WARNING: "                       \
+                    "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);    \
+        return (err);                                 \
+    }
+
+#define __THROW_NO_RETURN(msg, ...)                   \
+    {                                                 \
+        printk(_RED "WARNING: "                       \
+                    "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);    \
+        return;                                       \
+    }
+
+#define __WARN(msg, err, ...)                            \
+    {                                                    \
+        printk(_YELLOW "WARNING: "                       \
+                       "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);       \
+        return (err);                                    \
+    }
+
+#define __WARN_NO_RETURN(msg, ...)                       \
+    {                                                    \
+        printk(_YELLOW "WARNING: "                       \
+                       "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);       \
+        return;                                          \
+    }
+
+#define __WARND(msg, ...)                                \
+    {                                                    \
+        printk(_YELLOW "WARNING: "                       \
+                       "[%s:%u] \n\t\t- " msg _END "\n", \
+               __FILE__, __LINE__, ##__VA_ARGS__);       \
+    }
 
 #endif /* !KERNEL_H */

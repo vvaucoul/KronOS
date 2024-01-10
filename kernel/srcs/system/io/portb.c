@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:31:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 15:06:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,10 @@ uint16_t inw(uint32_t _port) {
     return _v;
 }
 
+void insw(uint16_t port, void *addr, uint32_t word_cnt) {
+    __asm__ volatile ("rep insw" : "+D" (addr), "+c" (word_cnt) : "d" (port) : "memory");
+}
+
 uint32_t inl(uint32_t _port) {
     uint32_t _v;
 
@@ -63,6 +67,10 @@ void outw(uint16_t _port, uint16_t _data) {
     __asm__ volatile("outw %0, %1"
                      :
                      : "a"(_data), "Nd"(_port));
+}
+
+void outsw(uint16_t port, const void *addr, uint32_t word_cnt) {
+    __asm__ volatile ("rep outsw" : "+S" (addr), "+c" (word_cnt) : "d" (port));
 }
 
 void outl(uint32_t _port, uint32_t _data) {

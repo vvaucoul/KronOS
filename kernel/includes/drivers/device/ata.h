@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 11:22:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 13:16:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 16:25:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define ATA_H
 
 #include <kernel.h>
+
+#define ATA_DRIVER 0
 
 /**
  * @file ata.h
@@ -53,9 +55,9 @@
 #define ATA_REG_DATA(base) (base)             // Data register
 #define ATA_REG_ERROR(base) (base + 1)        // Error register
 #define ATA_REG_SECTOR_COUNT(base) (base + 2) // Sector count register
-#define ATA_REG_LBA_LO(base) (base + 3)       // LBA low register
+#define ATA_REG_LBA_LOW(base) (base + 3)       // LBA low register
 #define ATA_REG_LBA_MID(base) (base + 4)      // LBA mid register
-#define ATA_REG_LBA_HI(base) (base + 5)       // LBA high register
+#define ATA_REG_LBA_HIGH(base) (base + 5)       // LBA high register
 #define ATA_REG_DRIVE_SELECT(base) (base + 6) // Drive select register
 #define ATA_REG_COMMAND(base) (base + 7)      // Command register
 #define ATA_REG_STATUS(base) (base + 7)       // Status register

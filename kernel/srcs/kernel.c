@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 13:21:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 16:29:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,9 @@
 #include <drivers/keyboard.h>
 #include <drivers/vesa.h>
 
-#include <drivers/ata/ata.h>
+#include <drivers/device/ata.h>
+#include <drivers/device/pata.h>
+#include <drivers/device/floppy.h>
 
 #include <multiboot/multiboot.h>
 
@@ -188,7 +190,12 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     random_init();
     kernel_log_info("LOG", "RANDOM");
 
-    /* Basic INITRD - VFS - EXT2 Implementation */
+    /**
+     * INIT INITRD
+     *
+     * Init initrd if multiboot modules are found
+     * Initrd -> initial ramdisk
+     */
     if (__multiboot_info->mods_count > 0) {
         kernel_log_info("LOADING", "INITRD - FILESYSTEM");
         // ksleep(2);
@@ -234,6 +241,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     **
     **  ATA Driver initialization
     */
+#if ATA_DRIVER == 1
     if ((ata_init(ATA_PRIMARY_IO, ATA_PRIMARY_DEV_CTRL)) != 0) {
         __WARND("Error: ata_init failed, (Kernel will not use ATA Driver)");
     } else {
@@ -244,43 +252,58 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
             __WARND("Error: ata_identify failed, (Kernel will not use ATA Driver)");
         } else {
             kernel_log_info("LOG", "ATA IDENTIFY");
-
             ata_identify_devide(dev);
 
-            ksleep(2);
-
-            // // Dans kernel.c ou votre fonction de test
-            // uint8_t data[512];
-            // memset(data, 'B', 512); // Données exemple
-
-            // if ((ata_write(dev, 0, data, 1)) != 0) {
-            //     __WARND("Error: ata_write failed, (Kernel will not use ATA Driver)");
-            // } else {
-            //     kernel_log_info("LOG", "ATA WRITE");
-            // }
-
-            // uint8_t buffer[512];
-            // memset(buffer, 0, 512);
-            // if ((ata_read(dev, 0, buffer, 1)) != 0) {
-            //     __WARND("Error: ata_read failed, (Kernel will not use ATA Driver)");
-            // } else {
-            //     kernel_log_info("LOG", "ATA READ");
-            // }
-
-            // // Affichez les données sous forme hexadécimale pour éviter les problèmes de chaînes
-            // printk("ATA READ: ");
-            // for (int i = 0; i < 256; i++) {
-            //     printk("%02x ", buffer[i]);
-            //     qemu_printf("%c ", buffer[i]);
-            //     if (i % 16 == 0) {
-            //         printk("\n");
-            //     }
-            // }
-            // printk("\n");
+            ksleep(1);
 
             kernel_log_info("LOG", "ATA READ/WRITE");
         }
     }
+#endif
+
+/**
+ * PATA INIT
+ *
+ * PATA Driver initialization
+ */
+#if PATA_DRIVER == 1
+    if ((pata_init(ATA_PRIMARY_IO, ATA_PRIMARY_DEV_CTRL)) != 0) {
+        __WARND("Error: pata_init failed, (Kernel will not use PATA Driver)");
+    } else {
+        kernel_log_info("LOG", "PATA");
+
+        uint8_t id = pata_identify(pata_dev);
+        if (id != 0) {
+            __WARND("Error: pata_identify failed, (Kernel will not use PATA Driver)");
+        } else {
+            kernel_log_info("LOG", "PATA IDENTIFY");
+            pata_identify_device(pata_dev);
+
+            ksleep(1);
+
+            kernel_log_info("LOG", "PATA READ/WRITE");
+        }
+    }
+#endif
+
+/**
+ * FLOPPY INIT
+ *
+ * Floppy Driver initialization
+ */
+#if FLOPPY_DRIVER == 1
+    if ((floppy_init()) != 0) {
+        __WARND("Error: floppy_init failed, (Kernel will not use Floppy Driver)");
+    } else {
+        kernel_log_info("LOG", "FLOPPY");
+
+        ksleep(1);
+
+        kernel_log_info("LOG", "FLOPPY READ/WRITE");
+    }
+#endif
+
+    kpause();
 
     /*
     **  VFS INIT

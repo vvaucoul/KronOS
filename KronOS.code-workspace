@@ -52,7 +52,12 @@
 			"string_view": "c",
 			"initializer_list": "c",
 			"threads.h": "c",
-			"terminal.h": "c"
+			"terminal.h": "c",
+			"pata.h": "c",
+			"ata.h": "c",
+			"io.h": "c",
+			"floppy.h": "c",
+			"asm.h": "c"
 		}
 	}
 }

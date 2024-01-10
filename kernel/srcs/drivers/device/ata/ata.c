@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 11:22:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 13:19:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 16:29:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <drivers/ata/ata.h>
+#include <drivers/device/ata.h>
+
 #include <memory/memory.h>
 #include <system/io.h>
 
@@ -34,6 +35,7 @@ static int __ata_wait_ready(ATADevice *dev) {
     while ((inb(ATA_REG_STATUS(dev->io_base)) & ATA_STATUS_DRQ) == 0)
         ;
 
+    // Check if there was an error
     return (inb(ATA_REG_STATUS(dev->io_base)) & ATA_STATUS_ERR) == 0;
 }
 
@@ -177,7 +179,7 @@ uint8_t ata_identify(ATADevice *dev) {
         }
     } else {
         printk("\t\t\t   - ATA " _RED "[%d]" _END " - " _RED "%s" _END "\n", 0, "No device");
-        return (1);
+        return (ATA_UNKNOWN);
     }
 
     delay400ns(dev->io_base);
@@ -194,9 +196,9 @@ int ata_read(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors) {
 
     outb(ATA_REG_DRIVE_SELECT(dev->io_base), 0xE0 | ((lba >> 24) & 0x0F)); // Select the drive and set the high 4 bits of the LBA
     outb(ATA_REG_SECTOR_COUNT((dev->io_base)), sectors);                   // Set the sector count
-    outb(ATA_REG_LBA_LO((dev->io_base)) + 3, lba);                         // Set the low 8 bits of the LBA
+    outb(ATA_REG_LBA_LOW((dev->io_base)) + 3, lba);                         // Set the low 8 bits of the LBA
     outb(ATA_REG_LBA_MID((dev->io_base)), lba >> 8);                       // Set the next 8 bits of the LBA
-    outb(ATA_REG_LBA_HI((dev->io_base)), lba >> 16);                       // Set the next 8 bits of the LBA
+    outb(ATA_REG_LBA_HIGH((dev->io_base)), lba >> 16);                       // Set the next 8 bits of the LBA
     outb(ATA_REG_STATUS(dev->io_base), ATA_STATUS_DF);                     // Send the READ SECTORS command
 
     outb(ATA_REG_COMMAND(dev->io_base), ATA_SECTOR_READ); // Send the READ SECTORS command
@@ -237,9 +239,9 @@ int ata_write(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sect
 
     outb(ATA_REG_DRIVE_SELECT(dev->io_base), 0xE0 | ((lba >> 24) & 0x0F)); // Select the drive and set the high 4 bits of the LBA
     outb(ATA_REG_SECTOR_COUNT((dev->io_base)), sectors);                   // Set the sector count
-    outb(ATA_REG_LBA_LO((dev->io_base)) + 3, lba);                         // Set the low 8 bits of the LBA
+    outb(ATA_REG_LBA_LOW((dev->io_base)) + 3, lba);                         // Set the low 8 bits of the LBA
     outb(ATA_REG_LBA_MID((dev->io_base)), lba >> 8);                       // Set the next 8 bits of the LBA
-    outb(ATA_REG_LBA_HI((dev->io_base)), lba >> 16);                       // Set the next 8 bits of the LBA
+    outb(ATA_REG_LBA_HIGH((dev->io_base)), lba >> 16);                       // Set the next 8 bits of the LBA
     outb(ATA_REG_STATUS(dev->io_base), ATA_STATUS_DF);                     // Send the READ SECTORS command
 
     outb(ATA_REG_COMMAND(dev->io_base), ATA_SECTOR_WRITE); // Send the WRITE SECTORS command

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:54:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 15:38:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,19 @@
 
 #define IRQ_PIT 0 /* Programmable Interrupt Timer Interrupt */
 #define IRQ_KBD 1 /* Keyboard Interrupt */
+#define IRQ_COM2 3 /* COM2 (if enabled) */
+#define IRQ_COM1 4 /* COM1 (if enabled) */
+#define IRQ_LPT2 5 /* LPT2 (if enabled) */
+#define IRQ_FLOPPY 6 /* Floppy Disk */
+#define IRQ_LPT1 7 /* LPT1 */
+#define IRQ_RTC 8 /* CMOS real-time clock (if enabled) */
+#define IRQ_NIC 9 /* Free for peripherals / legacy SCSI / NIC */
+#define IRQ_NIC2 10 /* Free for peripherals / SCSI / NIC */
+#define IRQ_NIC3 11 /* Free for peripherals / SCSI / NIC */
+#define IRQ_MOUSE 12 /* PS2 Mouse */
+#define IRQ_FPU 13 /* FPU / Coprocessor / Inter-processor */
+#define IRQ_ATA1 14 /* Primary ATA Hard Disk */
+#define IRQ_ATA2 15 /* Secondary ATA Hard Disk */
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                  IRQ FUNCTIONS                                 ||

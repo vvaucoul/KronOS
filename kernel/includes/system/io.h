@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   io.h                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:32:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:34:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 15:06:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,11 @@ extern uint8_t inportb(uint16_t _port);
 extern void outportb(uint16_t _port, uint8_t _data);
 extern void outb(uint16_t _port, uint8_t _data);
 extern void outw(uint16_t _port, uint16_t _data);
+extern void outsw(uint16_t port, const void *addr, uint32_t word_cnt);
 extern void outl(uint32_t _port, uint32_t _data);
 extern uint8_t inb(uint32_t _port);
 extern uint16_t inw(uint32_t _port);
+extern void insw(uint16_t port, void *addr, uint32_t word_cnt);
 extern uint32_t inl(uint32_t _port);
 
 extern void poweroff(void);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   setxkbmap.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 00:18:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 00:27:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,22 @@
 
 #include <drivers/keyboard.h>
 
-static int __setxkbmap_usage(void)
-{
+static int __setxkbmap_usage(void) {
     printk("\t   Usage: setxkbmap [language]\n");
     printk("\t   Available languages: fr, en\n");
     return (1);
 }
 
-int setxkbmap(const ksh_args_t *args)
-{
-    const char *__language = ksh_get_arg(args, 0);
+int setxkbmap(int argc, char **argv) {
+    if (argc != 2) {
+        return (__setxkbmap_usage());
+    }
+
+    const char *__language = argv[1];
 
     if (__language == NULL)
         return (__setxkbmap_usage());
-    else
-    {
+    else {
         if (strcmp(__language, "fr") == 0)
             keyboard_set_layout(KEYBOARD_LAYOUT_FR);
         else if (strcmp(__language, "en") == 0)

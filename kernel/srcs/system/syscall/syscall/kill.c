@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 11:04:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 12:45:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,10 @@
 // ! ||                                KILL PROMPT LINE                                ||
 // ! ||--------------------------------------------------------------------------------||
 
-int builtin_kill(const ksh_args_t *args) {
+int builtin_kill(int argc, char **argv) {
     #warning "Kill builtin not implemented yet"
-    __UNUSED(args);
+    __UNUSED(argc);
+    __UNUSED(argv);
     return (0);
 }
 

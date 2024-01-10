@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ksh_builtins.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:10:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 00:17:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:24:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <shell/ksh_args.h>
 
-#define __NB_BUILTINS_ 0x0E
+#define __BUILTINS_MAX 0xFF
 #define __BUILTINS_MAX_NAMES 0x04
 #define __BUILTINS_MAX_NAME_LENGTH 0x80
 
@@ -29,15 +29,14 @@ typedef struct s_ksh_parameters
 typedef struct s_ksh_builtins
 {
     char names[__BUILTINS_MAX_NAMES][__BUILTINS_MAX_NAME_LENGTH];
-    ksh_cmd_t function;
-    // void (*function)(void);
+    int (*function)(int argc, char **argv);
 } t_ksh_builtins;
 
 #define KshBuiltins t_ksh_builtins
 
-extern KshBuiltins __ksh_builtins[__NB_BUILTINS_];
+extern KshBuiltins __ksh_builtins[__BUILTINS_MAX];
 
 extern void __ksh_init_builtins(void);
-extern void __ksh_execute_builtins(const ksh_args_t *arg);
+extern void __ksh_execute_builtins(int argc, char **argv);
 
 #endif /* !KSH_BUILTINS_H */

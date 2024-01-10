@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 00:23:24 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/10 00:23:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,6 @@
 
 #include <shell/ksh_args.h>
 
-extern int setxkbmap(const ksh_args_t *args);
+extern int setxkbmap(int argc, char **argv);
 
 #endif /* !BUILTINS_H */

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 13:31:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 15:44:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,16 @@
 #include <syscall/fork.h>
 #include <syscall/kill.h>
 #include <syscall/wait.h>
+
+/**
+ * @file syscall.h
+ * @brief Header file containing the declarations and macros for system calls.
+ *
+ * This file defines the system call structure, function prototypes, and macros for making system calls.
+ * It also includes other header files related to specific system calls.
+ */
+
+
 
 /*
 All x86 syscall: https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md#x86-32_bit

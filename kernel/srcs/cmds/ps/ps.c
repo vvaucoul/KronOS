@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 14:18:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 12:59:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ static void __ps(void) {
     print_all_tasks();
 }
 
-void ps(const ksh_args_t *args) {
+void ps(int argc, char **argv) {
     __ps();
-    __UNUSED(args);
+    __UNUSED(argc);
+    __UNUSED(argv);
 }

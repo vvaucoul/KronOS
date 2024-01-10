@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:24:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@
 #include <system/cpu.h>
 
 #include <cmds/ps.h>
+#include <cmds/pwd.h>
 
 #include <drivers/keyboard.h>
 
 #include <workflows/workflows.h>
 
-KshBuiltins __ksh_builtins[__NB_BUILTINS_];
+KshBuiltins __ksh_builtins[__BUILTINS_MAX];
 
 static uint8_t __current_index = 0;
 
@@ -41,6 +42,8 @@ static void __ksh_help(void)
     printk("- " _GREEN "setxkbmap" _END ": set keyboard layout\n");
     printk("- " _GREEN "cpuinfos" _END ": display cpu infos\n");
     printk("- " _GREEN "ps" _END ": display process infos\n");
+    printk("- " _GREEN "cat" _END ": display file content\n");
+    printk("- " _GREEN "pwd" _END ": display current directory\n");
 }
 
 static void __add_builtin(char *names[__BUILTINS_MAX_NAMES], void *fn)
@@ -73,25 +76,27 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"setxkbmap", ""}, &setxkbmap);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cpuinfos", ""}, &get_cpu_informations);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"ps", ""}, &ps);
+    // __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cat", ""}, &cat);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pwd", ""}, &pwd);
 }
 
-void __ksh_execute_builtins(const ksh_args_t *arg)
+void __ksh_execute_builtins(int argc, char **argv)
 {
-    if (arg == NULL)
+    if (argc == 0)
         return;
 
-    for (uint8_t i = 0; i < __NB_BUILTINS_; i++)
+    for (uint8_t i = 0; i < __BUILTINS_MAX; i++)
     {
         for (uint8_t j = 0; j < __BUILTINS_MAX_NAMES; j++)
         {
             if (__ksh_builtins[i].names[j] == NULL)
                 continue;
-            if (strcmp(arg->cmd, __ksh_builtins[i].names[j]) == 0)
+            if (strcmp(argv[0], __ksh_builtins[i].names[j]) == 0)
             {
-                __ksh_builtins[i].function(arg);
+                __ksh_builtins[i].function(argc, argv);
                 return;
             }
         }
     }
-    printk("       Unknown command: %s\n", arg->cmd);
+    printk("       Unknown command: %s\n", argv[0]);
 }

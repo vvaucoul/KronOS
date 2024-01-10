@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 10:46:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 23:06:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,7 +278,7 @@ Ext2Inode *initrd_init(uint32_t location) {
     }
 
     /* Initialise root directory */
-    strcpy(initrd_root->name, "initrd");
+    strcpy(initrd_root->name, "/");
     initrd_root->mask = initrd_root->uid = initrd_root->gid = initrd_root->inode = initrd_root->length = 0;
     initrd_root->flags = FS_DIRECTORY;
     __initrd_setup_directory_fops(initrd_root);
@@ -331,18 +331,17 @@ Ext2Inode *initrd_init(uint32_t location) {
 // ! ||--------------------------------------------------------------------------------||
 
 static void __initrd_display_hierarchy(Ext2Inode *root, uint32_t index, char *prefix) {
-    kmsleep(500);
+    kmsleep(50);
     if (root == NULL) {
         return;
     }
-
-    printk("%s|-- %s\n", prefix, root->name);
 
     char new_prefix[256];
     strcpy(new_prefix, prefix);
     strcat(new_prefix, "|   ");
 
     if (root->flags & FS_DIRECTORY && root->childs != NULL) {
+        printk("%s|-- (Dir) %s\n", prefix, root->name);
         for (uint32_t j = 0; j < root->n_children; j++) {
             if (j == root->n_children - 1) {
                 strcpy(new_prefix, prefix);
@@ -353,64 +352,12 @@ static void __initrd_display_hierarchy(Ext2Inode *root, uint32_t index, char *pr
             }
             __initrd_display_hierarchy(root->childs[j], index + 1, new_prefix);
         }
+    } else if (root->flags & FS_FILE) {
+        printk("%s|-- (File) %s\n", new_prefix, root->name);
     }
 }
 
 void initrd_display_hierarchy(void) {
     char initial_prefix[256] = "";
     __initrd_display_hierarchy(initrd_root, 0, initial_prefix);
-}
-
-void initrd_debug_read_disk(void) {
-    return;
-    int i = 0;
-    struct dirent *node = 0;
-
-    while ((node = ext2_readdir_fs(fs_root, i)) != 0) {
-        Ext2Inode *fsnode = ext2_finddir_fs(fs_root, node->name);
-
-        if (!fsnode) {
-            printk("Error: Couldn't find node for file %s\n", node->name);
-            continue;
-        }
-
-        printk("Found file: %s ", node->name);
-        printk("(Inode: %d, Size: %d bytes)\n", fsnode->inode, fsnode->length);
-
-        if ((fsnode->flags & 0x7) == FS_DIRECTORY) {
-            Ext2Dirent *dirent = fsnode->fops.readdir(fsnode, 0);
-            printk("\tType: directory:\n");
-
-            if (dirent == NULL) {
-                printk("Error: Couldn't read directory %s\n", node->name);
-                continue;
-            } else {
-                printk("\tContents:\n");
-                while (dirent != NULL) {
-                    printk("\t\t%s\n", dirent->name);
-                    dirent = fsnode->fops.readdir(fsnode, dirent->inode + 1);
-                }
-            }
-        } else {
-            printk("\tType: file\n");
-            printk("\tContents: \"");
-
-            // Be careful with large files, this is for debug purposes
-            uint8_t buf[fsnode->length < 256 ? fsnode->length : 256];
-            uint32_t sz = ext2_read_fs(fsnode, 0, sizeof(buf), buf);
-
-            for (uint32_t j = 0; j < sz; j++) {
-                if (buf[j] >= 32 && buf[j] < 127) { // printable ASCII chars
-                    printk("%c", buf[j]);
-                } else {
-                    printk("\\x%02x", buf[j]);
-                }
-            }
-
-            printk("\"\n");
-        }
-
-        printk("----\n");
-        i++;
-    }
 }

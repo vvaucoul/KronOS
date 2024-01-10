@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:21:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 #include <system/mutex.h>
 #include <system/panic.h>
 #include <system/pit.h>
+#include <system/random.h>
 #include <system/sections.h>
 #include <system/serial.h>
 #include <system/signal.h>
@@ -41,6 +42,8 @@
 #include <drivers/keyboard.h>
 #include <drivers/vesa.h>
 
+#include <drivers/ata/ata.h>
+
 #include <multiboot/multiboot.h>
 
 #include <memory/kheap.h>
@@ -50,6 +53,7 @@
 
 #include <filesystem/ext2/ext2.h>
 #include <filesystem/initrd.h>
+#include <filesystem/vfs.h>
 
 #include <memory/mmap.h>
 
@@ -181,6 +185,9 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     enable_fpu();
     kernel_log_info("LOG", "FPU");
 
+    random_init();
+    kernel_log_info("LOG", "RANDOM");
+
     /* Basic INITRD - VFS - EXT2 Implementation */
     if (__multiboot_info->mods_count > 0) {
         kernel_log_info("LOADING", "INITRD - FILESYSTEM");
@@ -196,11 +203,10 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
         placement_addr = initrd_end;
         kernel_log_info("LOG", "INITRD");
-        // ksleep(2);
-        kernel_log_info("LOG", "VFS - EXT2");
-        // ksleep(2);
+        kernel_log_info("LOG", "FILESYSTEM EXT2");
+
     } else {
-        __WARND("No multi boot modules found, kernel will not use filesystem.");
+        __WARND("No multiboot modules found, kernel will not use filesystem.");
     }
 
     init_paging();
@@ -222,6 +228,75 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // ksleep(1);
     // kheap_test();
     // kpause();
+
+    /*
+    **  ATA INIT
+    **
+    **  ATA Driver initialization
+    */
+    if ((ata_init(ATA_PRIMARY_IO, ATA_PRIMARY_DEV_CTRL)) != 0) {
+        __WARND("Error: ata_init failed, (Kernel will not use ATA Driver)");
+    } else {
+        kernel_log_info("LOG", "ATA");
+
+        uint8_t id = ata_identify(dev);
+        if (id != 0) {
+            __WARND("Error: ata_identify failed, (Kernel will not use ATA Driver)");
+        } else {
+            kernel_log_info("LOG", "ATA IDENTIFY");
+
+            ata_identify_devide(dev);
+
+            ksleep(2);
+
+            // // Dans kernel.c ou votre fonction de test
+            // uint8_t data[512];
+            // memset(data, 'B', 512); // Données exemple
+
+            // if ((ata_write(dev, 0, data, 1)) != 0) {
+            //     __WARND("Error: ata_write failed, (Kernel will not use ATA Driver)");
+            // } else {
+            //     kernel_log_info("LOG", "ATA WRITE");
+            // }
+
+            // uint8_t buffer[512];
+            // memset(buffer, 0, 512);
+            // if ((ata_read(dev, 0, buffer, 1)) != 0) {
+            //     __WARND("Error: ata_read failed, (Kernel will not use ATA Driver)");
+            // } else {
+            //     kernel_log_info("LOG", "ATA READ");
+            // }
+
+            // // Affichez les données sous forme hexadécimale pour éviter les problèmes de chaînes
+            // printk("ATA READ: ");
+            // for (int i = 0; i < 256; i++) {
+            //     printk("%02x ", buffer[i]);
+            //     qemu_printf("%c ", buffer[i]);
+            //     if (i % 16 == 0) {
+            //         printk("\n");
+            //     }
+            // }
+            // printk("\n");
+
+            kernel_log_info("LOG", "ATA READ/WRITE");
+        }
+    }
+
+    /*
+    **  VFS INIT
+    **
+    **  Init VFS if filesystem is initialized
+    */
+    if (fs_root != NULL) {
+        if (vfs_init() != 0) {
+            __BSOD_UPDATE("Error: vfs_init failed");
+            bsod("VFS INIT FAILED", __FILE__);
+            return (1);
+        } else {
+            kernel_log_info("LOG", "FILESYSTEM - VFS");
+            ksleep(1);
+        }
+    }
 
     init_scheduler();
     kernel_log_info("LOG", "SCHEDULER");
@@ -264,7 +339,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // Todo: KFS-6
     printk("Initrd files:\n");
-    initrd_debug_read_disk();
 
     Ext2Inode *node = ext2_finddir_fs(fs_root, "bin");
     if (node == NULL) {
@@ -305,8 +379,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
     // switch_to_user_mode();
-
-    // kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

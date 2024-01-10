@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 11:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 11:36:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@
 // ! ||                                 KILL FUNCTIONS                                 ||
 // ! ||--------------------------------------------------------------------------------||
 
-extern int builtin_kill(const ksh_args_t *args);
+extern int builtin_kill(int argc, char **argv);
 extern int kill(pid_t pid, int32_t sig);
 
 #endif /* !KILL_H */

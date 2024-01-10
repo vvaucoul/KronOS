@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 13:28:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 21:05:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,44 @@
 #define VFS_H
 
 /**
- * Virtual File System
- * VFS: Virtual File System
+ * @file vfs.h
+ * @brief Virtual File System implementation
  *
- * Le VFS est une couche d'abstraction dans le noyau d'un système d'exploitation qui permet
- * au système d'exploitation de manipuler des fichiers sur différents types de systèmes de fichiers comme
- * s'ils étaient tous du même type.
- * Il fournit une interface uniforme pour les opérations de fichiers et de répertoires,
- * et délègue les opérations spécifiques au système de fichiers sous-jacent.
- *
+ * This file contains the implementation of the Virtual File System (VFS) module.
+ * The VFS module provides an abstraction layer for file systems, allowing the kernel
+ * to interact with different file systems using a unified interface.
  */
 
 #include <kernel.h>
+
+#include <filesystem/ext2/ext2.h>
+#include <filesystem/initrd.h>
+
+#define DIR_PROCESS "proc"
+#define DIR_CONFIG_FILES "etc"
+#define DIR_HOME "home"
+#define DIR_BIN "bin"
+#define DIR_ETC "etc"
+#define DIR_HOME "home"
+#define DIR_OPT "opt"
+#define DIR_TMP "tmp"
+#define DIR_USR "usr"
+#define DIR_VAR "var"
+#define DIR_BOOT "boot"
+#define DIR_DEV "dev"
+#define DIR_LIB "lib"
+#define DIR_LOST_FOUND "lost+found"
+#define DIR_MEDIA "media"
+#define DIR_MNT "mnt"
+#define DIR_PROC "proc"
+#define DIR_RUN "run"
+#define DIR_SBIN "sbin"
+#define DIR_SRV "srv"
+#define DIR_SYS "sys"
+
+// todo:
+// tableau de pointeur de fonction pour avec les meme protos que le ext2 excepete les nodes etc...
+// pointer a l'initialisation sur le bon filesystem et le bon pointeur de fonction
 
 /**
  * WIP:
@@ -33,34 +59,30 @@
  * or ext2 will be implemented
  */
 
-// typedef struct s_vfs_inode VfsInode;
+#define FILESYSTEM ext2
 
-// typedef uint32_t (*read_type_t)(VfsInode *inode, uint32_t offset, uint32_t size, uint8_t *buffer);
-// typedef uint32_t (*write_type_t)(VfsInode *inode, uint32_t offset, uint32_t size, uint8_t *buffer);
-// typedef void (*open_type_t)(VfsInode *inode);
-// typedef void (*close_type_t)(VfsInode *inode);
-// typedef struct dirent *(*readdir_type_t)(VfsInode *inode, uint32_t index);
-// typedef VfsInode *(*finddir_type_t)(VfsInode *inode, char *name);
+/*
+**  VFS NODE
+**
+**  VFS Node EXT2
+*/
+#if FILESYSTEM == ext2
+typedef Ext2Inode VfsInode;
+#define FILESYSTEM_NAME "ext2"
+#endif
 
-// typedef struct s_file_operations {
-//     read_type_t read;
-//     write_type_t write;
-//     open_type_t open;
-//     close_type_t close;
-//     readdir_type_t readdir;
-//     finddir_type_t finddir;
-// } VfsFileOperations;
+/* Todo: Implement other filesystems */
 
-// typedef struct s_vfs_inode {
-//     char *name;
-//     FileOperations *fops;
-// } VfsInode;
+typedef struct s_vfs {
+    char *fs_name;           // Filesystem name
+    VfsInode *fs_root;       // Filesystem root node
+    VfsInode *(*init)(void); // Filesystem init function
+} Vfs;
 
-// typedef struct s_vfs_file {
-//     VfsInode *inode;
-// } VfsFile;
+extern Vfs *vfs;
 
-// extern int vfs_read(VfsFile *file, void *buffer, uint32_t len);
-// extern int vfs_write(VfsFile *file, void *buffer, uint32_t len);
+extern int vfs_init(void);
+
+extern void vfs_delete_file(VfsInode *inode, char *name);
 
 #endif /* !VFS_H */

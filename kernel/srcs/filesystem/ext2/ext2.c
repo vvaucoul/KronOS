@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 10:42:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 10:52:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ uint32_t ext2_write_fs_full(Ext2Inode *node, uint32_t size, uint8_t *buffer) {
         // Tronquer le fichier à la taille des données écrites
         node->length = size;
 
-        // node->fops.flush(node); // Flush the disk cache
+        node->fops.flush(node); // Flush the disk cache
 
         return result;
     } else {

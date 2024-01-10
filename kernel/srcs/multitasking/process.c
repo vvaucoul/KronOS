@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:35:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,15 @@
 
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
+#include <multitasking/process_fs.h>
 
 #include <system/tss.h>
 
 #include <system/time.h>
 
 #include <asm/asm.h>
+
+#include <filesystem/vfs.h>
 
 #include <kernel.h>
 
@@ -146,6 +149,11 @@ void init_tasking(void) {
     current_task->or_priority = current_task->priority = TASK_PRIORITY_LOW;
     current_task->zombie_hungry = 0;
 
+    /* Init process file system */
+    if ((process_fs_init(current_task)) != 0) {
+        __WARND("init_tasking : process_fs_init failed (process will not have fs)");
+    }
+
     __process_sectors(current_task);
 
     /* Init waiting queue */
@@ -193,6 +201,11 @@ int32_t task_fork(void) {
     new_task->signal_queue = NULL;
     new_task->or_priority = new_task->priority = TASK_PRIORITY_MEDIUM;
     new_task->zombie_hungry = 0;
+
+    /* Init process file system */
+    if ((process_fs_init(new_task)) != 0) {
+        __WARND("init_tasking : process_fs_init failed (process will not have fs)");
+    }
 
     __process_sectors(new_task);
 
@@ -462,7 +475,6 @@ int32_t free_task(task_t *task) {
             task->next->prev = task->prev;
         }
 
-        // Todo: free page directory: Currently crash
         destroy_page_directory(task->page_directory);
 
         kfree(task->sectors.bss_segment);

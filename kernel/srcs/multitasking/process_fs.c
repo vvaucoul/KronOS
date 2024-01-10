@@ -1,25 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   random.h                                           :+:      :+:    :+:   */
+/*   process_fs.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/09 14:03:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:54:20 by vvaucoul         ###   ########.fr       */
+/*   Created: 2024/01/09 17:28:52 by vvaucoul          #+#    #+#             */
+/*   Updated: 2024/01/09 17:37:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RAND_H
-#define RAND_H
+#include <multitasking/process_fs.h>
 
-#include <kernel.h>
-
-#define RA 48271
-#define RC 0
-#define RM 2147483647
-
-extern void random_init();
-extern uint32_t rand();
-
-#endif /* !RAND_H */
+int process_fs_init(task_t *task) {
+    task->env.current_directory = fs_root;
+    return (0);
+}

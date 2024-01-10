@@ -1,25 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   random.h                                           :+:      :+:    :+:   */
+/*   ls.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/09 14:03:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:54:20 by vvaucoul         ###   ########.fr       */
+/*   Created: 2024/01/09 17:38:31 by vvaucoul          #+#    #+#             */
+/*   Updated: 2024/01/09 20:41:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RAND_H
-#define RAND_H
+#include <cmds/ls.h>
 
-#include <kernel.h>
+#include <filesystem/ext2/ext2.h>
 
-#define RA 48271
-#define RC 0
-#define RM 2147483647
+/**
+ * @brief List files in directory
+ *
+ * @param argc
+ * @param argv
+ * @return int
+ *
+ * @note
+ * - ls : list files in current directory
+ * basic implementation of ls system command
+ */
+int ls(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
 
-extern void random_init();
-extern uint32_t rand();
-
-#endif /* !RAND_H */
+    return (0);
+}

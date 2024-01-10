@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:43:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:21:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,12 @@ void ksh_execute_command(void) {
     bzero(__formated_command, 128);
     strclr(__formated_command, ksh_line_buffer);
     if (__formated_command[0] != 0) {
-        const ksh_args_t *args = ksh_parse_args(__formated_command);
-        __ksh_execute_builtins(args);
+        char **argv = ksh_parse_args(__formated_command);
+        int argc = ksh_get_argc(argv);
+
+        __ksh_execute_builtins(argc, argv);
         ksh_add_line_history(__formated_command);
-        ksh_free_args(args);
+        kfree(argv);
     }
     ksh_buffer_clear();
     terminal_column = 0;

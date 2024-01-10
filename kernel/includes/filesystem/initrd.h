@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:43:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 17:36:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 21:27:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,21 @@
 #include <filesystem/ext2/ext2.h>
 
 /**
- * Initrd
- * 
- * Initrd est une technique utilisée pendant le processus de démarrage du système d'exploitation.
- * Il charge une image de disque en mémoire qui est ensuite montée comme système de fichiers racine.
- * Le noyau utilise ensuite ce système de fichiers pour démarrer le reste du système.
- * L'image initrd est généralement utilisée pour charger les modules du noyau nécessaires
- * pour monter le véritable système de fichiers racine, qui pourrait être sur un disque dur, un réseau, etc.
- */
+* @file initrd.h
+* @brief Initrd Filesystem
+*
+* This file contains the definition and structures related to the Initrd filesystem.
+*
+* The Initrd filesystem is a temporary filesystem used during the early stages of the kernel boot process.
+* It provides support for file operations such as reading, writing, opening, closing, and directory listing.
+*
+* The Initrd filesystem implementation includes structures such as InitrdHeader and InitrdFileHeader,
+* which represent the header and file information of the initrd image, respectively.
+*
+* It also defines functions for initializing the initrd filesystem, debugging, and displaying the hierarchy.
+* The Initrd filesystem module is part of the kernel's filesystem infrastructure and is used to load
+* essential files and drivers required for the kernel to boot successfully. 
+*/
 
 #define FS_OPEN 0x01
 
@@ -41,6 +48,5 @@ typedef struct {
 extern Ext2Inode *initrd_init(uint32_t location);
 
 // Debug
-extern void initrd_debug_read_disk(void);
 extern void initrd_display_hierarchy(void);
 #endif /* INITRD_H */

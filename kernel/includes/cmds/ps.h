@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 14:18:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 14:21:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,6 @@
 
 #include <shell/ksh_args.h>
 
-extern void ps(const ksh_args_t *args);
+extern void ps(int argc, char **argv);
 
 #endif /* !PS_H */

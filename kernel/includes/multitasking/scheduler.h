@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 20:51:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 16:00:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #ifdef __DEBUG__
 #define MAX_TASKS 4
 #else
-#define MAX_TASKS 32 // 4 tasks max
+#define MAX_TASKS 32 // 32 tasks max
 #endif
 #define PID_MAX __INT32_MAX__ // Max pid
 

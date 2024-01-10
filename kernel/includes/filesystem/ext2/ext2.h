@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 10:46:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/09 23:38:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,23 @@
 #define EXT2_H
 
 /**
- * @brief      EXT2 Filesystem
- *
- * EXT2: Second Extended Filesystem
- *
- * ext2 est un système de fichiers spécifique utilisé principalement sur les systèmes Linux.
- * Il stocke les fichiers, les métadonnées des fichiers et les répertoires sur le disque dur.
- */
+* @file ext2.h
+* @brief Ext2 Filesystem
+*
+* This file contains the definition and structures related to the Ext2 filesystem.
+* The Ext2 filesystem is a widely used filesystem in Linux-based operating systems.
+* It provides support for file and directory operations, including reading, writing, opening, closing, and directory listing.
+*
+* The Ext2 filesystem implementation includes structures such as Ext2Inode and Ext2Dirent,
+* which represent an inode and a directory entry, respectively. It also defines various
+* file operations functions, such as read, write, open, close, readdir, finddir, flush,
+* mkdir, unlink, and move.
+*
+* The Ext2 filesystem module is part of the Virtual File System (VFS) implementation,
+* which provides a unified interface for interacting with different file systems.
+* It is used by the kernel to manage file systems and perform file system operations.
+*/
+
 
 #include <kernel.h>
 
@@ -39,6 +49,13 @@ typedef void (*flush_type_t)(Ext2Inode *inode);
 typedef uint32_t (*mkdir_type_t)(Ext2Inode *inode, char *name, uint16_t permission);
 typedef uint32_t (*unlink_type_t)(Ext2Inode *inode, char *name);
 typedef uint32_t (*move_type_t)(Ext2Inode *inode, char *name, char *new_name);
+typedef uint32_t (*rmdir_type_t)(Ext2Inode *inode, char *name);
+
+typedef uint32_t mode_t;
+typedef uint32_t uid_t;
+
+typedef uint32_t (*chmod_type_t)(Ext2Inode *inode, mode_t mode);
+typedef uint32_t (*chown_type_t)(Ext2Inode *inode, uint32_t uid, uint32_t gid);
 
 typedef struct s_file_operations {
     read_type_t read;
@@ -49,8 +66,11 @@ typedef struct s_file_operations {
     finddir_type_t finddir;
     flush_type_t flush;
     mkdir_type_t mkdir;
+    rmdir_type_t rmdir;
     unlink_type_t unlink;
     move_type_t move;
+    chmod_type_t chmod;
+    chown_type_t chown;
 } __attribute__((packed)) Ext2FileOperations;
 
 typedef struct fs_node {

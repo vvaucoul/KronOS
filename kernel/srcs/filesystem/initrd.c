@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 23:06:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 22:48:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,8 @@ static uint32_t intird_mkdir(Ext2Inode *node, char *name, uint16_t permission) {
     if (new_dir == NULL) {
         return 1; // Return an error code
     }
+
+    __UNUSED(permission);
 
     // Initialize the new directory inode
     strcpy(new_dir->name, name);

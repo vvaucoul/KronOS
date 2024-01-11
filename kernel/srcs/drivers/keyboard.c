@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/29 15:36:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 17:43:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,21 +97,18 @@ unsigned char kbdfr[128] =
         0, /* All other keys are undefined */
 };
 
-static uint8_t __get_keyboard_lang(void)
-{
+static uint8_t __get_keyboard_lang(void) {
     return (__keyboard_lang);
 }
 
-static unsigned char *__get_keyboard_codes(void)
-{
+static unsigned char *__get_keyboard_codes(void) {
     if (__keyboard_lang == KEYBOARD_LAYOUT_EN)
         return (kbdus);
     else
         return (kbdfr);
 }
 
-void keyboard_set_layout(kbd_lang_t lang)
-{
+void keyboard_set_layout(kbd_lang_t lang) {
     __keyboard_lang = lang;
     printk("\t   Keyboard layout set to "_GREEN
            "%s"_END
@@ -119,10 +116,8 @@ void keyboard_set_layout(kbd_lang_t lang)
            lang == KEYBOARD_LAYOUT_EN ? "EN" : "FR");
 }
 
-static bool scancode_handler(unsigned char scancode)
-{
-    switch (scancode)
-    {
+static bool scancode_handler(unsigned char scancode) {
+    switch (scancode) {
     /* KSHELL MODE */
     case KEYBOARD_KEY_ESCAPE:
         poweroff();
@@ -152,13 +147,11 @@ static bool scancode_handler(unsigned char scancode)
         reboot();
         return (true);
     case KEYBOARD_LEFT_SHIFT:
-    case KEYBOARD_RIGHT_SHIFT:
-    {
+    case KEYBOARD_RIGHT_SHIFT: {
         __keyboard_uppercase = true;
         return (true);
     }
-    case KEYBOARD_CAPS:
-    {
+    case KEYBOARD_CAPS: {
         __keyboard_uppercase = !__keyboard_uppercase;
         return (true);
     }
@@ -168,8 +161,7 @@ static bool scancode_handler(unsigned char scancode)
     return (false);
 }
 
-void keyboard_handler(struct regs *r)
-{
+void keyboard_handler(struct regs *r) {
     (void)r;
     unsigned char scancode;
 
@@ -179,25 +171,20 @@ void keyboard_handler(struct regs *r)
 
     /* If the top bit of the byte we read from the keyboard is
      *  set, that means that a key has just been released */
-    if (scancode & 0x80)
-    {
+    if (scancode & 0x80) {
         /* You can use this one to see if the user released the
          *  shift, alt, or control keys... */
         // printk("Keyboard: Release %c\n", kbdus[scancode & 0x7F]);
 
-        switch (scancode & 0x7F)
-        {
+        switch (scancode & 0x7F) {
         case KEYBOARD_LEFT_SHIFT:
         case KEYBOARD_RIGHT_SHIFT:
             __keyboard_uppercase = false;
         default:
             break;
         }
-    }
-    else
-    {
-        if ((scancode_handler(scancode)) == false)
-        {
+    } else {
+        if ((scancode_handler(scancode)) == false) {
             if (isalpha(__get_keyboard_codes()[scancode]))
                 ksh_write_char(__keyboard_uppercase == true ? __get_keyboard_codes()[scancode] - 32 : __get_keyboard_codes()[scancode]);
             else
@@ -207,8 +194,7 @@ void keyboard_handler(struct regs *r)
 }
 
 /* Installs the keyboard handler into IRQ1 */
-void keyboard_install()
-{
+void keyboard_install() {
     irq_install_handler(1, keyboard_handler);
     __UNUSED(__get_keyboard_lang);
 }

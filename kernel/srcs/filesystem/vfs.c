@@ -6,36 +6,48 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 21:16:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 18:45:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <filesystem/ext2/ext2.h>
 #include <filesystem/vfs.h>
 
 #include <memory/memory.h>
 
-Vfs *vfs = NULL;
+/*
+VfsFileOps ext2_file_ops = {
+    .read = ext2_read,
+    .write = ext2_write,
+    .open = ext2_open,
+    .close = ext2_close,
+};
 
-int vfs_init(void) {
-    if ((vfs = kmalloc(sizeof(Vfs))) == NULL) {
-        __THROW("vfs_init: malloc failed", 1);
+VfsFsOps ext2_fs_ops = {
+    .mount = ext2_mount,
+    .unmount = ext2_unmount,
+};
+
+Vfs ext2_fs = {
+    .fs_name = EXT2_FILESYSTEM_NAME,
+    .fs_root = NULL,
+    .init = ext2_init,
+};
+
+Vfs *fs[FILESYSTEMS_COUNT] = {
+    &ext2_fs,
+};
+
+Vfs *vfs_init(const char *fs_name) {
+    for (uint8_t i = 0; i < FILESYSTEMS_COUNT; i++) {
+        if (strcmp(fs[i]->fs_name, fs_name) == 0) {
+
+            fs[i]->init();
+            fs[i]->fs_root = NULL1;
+
+            return (fs[i]);
+        }
     }
-    vfs->fs_name = FILESYSTEM_NAME;
-    vfs->fs_root = fs_root;
-    return (0);
+    __THROW("vfs_init: filesystem not found", 1);
 }
-
-void vfs_delete_file(VfsInode *inode, char *name) {
-    if (inode->fops.unlink != 0) {
-        inode->fops.unlink(inode, name);
-    } else {
-        __WARND("Cannot delete file");
-    }
-}
-
-// int vfs_read(VfsFile *file, void *buffer, uint32_t len) {
-//     return file->inode->fops->read(file->inode, 0, len, buffer);
-// }
-// int vfs_write(VfsFile *file, void *buffer, uint32_t len) {
-//     return file->inode->fops->write(file->inode, 0, len, buffer);
-// }
+*/

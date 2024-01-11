@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 21:05:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 18:15:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,40 +49,38 @@
 #define DIR_SRV "srv"
 #define DIR_SYS "sys"
 
-// todo:
-// tableau de pointeur de fonction pour avec les meme protos que le ext2 excepete les nodes etc...
-// pointer a l'initialisation sur le bon filesystem et le bon pointeur de fonction
+#define FILESYSTEMS_COUNT 1
 
-/**
- * WIP:
- * To continue, when multiple filesystems will be implemented
- * or ext2 will be implemented
- */
+#define EXT2_FILESYSTEM_NAME "ext2"
+#define VFS_NODE_FILE_LEN 256
 
-#define FILESYSTEM ext2
+typedef struct vfs_file_ops {
+    int (*read)(void *buf, uint32_t size);
+    int (*write)(void *buf, uint32_t size);
+    int (*open)(const char *path, uint32_t flags);
+    int (*close)(void);
+} VfsFileOps;
 
-/*
-**  VFS NODE
-**
-**  VFS Node EXT2
-*/
-#if FILESYSTEM == ext2
-typedef Ext2Inode VfsInode;
-#define FILESYSTEM_NAME "ext2"
-#endif
+typedef struct vfs_fs_ops {
+    int (*mount)(void);
+    int (*unmount)(void);
+} VfsFsOps;
 
-/* Todo: Implement other filesystems */
+typedef struct vfs_node {
+    char name[VFS_NODE_FILE_LEN];
+
+    VfsFsOps *(*fsops)(void);
+    VfsFileOps *(*fops)(void);
+    struct vfs_node *parent;
+} VfsNode;
 
 typedef struct s_vfs {
     char *fs_name;           // Filesystem name
-    VfsInode *fs_root;       // Filesystem root node
-    VfsInode *(*init)(void); // Filesystem init function
+
+    VfsNode *fs_root;       // Filesystem root node
+    VfsNode *(*init)(void); // Filesystem init function
 } Vfs;
 
-extern Vfs *vfs;
-
-extern int vfs_init(void);
-
-extern void vfs_delete_file(VfsInode *inode, char *name);
+extern int vfs_init(const char *fs_name);
 
 #endif /* !VFS_H */

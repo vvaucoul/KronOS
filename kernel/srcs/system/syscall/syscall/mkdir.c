@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 15:04:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 15:56:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 13:15:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 #include <filesystem/vfs.h>
 
-int sys_mkdir(char *path, mode_t permission) {
-    Ext2Inode *inode = ext2_finddir_fs(fs_root, path);
+int sys_mkdir(char *path, mode_t __unused__ permission) {
+    Ext2Inode *inode __unused__ = ext2_finddir(fs_root, path);
 
     /*
     - Check if path already exist
@@ -32,4 +32,5 @@ int sys_mkdir(char *path, mode_t permission) {
     #warning "Todo: Implement VFS"
     #warning "Todo: Implement PWD"
 
+    return (0);
 }

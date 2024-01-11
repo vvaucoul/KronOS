@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 23:38:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 18:55:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,13 +114,18 @@ extern Ext2Inode *fs_root; // The root of the filesystem.
 // _fs to distinguish them from the read/write/open/close which deal with file descriptors
 // not file nodes.
 
-extern uint32_t ext2_read_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-extern uint32_t ext2_write_fs(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-extern uint32_t ext2_write_fs_full(Ext2Inode *node, uint32_t size, uint8_t *buffer);
-extern void ext2_open_fs(Ext2Inode *node, uint8_t read, uint8_t write);
-extern void ext2_close_fs(Ext2Inode *node);
-extern struct dirent *ext2_readdir_fs(Ext2Inode *node, uint32_t index);
-extern Ext2Inode *ext2_finddir_fs(Ext2Inode *node, char *name);
+extern void ext2_init(void);
+
+extern uint32_t ext2_read(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+extern uint32_t ext2_write(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+extern uint32_t ext2_write_full(Ext2Inode *node, uint32_t size, uint8_t *buffer);
+extern void ext2_open(Ext2Inode *node, uint8_t read, uint8_t write);
+extern void ext2_close(Ext2Inode *node);
+extern struct dirent *ext2_readdir(Ext2Inode *node, uint32_t index);
+extern Ext2Inode *ext2_finddir(Ext2Inode *node, char *name);
+
+extern void ext2_mount(void);
+extern void ext2_unmount(void);
 
 /*
 ◦ Name

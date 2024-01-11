@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 16:29:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 17:36:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,12 @@
 #include <drivers/vesa.h>
 
 #include <drivers/device/ata.h>
-#include <drivers/device/pata.h>
 #include <drivers/device/floppy.h>
+#include <drivers/device/pata.h>
+
+#include <drivers/device/char.h>
+#include <drivers/device/blocks.h>
+#include <drivers/device/devices.h>
 
 #include <multiboot/multiboot.h>
 
@@ -213,7 +217,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         kernel_log_info("LOG", "FILESYSTEM EXT2");
 
     } else {
-        __WARND("No multiboot modules found, kernel will not use filesystem.");
+        __WARND("No multiboot modules found, kernel will not use initrd.");
     }
 
     init_paging();
@@ -236,29 +240,23 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // kheap_test();
     // kpause();
 
+    // Init devices
+    devices_init();
+    kernel_log_info("LOG", "DEVICES");
+
     /*
     **  ATA INIT
     **
     **  ATA Driver initialization
     */
 #if ATA_DRIVER == 1
-    if ((ata_init(ATA_PRIMARY_IO, ATA_PRIMARY_DEV_CTRL)) != 0) {
+    if ((ata_init()) != 0) {
         __WARND("Error: ata_init failed, (Kernel will not use ATA Driver)");
     } else {
         kernel_log_info("LOG", "ATA");
-
-        uint8_t id = ata_identify(dev);
-        if (id != 0) {
-            __WARND("Error: ata_identify failed, (Kernel will not use ATA Driver)");
-        } else {
-            kernel_log_info("LOG", "ATA IDENTIFY");
-            ata_identify_devide(dev);
-
-            ksleep(1);
-
-            kernel_log_info("LOG", "ATA READ/WRITE");
-        }
     }
+#else
+    __INFOD("ATA Driver is disabled");
 #endif
 
 /**
@@ -284,6 +282,8 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
             kernel_log_info("LOG", "PATA READ/WRITE");
         }
     }
+#else
+    __INFOD("PATTA Driver is disabled");
 #endif
 
 /**
@@ -301,17 +301,18 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
         kernel_log_info("LOG", "FLOPPY READ/WRITE");
     }
+#else
+    __INFOD("FLOPPY Driver is disabled");
 #endif
-
-    kpause();
 
     /*
     **  VFS INIT
     **
     **  Init VFS if filesystem is initialized
     */
+#if VFS == 1
     if (fs_root != NULL) {
-        if (vfs_init() != 0) {
+        if (vfs_init(EXT2_FILESYSTEM_NAME) != 0) {
             __BSOD_UPDATE("Error: vfs_init failed");
             bsod("VFS INIT FAILED", __FILE__);
             return (1);
@@ -320,6 +321,9 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
             ksleep(1);
         }
     }
+#else
+    __INFOD("VFS is disabled, kernel will not use virtual filesystem");
+#endif
 
     init_scheduler();
     kernel_log_info("LOG", "SCHEDULER");
@@ -363,7 +367,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // Todo: KFS-6
     printk("Initrd files:\n");
 
-    Ext2Inode *node = ext2_finddir_fs(fs_root, "bin");
+    Ext2Inode *node = ext2_finddir(fs_root, "bin");
     if (node == NULL) {
         printk("File system not initialized\n");
     } else {
@@ -371,7 +375,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         while (strcmp("ls", node->name) != 0) {
             node = node->childs[0];
         }
-        ext2_write_fs_full(node, strlen((const char *)buffer), buffer);
+        ext2_write_full(node, strlen((const char *)buffer), buffer);
         initrd_display_hierarchy();
     }
 

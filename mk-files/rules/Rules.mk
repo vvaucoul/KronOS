@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/09 23:42:49 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/01/10 19:39:24 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,11 +31,15 @@ DEPENDENCIES_DIR		=	dependencies
 # ! ||                                   FILESYSTEM                                   ||
 # ! ||--------------------------------------------------------------------------------||
 
-INITRD_DIR				= 	isodir/boot
-INITRD					=	initrd.img
+# INITRD_DIR				= 	isodir/boot
+# INITRD					=	initrd.img
 
-DISK_PATH				=	isodir/boot
-DISK_NAME				=	floppy.img
-DISK_SIZE				=	256M
+# DISK_PATH				=	isodir/boot
+# DISK_NAME				=	floppy.img
+# DISK_SIZE				=	256M
 
-VFS_CLEAN_SCRIPT		=	./utils/vfs/clean.sh
+# VFS_CLEAN_SCRIPT		=	./utils/vfs/clean.sh
+
+HDD_PATH				=	isodir/boot
+HDD_FILENAME			=	hdd.img
+HDD_SIZE				=	256M

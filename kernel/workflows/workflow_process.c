@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 13:09:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,7 @@ void process_zombie_01(void) {
     while (1) {
         printk("I'am the Zombie OWNER [%d] !\n", getpid());
         // kmsleep(100);
-        pid_t pid = init_task(process_zombie_02);
+        pid_t pid __unused__ = init_task(process_zombie_02);
     }
 }
 
@@ -253,7 +253,7 @@ void display2() {
 }
 
 void display() {
-    pid_t t = init_task(display3);
+    pid_t t __unused__ = init_task(display3);
 
     while (1) {
         printk("[%d] -> Coucou maman !\n", getpid());
@@ -427,11 +427,11 @@ void tmp() {
 
     pause();
 
-    pid_t p = init_task(display_tasks);
+    pid_t p __unused__ = init_task(display_tasks);
 
-    pid_t t = init_task(display);
+    pid_t t __unused__ = init_task(display);
     ksleep(1);
-    pid_t e = init_task(display2);
+    pid_t e __unused__ = init_task(display2);
 
     ksleep(9);
     printk("Kill task [%d]\n", t);
@@ -690,11 +690,11 @@ void process_test(void) {
     // ! ||                               SHARED MEMORY TEST                               ||
     // ! ||--------------------------------------------------------------------------------||
 
-    pid_t shared_01 = init_task(task_shared_parent);
+    pid_t shared_01 __unused__ = init_task(task_shared_parent);
     ksleep(2);
 
-    pid_t shared_02 = init_task(task_shared_increase);
-    pid_t shared_03 = init_task(task_shared_decrease);
+    pid_t shared_02 __unused__ = init_task(task_shared_increase);
+    pid_t shared_03 __unused__ = init_task(task_shared_decrease);
 
     // TMP: debug waitpid
     ksleep(3);

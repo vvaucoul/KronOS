@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 14:32:41 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 16:29:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 15:02:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ int pata_init(uint16_t io_base, uint16_t ctrl_base) {
 }
 
 void pata_identify_device(PATADevice *dev) {
-    outb(ATA_REG_DRIVE_SELECT(dev->io_base), ATA_SELECT_MASTER);
+    outb(ATA_REG_HDDEVSEL(dev->io_base), ATA_SELECT_MASTER);
     outb(ATA_REG_COMMAND(dev->io_base), ATA_IDENTIFY_CMD);
 
     __pata_wait_ready(dev);
@@ -132,7 +132,7 @@ void pata_identify_device(PATADevice *dev) {
 }
 
 uint8_t pata_identify(PATADevice *dev) {
-    outb(ATA_REG_DRIVE_SELECT(pata_dev->io_base), ATA_SELECT_MASTER);
+    outb(ATA_REG_HDDEVSEL(pata_dev->io_base), ATA_SELECT_MASTER);
     outb(ATA_REG_COMMAND(pata_dev->io_base), ATA_IDENTIFY_CMD);
 
     __pata_wait_for_device(dev);
@@ -159,7 +159,7 @@ uint8_t pata_identify(PATADevice *dev) {
 
 int pata_read(PATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors) {
     // Select the device and set the LBA and sector count
-    outb(ATA_REG_DRIVE_SELECT(dev->io_base), ATA_SELECT_MASTER | ((lba >> 24) & 0x0f));
+    outb(ATA_REG_HDDEVSEL(dev->io_base), ATA_SELECT_MASTER | ((lba >> 24) & 0x0f));
     outb(ATA_REG_SECTOR_COUNT(dev->io_base), sectors);
     outb(ATA_REG_LBA_LOW(dev->io_base), lba & 0xff);
     outb(ATA_REG_LBA_MID(dev->io_base), (lba >> 8) & 0xff);
@@ -192,7 +192,7 @@ int pata_read(PATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors) 
 
 int pata_write(PATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors) {
     // Select the device and set the LBA and sector count
-    outb(ATA_REG_DRIVE_SELECT(dev->io_base), ATA_SELECT_MASTER | ((lba >> 24) & 0x0f));
+    outb(ATA_REG_HDDEVSEL(dev->io_base), ATA_SELECT_MASTER | ((lba >> 24) & 0x0f));
     outb(ATA_REG_SECTOR_COUNT(dev->io_base), sectors);
     outb(ATA_REG_LBA_LOW(dev->io_base), lba & 0xff);
     outb(ATA_REG_LBA_MID(dev->io_base), (lba >> 8) & 0xff);

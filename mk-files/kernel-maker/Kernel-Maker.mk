@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/09 23:54:04 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/01/11 14:29:31 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,22 +44,27 @@ bin: $(NAME)
 	@rm -rf $(BIN_DIR)
 	@make -s -C . $(BIN_DIR)/$(BIN)
 
-$(INITRD_DIR)/$(INITRD):
-	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(DISK_NAME)"
-	@cd ./utils/vfs/ext2/ && gcc -o make_initrd vfs_ext2_generator.c
-	@cd ./utils/vfs/ext2/ && ./make_initrd test.txt test > /dev/null 2>&1
-	@cd ./utils/vfs/ext2/ && cp $(INITRD) ../../../$(INITRD_DIR)/$(INITRD)
+# $(INITRD_DIR)/$(INITRD):
+# 	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(DISK_NAME)"
+# 	@cd ./utils/vfs/ext2/ && gcc -o make_initrd vfs_ext2_generator.c
+# 	@cd ./utils/vfs/ext2/ && ./make_initrd test.txt test > /dev/null 2>&1
+# 	@cd ./utils/vfs/ext2/ && cp $(INITRD) ../../../$(INITRD_DIR)/$(INITRD)
 
-initrd:
-	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(INITRD)"
-	@mkdir -p $(INITRD_DIR)
-	@make -s -C . $(INITRD_DIR)/$(INITRD)
+# initrd:
+# 	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(INITRD)"
+# 	@mkdir -p $(INITRD_DIR)
+# 	@make -s -C . $(INITRD_DIR)/$(INITRD)
 
-$(DISK_PATH)/$(DISK_NAME): 
-	@cd ./utils/vfs/ && sh create_image.sh > /dev/null 2>&1
+# $(DISK_PATH)/$(DISK_NAME): 
+# 	@cd ./utils/vfs/ && sh create_image.sh > /dev/null 2>&1
 
-vfs:
-	@mkdir -p $(DISK_PATH)
-	@make -s -C . $(DISK_PATH)/$(DISK_NAME)
+# vfs:
+# 	@mkdir -p $(DISK_PATH)
+# 	@make -s -C . $(DISK_PATH)/$(DISK_NAME)
+
+ata:
+	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(HDD_FILENAME)"
+	@qemu-img create -f qcow2 $(HDD_PATH)/$(HDD_FILENAME) $(HDD_SIZE) > .hdd_output.log
+	@printf "$(_LWHITE)    $(_DIM)- Log: $(_END)$(_DIM)--------------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" ".hdd_output.log"
 
 .PHONY: iso bin $(ISO) $(BIN_DIR)/$(BIN) vsf initrd

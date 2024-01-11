@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/09 23:05:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 17:21:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 11:51:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,59 @@ char **ksh_parse_args(char *cmd) {
 
         return argv;
     }
+}
+
+/**
+ * @brief Check if argument is present
+ *
+ * @param argv
+ * @param arg
+ * @return int
+ */
+int ksh_has_arg(int argc, char **argv, char *arg) {
+    int i = 0;
+
+    while (i < argc) {
+        if (strcmp(argv[i], arg) == 0)
+            return (1);
+        ++i;
+    }
+    return (0);
+}
+
+int ksh_contain_arg(int argc, char **argv, char *arg) {
+    int i = 0;
+
+    while (i < argc) {
+        if (strstr(argv[i], arg) != NULL) {
+            return (1);
+        }
+        ++i;
+    }
+    return (0);
+}
+
+
+/**
+ * @brief Get argument value
+ *
+ * @param argc (argument count)
+ * @param argv (arguments)
+ * @param arg (argument to find)
+ * @param cmp (char to compare)
+ * @return void*
+ */
+void *ksh_get_arg_value(int argc, char **argv, char *arg, char cmp) {
+    int i = 0;
+
+    while (i < argc) {
+        if (strstr(argv[i], arg) != NULL) {
+            char *tmp = argv[i];
+            while (*tmp != cmp)
+                ++tmp;
+            return (void *)(tmp + 1);
+        }
+        ++i;
+    }
+    return (NULL);
 }

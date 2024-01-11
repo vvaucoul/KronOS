@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 13:16:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ int64_t syscall(int64_t number, ...) {
         va_list args;
         va_start(args, number);
         int32_t ret = fn; //Todo: fix this [sysfn_t *function; to pointer function]
+        #warning "Fix this"
         va_end(args);
         return (ret);
     } else {

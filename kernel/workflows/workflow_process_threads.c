@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 20:42:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 13:07:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,21 +17,21 @@
 #include <multitasking/process.h>
 #include <workflows/workflows.h>
 
-static void __thread_01(void) {
+__unused__ static void __thread_01(void) {
     printk("\t - Thread [01]\n");
     while (1) {
     }
 }
 
-static void __thread_02(void) {
+__unused__ static void __thread_02(void) {
     printk("\t - Thread [02]\n");
 }
 
-static void __thread_03(void) {
+__unused__ static void __thread_03(void) {
     printk("\t - Thread [03]\n");
 }
 
-static void __thread_04(void) {
+__unused__ static void __thread_04(void) {
     printk("\t - Thread [04]\n");
 }
 

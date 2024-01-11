@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 15:11:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 16:41:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/10 16:43:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <kernel.h>
 #include <system/isr.h>
 
-#define FLOPPY_DRIVER 1
+#define FLOPPY_DRIVER 0
 
 /**
  * @file floppy_disk_driver.h

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 19:05:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/12 01:43:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -406,6 +406,13 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
     // switch_to_user_mode();
+
+    ATADevice *dev = ata_get_device(0);
+    device_get(0)->write(dev, 0, 14, "Hello, World!");
+    char *buf = kmalloc(14);
+    device_get(0)->read(dev, 0, 14, buf);
+    printk("ATA buf: %s\n", buf);
+    kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 11:22:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/12 01:07:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/12 01:44:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,10 +93,10 @@ static int __ata_drive_is_present(uint16_t io_base, int master) {
     __ata_select_drive(io_base, master);
 
     // Reset the drive
-    outb(ATA_REG_SECTOR_COUNT(io_base), 0x00);
-    outb(ATA_REG_LBA_LOW(io_base), 0x00);
-    outb(ATA_REG_LBA_MID(io_base), 0x00);
-    outb(ATA_REG_LBA_HIGH(io_base), 0x00);
+    outb(ATA_REG_SECCOUNT0(io_base), 0x00);
+    outb(ATA_REG_LBA0(io_base), 0x00);
+    outb(ATA_REG_LBA1(io_base), 0x00);
+    outb(ATA_REG_LBA2(io_base), 0x00);
 
     outb(ATA_REG_COMMAND(io_base), ATA_IDENTIFY_CMD);
 
@@ -109,7 +109,23 @@ static int __ata_drive_is_present(uint16_t io_base, int master) {
     }
 
     // Check if the drive is present (status != 0) and if the LBA registers are 0
-    return (status != 0) && (inb(ATA_REG_LBA_MID(io_base)) == 0) && (inb(ATA_REG_LBA_HIGH(io_base)) == 0);
+    return (status != 0) && (inb(ATA_REG_LBA1(io_base)) == 0) && (inb(ATA_REG_LBA2(io_base)) == 0);
+}
+
+static ATALBA __ata_get_lba_mode(uint16_t io_base, int master) {
+    __ata_select_drive(io_base, master);
+
+    outb(ATA_REG_SECCOUNT0(io_base), 0x55);
+    outb(ATA_REG_LBA0(io_base), 0xAA);
+    outb(ATA_REG_COMMAND(io_base), ATA_IDENTIFY_CMD);
+
+    uint8_t status = inb(ATA_REG_STATUS(io_base));
+
+    if (status == 0) {
+        return (LBA_28);
+    } else {
+        return (LBA_48);
+    }
 }
 
 /**
@@ -126,8 +142,6 @@ static void delay400ns(uint16_t io_base) {
 void __ata_display_disk_state(ATADevice *dev) {
     /* Select drive */
     __ata_select_drive(ATA_PRIMARY_IO, 1);
-
-    
 
     /* Print drive status */
     uint8_t status = inb(ATA_REG_STATUS(dev->io_base));
@@ -277,6 +291,7 @@ static ATADevice *ata_device_init(uint16_t channel, uint16_t ctrl_base, int mast
     dev->io_base = channel;
     dev->ctrl_base = ctrl_base;
     dev->master = master;
+    dev->lba_mode = __ata_get_lba_mode(channel, master);
 
     // Identify the device
     if (ata_identify(dev) != 0) {
@@ -379,10 +394,10 @@ static int __ata_identify_read_data(ATADevice *dev) {
 static int ata_identify(ATADevice *dev) {
     __ata_select_drive(dev->io_base, dev->master);
 
-    outb(ATA_REG_SECTOR_COUNT(dev->io_base), 0x00);
-    outb(ATA_REG_LBA_LOW(dev->io_base), 0x00);
-    outb(ATA_REG_LBA_MID(dev->io_base), 0x00);
-    outb(ATA_REG_LBA_HIGH(dev->io_base), 0x00);
+    outb(ATA_REG_SECCOUNT0(dev->io_base), 0x00);
+    outb(ATA_REG_LBA0(dev->io_base), 0x00);
+    outb(ATA_REG_LBA1(dev->io_base), 0x00);
+    outb(ATA_REG_LBA2(dev->io_base), 0x00);
 
     outb(ATA_REG_STATUS(dev->io_base), ATA_IDENTIFY_CMD);
 
@@ -478,16 +493,114 @@ int ata_disk_count(void) {
 // ! ||                           ATA READ / WRITE FUNCTIONS                           ||
 // ! ||--------------------------------------------------------------------------------||
 
-int ata_read(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors) {
+/**
+ * @brief Reads data from the ATA device using the LBA48 addressing mode.
+ *
+ * This function reads data from the ATA device using the LBA48 addressing mode.
+ * It is used to read data from the device's sectors.
+ *
+ * @param lba The logical block address of the sector to read.
+ * @param count The number of sectors to read.
+ * @param buffer The buffer to store the read data.
+ *
+ * @return 0 if the read operation is successful, otherwise an error code.
+ */
+int ata_read_lba48(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors) {
+    __ata_select_drive(dev->io_base, dev->master);
+
+    outb(ATA_REG_HDDEVSEL(dev->io_base), 0x40); // Select drive
+
+    // Send LBA48 command
+    outb(ATA_REG_COMMAND(dev->io_base), ATA_CMD_READ_PIO_EXT);
+
+    // Send LBA and sector count
+    outb(ATA_REG_SECCOUNT0(dev->io_base), (sectors >> 8) & 0xFF); // High byte of sector count
+    outb(ATA_REG_LBA3(dev->io_base), (lba >> 24) & 0xFF);
+    outb(ATA_REG_LBA4(dev->io_base), (lba >> 32) & 0xFF);
+    outb(ATA_REG_LBA5(dev->io_base), (lba >> 40) & 0xFF);
+    outb(ATA_REG_SECCOUNT0(dev->io_base), sectors & 0xFF); // Low byte of sector count
+    outb(ATA_REG_LBA0(dev->io_base), lba & 0xFF);
+    outb(ATA_REG_LBA1(dev->io_base), (lba >> 8) & 0xFF);
+    outb(ATA_REG_LBA2(dev->io_base), (lba >> 16) & 0xFF);
+
+    // Read data
+    for (uint32_t i = 0; i < sectors; i++) {
+        // Wait for drive to be ready
+        while ((inb(ATA_REG_STATUS(dev->io_base)) & ATA_STATUS_BSY) != 0)
+            ;
+
+        // Read 512 bytes of data
+        insw(ATA_REG_DATA(dev->io_base), &buffer[i * 512], 512 / 2);
+    }
+
+    return 0; // Success
+}
+
+/**
+ * @brief Writes data to the specified Logical Block Address (LBA) using the ATA48 command set.
+ *
+ * This function allows writing data to a specific LBA using the ATA48 command set. It is typically used
+ * for low-level disk operations. The function takes the LBA address, data buffer, and the number of sectors
+ * to write as parameters. It returns a status code indicating the success or failure of the operation.
+ *
+ * @param lba The Logical Block Address (LBA) to write the data to.
+ * @param buffer The buffer containing the data to be written.
+ * @param num_sectors The number of sectors to write.
+ * @return int The status code indicating the success or failure of the operation.
+ */
+int ata_write_lba48(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors) {
+    __ata_select_drive(dev->io_base, dev->master);
+
+    outb(ATA_REG_HDDEVSEL(dev->io_base), 0x40); // Select drive
+
+    // Send LBA48 command
+    outb(ATA_REG_COMMAND(dev->io_base), ATA_CMD_WRITE_PIO_EXT);
+
+    // Send LBA and sector count
+    outb(ATA_REG_SECCOUNT0(dev->io_base), (sectors >> 8) & 0xFF); // High byte of sector count
+    outb(ATA_REG_LBA3(dev->io_base), (lba >> 24) & 0xFF);
+    outb(ATA_REG_LBA4(dev->io_base), (lba >> 32) & 0xFF);
+    outb(ATA_REG_LBA5(dev->io_base), (lba >> 40) & 0xFF);
+    outb(ATA_REG_SECCOUNT0(dev->io_base), sectors & 0xFF); // Low byte of sector count
+    outb(ATA_REG_LBA0(dev->io_base), lba & 0xFF);
+    outb(ATA_REG_LBA1(dev->io_base), (lba >> 8) & 0xFF);
+    outb(ATA_REG_LBA2(dev->io_base), (lba >> 16) & 0xFF);
+
+    // Write data
+    for (uint32_t i = 0; i < sectors; i++) {
+        // Wait for drive to be ready
+        while ((inb(ATA_REG_STATUS(dev->io_base)) & ATA_STATUS_BSY) != 0)
+            ;
+
+        // Write 512 bytes of data
+        outsw(ATA_REG_DATA(dev->io_base), &buffer[i * 512], 512 / 2);
+    }
+}
+
+/**
+ * @brief Reads data from the specified Logical Block Address (LBA) using the ATA-28 command set.
+ *
+ * This function reads data from the storage device at the specified LBA using the ATA-28 command set.
+ * The data is stored in the provided buffer.
+ *
+ * @param lba The Logical Block Address (LBA) from which to read the data.
+ * @param buffer The buffer to store the read data.
+ * @param count The number of blocks to read.
+ *
+ * @return 0 if the read operation is successful, -1 otherwise.
+ */
+int ata_read_lba28(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors) {
     // This is a very simplified implementation that only works with LBA28
     // and doesn't handle errors. A full implementation would need to use LBA48
     // and handle errors properly.
 
+    __ata_select_drive(dev->io_base, dev->master);
+
     outb(ATA_REG_HDDEVSEL(dev->io_base), 0xE0 | ((lba >> 24) & 0x0F)); // Select the drive and set the high 4 bits of the LBA
-    outb(ATA_REG_SECTOR_COUNT((dev->io_base)), sectors);               // Set the sector count
-    outb(ATA_REG_LBA_LOW((dev->io_base)) + 3, lba);                    // Set the low 8 bits of the LBA
-    outb(ATA_REG_LBA_MID((dev->io_base)), lba >> 8);                   // Set the next 8 bits of the LBA
-    outb(ATA_REG_LBA_HIGH((dev->io_base)), lba >> 16);                 // Set the next 8 bits of the LBA
+    outb(ATA_REG_SECCOUNT0((dev->io_base)), sectors);                  // Set the sector count
+    outb(ATA_REG_LBA0((dev->io_base)) + 3, lba);                       // Set the low 8 bits of the LBA
+    outb(ATA_REG_LBA1((dev->io_base)), lba >> 8);                      // Set the next 8 bits of the LBA
+    outb(ATA_REG_LBA2((dev->io_base)), lba >> 16);                     // Set the next 8 bits of the LBA
     outb(ATA_REG_STATUS(dev->io_base), ATA_STATUS_DF);                 // Send the READ SECTORS command
 
     outb(ATA_REG_COMMAND(dev->io_base), ATA_SECTOR_READ); // Send the READ SECTORS command
@@ -521,16 +634,26 @@ int ata_read(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors) {
     return (inb(ATA_REG_STATUS(dev->io_base)) & ATA_STATUS_ERR && __ata_check_disk_state(dev->io_base) != 0 ? 1 : 0);
 }
 
-int ata_write(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors) {
+/**
+ * Writes data to the specified Logical Block Address (LBA) using the ATA-28 command set.
+ *
+ * @param lba The Logical Block Address to write the data to.
+ * @param data The data to be written.
+ * @param size The size of the data in bytes.
+ * @return 0 if the write operation is successful, -1 otherwise.
+ */
+int ata_write_lba28(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors) {
     // This is a very simplified implementation that only works with LBA28
     // and doesn't handle errors. A full implementation would need to use LBA48
     // and handle errors properly.
 
+    __ata_select_drive(dev->io_base, dev->master);
+
     outb(ATA_REG_HDDEVSEL(dev->io_base), 0xE0 | ((lba >> 24) & 0x0F)); // Select the drive and set the high 4 bits of the LBA
-    outb(ATA_REG_SECTOR_COUNT((dev->io_base)), sectors);               // Set the sector count
-    outb(ATA_REG_LBA_LOW((dev->io_base)) + 3, lba);                    // Set the low 8 bits of the LBA
-    outb(ATA_REG_LBA_MID((dev->io_base)), lba >> 8);                   // Set the next 8 bits of the LBA
-    outb(ATA_REG_LBA_HIGH((dev->io_base)), lba >> 16);                 // Set the next 8 bits of the LBA
+    outb(ATA_REG_SECCOUNT0((dev->io_base)), sectors);                  // Set the sector count
+    outb(ATA_REG_LBA0((dev->io_base)) + 3, lba);                       // Set the low 8 bits of the LBA
+    outb(ATA_REG_LBA1((dev->io_base)), lba >> 8);                      // Set the next 8 bits of the LBA
+    outb(ATA_REG_LBA2((dev->io_base)), lba >> 16);                     // Set the next 8 bits of the LBA
     outb(ATA_REG_STATUS(dev->io_base), ATA_STATUS_DF);                 // Send the READ SECTORS command
 
     outb(ATA_REG_COMMAND(dev->io_base), ATA_SECTOR_WRITE); // Send the WRITE SECTORS command
@@ -570,24 +693,52 @@ int ata_write(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sect
 // ! ||                              ATA BLOCKS FUNCTIONS                              ||
 // ! ||--------------------------------------------------------------------------------||
 
-uint32_t ata_device_read(void *device, uint32_t lba, uint32_t count, void *buffer) {
+uint32_t ata_device_read(void *device, uint32_t offset, uint32_t size, void *buffer) {
+    ATADevice *ata_device = (ATADevice *)device;
+    printk("ATA: Reading from device\n");
+
     if (device == NULL || buffer == NULL) {
         __THROW("ATA: Cannot read from device", 1);
+    } else {
     }
 
-    if (ata_read((ATADevice *)device, lba, buffer, count) != 0) {
+    if (ata_device->lba_mode == LBA_28) {
+        printk("ATA: Reading from device (LBA 28)\n");
+        if (ata_read_lba28((ATADevice *)device, offset, buffer, size) != 0) {
+            __THROW("ATA: Cannot read from device", 1);
+        }
+    } else if (ata_device->lba_mode == LBA_48) {
+        printk("ATA: Reading from device (LBA 48)\n");
+        if (ata_read_lba48((ATADevice *)device, offset, buffer, size) != 0) {
+            __THROW("ATA: Cannot read from device", 1);
+        }
+    } else {
         __THROW("ATA: Cannot read from device", 1);
     }
 
     return (0);
 }
 
-uint32_t ata_device_write(void *device, uint32_t lba, uint32_t count, void *buffer) {
+uint32_t ata_device_write(void *device, uint32_t offset, uint32_t size, void *buffer) {
+    ATADevice *ata_device = (ATADevice *)device;
+    printk("ATA: Writing to device\n");
+
     if (device == NULL || buffer == NULL) {
         __THROW("ATA: Cannot write to device", 1);
+    } else {
     }
 
-    if (ata_write((ATADevice *)device, lba, buffer, count) != 0) {
+    if (ata_device->lba_mode == LBA_28) {
+        printk("ATA: Writing to device (LBA 28)\n");
+        if (ata_write_lba28((ATADevice *)device, offset, buffer, size) != 0) {
+            __THROW("ATA: Cannot write to device", 1);
+        }
+    } else if (ata_device->lba_mode == LBA_48) {
+        printk("ATA: Writing to device (LBA 48)\n");
+        if (ata_write_lba48((ATADevice *)device, offset, buffer, size) != 0) {
+            __THROW("ATA: Cannot write to device", 1);
+        }
+    } else {
         __THROW("ATA: Cannot write to device", 1);
     }
 

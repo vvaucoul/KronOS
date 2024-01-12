@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 11:22:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 20:02:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/12 01:35:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,18 +72,23 @@
 // ATA Registers
 #define ATA_REG_DATA(base) (base)             // Data register
 #define ATA_REG_ERROR(base) (base + 1)        // Error register
-#define ATA_REG_SECTOR_COUNT(base) (base + 2) // Sector count register
-#define ATA_REG_LBA_LOW(base) (base + 3)      // LBA low register
-#define ATA_REG_LBA_MID(base) (base + 4)      // LBA mid register
-#define ATA_REG_LBA_HIGH(base) (base + 5)     // LBA high register
+#define ATA_REG_SECCOUNT0(base) (base + 2) // Sector count register
+#define ATA_REG_LBA0(base) (base + 3)      // LBA low register
+#define ATA_REG_LBA1(base) (base + 4)      // LBA mid register
+#define ATA_REG_LBA2(base) (base + 5)     // LBA high register
 #define ATA_REG_HDDEVSEL(base) (base + 6)     // Drive select register
 #define ATA_REG_COMMAND(base) (base + 7)      // Command register
 #define ATA_REG_STATUS(base) (base + 7)       // Status register
+#define ATA_REG_LBA3(base) (base + 8)
+#define ATA_REG_LBA4(base) (base + 9)
+#define ATA_REG_LBA5(base) (base + 10)
 
 #define ATA_SECTOR_READ 0x20
 #define ATA_SECTOR_WRITE 0x30
 
 #define ATA_CMD_FLUSH 0xE7
+#define ATA_CMD_WRITE_PIO_EXT 0x34
+#define ATA_CMD_READ_PIO_EXT 0x24
 
 /**
  * Maximum number of ATA devices.
@@ -105,6 +110,11 @@ typedef enum {
     ATA_CDROM,
     ATA_UNKNOWN
 } ATADeviceType;
+
+typedef enum {
+    LBA_28,
+    LBA_48
+} ATALBA;
 
 typedef struct {
     uint8_t error;
@@ -136,6 +146,7 @@ typedef struct {
     uint16_t io_base;
     uint16_t ctrl_base;
     uint8_t master;
+    ATALBA lba_mode;
     ATAIdentity *identity;
 } ATADevice;
 
@@ -149,14 +160,18 @@ extern void ata_disk_details(uint32_t i);
 extern void ata_disk_size(uint32_t i);
 extern int ata_disk_count(void);
 
-extern int ata_read(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors);
-extern int ata_write(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors);
+extern int ata_read_lba28(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors);
+extern int ata_write_lba28(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors);
+
 
 // extern int ata_block_read(BlockDevice *device, uint64_t block, uint64_t count, void *buf);
 // extern int ata_block_write(BlockDevice *device, uint64_t block, uint64_t count, void *buf);
 
 extern uint32_t ata_device_read(void *device, uint32_t lba, uint32_t count, void *buffer);
 extern uint32_t ata_device_write(void *device, uint32_t lba, uint32_t count, void *buffer);
+
+extern int ata_read_lba48(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors);
+extern int ata_write_lba48(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors);
 
 /**
  * Debug functions

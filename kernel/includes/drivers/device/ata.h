@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 11:22:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 18:53:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 20:02:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,8 +142,6 @@ typedef struct {
 extern ATADevice *ata_devices[MAX_ATA_DEVICES];
 
 extern int ata_init(void);
-
-extern int ata_identify(ATADevice *dev);
 
 extern ATADevice *ata_get_device(uint32_t i);
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 10:52:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 18:56:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 19:04:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ static void __cmd_disks_states(cmd_disks_t *cmd) {
     uint32_t i = 0;
     int disk_index = 0;
     for_each_disks(i, cmd, disk_index, i++) {
-        ATADevice *device = ata_get_device(i);
+        ATADevice *device = ata_get_device(disk_index);
 
         if (device == NULL) {
             printk("\t\t- Disk "_GREEN
@@ -81,7 +81,6 @@ static void __cmd_disks_states(cmd_disks_t *cmd) {
                    "[%d]:"_END
                    "\n",
                    disk_index);
-            ATADevice *device = ata_get_device(i);
             __ata_display_disk_state(device);
         }
     }
@@ -199,13 +198,13 @@ int disks(int argc, char **argv) {
             BIT_SET(cmd.flags, CMD_DISKS_SIZE);
         }
 
+        if (ksh_has_arg(argc, argv, "-e") || ksh_has_arg(argc, argv, "--state")) {
+            BIT_SET(cmd.flags, CMD_DISKS_STATE);
+        }
+
         if (ksh_contain_arg(argc, argv, "-i") || ksh_contain_arg(argc, argv, "--index")) {
             BIT_SET(cmd.flags, CMD_DISKS_INDEX);
             cmd.index = atoi((char *)ksh_get_arg_value(argc, argv, "-i", '='));
-        }
-
-        if (ksh_has_arg(argc, argv, "-e") || ksh_has_arg(argc, argv, "--state")) {
-            BIT_SET(cmd.flags, CMD_DISKS_STATE);
         }
 
         cmd_disks(&cmd);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 11:22:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 18:52:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/12 01:07:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <system/io.h>
 
 ATADevice *ata_devices[MAX_ATA_DEVICES];
+
+static int ata_identify(ATADevice *dev);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                    ATA UTILS                                   ||
@@ -36,8 +38,14 @@ static void __ata_select_drive(uint16_t io_base, int master) {
 }
 
 static void __ata_wait_disk_data_ready(uint16_t io_base) {
-    while ((inb(ATA_REG_STATUS(io_base)) & ATA_STATUS_DRQ) == 0)
+    while ((inb(ATA_REG_STATUS(io_base)) & ATA_STATUS_BSY) != 0)
         ;
+
+    while ((inb(ATA_REG_STATUS(io_base)) & ATA_STATUS_DRQ) == 0) {
+        if ((inb(ATA_REG_STATUS(io_base)) & ATA_STATUS_ERR) != 0) {
+            __THROW_NO_RETURN("ATA: Error in __ata_wait_disk_data_ready");
+        }
+    }
 }
 
 static void __ata_wait_disk_busy_clear(uint16_t io_base) {
@@ -100,8 +108,8 @@ static int __ata_drive_is_present(uint16_t io_base, int master) {
         status = inb(ATA_REG_STATUS(io_base));
     }
 
-    return (status != 0);
-    // return ((inb(ATA_REG_STATUS(io_base)) & (master ? ATA_REQ_MASTER_DRIVE : ATA_REQ_SLAVE_DRIVE)) != 0);
+    // Check if the drive is present (status != 0) and if the LBA registers are 0
+    return (status != 0) && (inb(ATA_REG_LBA_MID(io_base)) == 0) && (inb(ATA_REG_LBA_HIGH(io_base)) == 0);
 }
 
 /**
@@ -116,29 +124,34 @@ static void delay400ns(uint16_t io_base) {
 }
 
 void __ata_display_disk_state(ATADevice *dev) {
+    /* Select drive */
+    __ata_select_drive(ATA_PRIMARY_IO, 1);
+
+    
+
     /* Print drive status */
     uint8_t status = inb(ATA_REG_STATUS(dev->io_base));
-    if (status & ATA_STATUS_ERR) {
-        printk("\t\t\t   - ATA: Drive status: " _RED "[ERROR]" _END "\n");
-    } else {
+    if ((status & ATA_STATUS_ERR) == 0) {
         printk("\t\t\t   - ATA: Drive status: " _GREEN "[OK]" _END "\n");
-    }
-    if (status & ATA_STATUS_DF) {
-        printk("\t\t\t   - ATA: Drive fault: " _RED "[ERROR]" _END "\n");
     } else {
+        printk("\t\t\t   - ATA: Drive status: " _RED "[ERROR]" _END "\n");
+    }
+    if ((status & ATA_STATUS_DF) == 0) {
         printk("\t\t\t   - ATA: Drive fault: " _GREEN "[OK]" _END "\n");
-    }
-    if (!(status & ATA_STATUS_RDY)) {
-        printk("\t\t\t   - ATA: Drive ready: " _RED "[ERROR]" _END "\n");
     } else {
+        printk("\t\t\t   - ATA: Drive fault: " _RED "[ERROR]" _END "\n");
+    }
+    if (status & ATA_STATUS_RDY) {
         printk("\t\t\t   - ATA: Drive ready: " _GREEN "[OK]" _END "\n");
-    }
-    if (status & ATA_STATUS_BSY) {
-        printk("\t\t\t   - ATA: Drive busy: " _RED "[ERROR]" _END "\n");
     } else {
-        printk("\t\t\t   - ATA: Drive busy: " _GREEN "[OK]" _END "\n");
+        printk("\t\t\t   - ATA: Drive ready: " _RED "[ERROR]" _END "\n");
     }
-    if (status & ATA_STATUS_DRQ) {
+    if ((status & ATA_STATUS_BSY) == 0) {
+        printk("\t\t\t   - ATA: Drive busy: " _GREEN "[OK]" _END "\n");
+    } else {
+        printk("\t\t\t   - ATA: Drive busy: " _RED "[ERROR]" _END "\n");
+    }
+    if ((status & ATA_STATUS_DRQ) == 0) {
         printk("\t\t\t   - ATA: Drive DRQ: " _GREEN "[OK]" _END "\n");
     } else {
         printk("\t\t\t   - ATA: Drive DRQ: " _RED "[ERROR]" _END "\n");
@@ -224,12 +237,14 @@ int __ata_check_devices(ATADevice *dev) {
  * @brief ATA Functions
  */
 
-void ata_primary_irq_handler(__attribute__((unused)) struct regs *regs) {
+void ata_primary_irq_handler(__unused__ struct regs *regs) {
     pic8259_send_eoi(IRQ_ATA1);
+    printk("ATA: Primary IRQ\n");
 }
 
-void ata_secondary_irq_handler(__attribute__((unused)) struct regs *regs) {
+void ata_secondary_irq_handler(__unused__ struct regs *regs) {
     pic8259_send_eoi(IRQ_ATA2);
+    printk("ATA: Secondary IRQ\n");
 }
 
 /**
@@ -277,7 +292,10 @@ static ATADevice *ata_device_init(uint16_t channel, uint16_t ctrl_base, int mast
         } else {
             int ret = device_register(device);
 
-            __INFOD("ATA: Device registered on index "_GREEN"[%d]"_END"", ret);
+            __INFOD("ATA: Device registered on index "_GREEN
+                    "[%d]"_END
+                    "",
+                    ret);
             return (dev);
         }
     }
@@ -285,6 +303,10 @@ static ATADevice *ata_device_init(uint16_t channel, uint16_t ctrl_base, int mast
 }
 
 int ata_init(void) {
+    // Setup interrupts for ATA devices (IRQ 14 & 15)
+    irq_install_handler(IRQ_ATA1, ata_primary_irq_handler);
+    irq_install_handler(IRQ_ATA2, ata_secondary_irq_handler);
+
     // Init ATA devices
     ata_devices[0] = ata_device_init(ATA_PRIMARY_IO, ATA_PRIMARY_DEV_CTRL, 1); // Primary Master
     ata_devices[1] = ata_device_init(ATA_PRIMARY_IO, ATA_PRIMARY_DEV_CTRL, 0); // Primary Slave
@@ -292,10 +314,6 @@ int ata_init(void) {
     // Init ATA devices secondary channel
     ata_devices[2] = ata_device_init(ATA_SECONDARY_IO, ATA_SECONDARY_DEV_CTRL, 1); // Secondary Master
     ata_devices[3] = ata_device_init(ATA_SECONDARY_IO, ATA_SECONDARY_DEV_CTRL, 0); // Secondary Slave
-
-    // Setup interrupts for ATA devices (IRQ 14 & 15)
-    irq_install_handler(IRQ_ATA1, ata_primary_irq_handler);
-    irq_install_handler(IRQ_ATA2, ata_secondary_irq_handler);
 
     // Identifier les dispositifs
     for (int i = 0; i < MAX_ATA_DEVICES; ++i) {
@@ -319,10 +337,20 @@ static int __ata_identify_read_data(ATADevice *dev) {
 
     __ata_wait_disk_data_ready(dev->io_base);
 
-    uint32_t i = 0;
-    while ((inb((ATA_REG_STATUS(dev->io_base)) & ATA_STATUS_DRQ) != 0) && i < 256) {
-        ((uint16_t *)buffer)[i] = inw(ATA_REG_DATA(dev->io_base));
-        i++;
+    for (uint32_t i = 0; i < 256; i++) {
+        __ata_wait_disk_data_ready(dev->io_base);
+        uint8_t status = inb(ATA_REG_STATUS(dev->io_base));
+        if (status & ATA_STATUS_ERR) {
+            printk("ATA: Error during data transfer\n");
+            return 1; // Retourner une erreur en cas de problème
+        }
+
+        if (status & ATA_STATUS_DRQ) {
+            ((uint16_t *)buffer)[i] = inw(ATA_REG_DATA(dev->io_base));
+        } else {
+            printk("ATA: DRQ not set for data transfer\n");
+            return 1; // Retourner une erreur si DRQ n'est pas défini
+        }
     }
 
     dev->identity = (ATAIdentity *)buffer;
@@ -345,12 +373,10 @@ static int __ata_identify_read_data(ATADevice *dev) {
     }
 
     delay400ns(dev->io_base);
-    __ata_wait_disk_busy_clear(dev->io_base);
-
     return (0);
 }
 
-int ata_identify(ATADevice *dev) {
+static int ata_identify(ATADevice *dev) {
     __ata_select_drive(dev->io_base, dev->master);
 
     outb(ATA_REG_SECTOR_COUNT(dev->io_base), 0x00);
@@ -359,6 +385,11 @@ int ata_identify(ATADevice *dev) {
     outb(ATA_REG_LBA_HIGH(dev->io_base), 0x00);
 
     outb(ATA_REG_STATUS(dev->io_base), ATA_IDENTIFY_CMD);
+
+    if (!__ata_wait_ready(dev)) {
+        __THROW("ATA: Device not ready for IDENTIFY command", 1);
+        return (1);
+    }
 
     int drive_state = inb(ATA_REG_STATUS(dev->io_base));
     printk("Drive [%d][%d] state: %d\n", dev->io_base, dev->master, drive_state);
@@ -381,6 +412,8 @@ int ata_identify(ATADevice *dev) {
         __ata_identify_read_data(dev);
 
         return (inb(ATA_REG_STATUS(dev->io_base)) & ATA_STATUS_ERR && __ata_check_disk_state(dev->io_base) != 0 ? 1 : 0);
+    } else {
+        __THROW("ATA: Device not present", 1);
     }
     return (1);
 }

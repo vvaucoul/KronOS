@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/09 23:05:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 11:51:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/11 19:03:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ void *ksh_get_arg_value(int argc, char **argv, char *arg, char cmp) {
     while (i < argc) {
         if (strstr(argv[i], arg) != NULL) {
             char *tmp = argv[i];
-            while (*tmp != cmp)
+            while (*tmp != cmp && *tmp)
                 ++tmp;
             return (void *)(tmp + 1);
         }

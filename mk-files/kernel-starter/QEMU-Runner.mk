@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/11 14:31:01 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/01/11 21:26:12 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,8 @@ else
 	QEMU			:=	kvm
 endif
 
-QEMU_DISK_FLAGS		=	-drive file=$(HDD_PATH)/$(HDD_FILENAME),format=qcow2,if=ide,index=0,media=disk
+# QEMU_DISK_FLAGS		=	-drive file=$(HDD_PATH)/$(HDD_FILENAME),format=qcow2,if=ide,index=0,media=disk
+QEMU_DISK_FLAGS		=	-hda $(HDD_PATH)/$(HDD_FILENAME)
 
 #******************************************************************************#
 #*                         START KERNEL WITH KVM/QEMU                         *#

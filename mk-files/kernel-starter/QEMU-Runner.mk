@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/11 21:26:12 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/01/13 12:33:00 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ else
 endif
 
 # QEMU_DISK_FLAGS		=	-drive file=$(HDD_PATH)/$(HDD_FILENAME),format=qcow2,if=ide,index=0,media=disk
-QEMU_DISK_FLAGS		=	-hda $(HDD_PATH)/$(HDD_FILENAME)
+QEMU_DISK_FLAGS		=	 -drive file=$(HDD_PATH)/$(HDD_FILENAME),format=raw,if=ide,index=0,media=disk
 
 #******************************************************************************#
 #*                         START KERNEL WITH KVM/QEMU                         *#
@@ -46,12 +46,12 @@ run-debug: $(NAME)
 	@x-terminal-emulator -e gdb -q -x scripts/gdb-commands.txt 
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -serial file:serial.log
 
-run-iso-disk: $(NAME) ata
+run-iso-disk: $(NAME) ata initrd
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) and $(_LYELLOW)disk$(_LWHITE): $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -cdrom $(NAME).iso -boot order=cd $(QEMU_DISK_FLAGS) -display gtk -vga std -full-screen
 
-run-disk: $(NAME) ata
+run-disk: $(NAME) ata initrd
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
-	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -kernel isodir/boot/$(BIN) $(QEMU_DISK_FLAGS) -display gtk -vga std -full-screen
+	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -kernel isodir/boot/$(BIN) $(QEMU_DISK_FLAGS) -display gtk -vga std -full-screen 
 
 .PHONY: run run-sdl run-iso run-curses run-debug run-disk clean-disk

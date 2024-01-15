@@ -1,1 +1,1 @@
-Formatting 'isodir/boot/hdd.img', fmt=qcow2 cluster_size=65536 extended_l2=off compression_type=zlib size=268435456 lazy_refcounts=off refcount_bits=16
+Formatting 'isodir/boot/hdd.img', fmt=raw size=268435456

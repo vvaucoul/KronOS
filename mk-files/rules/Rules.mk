@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/10 19:39:24 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/01/13 12:32:30 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,8 +31,8 @@ DEPENDENCIES_DIR		=	dependencies
 # ! ||                                   FILESYSTEM                                   ||
 # ! ||--------------------------------------------------------------------------------||
 
-# INITRD_DIR				= 	isodir/boot
-# INITRD					=	initrd.img
+INITRD_DIR				= 	isodir/boot
+INITRD					=	initrd.img
 
 # DISK_PATH				=	isodir/boot
 # DISK_NAME				=	floppy.img

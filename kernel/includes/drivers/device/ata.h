@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 11:22:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/12 01:35:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/13 02:18:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@
 
 #define ATA_SELECT_MASTER 0xA0 // Select master drive
 #define ATA_SELECT_SLAVE 0xB0  // Select slave drive
-#define ATA_IDENTIFY_CMD 0xEC  // Identify command
 
 #define ATA_STATUS_ERR 0b00000001 // Error
 #define ATA_STATUS_DRQ 0b00001000 // Data request
@@ -70,25 +69,84 @@
 #define ATA_REQ_ERR_BIT 0x01      // Request ERR bit
 
 // ATA Registers
-#define ATA_REG_DATA(base) (base)             // Data register
-#define ATA_REG_ERROR(base) (base + 1)        // Error register
+#define ATA_REG_DATA(base) (base)          // Data register
+#define ATA_REG_ERROR(base) (base + 1)     // Error register
 #define ATA_REG_SECCOUNT0(base) (base + 2) // Sector count register
 #define ATA_REG_LBA0(base) (base + 3)      // LBA low register
 #define ATA_REG_LBA1(base) (base + 4)      // LBA mid register
-#define ATA_REG_LBA2(base) (base + 5)     // LBA high register
-#define ATA_REG_HDDEVSEL(base) (base + 6)     // Drive select register
-#define ATA_REG_COMMAND(base) (base + 7)      // Command register
-#define ATA_REG_STATUS(base) (base + 7)       // Status register
-#define ATA_REG_LBA3(base) (base + 8)
-#define ATA_REG_LBA4(base) (base + 9)
-#define ATA_REG_LBA5(base) (base + 10)
+#define ATA_REG_LBA2(base) (base + 5)      // LBA high register
+#define ATA_REG_HDDEVSEL(base) (base + 6)  // Drive select register
+#define ATA_REG_COMMAND(base) (base + 7)   // Command register
+#define ATA_REG_STATUS(base) (base + 7)    // Status register
+#define ATA_REG_LBA3(base) (base + 8)      // LBA register
+#define ATA_REG_LBA4(base) (base + 9)      // LBA register
+#define ATA_REG_LBA5(base) (base + 10)     // LBA register
+#define ATA_REG_FEATURES(base) (base + 1)  // Features register
+
+#define ATA_FEATURE_SET_TRANSFER_MODE 0x03
+
+#define ATA_TRANSFER_MODE_DMA 0x20
+#define ATA_TRANSFER_MODE_PIO 0x08
+
+#define ATA_IDENTIFY_WORD_DMA_ACTIVE 0x0100
+#define ATA_IDENTIFY_WORD_PIO_MODES 0x0080
 
 #define ATA_SECTOR_READ 0x20
 #define ATA_SECTOR_WRITE 0x30
 
-#define ATA_CMD_FLUSH 0xE7
-#define ATA_CMD_WRITE_PIO_EXT 0x34
-#define ATA_CMD_READ_PIO_EXT 0x24
+#define ATA_CMD_FLUSH 0xE7         // Flush cache
+#define ATA_CMD_IDENTIFY 0xEC      // Identify command
+#define ATA_CMD_READ_PIO 0x20      // Read PIO mode
+#define ATA_CMD_READ_PIO_EXT 0x24  // Read PIO mode with extend
+#define ATA_CMD_READ_DMA 0xC8      // Read DMA mode
+#define ATA_CMD_READ_DMA_EXT 0x25  // Read DMA mode with extend
+#define ATA_CMD_WRITE_PIO 0x30     // Write PIO mode
+#define ATA_CMD_WRITE_PIO_EXT 0x34 // Write PIO mode with extend
+#define ATA_CMD_SET_FEATURES 0xEF
+
+#define ATA_ERR_AMNF 0x01  // Address Mark Not Found
+#define ATA_ERR_TK0NF 0x02 // Track 0 Not Found
+#define ATA_ERR_ABRT 0x04  // Aborted Command
+#define ATA_ERR_MCR 0x08   // Media Change Request
+#define ATA_ERR_IDNF 0x10  // ID Not Found
+#define ATA_ERR_MC 0x20    // Media Changed
+#define ATA_ERR_UNC 0x40   // Uncorrectable Data Error
+#define ATA_ERR_BBK 0x80   // Bad Block Detected
+
+// Identify types
+#define ATA_IDENT_DEVICETYPE 0
+#define ATA_IDENT_CYLINDERS 1
+#define ATA_IDENT_RETIRED4 4
+#define ATA_IDENT_HEADS 6
+#define ATA_IDENT_VENDOR7 7
+#define ATA_IDENT_SECTORS 12
+#define ATA_IDENT_SERIAL 20
+#define ATA_IDENT_RETIRED20 20
+#define ATA_IDENT_OBSOLETE23 23
+#define ATA_IDENT_FIRMWARE 46
+#define ATA_IDENT_CAPABILITIES 49
+#define ATA_IDENT_MODEL 54
+#define ATA_IDENT_MAX_LBA 60
+#define ATA_IDENT_COMMANDSETS 82
+#define ATA_IDENT_MAX_LBA_EXT 100
+#define ATA_IDENT_FIELDVALID 106
+
+// #define ATA_IDENT_DEVICETYPE 0
+// #define ATA_IDENT_CYLINDERS 1
+// #define ATA_IDENT_HEADS 3
+// #define ATA_IDENT_SECTORS 6
+// #define ATA_IDENT_SERIAL 10
+// #define ATA_IDENT_FIRMWARE 23
+// #define ATA_IDENT_MODEL 27
+// #define ATA_IDENT_CAPABILITIES 49
+// #define ATA_IDENT_COMMANDSETS 82
+// #define ATA_IDENT_MAX_LBA 60      // LBA2
+// #define ATA_IDENT_MAX_LBA_EXT 100 // LBA48
+// #define ATA_IDENT_FIELDVALID 53
+
+#define __USE_ATA_DMA__ 0
+#define __USE_ATA_PIO__ 0
+#define __ALLOW_LBA48__ 0
 
 /**
  * Maximum number of ATA devices.
@@ -106,10 +164,32 @@ typedef enum {
 } ATAChannelType;
 
 typedef enum {
-    ATA_HARD_DRIVE,
-    ATA_CDROM,
-    ATA_UNKNOWN
+    ATADEV_PATAPI,
+    ATADEV_SATAPI,
+    ATADEV_PATA,
+    ATADEV_SATA,
+    ATADEV_UNKNOWN
 } ATADeviceType;
+
+#define ATA_DEVICE_STRINGIFY(x) \
+    (x == ATADEV_PATAPI ? "PATAPI" : (x == ATADEV_SATAPI ? "SATAPI" : (x == ATADEV_PATA ? "PATA" : (x == ATADEV_SATA ? "SATA" : (x == ATADEV_UNKNOWN ? "UNKNOWN" : "UNKNOWN")))))
+
+/**
+ * ATA Addressing mode.
+ *
+ * This is the addressing mode used by the ATA device. This is used to
+ * determine the maximum number of sectors that can be addressed by the
+ * device.
+ */
+typedef enum {
+    DISK_TYPE_CHS,
+    DISK_TYPE_LBA28,
+    DISK_TYPE_LBA48,
+    DISK_TYPE_UNKNOWN
+} DISKAddressMode;
+
+#define DISKAddressMode_STRINGIFY(x) \
+    (x == DISK_TYPE_CHS ? "CHS" : (x == DISK_TYPE_LBA28 ? "LBA28" : (x == DISK_TYPE_LBA48 ? "LBA48" : (x == DISK_TYPE_UNKNOWN ? "UNKNOWN" : "UNKNOWN"))))
 
 typedef enum {
     LBA_28,
@@ -128,18 +208,21 @@ typedef struct {
 } __attribute__((packed)) ata_regs_t;
 
 typedef struct {
-    uint16_t general_config;    // Word 0
-    uint16_t logical_cylinders; // Word 1
-    uint16_t reserved2;         // Word 2
-    uint16_t logical_heads;     // Word 3
-    uint16_t retired4[2];       // Word 4-5
-    uint16_t logical_sectors;   // Word 6
-    uint16_t vendor7[3];        // Word 7-9
-    char serial_number[20];     // Word 10-19
-    uint16_t retired20[3];      // Word 20-22
-    uint16_t obsolete23;        // Word 23
-    char firmware_revision[8];  // Word 23-26
-    char model_number[40];      // Word 27-46
+    uint16_t general_config;
+    uint16_t logical_cylinders;
+    uint16_t reserved2;
+    uint16_t logical_heads;
+    uint16_t retired4[2];
+    uint16_t logical_sectors;
+    uint16_t vendor7[3];
+    char serial_number[21];
+    uint16_t retired20[3];
+    uint16_t obsolete23;
+    uint16_t capabilities;
+    uint16_t commandsets;
+    uint16_t MaxLBA;
+    char firmware_revision[8];
+    char model_number[41];
 } __attribute__((packed)) ATAIdentity;
 
 typedef struct {
@@ -148,6 +231,8 @@ typedef struct {
     uint8_t master;
     ATALBA lba_mode;
     ATAIdentity *identity;
+    ATADeviceType type;
+    DISKAddressMode disk_mode;
 } ATADevice;
 
 extern ATADevice *ata_devices[MAX_ATA_DEVICES];
@@ -162,7 +247,6 @@ extern int ata_disk_count(void);
 
 extern int ata_read_lba28(ATADevice *dev, uint32_t lba, uint8_t *buffer, uint32_t sectors);
 extern int ata_write_lba28(ATADevice *dev, uint32_t lba, const uint8_t *buffer, uint32_t sectors);
-
 
 // extern int ata_block_read(BlockDevice *device, uint64_t block, uint64_t count, void *buf);
 // extern int ata_block_write(BlockDevice *device, uint64_t block, uint64_t count, void *buf);

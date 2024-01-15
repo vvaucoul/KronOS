@@ -58,7 +58,10 @@
 			"initrd.h": "c",
 			"ata.h": "c",
 			"devices.h": "c",
-			"disks.h": "c"
+			"disks.h": "c",
+			"tuple": "c",
+			"device.h": "c",
+			"stddef.h": "c"
 		}
 	}
 }

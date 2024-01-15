@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 14:32:41 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/12 01:33:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/12 11:55:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ int pata_init(uint16_t io_base, uint16_t ctrl_base) {
 
 void pata_identify_device(PATADevice *dev) {
     outb(ATA_REG_HDDEVSEL(dev->io_base), ATA_SELECT_MASTER);
-    outb(ATA_REG_COMMAND(dev->io_base), ATA_IDENTIFY_CMD);
+    outb(ATA_REG_COMMAND(dev->io_base), ATA_CMD_IDENTIFY);
 
     __pata_wait_ready(dev);
 
@@ -133,7 +133,7 @@ void pata_identify_device(PATADevice *dev) {
 
 uint8_t pata_identify(PATADevice *dev) {
     outb(ATA_REG_HDDEVSEL(pata_dev->io_base), ATA_SELECT_MASTER);
-    outb(ATA_REG_COMMAND(pata_dev->io_base), ATA_IDENTIFY_CMD);
+    outb(ATA_REG_COMMAND(pata_dev->io_base), ATA_CMD_IDENTIFY);
 
     __pata_wait_for_device(dev);
 
@@ -151,7 +151,7 @@ uint8_t pata_identify(PATADevice *dev) {
         }
     } else {
         printk("\t\t\t   - PATA " _RED "[%d]" _END " - " _RED "%s" _END "\n", 0, "No device");
-        return (ATA_UNKNOWN);
+        return (ATADEV_UNKNOWN);
     }
 
     return (0);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:45:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 22:48:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/13 02:32:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ Ext2Inode *root_nodes;          // List of file nodes.
 uint32_t nroot_nodes;           // Number of file nodes.
 
 struct dirent dirent;
+
+//Todo: add initrd dans les devices (read -> devices->read, write -> devices->write etc...)
 
 static void initrd_flush(Ext2Inode *node) {
     __UNUSED(node);

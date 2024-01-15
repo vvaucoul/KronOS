@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/11 14:29:31 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/01/13 14:10:56 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -62,9 +62,14 @@ bin: $(NAME)
 # 	@mkdir -p $(DISK_PATH)
 # 	@make -s -C . $(DISK_PATH)/$(DISK_NAME)
 
+initrd:
+	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(INITRD)"
+	@cd ./utils/vfs/initrd/ && sh create_initrd.sh && cd - > /dev/null 2>&1
+	@printf "$(_LWHITE)- INITRD $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
+
 ata:
 	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(HDD_FILENAME)"
-	@qemu-img create -f qcow2 $(HDD_PATH)/$(HDD_FILENAME) $(HDD_SIZE) > .hdd_output.log
+	@qemu-img create -f raw $(HDD_PATH)/$(HDD_FILENAME) $(HDD_SIZE) > .hdd_output.log
 	@printf "$(_LWHITE)    $(_DIM)- Log: $(_END)$(_DIM)--------------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" ".hdd_output.log"
 
 .PHONY: iso bin $(ISO) $(BIN_DIR)/$(BIN) vsf initrd

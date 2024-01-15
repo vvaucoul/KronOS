@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/12 01:43:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/15 20:20:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@
 #include <drivers/device/floppy.h>
 #include <drivers/device/pata.h>
 
-#include <drivers/device/char.h>
 #include <drivers/device/blocks.h>
+#include <drivers/device/char.h>
 #include <drivers/device/devices.h>
 
 #include <multiboot/multiboot.h>
@@ -200,22 +200,12 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
      * Init initrd if multiboot modules are found
      * Initrd -> initial ramdisk
      */
+    uint32_t initrd_location = 0;
+    uint32_t initrd_end = 0;
     if (__multiboot_info->mods_count > 0) {
-        kernel_log_info("LOADING", "INITRD - FILESYSTEM");
-        // ksleep(2);
-        uint32_t initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
-        uint32_t initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
-        fs_root = initrd_init(initrd_location);
-
-        if (fs_root == NULL) {
-            __BSOD_UPDATE("Error: initrd_init failed");
-            return (1);
-        }
-
+        initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
+        initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
         placement_addr = initrd_end;
-        kernel_log_info("LOG", "INITRD");
-        kernel_log_info("LOG", "FILESYSTEM EXT2");
-
     } else {
         __WARND("No multiboot modules found, kernel will not use initrd.");
     }
@@ -243,6 +233,19 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // Init devices
     devices_init();
     kernel_log_info("LOG", "DEVICES");
+
+    // Init initrd filesystem
+    if (__multiboot_info->mods_count > 0) {
+
+        if ((initrd_init(initrd_location, initrd_end)) == 1) {
+            __PANIC("Error: initrd_init failed");
+            __BSOD_UPDATE("Error: initrd_init failed");
+            bsod("INITRD INIT FAILED", __FILE__);
+            return (1);
+        } else {
+            kernel_log_info("LOG", "INITRD");
+        }
+    }
 
     /*
     **  ATA INIT
@@ -325,6 +328,9 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     __INFOD("VFS is disabled, kernel will not use virtual filesystem");
 #endif
 
+    // Todo: Init EXT2 filesystem here
+    kernel_log_info("LOG", "FILESYSTEM EXT2");
+
     init_scheduler();
     kernel_log_info("LOG", "SCHEDULER");
 
@@ -360,24 +366,102 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
+    // printk("__TEST_HEPHAISTOS__ = %d\n", __TEST_HEPHAISTOS__);
+
+#if __TEST_HEPHAISTOS__ == 1
+    __INFOD("Test Hephaistos is enabled");
+    hephaistos_workflow();
+#else // !__TEST_HEPHAISTOS__
+    __INFOD("Test Hephaistos is disabled");
+#endif
+
+    /*
+    {
+
+        uint8_t write_buffer[512]; // Buffer de données à écrire
+        uint8_t read_buffer[512];  // Buffer pour stocker les données lues
+
+        // Remplir le buffer de données à écrire
+        for (int i = 0; i < 512; i++) {
+            write_buffer[i] = (uint8_t)i;
+        }
+        // Effacer le buffer de lecture
+        memset(read_buffer, 0, 512);
+
+        Device *device = device_get(0);
+        ATADevice *ata_dev = ata_get_device(0);
+        uint32_t test_lba = 0; // Mettez ici l'adresse LBA pour le test
+
+        device->write(ata_dev, test_lba, 1, write_buffer);
+        device->read(ata_dev, test_lba, 1, read_buffer);
+
+        // Comparer les buffers
+        bool is_equal = true;
+        for (int i = 0; i < 512; ++i) {
+            if (write_buffer[i] != read_buffer[i]) {
+                printk("0x%x == 0x%x\n", write_buffer[i], read_buffer[i]);
+                is_equal = false;
+                break;
+            } else {
+                printk("0x%x == 0x%x\n", write_buffer[i], read_buffer[i]);
+            }
+        }
+
+        // Afficher le résultat du test
+        if (is_equal) {
+            printk("ATA I/O Test success!\n");
+        } else {
+            printk("ATA I/O Test failure!\n");
+        }
+    }
+    */
+
     // Display initrd files
 
     // list the contents of /
 
     // Todo: KFS-6
     printk("Initrd files:\n");
+    Dirent *_d_node;
 
-    Ext2Inode *node = ext2_finddir(fs_root, "bin");
-    if (node == NULL) {
-        printk("File system not initialized\n");
-    } else {
-        uint8_t buffer[] = "Hello, World!";
-        while (strcmp("ls", node->name) != 0) {
-            node = node->childs[0];
+    VfsNode *node = initrd_fs->fs_root;
+
+    vfs_opendir(node);
+    while ((_d_node = vfs_readdir(node)) != NULL) {
+        printk("Found Node: %s\n", _d_node->name);
+
+        VfsNode *_f_node = vfs_finddir(node, _d_node->name);
+
+        printk("Found Node: %s [%d]\n", _f_node->name, _f_node->flags);
+
+        if (_f_node == NULL) {
+            printk("Error: vfs_finddir failed\n");
+            continue;
         }
-        ext2_write_full(node, strlen((const char *)buffer), buffer);
-        initrd_display_hierarchy();
+
+        printk("Flags: %u\n", _f_node->flags);
+
+        if ((_f_node->flags & VFS_DIRECTORY) != 0) {
+            printk("Directory: %s\n", _d_node->name);
+
+        } else if ((_f_node->flags & VFS_FILE) != 0) {
+            printk("File: %s\n", _d_node->name);
+
+            printk("Lenght: %u\n", _f_node->length);
+            uint8_t *buffer = kmalloc(_f_node->length);
+
+            memset(buffer, 0, _f_node->length);
+
+            _f_node->fops.read(buffer, _f_node->length);
+
+            printk("File content: %s\n", buffer);
+            kfree(buffer);
+        }
     }
+    vfs_closedir(node);
+
+    printk("Done!\n");
+    kpause();
 
     // initrd_debug_read_disk();
 
@@ -406,13 +490,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
     // switch_to_user_mode();
-
-    ATADevice *dev = ata_get_device(0);
-    device_get(0)->write(dev, 0, 14, "Hello, World!");
-    char *buf = kmalloc(14);
-    device_get(0)->read(dev, 0, 14, buf);
-    printk("ATA buf: %s\n", buf);
-    kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 15:11:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/13 17:20:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ __attribute__((unused)) extern void switch_to_user_mode();
 
 #define __INFO(msg, err, ...)           \
     {                                   \
-        printk(_YELLOW "\t\t- "   \
+        printk(_END "\t\t- "   \
                        "" msg " "_END \
                        "\n",            \
                ##__VA_ARGS__);          \
@@ -81,7 +81,7 @@ __attribute__((unused)) extern void switch_to_user_mode();
 
 #define __INFO_NO_RETURN(msg, ...)      \
     {                                   \
-        printk(_YELLOW "\t\t- "   \
+        printk(_END "\t\t- "   \
                        "" msg " "_END \
                        "\n",            \
                ##__VA_ARGS__);          \
@@ -90,7 +90,7 @@ __attribute__((unused)) extern void switch_to_user_mode();
 
 #define __INFOD(msg, ...)               \
     {                                   \
-        printk(_YELLOW "\t\t- "   \
+        printk(_END "\t\t- "   \
                        "" msg " "_END \
                        "\n",            \
                ##__VA_ARGS__);          \

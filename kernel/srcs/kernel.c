@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/15 20:20:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 16:36:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,7 +237,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // Init initrd filesystem
     if (__multiboot_info->mods_count > 0) {
 
-        if ((initrd_init(initrd_location, initrd_end)) == 1) {
+        if ((initrd_init(initrd_location, initrd_end)) != 0) {
             __PANIC("Error: initrd_init failed");
             __BSOD_UPDATE("Error: initrd_init failed");
             bsod("INITRD INIT FAILED", __FILE__);
@@ -421,46 +421,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // list the contents of /
 
     // Todo: KFS-6
-    printk("Initrd files:\n");
-    Dirent *_d_node;
-
-    VfsNode *node = initrd_fs->fs_root;
-
-    vfs_opendir(node);
-    while ((_d_node = vfs_readdir(node)) != NULL) {
-        printk("Found Node: %s\n", _d_node->name);
-
-        VfsNode *_f_node = vfs_finddir(node, _d_node->name);
-
-        printk("Found Node: %s [%d]\n", _f_node->name, _f_node->flags);
-
-        if (_f_node == NULL) {
-            printk("Error: vfs_finddir failed\n");
-            continue;
-        }
-
-        printk("Flags: %u\n", _f_node->flags);
-
-        if ((_f_node->flags & VFS_DIRECTORY) != 0) {
-            printk("Directory: %s\n", _d_node->name);
-
-        } else if ((_f_node->flags & VFS_FILE) != 0) {
-            printk("File: %s\n", _d_node->name);
-
-            printk("Lenght: %u\n", _f_node->length);
-            uint8_t *buffer = kmalloc(_f_node->length);
-
-            memset(buffer, 0, _f_node->length);
-
-            _f_node->fops.read(buffer, _f_node->length);
-
-            printk("File content: %s\n", buffer);
-            kfree(buffer);
-        }
-    }
-    vfs_closedir(node);
-
-    printk("Done!\n");
+    initrd_display_hierarchy();
     kpause();
 
     // initrd_debug_read_disk();

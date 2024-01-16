@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:43:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/13 19:24:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 16:35:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,25 @@
 #define INITRD_DEV_NAME "dev"
 
 typedef struct {
-    uint32_t nfiles;
+    uint32_t nfiles : 32;
 } __attribute__((packed)) InitrdHeader;
 
 typedef struct {
-    uint8_t magic;
-    int8_t name[INITRD_FILE_SIZE];
-    uint32_t offset;
-    uint32_t size;
+    uint8_t magic : 8;
+    char name[INITRD_FILE_SIZE];
+    uint32_t size : 32;
+    uint32_t offset : 32;
 } __attribute__((packed)) InitrdFileHeader;
 
 extern Vfs *initrd_fs;
 
 extern int initrd_init(uint32_t start, uint32_t end);
+
+/**
+ * @brief Read initrd hierarchy
+ * 
+ * This function reads the initrd hierarchy and displays the files and directories in the initrd filesystem.
+ */
+extern void initrd_display_hierarchy(void);
 
 #endif /* INITRD_H */

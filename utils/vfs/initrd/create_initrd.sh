@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/13 12:24:31 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/13 14:09:48 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/01/16 15:52:10 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ WHITE="\033[1;37m"
 
 initd="initrd.img"
 
-if [ -f "create_initrd.py" ] && [ -f "inspect_initrd.py" ]; then
+if [ -f "create_initrd.c" ] && [ -f "inspect_initrd.c" ]; then
 
     if [ -f "initrd.img" ]; then
         printf "    $RED- initrd.img already exist, deleting it...$RESET\n"
@@ -31,11 +31,14 @@ if [ -f "create_initrd.py" ] && [ -f "inspect_initrd.py" ]; then
     fi
 
     printf "$WHITE    - Creating initrd.img...$RESET\n"
-    python3 create_initrd.py
+    gcc create_initrd.c -o create_initrd #-Wall -Wextra -Werror
+    ./create_initrd
+    rm create_initrd
 
     printf "$WHITE    - Inspecting initrd.img...$RESET\n\n"
-    python3 inspect_initrd.py
-
+    gcc inspect_initrd.c -o inspect_initrd #-Wall -Wextra -Werror
+    ./inspect_initrd
+    rm inspect_initrd
 
     mkdir ../../../isodir/boot/ -p
     cp initrd.img ../../../isodir/boot/initrd.img

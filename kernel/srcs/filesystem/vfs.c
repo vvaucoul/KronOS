@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/14 01:28:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 15:37:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,83 @@ VfsNode *vfs_create_node(const char *node_name) {
         memset(vfs_node->name, 0, VFS_NODE_FILE_LEN);
         memcpy(vfs_node->name, node_name, strlen(node_name));
 
-        vfs_node->next = NULL;
+        // Init childs
+        vfs_node->childs.childs = NULL;
+        vfs_node->childs.child_cnt = 0;
+
+        // Init parent
+        vfs_node->parent.parent = NULL;
+        vfs_node->parent.ref_cnt = 0;
         return (vfs_node);
+    }
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                CHILDS / PARENTS                                ||
+// ! ||--------------------------------------------------------------------------------||
+
+static void parent_ref_inc(VfsNode *node) {
+    if (node == NULL) {
+        return;
+    } else {
+        if (node->parent.parent && node->parent.parent->childs.child_cnt != 0) {
+            node->parent.ref_cnt += node->parent.parent->childs.child_cnt;
+        }
+    }
+}
+
+static void parent_ref_dec(VfsNode *node) {
+    if (node == NULL) {
+        return;
+    } else {
+        if (node->parent.parent && node->parent.parent->childs.child_cnt != 0) {
+            node->parent.ref_cnt -= node->parent.parent->childs.child_cnt;
+        }
+    }
+}
+
+static void childlist_alloc(VfsNode *node) {
+    if (node == NULL) {
+        return;
+    } else {
+        if (node->childs.childs == NULL) {
+            node->childs.childs = kmalloc(sizeof(VfsNode *) * VFS_NODE_CHILD_ALLOC);
+            if (node->childs.childs == NULL) {
+                __THROW_NO_RETURN("VFS: Failed to alloc childs");
+            } else {
+                node->childs.alloced = VFS_NODE_CHILD_ALLOC;
+            }
+        } else if (node->childs.child_cnt >= node->childs.alloced) {
+            node->childs.childs = krealloc(node->childs.childs, sizeof(VfsNode *) * (node->childs.alloced + VFS_NODE_CHILD_ALLOC));
+            if (node->childs.childs == NULL) {
+                __THROW_NO_RETURN("VFS: Failed to realloc childs");
+            } else {
+                node->childs.alloced += VFS_NODE_CHILD_ALLOC;
+            }
+        }
+    }
+}
+
+static void childlist_append(VfsNode *parent, VfsNode *node) {
+    if (parent == NULL || node == NULL) {
+        return;
+    } else {
+        parent->childs.childs[parent->childs.child_cnt] = node;
+        parent->childs.child_cnt++;
+    }
+}
+
+static void childlist_remove(VfsNode *parent, VfsNode *node) {
+    if (parent == NULL || node == NULL) {
+        return;
+    } else {
+        for (uint32_t i = 0; i < parent->childs.child_cnt; i++) {
+            if (parent->childs.childs[i] == node) {
+                parent->childs.childs[i] = NULL;
+                parent->childs.child_cnt--;
+            }
+        }
+        kfree(node);
     }
 }
 
@@ -60,19 +135,12 @@ int vfs_add_node(VfsNode *root_node, VfsNode *node) {
     if (root_node == NULL || node == NULL) {
         return (-1);
     }
-    node->parent = root_node;
 
-    // Add node to the list of childs
-    if (root_node->next == NULL) {
-        root_node->next = node;
-    } else {
-        VfsNode *tmp = root_node->next;
-        while (tmp->next != NULL) {
-            tmp = tmp->next;
-        }
-        tmp->next = node;
-    }
-    root_node->child_count++;
+    node->parent.parent = root_node;
+
+    childlist_alloc(root_node);
+    childlist_append(root_node, node);
+    parent_ref_inc(node);
     return (0);
 }
 
@@ -80,24 +148,10 @@ int vfs_remove_node(VfsNode *root_node, VfsNode *node) {
     if (root_node || node == NULL) {
         return (-1);
     }
-    VfsNode *tmp = root_node->next;
-    VfsNode *prev = NULL;
 
-    while (tmp != NULL) {
-        if (tmp == node) {
-            if (prev == NULL) {
-                root_node->next = tmp->next;
-            } else {
-                prev->next = tmp->next;
-            }
-            tmp->next = NULL;
-            root_node->child_count--;
-            return (0);
-        }
-        prev = tmp;
-        tmp = tmp->next;
-    }
-
+    childlist_alloc(root_node);
+    childlist_remove(root_node, node);
+    parent_ref_dec(node);
     return (0);
 }
 

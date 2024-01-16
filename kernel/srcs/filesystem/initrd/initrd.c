@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/14 11:50:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 16:36:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static VfsNode *__initrd_register_node(char *fs_name);
 static int __initrd_fs_mount(void);
 static int __initrd_fs_unmount(void);
 
-static int __initrd_fs_read(void *buf, uint32_t size);
+static int __initrd_fs_read(void *node, void *buf, uint32_t size);
 
 static Dirent *__initrd_fs_readdir(void *node);
 static VfsNode *__initrd_fs_finddir(void *node, const char *name);
@@ -47,12 +47,13 @@ static int __initrd_register_files(void) {
     for (uint32_t i = 0; i < n_files; i++) {
         initrd_file_headers[i].offset += initrd_start;
 
+        uint8_t magic = initrd_file_headers[i].magic;
+
+        if (magic != INITD_MAGIC) {
+            __WARN("Initrd: Invalid magic number", 1);
+        }
         VfsNode *node = __initrd_register_node((char *)initrd_file_headers[i].name);
 
-        printk("Initrd: Registering file "_GREEN
-               "%s"_END
-               "\n",
-               initrd_file_headers[i].name);
         node->mask = node->uid = node->gid = 0;
         node->flags = VFS_FILE;
         node->length = initrd_file_headers[i].size;
@@ -63,7 +64,6 @@ static int __initrd_register_files(void) {
             __WARN("Initrd: Failed to register initrd file", 1);
         }
     }
-
     return (0);
 }
 
@@ -74,15 +74,12 @@ int initrd_init(uint32_t start, uint32_t end) {
     initrd_header = (InitrdHeader *)((uintptr_t)start);
     initrd_file_headers = (InitrdFileHeader *)((uintptr_t)(start + sizeof(InitrdHeader)));
 
-    printk("Initrd: Found %d files\n", initrd_header->nfiles);
-    printk("Initrd File: %s\n", initrd_file_headers->name);
-
     // Create initrd filesystem
     initrd_fs = __initrd_register_fs(INITRD_FILESYSTEM_NAME);
 
     // Create initrd root node (initrd root directory)
     initrd_fs->fs_root = __initrd_register_node(INITRD_FILESYSTEM_NAME);
-    initrd_fs->fs_root->parent = NULL;
+    initrd_fs->fs_root->parent.parent = NULL;
     initrd_fs->fs_root->flags = VFS_DIRECTORY;
     initrd_fs->fs_root->fops.readdir = __initrd_fs_readdir;
     initrd_fs->fs_root->fops.finddir = __initrd_fs_finddir;
@@ -112,7 +109,6 @@ int initrd_init(uint32_t start, uint32_t end) {
     } else {
         __INFOD("Initrd: Initrd device registered");
     }
-
     return (0);
 }
 
@@ -143,7 +139,6 @@ static VfsNode *__initrd_register_node(char *node_name) {
     if (node == NULL) {
         __WARN("Initrd: Failed to create initrd node", NULL);
     } else {
-        __INFOD("Initrd: Initrd node created");
         return (node);
     }
 }
@@ -153,53 +148,49 @@ static VfsNode *__initrd_register_node(char *node_name) {
 // ! ||--------------------------------------------------------------------------------||
 
 static Dirent *__initrd_fs_readdir(void *node) {
-    VfsNode *vfs_node = (VfsNode *)node;
-
-    printk("\t- dir_index %d > child_count %d\n", vfs_node->dir_index, vfs_node->child_count);
-    if (vfs_node->dir_index > vfs_node->child_count) {
-        return (NULL);
-    }
-    
-    VfsNode *child_node = vfs_node->next;
+    VfsNode *__node = (VfsNode *)node;
+    static uint32_t __index = 0;
     static Dirent dirent = {0};
 
-    if (child_node == NULL) {
-        return (NULL);
-    } else {
-        while (child_node != NULL) {
-            printk("\t- child_node->inode %d | vfs_node->dir_index %d == %d\n", child_node->inode, vfs_node->dir_index, child_node->inode == vfs_node->dir_index);
-            if (child_node->inode == vfs_node->dir_index) {
-                vfs_node->dir_index++;
-                
-                memcpy(dirent.name, child_node->name, strlen(child_node->name));
-                dirent.ino = child_node->inode;
+    memset(&dirent, 0, sizeof(Dirent));
+    for (uint32_t i = 0; i < __node->childs.child_cnt; i++) {
+        VfsNode *__child = __node->childs.childs[i];
 
-                printk("\t- dirent.name %s\n", dirent.name);
-                return (&dirent);
-            }
-            printk("\t- child_node->name %s | child_node->next %p\n", child_node->name, child_node->next);
-            child_node = child_node->next;
+        if (__index == i) {
+            __index++;
+            memcpy(dirent.name, __child->name, strlen(__child->name));
+            dirent.ino = __child->inode;
+            return (&dirent);
         }
     }
 
-    printk("no dirent\n");
+    __index = 0;
     return (NULL);
 }
 
 static VfsNode *__initrd_fs_finddir(void *node, const char *name) {
     VfsNode *vfs_node = (VfsNode *)node;
 
-    while (vfs_node != NULL) {
-        if (strcmp(vfs_node->name, name) == 0) {
-            return (vfs_node);
+    for (uint32_t i = 0; i < vfs_node->childs.child_cnt; i++) {
+        VfsNode *sub_node = vfs_node->childs.childs[i];
+
+        if (strcmp(sub_node->name, name) == 0) {
+            return (sub_node);
         }
-        vfs_node = vfs_node->next;
     }
     return (NULL);
 }
 
-static int __initrd_fs_read(void *buf, uint32_t size) {
-    printk("Initrd: Read\n");
+static int __initrd_fs_read(void *node, void *buf, uint32_t size) {
+    VfsNode *vfs_node = (VfsNode *)node;
+    InitrdFileHeader *file_header = &initrd_file_headers[vfs_node->inode];
+
+    if (size > file_header->size) {
+        size = file_header->size;
+    }
+
+    void *content_addr = (void *)(file_header->offset);
+    memcpy(buf, content_addr, size);
     return (0);
 }
 
@@ -207,10 +198,60 @@ static int __initrd_fs_read(void *buf, uint32_t size) {
 // ! ||                              INITRD FS OPERATIONS                              ||
 // ! ||--------------------------------------------------------------------------------||
 
-static int __initrd_fs_mount(void) {
+static __unused__ int __initrd_fs_mount(void) {
     return (0);
 }
 
-static int __initrd_fs_unmount(void) {
+static __unused__ int __initrd_fs_unmount(void) {
     return (0);
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                  INITRD UTILS                                  ||
+// ! ||--------------------------------------------------------------------------------||
+
+void initrd_display_hierarchy(void) {
+    printk("Initrd files:\n");
+    Dirent *_d_node;
+
+    VfsNode *node = initrd_fs->fs_root;
+
+    vfs_opendir(node);
+    while ((_d_node = vfs_readdir(node)) != NULL) {
+        printk("Found node: %s\n", _d_node->name);
+
+        VfsNode *_f_node = vfs_finddir(node, _d_node->name);
+
+        if (_f_node == NULL) {
+            printk("Error: vfs_finddir failed\n");
+            continue;
+        } else {
+            printk("Found Node: %s Flags: [%d]\n", _f_node->name, _f_node->flags);
+        }
+
+        printk("Flags: %u\n", _f_node->flags);
+
+        if ((_f_node->flags & VFS_DIRECTORY) != 0) {
+            printk("Directory: %s\n", _d_node->name);
+            printk("--------------------\n\n");
+
+        } else if ((_f_node->flags & VFS_FILE) != 0) {
+            printk("File: %s\n", _d_node->name);
+
+            printk("Lenght: %u\n", _f_node->length);
+            uint8_t *buffer = kmalloc(sizeof(char) * (_f_node->length + 1));
+
+            memset(buffer, 0, _f_node->length + 1);
+
+            _f_node->fops.read(_f_node, buffer, _f_node->length);
+
+            printk("File content: %s\n", buffer);
+            kfree(buffer);
+            printk("--------------------\n\n");
+        }
+        ksleep(1);
+    }
+    vfs_closedir(node);
+
+    printk("Done!\n");
 }

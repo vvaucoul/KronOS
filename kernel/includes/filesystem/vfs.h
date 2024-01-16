@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/13 20:57:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 12:10:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@
 #define EXT2_FILESYSTEM_NAME "ext2"
 #define VFS_NODE_FILE_LEN 256
 
+#define VFS_NODE_CHILD_ALLOC 32
+
 typedef struct vfs_node VfsNode;
 
 typedef struct s_dirent {
@@ -65,11 +67,11 @@ typedef struct s_dirent {
 } Dirent;
 
 typedef struct vfs_file_ops {
-    int (*read)(void *buf, uint32_t size);
-    int (*write)(void *buf, uint32_t size);
+    int (*read)(void *node, void *buf, uint32_t size);
+    int (*write)(void *node, void *buf, uint32_t size);
 
-    int (*open)(const char *path, uint32_t flags);
-    int (*close)(void);
+    int (*open)(void *node, const char *path, uint32_t flags);
+    int (*close)(void *node);
 
     Dirent *(*readdir)(void *node);
     VfsNode *(*finddir)(void *node, const char *name);
@@ -79,6 +81,17 @@ typedef struct vfs_fs_ops {
     int (*mount)(void);
     int (*unmount)(void);
 } VfsFsOps;
+
+typedef struct vfs_parent {
+    VfsNode *parent;
+    uint32_t ref_cnt; // Number of references to this node
+} VfsParent;
+
+typedef struct vfs_childs {
+    VfsNode **childs;
+    uint32_t child_cnt; // Number of childs
+    uint32_t alloced;   // Number of allocated childs
+} VfsChilds;
 
 typedef struct vfs_node {
     char name[VFS_NODE_FILE_LEN];
@@ -94,9 +107,8 @@ typedef struct vfs_node {
 
     VfsFileOps fops;
 
-    uint32_t child_count;
-    struct vfs_node *parent;
-    struct vfs_node *next;
+    VfsParent parent;
+    VfsChilds childs;
 } VfsNode;
 
 typedef struct s_vfs {

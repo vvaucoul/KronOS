@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 12:10:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 17:04:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@
  */
 
 #include <kernel.h>
+
+// Use virtual file system
+#define __VFS__ 1
 
 #define DIR_PROCESS "proc"
 #define DIR_CONFIG_FILES "etc"

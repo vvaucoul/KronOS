@@ -61,7 +61,9 @@
 			"disks.h": "c",
 			"tuple": "c",
 			"device.h": "c",
-			"stddef.h": "c"
+			"stddef.h": "c",
+			"io.h": "c",
+			"ide.h": "c"
 		}
 	}
 }

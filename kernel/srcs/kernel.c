@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 16:36:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/17 16:19:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,8 @@
 #include <drivers/keyboard.h>
 #include <drivers/vesa.h>
 
-#include <drivers/device/ata.h>
 #include <drivers/device/floppy.h>
-#include <drivers/device/pata.h>
+#include <drivers/device/ide.h>
 
 #include <drivers/device/blocks.h>
 #include <drivers/device/char.h>
@@ -248,46 +247,17 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     }
 
     /*
-    **  ATA INIT
+    **  IDE INIT
     **
-    **  ATA Driver initialization
+    **  Integrated Drive Electronics initialization
+    **  IDE Driver initialization
     */
-#if ATA_DRIVER == 1
-    if ((ata_init()) != 0) {
-        __WARND("Error: ata_init failed, (Kernel will not use ATA Driver)");
+
+    if ((ide_init()) != 0) {
+        __WARND("Error: ide_init failed, (Kernel will not use IDE Driver)");
     } else {
-        kernel_log_info("LOG", "ATA");
+        kernel_log_info("LOG", "IDE");
     }
-#else
-    __INFOD("ATA Driver is disabled");
-#endif
-
-/**
- * PATA INIT
- *
- * PATA Driver initialization
- */
-#if PATA_DRIVER == 1
-    if ((pata_init(ATA_PRIMARY_IO, ATA_PRIMARY_DEV_CTRL)) != 0) {
-        __WARND("Error: pata_init failed, (Kernel will not use PATA Driver)");
-    } else {
-        kernel_log_info("LOG", "PATA");
-
-        uint8_t id = pata_identify(pata_dev);
-        if (id != 0) {
-            __WARND("Error: pata_identify failed, (Kernel will not use PATA Driver)");
-        } else {
-            kernel_log_info("LOG", "PATA IDENTIFY");
-            pata_identify_device(pata_dev);
-
-            ksleep(1);
-
-            kernel_log_info("LOG", "PATA READ/WRITE");
-        }
-    }
-#else
-    __INFOD("PATTA Driver is disabled");
-#endif
 
 /**
  * FLOPPY INIT
@@ -309,20 +279,15 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 #endif
 
     /*
-    **  VFS INIT
+    **  EXT2 INIT
     **
-    **  Init VFS if filesystem is initialized
+    **  EXT2 Filesystem initialization
     */
-#if VFS == 1
-    if (fs_root != NULL) {
-        if (vfs_init(EXT2_FILESYSTEM_NAME) != 0) {
-            __BSOD_UPDATE("Error: vfs_init failed");
-            bsod("VFS INIT FAILED", __FILE__);
-            return (1);
-        } else {
-            kernel_log_info("LOG", "FILESYSTEM - VFS");
-            ksleep(1);
-        }
+#if __EXT2__ == 1
+    if ((vfs_init("ext2", NULL, &ext2_init)) == NULL) {
+        __WARND("Error: vfs_init failed, (Kernel will not use EXT2 Filesystem)");
+    } else {
+        kernel_log_info("LOG", "EXT2");
     }
 #else
     __INFOD("VFS is disabled, kernel will not use virtual filesystem");
@@ -421,8 +386,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // list the contents of /
 
     // Todo: KFS-6
-    initrd_display_hierarchy();
-    kpause();
+    // initrd_display_hierarchy();
+    // kpause();
 
     // initrd_debug_read_disk();
 

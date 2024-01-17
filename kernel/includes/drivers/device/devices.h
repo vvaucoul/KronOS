@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:15:35 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 17:56:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 21:51:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,10 @@ typedef enum e_device_type {
     DEVICE_BLOCK
 } DeviceType;
 
-typedef uint32_t (*DeviceRead)(void *device, uint32_t offset, uint32_t size, void *buffer);
-typedef uint32_t (*DeviceWrite)(void *device, uint32_t offset, uint32_t size, void *buffer);
+typedef struct s_device Device;
+
+typedef int (*DeviceRead)(Device *device, uint32_t sector, uint32_t count, void *buffer);
+typedef int (*DeviceWrite)(Device *device, uint32_t sector, uint32_t count, const void *buffer);
 
 typedef struct s_device {
     // Device informations
@@ -46,6 +48,10 @@ typedef struct s_device {
     // Device functions
     DeviceRead read;
     DeviceWrite write;
+
+    // Device size
+    uint32_t sectors;
+    uint32_t sector_size;
 
     // Device specific data
     void *device;

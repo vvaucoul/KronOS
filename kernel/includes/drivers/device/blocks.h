@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 19:02:53 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 19:30:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 18:25:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,14 @@
 #define MAX_BLOCK_DEVICES 16
 
 typedef struct block_device {
+    const char *name;
     void *device;
 
-    uint32_t block_size;
-    uint64_t block_count;
+    uint32_t sectors;
+    uint32_t sector_size;
 
-    int (*read)(struct block_device *device, uint64_t block, uint64_t count, void *buf);
-    int (*write)(struct block_device *device, uint64_t block, uint64_t count, void *buf);
+    int (*read)(struct block_device *device, uint32_t sector, uint32_t count, void *buffer);
+    int (*write)(struct block_device *device, uint32_t sector, uint32_t count, const void *buffer);
 } __attribute__((packed)) BlockDevice;
 
 extern BlockDevice *block_devices[MAX_BLOCK_DEVICES];
@@ -40,7 +41,7 @@ extern BlockDevice *block_devices[MAX_BLOCK_DEVICES];
 extern int register_block_device(BlockDevice *device);
 extern int unregister_block_device(BlockDevice *device);
 
-extern int block_read(BlockDevice *device, uint64_t block, uint64_t count, void *buf);
-extern int block_write(BlockDevice *device, uint64_t block, uint64_t count, void *buf);
+extern int block_read(BlockDevice *device, uint32_t sector, uint32_t count, void *buffer);
+extern int block_write(BlockDevice *device, uint32_t sector, uint32_t count, const void *buffer);
 
 #endif /* !BLOCKS_H */

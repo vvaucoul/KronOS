@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 19:03:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 19:34:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 21:30:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,18 +34,18 @@ int unregister_block_device(BlockDevice *device) {
     __THROW("Cannot unregister block device", 1);
 }
 
-int block_read(BlockDevice *device, uint64_t block, uint64_t count, void *buf) {
+int block_read(BlockDevice *device, uint32_t sector, uint32_t count, void *buf) {
     if (device == NULL || device->read == NULL) {
         __THROW("Cannot read from block device", 1);
     }
 
-    return (device->read(device, block, count, buf));
+    return (device->read(device, sector, count, buf));
 }
 
-int block_write(BlockDevice *device, uint64_t block, uint64_t count, void *buf) {
+int block_write(BlockDevice *device, uint32_t sector, uint32_t count, const void *buf) {
     if (device == NULL || device->write == NULL) {
         __THROW("Cannot write to block device", 1);
     }
 
-    return (device->write(device, block, count, buf));
+    return (device->write(device, sector, count, buf));
 }

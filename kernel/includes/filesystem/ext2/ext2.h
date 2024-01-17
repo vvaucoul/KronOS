@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 18:55:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 17:06:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,10 @@
 * It is used by the kernel to manage file systems and perform file system operations.
 */
 
-
 #include <kernel.h>
+
+// Use ext2 file system
+#define __EXT2__ 1
 
 #define EXT2_MAGIC 0xEF53
 #define EXT2_FILE_NAME_MAX_SIZE 128
@@ -73,6 +75,34 @@ typedef struct s_file_operations {
     chown_type_t chown;
 } __attribute__((packed)) Ext2FileOperations;
 
+typedef struct {
+    uint32_t total_inodes;
+    uint32_t total_blocks;
+    uint32_t reserved_blocks;
+    uint32_t unallocated_blocks;
+    uint32_t unallocated_inodes;
+    uint32_t superblock_block_number;
+    uint32_t block_size_shift;
+    uint32_t fragment_size_shift;
+    uint32_t blocks_per_group;
+    uint32_t fragments_per_group;
+    uint32_t inodes_per_group;
+    uint32_t last_mount_time;
+    uint32_t last_written_time;
+    uint16_t mount_count;
+    uint16_t max_mount_count;
+    uint16_t ext2_signature;
+    uint16_t file_system_state;
+    uint16_t error_handling;
+    uint16_t version_minor;
+    uint32_t last_fsck_time;
+    uint32_t fsck_interval;
+    uint32_t os_id;
+    uint32_t version_major;
+    uint16_t user_id_reserved_blocks;
+    uint16_t group_id_reserved_blocks;
+} __attribute__((packed)) Ext2SuperBlock;
+
 typedef struct fs_node {
     char name[EXT2_FILE_NAME_MAX_SIZE]; // The filename.
     uint32_t mask;                      // The permissions mask.
@@ -100,6 +130,15 @@ typedef struct dirent // One of these is returned by the readdir call, according
     char name[EXT2_FILE_NAME_MAX_SIZE]; // Filename.
 } __attribute__((packed)) Ext2Dirent;
 
+/* Bitmap management macros */
+#define BMAP_GET(bitmap, idx) ((bitmap)[(idx)/8] & (1 << ((idx) % 8)))
+#define BMAP_SET(bitmap, idx) ((bitmap)[(idx)/8] |= (1 << ((idx) % 8)))
+#define BMAP_CLEAR(bitmap, idx) ((bitmap)[(idx)/8] &= ~(1 << ((idx) % 8)))
+
+#define BLOCKS_PER_GROUP 1024
+#define INODES_PER_GROUP (8 * BLOCKS_PER_GROUP)
+#define FIRST_DATA_BLOCK 1
+
 #define FS_FILE 0x01        // File
 #define FS_DIRECTORY 0x02   // Directory
 #define FS_CHARDEVICE 0x03  // Character device
@@ -110,11 +149,7 @@ typedef struct dirent // One of these is returned by the readdir call, according
 
 extern Ext2Inode *fs_root; // The root of the filesystem.
 
-// Standard read/write/open/close functions. Note that these are all suffixed with
-// _fs to distinguish them from the read/write/open/close which deal with file descriptors
-// not file nodes.
-
-extern void ext2_init(void);
+extern int ext2_init(void);
 
 extern uint32_t ext2_read(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
 extern uint32_t ext2_write(Ext2Inode *node, uint32_t offset, uint32_t size, uint8_t *buffer);

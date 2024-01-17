@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 10:52:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 19:04:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/17 16:26:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cmds/disks.h>
-#include <drivers/device/ata.h>
+#include <drivers/device/ide.h>
 
 #include <memory/memory.h>
 #include <shell/ksh_args.h>
@@ -64,12 +64,24 @@ static int *__get_disks_index(cmd_disks_t *cmd) {
     }
     return (index);
 }
+static void __display_disk_infos(IDEDevice *dev) {
+    printk("LBA Mode: %s\n", (dev->lba_mode == IDE_LBA28) ? "IDE_LBA28" : (dev->lba_mode == IDE_LBA48) ? "IDE_LBA48"
+                                                                                                       : "IDE_CHS");
+    printk("Device Type: %s\n", (dev->type == IDE_ATA) ? "IDE_ATA" : (dev->type == IDE_ATAPI) ? "IDE_ATAPI"
+                                                                                              : "IDE_NONE");
+    printk("Signature: %u\n", dev->signature);
+    printk("Capabilities: %u\n", dev->capabilities);
+    printk("Command Sets: %u\n", dev->commandsets);
+    printk("Size: %u (Bytes)\n", dev->size * SECTOR_SIZE);
+    printk("Model: %s\n", dev->model);
+    printk("Firmware: %s\n", dev->firmware);
+}
 
 static void __cmd_disks_states(cmd_disks_t *cmd) {
     uint32_t i = 0;
     int disk_index = 0;
     for_each_disks(i, cmd, disk_index, i++) {
-        ATADevice *device = ata_get_device(disk_index);
+        IDEDevice *device = ide_devices[disk_index];
 
         if (device == NULL) {
             printk("\t\t- Disk "_GREEN
@@ -81,7 +93,7 @@ static void __cmd_disks_states(cmd_disks_t *cmd) {
                    "[%d]:"_END
                    "\n",
                    disk_index);
-            __ata_display_disk_state(device);
+            ide_display_disk_state(device);
         }
     }
 }
@@ -91,8 +103,7 @@ static void __cmd_disks_count(cmd_disks_t *cmd) {
     uint32_t count = 0;
     int disk_index = 0;
     for_each_disks(i, cmd, disk_index, i++) {
-        ATADevice *device = ata_get_device(i);
-
+        IDEDevice *device = ide_devices[disk_index];
         if (device != NULL) {
             ++count;
         }
@@ -107,7 +118,7 @@ static void __cmd_disks_details(cmd_disks_t *cmd) {
     uint32_t i = 0;
     int disk_index = 0;
     for_each_disks(i, cmd, disk_index, i++) {
-        ATADevice *device = ata_get_device(i);
+        IDEDevice *device = ide_devices[disk_index];
 
         if (device == NULL) {
             printk("\t\t- Disk "_GREEN
@@ -119,7 +130,7 @@ static void __cmd_disks_details(cmd_disks_t *cmd) {
                    "[%d]:"_END
                    "\n",
                    disk_index);
-            ata_disk_details(disk_index);
+            __display_disk_infos(device);
         }
     }
 }
@@ -128,11 +139,18 @@ static void __cmd_disks_size(cmd_disks_t *cmd) {
     uint32_t i = 0;
     int disk_index = 0;
     for_each_disks(i, cmd, disk_index, i++) {
-        printk("Disk "_GREEN
-               "[%d]:"_END
-               "\n",
-               disk_index);
-        ata_disk_size(disk_index);
+        if (ide_devices[disk_index] == NULL) {
+            printk("\t\t- Disk "_GREEN
+                   "[%d]:"_END
+                   " not found\n",
+                   disk_index);
+            continue;
+        } else {
+            printk("Disk "_GREEN
+                   "[%d]: %d Octets (%d Mo)"_END
+                   "\n",
+                   disk_index, ide_devices[disk_index]->size * SECTOR_SIZE, (ide_devices[disk_index]->size * SECTOR_SIZE) / 1000000);
+        }
     }
 }
 

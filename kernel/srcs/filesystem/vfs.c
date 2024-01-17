@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 15:37:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 17:10:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,12 @@ Vfs *vfs_init(const char *fs_name, VfsNode *fs_root, int (*init)(void)) {
             __THROW("VFS: Failed to create VFS", NULL);
         } else {
             memset(vfs->fsops, 0, sizeof(VfsFsOps));
+
+            if (vfs->init && vfs->init() != 0) {
+                __THROW("VFS: Failed to init VFS for fs [%s]", NULL, fs_name);
+            } else {
+                return (vfs);
+            }
         }
         return (vfs);
     }

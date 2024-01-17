@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:32:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 15:06:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/17 10:42:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ extern uint8_t inb(uint32_t _port);
 extern uint16_t inw(uint32_t _port);
 extern void insw(uint16_t port, void *addr, uint32_t word_cnt);
 extern uint32_t inl(uint32_t _port);
+extern void insl(uint16_t port, void *addr, uint32_t dword_cnt);
+extern void outdd(uint16_t _port, uint32_t _data);
+extern uint32_t indd(uint16_t _port);
 
 extern void poweroff(void);
 extern void halt();

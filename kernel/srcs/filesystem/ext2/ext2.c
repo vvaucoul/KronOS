@@ -6,13 +6,78 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 18:42:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 17:08:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/ext2/ext2.h>
+#include <memory/memory.h>
 
 Ext2Inode *fs_root = NULL;
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                  EXT2 BITMAPS                                  ||
+// ! ||--------------------------------------------------------------------------------||
+
+/**
+ * @brief Structure representing the bitmap in the ext2 file system.
+ *
+ * The bitmap is used to keep track of the allocation status of blocks or inodes in the file system.
+ * Each bit in the bitmap represents the allocation status of a specific block or inode.
+ * If the bit is set to 1, it means the block or inode is allocated.
+ * If the bit is set to 0, it means the block or inode is free and available for allocation.
+ */
+
+static uint8_t bmap_blocks[BLOCKS_PER_GROUP / 8];
+static uint8_t bmap_inodes[INODES_PER_GROUP / 8];
+
+void init_bitmaps() {
+    memset(bmap_blocks, 0, sizeof(bmap_blocks));
+    memset(bmap_inodes, 0, sizeof(bmap_inodes));
+}
+
+int alloc_block() {
+    int i;
+    for (i = 0; i < BLOCKS_PER_GROUP; ++i) {
+        if (!BMAP_GET(bmap_blocks, i)) {
+            BMAP_SET(bmap_blocks, i);
+            return i + FIRST_DATA_BLOCK;
+        }
+    }
+    return -1;
+}
+
+int free_block(int block_num) {
+    int block_idx = block_num - FIRST_DATA_BLOCK;
+    if (block_idx >= 0 && block_idx < BLOCKS_PER_GROUP) {
+        BMAP_CLEAR(bmap_blocks, block_idx);
+        return 0;
+    }
+    return -1;
+}
+
+int alloc_inode() {
+    int i;
+    for (i = 0; i < INODES_PER_GROUP; ++i) {
+        if (!BMAP_GET(bmap_inodes, i)) {
+            BMAP_SET(bmap_inodes, i);
+            return i + 1;
+        }
+    }
+    return -1;
+}
+
+int free_inode(int inode_num) {
+    if (inode_num > 0 && inode_num <= INODES_PER_GROUP) {
+        BMAP_CLEAR(bmap_inodes, inode_num - 1);
+        return 0;
+    }
+    return -1;
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                 EXT2 OPERATIONS                                ||
+// ! ||--------------------------------------------------------------------------------||
 
 void ext2_delete(Ext2Inode *inode, char *name) {
     if (inode->fops.unlink != 0) {
@@ -114,4 +179,20 @@ Ext2Inode *ext2_finddir(Ext2Inode *node, char *name) {
         return node->fops.finddir(node, name);
     else
         return 0;
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                      EXT2                                      ||
+// ! ||--------------------------------------------------------------------------------||
+
+int ext2_init(void) {
+    printk("Initializing EXT2 file system...\n");
+
+    // Init bitmaps
+    init_bitmaps();
+
+    // Init root node
+    fs_root = kmalloc(sizeof(Ext2Inode));
+    
+    return (0);
 }

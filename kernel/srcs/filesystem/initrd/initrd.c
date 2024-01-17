@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 16:36:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/16 20:37:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@ InitrdHeader *initrd_header = NULL;
 InitrdFileHeader *initrd_file_headers = NULL;
 
 Vfs *initrd_fs = NULL;
-
-uint32_t initrd_nroot_nodes = 0;
 
 uint32_t initrd_start = 0x0;
 uint32_t initrd_end = 0x0;
@@ -100,15 +98,6 @@ int initrd_init(uint32_t start, uint32_t end) {
         __WARN("Initrd: Failed to register initrd files", 1);
     }
 
-    // Register initrd filesystem
-    Device *device = device_init_new_device("initrd_fs", DEVICE_BLOCK, NULL, NULL, initrd_fs);
-
-    if ((device_register(device)) != 0) {
-        kfree(device);
-        __WARN("Initrd: Failed to register initrd device", 1);
-    } else {
-        __INFOD("Initrd: Initrd device registered");
-    }
     return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 23:59:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 00:12:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ VfsNode *vfs_create_node(Vfs *vfs, VfsNode *root_node, const char *node_name) {
         VfsNode *cache_node = vfs_create_cache_link(vfs->vfs_cache, node);
     
         if ((vfs_add_node(vfs->vfs_cache, root_node, cache_node)) == NULL) {
-            __WARN("VFS: Failed to add node to VFS Cache", 1);
+            __WARN("VFS: Failed to add node to VFS Cache", NULL);
         }
         return (node);
     }
@@ -82,10 +82,13 @@ VfsNode *vfs_create_node(Vfs *vfs, VfsNode *root_node, const char *node_name) {
 
 int vfs_delete_node(Vfs *vfs, VfsNode *node) {
     if (vfs->use_vfs_cache == 1) {
-        int st;
+        int st = 0;
 
         if ((st = vfs_remove_node(vfs->vfs_cache, node)) != 0) {
             __WARN("VFS: Failed to remove node from VFS", 1);
+        }
+        if ((st += vfs_destroy_cache_link(vfs->vfs_cache, node)) != 0) {
+            __WARN("VFS: Failed to destroy node from VFS Cache", 1);
         }
         return (st);
     }

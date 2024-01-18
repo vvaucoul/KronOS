@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 00:03:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 00:17:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,6 @@ static VfsCacheLinks *__initrd_get_cache_link(VfsNode *node) {
 // ! ||--------------------------------------------------------------------------------||
 
 static int __initrd_fs_mount(void *fs) {
-    printk("Initrd: Mounting initrd filesystem...\n");
     Vfs *initrd_fs = (Vfs *)fs;
 
     if (initrd_fs == NULL) {
@@ -203,7 +202,6 @@ static int __initrd_fs_mount(void *fs) {
 
     // Register initrd files
     uint32_t n_files = initrd_header->nfiles;
-    printk("Initrd: Registering %d files\n", n_files);
 
     for (uint32_t i = 0; i < n_files; i++) {
         initrd_file_headers[i].offset += initrd_start;
@@ -230,32 +228,38 @@ static __unused__ int __initrd_fs_unmount(__unused__ void *fs) {
 // ! ||--------------------------------------------------------------------------------||
 
 void initrd_display_hierarchy(void) {
-    printk("Initrd files:\n");
+
+    if (initrd_fs == NULL) {
+        __WARND("Initrd: initrd not initialized");
+        return;
+    } else {
+        printk("Initrd files:\n");
+        printk("--------------------\n");
+    }
+
     Dirent *_d_node;
     InitrdNode *node = initrd_fs->fs_root;
     uint32_t index = 0;
 
-    printk("flags: %u | file: [%d], dir [%d]\n", node->flags, (node->flags & VFS_FILE) != 0, (node->flags & VFS_DIRECTORY) != 0);
+    if (node == NULL) {
+        printk("Error: initrd root node is NULL\n");
+        return;
+    }
+
     vfs_opendir(node);
     while ((_d_node = vfs_readdir(initrd_fs, node, index)) != NULL) {
-        printk("Found node: %s\n", _d_node->name);
 
         InitrdNode *_f_node = vfs_finddir(initrd_fs, node, _d_node->name);
-        printk("flags: %u | file: [%d], dir [%d]\n", _f_node->flags, (_f_node->flags & VFS_FILE) != 0, (_f_node->flags & VFS_DIRECTORY) != 0);
 
         if (_f_node == NULL) {
             printk("Error: vfs_finddir failed\n");
             ++index;
             continue;
-        } else {
-            printk("Found Node: %s Flags: [%d]\n", _f_node->name, _f_node->flags);
         }
-
-        printk("Flags: %u\n", _f_node->flags);
 
         if ((_f_node->flags & VFS_DIRECTORY) != 0) {
             printk("Directory: %s\n", _d_node->name);
-            printk("--------------------\n\n");
+            printk("--------------------\n");
 
         } else if ((_f_node->flags & VFS_FILE) != 0) {
             printk("File: %s\n", _d_node->name);
@@ -269,7 +273,7 @@ void initrd_display_hierarchy(void) {
 
             printk("File content: %s\n", buffer);
             kfree(buffer);
-            printk("--------------------\n\n");
+            printk("--------------------\n");
         }
         index++;
         ksleep(1);

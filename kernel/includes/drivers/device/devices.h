@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:15:35 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 21:51:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/18 22:11:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DEVICES_H
 #define DEVICES_H
 
-#include <filesystem/vfs.h>
+#include <filesystem/vfs/vfs.h>
 #include <kernel.h>
 
 /**

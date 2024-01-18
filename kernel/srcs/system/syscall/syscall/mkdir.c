@@ -6,16 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 15:04:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 13:15:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/18 22:11:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <syscall/syscall.h>
 
-#include <filesystem/vfs.h>
+#include <filesystem/vfs/vfs.h>
 
 int sys_mkdir(char *path, mode_t __unused__ permission) {
-    Ext2Inode *inode __unused__ = ext2_finddir(fs_root, path);
+    Ext2Node *node __unused__ = ext2_finddir(fs_root, path);
 
     /*
     - Check if path already exist

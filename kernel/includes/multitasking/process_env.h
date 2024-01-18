@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 15:59:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 17:12:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/17 20:22:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 #include <filesystem/ext2/ext2.h>
 
 typedef struct s_penv {
-    Ext2Inode *current_directory; // Current directory (Used for PWD)
+    Ext2Node *current_directory; // Current directory (Used for PWD)
 } __attribute__((packed)) penv_t;
 
 #endif /* !PROCESS_ENV_H */

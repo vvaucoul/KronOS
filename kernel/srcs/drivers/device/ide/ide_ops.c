@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 15:04:08 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 16:13:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/17 21:31:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,36 @@ int ide_read_sectors(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf) {
 
     ide_wait(regs);
 
-    return (0);
+    return (sectors * SECTOR_SIZE);
+}
+
+int ide_read(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf, uint32_t size) {
+    // Calculate the number of full sectors that can be read
+    uint8_t full_sectors = size / SECTOR_SIZE;
+
+    // Read the full sectors first
+    int ret = ide_read_sectors(dev, lba, full_sectors, buf);
+    if (ret < 0) {
+        return ret;
+    }
+
+    // If there are any remaining bytes left to read, calculate their position and read them individually
+    if (size % SECTOR_SIZE != 0) {
+        uint32_t offset = size % SECTOR_SIZE;
+        uint8_t partial_buffer[SECTOR_SIZE];
+        memset(partial_buffer, 0, sizeof(partial_buffer));
+
+        // Read the last partial sector into the buffer
+        ret = ide_read_sectors(dev, lba + full_sectors, 1, partial_buffer);
+        if (ret < 0) {
+            return ret;
+        }
+
+        // Copy the desired portion of the partial sector to the output buffer
+        memcpy((uint8_t *)buf + size - offset, partial_buffer + offset, size % SECTOR_SIZE);
+    }
+
+    return size;
 }
 
 int ide_write_sectors(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf) {
@@ -122,4 +151,33 @@ int ide_write_sectors(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void 
 
     ide_wait(regs);
     return (0);
+}
+
+int ide_write(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf, uint32_t size) {
+    // Calculate the number of full sectors that can be written
+    uint8_t full_sectors = size / SECTOR_SIZE;
+
+    // Write the full sectors first
+    int ret = ide_write_sectors(dev, lba, full_sectors, buf);
+    if (ret < 0) {
+        return ret;
+    }
+
+    // If there are any remaining bytes left to write, calculate their position and write them individually
+    if (size % SECTOR_SIZE != 0) {
+        uint32_t offset = size % SECTOR_SIZE;
+        uint8_t partial_buffer[SECTOR_SIZE];
+        memset(partial_buffer, 0, sizeof(partial_buffer));
+
+        // Copy the desired portion of the input buffer to the partial buffer
+        memcpy(partial_buffer, (const uint8_t*)buf + size - offset, size % SECTOR_SIZE);
+
+        // Write the last partial sector from the buffer
+        ret = ide_write_sectors(dev, lba + full_sectors, 1, partial_buffer);
+        if (ret < 0) {
+            return ret;
+        }
+    }
+
+    return size;
 }

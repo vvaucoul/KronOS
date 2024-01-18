@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:34:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 16:23:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/17 21:43:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,13 @@
 #include <system/io.h>
 
 IDEDevice *ide_devices[MAX_IDE_DEVICES];
+
+IDEDevice *ide_get_device(uint8_t drive) {
+    if (drive > 3) {
+        return (NULL);
+    }
+    return (ide_devices[drive]);
+}
 
 void ide_primary_irq_handler(__unused__ struct regs *regs) {
     printk("IDE Primary IRQ\n");
@@ -86,14 +93,5 @@ int ide_init(void) {
             kmsleep(4);
         }
     }
-
-    // ide_write_sectors(ide_devices[0], 0, 1, "Hello World");
-    // char *buf = kmalloc(512);
-
-    // ide_read_sectors(ide_devices[0], 0, 1, buf);
-    // printk("IDE Read : [%s]\n", buf);
-
-    // kfree(buf);
-
     return (0);
 }

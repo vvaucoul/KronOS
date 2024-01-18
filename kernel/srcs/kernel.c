@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 16:19:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/18 22:11:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@
 
 #include <filesystem/ext2/ext2.h>
 #include <filesystem/initrd.h>
-#include <filesystem/vfs.h>
+#include <filesystem/vfs/vfs.h>
 
 #include <memory/mmap.h>
 
@@ -233,9 +233,14 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     devices_init();
     kernel_log_info("LOG", "DEVICES");
 
+    if ((vfs_init()) != 0) {
+        __WARND("Error: vfs_init failed, (Kernel will not use VFS)");
+    } else {
+        kernel_log_info("LOG", "VFS");
+    }
+
     // Init initrd filesystem
     if (__multiboot_info->mods_count > 0) {
-
         if ((initrd_init(initrd_location, initrd_end)) != 0) {
             __PANIC("Error: initrd_init failed");
             __BSOD_UPDATE("Error: initrd_init failed");
@@ -245,6 +250,8 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
             kernel_log_info("LOG", "INITRD");
         }
     }
+    initrd_display_hierarchy();
+    kpause();
 
     /*
     **  IDE INIT
@@ -284,17 +291,14 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     **  EXT2 Filesystem initialization
     */
 #if __EXT2__ == 1
-    if ((vfs_init("ext2", NULL, &ext2_init)) == NULL) {
-        __WARND("Error: vfs_init failed, (Kernel will not use EXT2 Filesystem)");
+    if ((ext2_init()) != 0) {
+        __WARND("Error: vfs_create_fs failed, (Kernel will not use EXT2 Filesystem)");
     } else {
-        kernel_log_info("LOG", "EXT2");
+        kernel_log_info("LOG", "FILESYSTEM EXT2");
     }
 #else
     __INFOD("VFS is disabled, kernel will not use virtual filesystem");
 #endif
-
-    // Todo: Init EXT2 filesystem here
-    kernel_log_info("LOG", "FILESYSTEM EXT2");
 
     init_scheduler();
     kernel_log_info("LOG", "SCHEDULER");
@@ -324,8 +328,13 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     ASM_CLI();
     if ((init_kernel(magic_number, addr, kstack)))
         return (1);
-    if (__DISPLAY_INIT_LOG__)
+    if (__DISPLAY_INIT_LOG__) {
         printk("\n");
+        printk(_RED);
+        terminal_write_n_char('#', VGA_WIDTH);
+        printk(_END);
+        printk("\n\n");
+    }
     ASM_STI();
 
     tm_t date = gettime();
@@ -340,47 +349,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     __INFOD("Test Hephaistos is disabled");
 #endif
 
-    /*
-    {
-
-        uint8_t write_buffer[512]; // Buffer de données à écrire
-        uint8_t read_buffer[512];  // Buffer pour stocker les données lues
-
-        // Remplir le buffer de données à écrire
-        for (int i = 0; i < 512; i++) {
-            write_buffer[i] = (uint8_t)i;
-        }
-        // Effacer le buffer de lecture
-        memset(read_buffer, 0, 512);
-
-        Device *device = device_get(0);
-        ATADevice *ata_dev = ata_get_device(0);
-        uint32_t test_lba = 0; // Mettez ici l'adresse LBA pour le test
-
-        device->write(ata_dev, test_lba, 1, write_buffer);
-        device->read(ata_dev, test_lba, 1, read_buffer);
-
-        // Comparer les buffers
-        bool is_equal = true;
-        for (int i = 0; i < 512; ++i) {
-            if (write_buffer[i] != read_buffer[i]) {
-                printk("0x%x == 0x%x\n", write_buffer[i], read_buffer[i]);
-                is_equal = false;
-                break;
-            } else {
-                printk("0x%x == 0x%x\n", write_buffer[i], read_buffer[i]);
-            }
-        }
-
-        // Afficher le résultat du test
-        if (is_equal) {
-            printk("ATA I/O Test success!\n");
-        } else {
-            printk("ATA I/O Test failure!\n");
-        }
-    }
-    */
-
     // Display initrd files
 
     // list the contents of /
@@ -388,8 +356,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // Todo: KFS-6
     // initrd_display_hierarchy();
     // kpause();
-
-    // initrd_debug_read_disk();
 
     // uint32_t esp;
     // GET_ESP(esp);
@@ -416,6 +382,11 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
     // switch_to_user_mode();
+
+#include <cmds/ls.h>
+    ls(0, NULL);
+
+    kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

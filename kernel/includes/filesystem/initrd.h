@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:43:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 16:35:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/18 22:54:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef INITRD_H
 #define INITRD_H
 
+#include <filesystem/vfs/vfs.h>
 #include <kernel.h>
-#include <filesystem/vfs.h>
 
 /**
  * @file initrd.h
@@ -49,13 +49,25 @@ typedef struct {
     uint32_t offset : 32;
 } __attribute__((packed)) InitrdFileHeader;
 
+typedef struct s_initrd_node {
+    char name[INITRD_FILE_SIZE];
+
+    uint32_t magic;
+    uint32_t flags;
+    uint32_t inode;
+    uint32_t size;
+
+    // ! Compliant with VfsCache
+    VfsCacheLinks *links;
+} __attribute__((packed)) InitrdNode;
+
 extern Vfs *initrd_fs;
 
 extern int initrd_init(uint32_t start, uint32_t end);
 
 /**
  * @brief Read initrd hierarchy
- * 
+ *
  * This function reads the initrd hierarchy and displays the files and directories in the initrd filesystem.
  */
 extern void initrd_display_hierarchy(void);

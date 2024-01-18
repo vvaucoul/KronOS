@@ -63,7 +63,11 @@
 			"device.h": "c",
 			"stddef.h": "c",
 			"io.h": "c",
-			"ide.h": "c"
+			"ide.h": "c",
+			"dma.h": "c",
+			"builtins.h": "c",
+			"ls.h": "c",
+			"vfs_algorithm.h": "c"
 		}
 	}
 }

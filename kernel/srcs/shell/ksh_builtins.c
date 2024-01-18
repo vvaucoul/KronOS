@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/14 18:33:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/18 11:53:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <cmds/pwd.h>
 #include <cmds/disks.h>
 #include <cmds/devices.h>
+#include <cmds/ls.h>
 
 #include <drivers/keyboard.h>
 
@@ -48,6 +49,7 @@ static void __ksh_help(void)
     printk("- " _GREEN "pwd" _END ": display current directory\n");
     printk("- " _GREEN "disks" _END ": display disks infos\n");
     printk("- " _GREEN "devices" _END ": display devices infos\n");
+    printk("- " _GREEN "ls" _END ": display files in current directory\n");
 
 }
 
@@ -85,6 +87,7 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pwd", ""}, &pwd);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"disks", ""}, &disks);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"devices", ""}, &__devices);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"ls", ""}, &ls);
 }
 
 void __ksh_execute_builtins(int argc, char **argv)

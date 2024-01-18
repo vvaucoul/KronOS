@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 17:04:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/18 11:52:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,14 +97,16 @@ typedef struct vfs_childs {
 } VfsChilds;
 
 typedef struct vfs_node {
-    char name[VFS_NODE_FILE_LEN];
-    uint32_t mask;
-    uint32_t uid;
-    uint32_t gid;
-    uint32_t flags;
-    uint32_t inode;
-    uint32_t length;
-    uint32_t impl;
+    char name[VFS_NODE_FILE_LEN]; // Node name
+
+    uint32_t inode;  // Inode number
+    uint32_t owner;  // Owner of the file (used for task permissions)
+    uint32_t length; // Length of the file (in bytes)
+    uint32_t flags;  // Node type (file, directory, etc.)
+
+    // Devices
+    uint32_t major; // Major device number
+    uint32_t minor; // Minor device number
 
     uint32_t dir_index;
 
@@ -114,6 +116,13 @@ typedef struct vfs_node {
     VfsChilds childs;
 } VfsNode;
 
+typedef struct s_vfs_info {
+    char fs_name[32];
+    char fs_detailed_name[255];
+    uint32_t fs_version;
+    VfsFsOps *fsops;
+} VfsInfo;
+
 typedef struct s_vfs {
     char *fs_name; // Filesystem name
 
@@ -122,7 +131,12 @@ typedef struct s_vfs {
     int (*init)(void);        // Filesystem init function
 } Vfs;
 
-extern Vfs *vfs_init(const char *fs_name, VfsNode *fs_root, int (*init)(void));
+// VFS mount points (Use hashtable)
+extern Hashtable *vfs_mounts;
+
+extern int vfs_init(void);
+
+extern Vfs *vfs_create_fs(const char *fs_name, VfsNode *fs_root, int (*init)(void));
 extern VfsNode *vfs_create_node(const char *node_name);
 
 extern int vfs_add_node(VfsNode *root_node, VfsNode *node);
@@ -139,5 +153,7 @@ extern VfsNode *vfs_finddir(VfsNode *node, const char *name);
 
 extern int vfs_mount(Vfs *vfs);
 extern int vfs_unmount(Vfs *vfs);
+
+extern Vfs *vfs_get_current_fs(void);
 
 #endif /* !VFS_H */

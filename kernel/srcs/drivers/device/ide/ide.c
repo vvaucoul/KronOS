@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:34:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 21:43:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 15:02:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,22 +24,21 @@ IDEDevice *ide_get_device(uint8_t drive) {
 }
 
 void ide_primary_irq_handler(__unused__ struct regs *regs) {
-    printk("IDE Primary IRQ\n");
     int status = inb(ATA_PRIMARY_IO + ATA_REG_STATUS);
 
     if (status & ATA_SR_ERR) {
         ide_error_msg(status, true);
     }
+    pic8259_send_eoi(IRQ_ATA1);
 }
 
 void ide_secondary_irq_handler(__unused__ struct regs *regs) {
-    printk("IDE Secondary IRQ\n");
-
     int status = inb(ATA_SECONDARY_IO + ATA_REG_STATUS);
 
     if (status & ATA_SR_ERR) {
         ide_error_msg(status, true);
     }
+    pic8259_send_eoi(IRQ_ATA2);
 }
 
 int ide_device_init(IDEDevice *dev, IDEChannel channel, IDEDrive drive,
@@ -76,11 +75,18 @@ int ide_init(void) {
         for (uint8_t drive = 0; drive < 2; drive++) {
 
             if ((ide_device_is_present(bus, drive)) == 0) {
-                __INFOD("No device found on channel [%d] drive [%d]", bus, drive);
+                __INFOD("No device found on channel [%d] drive [%d] -> "_RED
+                        "[KO]" _END,
+                        bus, drive);
+                ide_devices[bus * 2 + drive] = NULL;
                 continue;
+            } else {
+                __INFOD("Device found on channel [%d] drive [%d] -> "_GREEN
+                        " [OK]" _END,
+                        bus, drive);
             }
 
-            IDEDevice *dev = ide_devices[bus * 2 + drive];
+            IDEDevice *dev = NULL;
 
             if ((dev = (IDEDevice *)kmalloc(sizeof(IDEDevice))) == NULL) {
                 __WARND("Failed to allocate memory for IDE Device [%d]", bus * 2 + drive);

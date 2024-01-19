@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:35:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 21:43:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 16:23:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,13 +194,14 @@ typedef struct s_ide_device {
     uint16_t capabilities; // Features.
     uint32_t commandsets;  // Command Sets Supported.
     uint32_t size;         // Size in Sectors.
+    uint32_t sector_size;  // Sector Size in Bytes. (512 default or 4096 for drives with 4k sectors)
+    uint32_t sector_count; // Sector Count.
     uint8_t model[41];     // Model in string.
     uint8_t firmware[9];   // Firmware in string.
 
     IDEType type;             // 0: ATA, 1:ATAPI.
     IDEChannelRegisters regs; // I/O Ports.
     IDELBAMode lba_mode;      // LBA mode: 0: CHS, 1:LBA28, 2: LBA48.
-    IDELBA lba;               // Structure to access drive sectors.
 } IDEDevice;
 
 extern IDEDevice *ide_devices[MAX_IDE_DEVICES];
@@ -214,15 +215,12 @@ extern int ide_device_is_present(IDEChannel channel, IDEDrive drive);
 
 // lba
 extern IDELBA __ide_get_lba(uint32_t lba);
-extern IDELBAMode __ide_get_lbamode(uint16_t base, uint16_t ctrl);
 
 // Ops
 extern void ide_select_drive(IDEDevice *dev);
-extern int ide_read_sectors(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf);
-extern int ide_write_sectors(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf);
 
-extern int ide_read(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf, uint32_t size);
-extern int ide_write(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf, uint32_t size);
+extern int ide_read(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf);
+extern int ide_write(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf);
 
 // Error
 extern uint8_t ide_error_msg(uint8_t status, uint8_t display);

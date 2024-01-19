@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 15:04:08 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 21:31:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 16:26:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/ide.h>
 #include <system/io.h>
+
+#include <system/pit.h>
 
 static int ide_inb(IDEChannelRegisters *regs, uint8_t reg) {
     if (reg > 0x07 && reg < 0x0C) {
@@ -32,17 +34,121 @@ static void ide_wait(IDEChannelRegisters *regs) {
     }
 }
 
-static void ide_send_command(IDEDevice *dev, uint8_t cmd, uint8_t rw, uint32_t lba, uint8_t sectors) {
+static void ide_wait_drq(IDEChannelRegisters *regs) {
+    while (!(ide_inb(regs, ATA_REG_STATUS) & ATA_SR_DRQ)) {
+    }
+}
+
+static void ide_send_command(IDEDevice *dev, uint8_t cmd, uint32_t lba, uint8_t sectors) {
+    // IDEChannelRegisters *regs = &dev->regs;
+    // IDELBA lba_mode = __ide_get_lba(lba);
+    // IDELBAMode lbamode = dev->lba_mode;
+
+    // printk("lbamode: %d\n", lbamode);
+    // printk("lba_mode.lba_mid: %d\n", lba_mode.lba_mid);
+    // printk("lba_mode.lba_high: %d\n", lba_mode.lba_high);
+    // printk("lba_mode.lba: %d\n", lba_mode.lba);
+    // printk("sectors: %d\n", sectors);
+    // printk("cmd: %d\n", cmd);
+
+    // // Check if the device supports LBA48 addressing
+    // if (lbamode == IDE_LBA48) {
+    //     // Send the LBA48 address to the controller
+    //     outb(regs->base + ATA_REG_CONTROL, 0x40 | 0x08);
+    //     outb(regs->base + ATA_REG_SECCOUNT1, 0);
+    //     outb(regs->base + ATA_REG_LBA3, lba_mode.lba_mid);
+    //     outb(regs->base + ATA_REG_LBA4, lba_mode.lba_high);
+    //     outb(regs->base + ATA_REG_LBA5, lba_mode.lba);
+    // } else {
+    //     // Send the LBA28 address to the controller
+    //     outb(regs->base + ATA_REG_LBA0, lba_mode.lba);
+    //     outb(regs->base + ATA_REG_LBA1, lba_mode.lba_high);
+    //     outb(regs->base + ATA_REG_LBA2, lba_mode.lba_mid);
+    // }
+
+    // // Send the sector count to the controller
+    // outb(regs->base + ATA_REG_SECCOUNT0, sectors);
+
+    // // Send the command to the controller
+    // switch (cmd) {
+    // case ATA_CMD_READ_PIO:
+    //     outb(regs->base + ATA_REG_COMMAND, ATA_CMD_READ_PIO | rw);
+    //     break;
+    // case ATA_CMD_WRITE_PIO:
+    //     outb(regs->base + ATA_REG_COMMAND, ATA_CMD_WRITE_PIO | rw);
+    //     break;
+    // case ATA_CMD_READ_PIO_EXT:
+    //     outb(regs->base + ATA_REG_SECCOUNT1, (sectors >> 8) & 0xFF);
+    //     outb(regs->base + ATA_REG_COMMAND, ATA_CMD_READ_PIO_EXT | rw);
+    //     break;
+    // case ATA_CMD_WRITE_PIO_EXT:
+    //     outb(regs->base + ATA_REG_FEATURES, 0);
+    //     outb(regs->base + ATA_REG_SECCOUNT1, 0);
+    //     outb(regs->base + ATA_REG_COMMAND, ATA_CMD_WRITE_PIO_EXT | rw);
+    //     break;
+    // default:
+    //     // Invalid command
+    //     printk("Error: Invalid command 0x%02x\n", cmd);
+    //     return;
+    // }
+
+    // // Send the device/head/sector number to the controller
+    // outb(regs->base + ATA_REG_HDDEVSEL, 0xE0 | (dev->drive << 4) | ((lba_mode.device & 0x0F) << 0));
+
+    // while (ide_inb(regs, ATA_REG_STATUS) & ATA_SR_BSY) {
+    // }
+    // while (ide_inb(regs, ATA_REG_STATUS) & ATA_SR_DRQ) {
+    // }
+    // }
     IDEChannelRegisters *regs = &dev->regs;
     IDELBA lba_mode = __ide_get_lba(lba);
-    IDELBAMode lbamode = dev->lba_mode;
 
-    if (lbamode == IDE_LBA48) {
+    if (dev->lba_mode == IDE_LBA48) {
         outb(regs->base + ATA_REG_CONTROL, 0x40 | 0x08);
         outb(regs->base + ATA_REG_SECCOUNT1, 0);
         outb(regs->base + ATA_REG_LBA3, lba_mode.lba_mid);
         outb(regs->base + ATA_REG_LBA4, lba_mode.lba_high);
         outb(regs->base + ATA_REG_LBA5, lba_mode.lba);
+    } else {
+        outb(regs->base + ATA_REG_LBA0, lba_mode.lba);
+        outb(regs->base + ATA_REG_LBA1, lba_mode.lba_high);
+        outb(regs->base + ATA_REG_LBA2, lba_mode.lba_mid);
+    }
+
+    outb(regs->base + ATA_REG_SECCOUNT0, sectors);
+
+    switch (cmd) {
+    case ATA_CMD_READ_PIO: {
+        uint8_t sec_count1 = (sectors >> 8) & 0xFF;
+        outb(regs->base + ATA_REG_SECCOUNT1, sec_count1);
+        break;
+    }
+
+    case ATA_CMD_WRITE_PIO: {
+        uint8_t sec_count1 = (sectors >> 8) & 0xFF;
+        outb(regs->base + ATA_REG_SECCOUNT1, sec_count1);
+        break;
+    }
+
+    case ATA_CMD_READ_PIO_EXT: {
+        uint8_t sec_count1 = (sectors >> 8) & 0xFF;
+        outb(regs->base + ATA_REG_SECCOUNT1, sec_count1);
+        outb(regs->base + ATA_REG_LBA3, lba_mode.lba_mid);
+        outb(regs->base + ATA_REG_LBA4, lba_mode.lba_high);
+        outb(regs->base + ATA_REG_LBA5, lba_mode.lba);
+        break;
+    }
+
+    case ATA_CMD_WRITE_PIO_EXT: {
+        outb(regs->base + ATA_REG_FEATURES, 0);
+        outb(regs->base + ATA_REG_SECCOUNT1, 0);
+        outb(regs->base + ATA_REG_LBA3, lba_mode.lba_mid);
+        outb(regs->base + ATA_REG_LBA4, lba_mode.lba_high);
+        outb(regs->base + ATA_REG_LBA5, lba_mode.lba);
+        break;
+    }
+    default:
+        break;
     }
 
     outb(regs->base + ATA_REG_SECCOUNT0, sectors);
@@ -55,6 +161,7 @@ static void ide_send_command(IDEDevice *dev, uint8_t cmd, uint8_t rw, uint32_t l
 static void ide_flush_cache(IDEDevice *dev) {
     IDEChannelRegisters *regs = &dev->regs;
 
+    ide_wait(regs);
     outb(regs->base + ATA_REG_COMMAND, ATA_CMD_CACHE_FLUSH);
     ide_wait(regs);
 }
@@ -62,122 +169,62 @@ static void ide_flush_cache(IDEDevice *dev) {
 void ide_select_drive(IDEDevice *dev) {
     IDEChannelRegisters *regs = &dev->regs;
     outb(regs->base + ATA_REG_HDDEVSEL, 0xE0 | (dev->drive << 4));
+    ide_wait(regs);
 }
 
-int ide_read_sectors(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf) {
-    IDEChannelRegisters *regs = &dev->regs;
-
+int ide_read(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf) {
     ide_select_drive(dev);
-    ide_send_command(dev, ATA_CMD_READ_PIO, ATA_READ, lba, sectors);
-    ide_display_disk_state(dev);
+
+    if (lba + sectors > dev->size || sectors == 0 || sectors > dev->sector_count) {
+        return -1;
+    }
+
+    // Send LBA and sector count (LBA 28)
+    outb(dev->regs.base + ATA_REG_LBA0, (uint8_t)lba);
+    outb(dev->regs.base + ATA_REG_LBA1, (uint8_t)(lba >> 8));
+    outb(dev->regs.base + ATA_REG_LBA2, (uint8_t)(lba >> 16));
+    outb(dev->regs.base + ATA_REG_SECCOUNT0, sectors);
+
+    // Send read command
+    outb(dev->regs.base + ATA_REG_COMMAND, ATA_CMD_READ_PIO);
+
+    ide_wait_drq(&dev->regs);
 
     for (int i = 0; i < sectors; ++i) {
-        int timeout = 10000;
-        while ((ide_inb(regs, ATA_REG_STATUS) & ATA_SR_DRQ) != 0) {
-            if (--timeout <= 0) {
-                printk("Timeout waiting for DRQ\n");
-                return -1;
-            }
-            int st = 0;
-            if ((st = (inb(regs->base + ATA_REG_STATUS) & ATA_SR_ERR))) {
-                printk("Error while reading sector\n");
-                ide_error_msg(st, true);
-                return -1;
-            }
-        }
-        memcpy((uint8_t *)buf + (i * SECTOR_SIZE), (void *)(regs->base + ATA_REG_DATA), SECTOR_SIZE);
+        // Read data from the drive's data register into the buffer
+        insw(dev->regs.base + ATA_REG_DATA, buf + (i * SECTOR_SIZE), SECTOR_SIZE / 2);
+        ide_wait(&dev->regs);
     }
 
-    ide_wait(regs);
-
-    return (sectors * SECTOR_SIZE);
-}
-
-int ide_read(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf, uint32_t size) {
-    // Calculate the number of full sectors that can be read
-    uint8_t full_sectors = size / SECTOR_SIZE;
-
-    // Read the full sectors first
-    int ret = ide_read_sectors(dev, lba, full_sectors, buf);
-    if (ret < 0) {
-        return ret;
-    }
-
-    // If there are any remaining bytes left to read, calculate their position and read them individually
-    if (size % SECTOR_SIZE != 0) {
-        uint32_t offset = size % SECTOR_SIZE;
-        uint8_t partial_buffer[SECTOR_SIZE];
-        memset(partial_buffer, 0, sizeof(partial_buffer));
-
-        // Read the last partial sector into the buffer
-        ret = ide_read_sectors(dev, lba + full_sectors, 1, partial_buffer);
-        if (ret < 0) {
-            return ret;
-        }
-
-        // Copy the desired portion of the partial sector to the output buffer
-        memcpy((uint8_t *)buf + size - offset, partial_buffer + offset, size % SECTOR_SIZE);
-    }
-
-    return size;
-}
-
-int ide_write_sectors(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf) {
-    IDEChannelRegisters *regs = &dev->regs;
-
-    ide_select_drive(dev);
-    ide_send_command(dev, ATA_CMD_WRITE_PIO, ATA_WRITE, lba, sectors);
-    ide_display_disk_state(dev);
-
-    for (int i = 0; i < sectors; ++i) {
-        int timeout = 10000;
-        while ((ide_inb(regs, ATA_REG_STATUS) & ATA_SR_DRQ) != 0) {
-            if (--timeout <= 0) {
-                printk("Timeout waiting for DRQ\n");
-                return -1;
-            }
-
-            int st = 0;
-            if ((st = (inb(regs->base + ATA_REG_STATUS) & ATA_SR_ERR))) {
-                printk("Error while writing sector\n");
-                ide_error_msg(st, true);
-                return -1;
-            }
-        }
-
-        memcpy((void *)(regs->base + ATA_REG_DATA), (const uint8_t *)buf + (i * SECTOR_SIZE), SECTOR_SIZE);
-    }
-    ide_flush_cache(dev);
-
-    ide_wait(regs);
+    ide_wait(&dev->regs);
     return (0);
 }
 
-int ide_write(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf, uint32_t size) {
-    // Calculate the number of full sectors that can be written
-    uint8_t full_sectors = size / SECTOR_SIZE;
+int ide_write(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf) {
+    ide_select_drive(dev);
 
-    // Write the full sectors first
-    int ret = ide_write_sectors(dev, lba, full_sectors, buf);
-    if (ret < 0) {
-        return ret;
+    if (lba + sectors > dev->size || sectors == 0 || sectors > dev->sector_count) {
+        return -1;
     }
 
-    // If there are any remaining bytes left to write, calculate their position and write them individually
-    if (size % SECTOR_SIZE != 0) {
-        uint32_t offset = size % SECTOR_SIZE;
-        uint8_t partial_buffer[SECTOR_SIZE];
-        memset(partial_buffer, 0, sizeof(partial_buffer));
+    // Send LBA and sector count (LBA 28)
+    outb(dev->regs.base + ATA_REG_LBA0, (uint8_t)lba);
+    outb(dev->regs.base + ATA_REG_LBA1, (uint8_t)(lba >> 8));
+    outb(dev->regs.base + ATA_REG_LBA2, (uint8_t)(lba >> 16));
+    outb(dev->regs.base + ATA_REG_SECCOUNT0, sectors);
 
-        // Copy the desired portion of the input buffer to the partial buffer
-        memcpy(partial_buffer, (const uint8_t*)buf + size - offset, size % SECTOR_SIZE);
+    // Send write command
+    outb(dev->regs.base + ATA_REG_COMMAND, ATA_CMD_WRITE_PIO);
 
-        // Write the last partial sector from the buffer
-        ret = ide_write_sectors(dev, lba + full_sectors, 1, partial_buffer);
-        if (ret < 0) {
-            return ret;
-        }
+    ide_wait_drq(&dev->regs);
+
+    for (int i = 0; i < sectors; ++i) {
+        // Write data from the buffer to the drive's data register
+        outsw(dev->regs.base + ATA_REG_DATA, buf + (i * SECTOR_SIZE), SECTOR_SIZE / 2);
+        ide_wait(&dev->regs);
     }
 
-    return size;
+    ide_flush_cache(dev);
+    ide_wait(&dev->regs);
+    return (0);
 }

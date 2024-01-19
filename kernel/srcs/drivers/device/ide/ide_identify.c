@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 13:55:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 15:36:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 15:00:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,47 +19,58 @@
 // ! ||--------------------------------------------------------------------------------||
 
 IDELBA __ide_get_lba(uint32_t lba) {
+    uint8_t device;
+
     if (lba > 0x0FFFFFFF) {
-        return (IDELBA){
-            .lba = 0,
-            .lba_high = 0,
-            .lba_mid = 0,
-            .device = 0xE0,
-        };
+        device = 0xE0;
     } else if (lba > 0x00FFFFFF) {
-        return (IDELBA){
-            .lba = (uint8_t)(lba & LBA_MASK_8BIT),
-            .lba_high = (uint8_t)((lba & LBA_MASK_16BIT) >> 8),
-            .lba_mid = (uint8_t)((lba & LBA_MASK_24BIT) >> 16),
-            .device = 0xE0 | (uint8_t)((lba & LBA_MASK_28BIT) >> 24),
-        };
+        device = 0xE0 | ((lba >> 24) & 0x0F);
     } else if (lba > 0x0000FFFF) {
-        return (IDELBA){
-            .lba = (uint8_t)(lba & LBA_MASK_8BIT),
-            .lba_high = (uint8_t)((lba & LBA_MASK_16BIT) >> 8),
-            .lba_mid = (uint8_t)((lba & LBA_MASK_24BIT) >> 16),
-            .device = 0xF0 | (uint8_t)((lba & LBA_MASK_32BIT) >> 16),
-        };
+        device = 0xF0 | ((lba >> 16) & 0x0F);
     } else {
-        return (IDELBA){
-            .lba = (uint8_t)(lba & LBA_MASK_8BIT),
-            .lba_high = (uint8_t)((lba & LBA_MASK_16BIT) >> 8),
-            .lba_mid = 0,
-            .device = 0xF0 | (uint8_t)((lba & LBA_MASK_32BIT) >> 16),
-        };
+        device = 0xF0 | ((lba >> 24) & 0x0F);
+    }
+
+    return (IDELBA){
+        .lba = (uint8_t)(lba & LBA_MASK_8BIT),
+        .lba_high = (uint8_t)((lba & LBA_MASK_16BIT) >> 8),
+        .lba_mid = (uint8_t)((lba & LBA_MASK_24BIT) >> 16),
+        .device = device,
+    };
+}
+
+IDELBAMode __ide_detect_geometry(const uint16_t buffer[256]) {
+    uint8_t majorVersion = buffer[1];
+
+    if (majorVersion == 0 || majorVersion >= 8) {
+        return (IDE_LBA28);
+    } else if (majorVersion == 1 && buffer[9] & 0x8000) {
+        return (IDE_LBA48);
+    } else {
+        return (IDE_CHS);
     }
 }
 
-IDELBAMode __ide_get_lbamode(uint16_t base, uint16_t ctrl) {
-    uint8_t status = inb(base + ATA_REG_STATUS);
+static uint32_t __ide_get_sector_size(const uint16_t buffer[256]) {
+    uint32_t sector_size = 0;
 
-    if (status & ATA_SR_ERR) {
-        return (IDE_LBA28);
+    if (buffer[106] & (1 << 12)) {
+        sector_size = 4096;
+    } else {
+        sector_size = 512;
     }
-    if (inb(ctrl + ATA_REG_CONTROL) & ATA_REG_DEVADDRESS) {
-        return (IDE_LBA48);
+    return (sector_size);
+}
+
+static uint32_t __ide_get_sector_count(const uint16_t buffer[256]) {
+    uint32_t sector_count = 0;
+
+    if (buffer[61] != 0) {
+        sector_count = buffer[61];
+    } else if (buffer[60] != 0) {
+        sector_count = buffer[60];
     }
-    return (IDE_CHS);
+    return (sector_count);
 }
 
 // ! ||--------------------------------------------------------------------------------||
@@ -120,7 +131,7 @@ int ide_identify(IDEDevice *dev) {
     }
 
     // Wait for the DRQ flag to be set
-    while (!(inb(dev->regs.base + ATA_REG_STATUS) & ATA_SR_DRQ))
+    while ((inb(dev->regs.base + ATA_REG_STATUS) & ATA_SR_DRQ) == 0)
         ;
 
     // Read the data from the buffer
@@ -128,26 +139,16 @@ int ide_identify(IDEDevice *dev) {
         buffer[i] = inw(dev->regs.base + ATA_REG_DATA);
     }
 
-    // Get the LBA mode
-    dev->lba_mode = __ide_get_lbamode(dev->regs.base, dev->regs.ctrl);
-
-    // Get the LBA
-    uint32_t lba_addr = (buffer[61] << 16) | buffer[60];
-    dev->lba = __ide_get_lba(lba_addr);
-
-    // Get the device type
+    // Get the sector size (512 or 4096) / LBA mode (CHS, LBA28, LBA48) / device type (ATA, ATAPI)
+    dev->sector_size = __ide_get_sector_size(buffer);
+    dev->sector_count = __ide_get_sector_count(buffer);
+    dev->lba_mode = __ide_detect_geometry(buffer);
     dev->type = __ide_get_devicetype(dev->regs.base, dev->regs.ctrl);
 
-    // Get signature
+    // Get signature / capabilities / command sets / disk size
     dev->signature = buffer[0];
-
-    // Get capabilities
     dev->capabilities = buffer[49];
-
-    // Get command sets
     dev->commandsets = buffer[83];
-
-    // Get size
     dev->size = buffer[60] | (buffer[61] << 16);
 
     // Get model
@@ -164,7 +165,6 @@ int ide_identify(IDEDevice *dev) {
         dev->firmware[i + 1] = buffer[23 + i / 2] & 0xFF;
     }
     dev->firmware[8] = 0;
-
 
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 15:25:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 11:22:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,17 @@
  * It is used by the kernel to manage file systems and perform file system operations.
  */
 
-#include "ext2_bmap.h"
+#include <filesystem/vfs/vfs.h>
 #include <kernel.h>
+
+#include "ext2_bmap.h"
 
 // Use ext2 file system
 #define __EXT2__ 1
 
 #define EXT2_MAGIC 0xEF53
 #define EXT2_FILE_NAME_MAX_SIZE 128
+#define EXT2_SUPERBLOCK_OFFSET 1024
 
 // Reserved Inodes
 #define EXT2_BAD_INO 1         /* Bad blocks inode */
@@ -189,7 +192,7 @@ typedef struct fs_node {
     uint32_t major; // The major device number.
     uint32_t minor; // The minor device number.
 
-    Ext2FileOperations fops; // File Operations
+    Ext2FileOperations *fops; // File Operations
 
     // struct fs_node **childs; // linked list childs of the node
     // struct fs_node *parent;  // parent of the node
@@ -214,6 +217,7 @@ typedef struct dirent // One of these is returned by the readdir call, according
 #define FS_SYMLINK 0x06     // Symlink
 #define FS_MOUNTPOINT 0x08  // Mountpoint
 
+extern Vfs *ext2_fs;
 extern Ext2Node *fs_root;             // The root of the filesystem.
 extern Ext2SuperBlock *fs_superblock; // The superblock of the filesystem.
 
@@ -247,6 +251,13 @@ extern uint32_t ext2_chown(Ext2Node *inode, uid_t uid, gid_t gid);
 
 extern int ext2_mount(void *fs);
 extern int ext2_unmount(void *fs);
+
+/**
+ * EXT2 Node Operations
+ */
+
+extern VfsNode *ext2_create_node(VfsNode *root_node, const char *node_name);
+extern int ext2_remove_node(VfsNode *node);
 
 /*
 ◦ Name

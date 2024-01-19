@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 22:53:21 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 10:29:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ VfsFileOps ext2_fops = {
 };
 
 VfsNodeOps ext2_nops = {
-    .create_node = 0,
-    .remove_node = 0,
+    .create_node = ext2_create_node,
+    .remove_node = ext2_remove_node,
 };
 
 // ! ||--------------------------------------------------------------------------------||
@@ -56,13 +56,12 @@ VfsNodeOps ext2_nops = {
 // ! ||--------------------------------------------------------------------------------||
 
 int ext2_init(void) {
-    // Todo: Replace ext2_init by ext2_mount (and add ext2_unmount)
-    // Todo: VFS must call ext2_mount to mount the filesystem instead of calling ext2_init
     printk("Initializing EXT2 file system...\n");
 
     ext2_fs = vfs_create_fs(&ext2_fs_info, &ext2_fsops, &ext2_fops, &ext2_nops);
     if (ext2_fs == NULL) {
         __THROW("EXT2: Failed to create EXT2 filesystem", 1);
     }
-    return (0);
+
+    return (ext2_fs->fsops->mount(ext2_fs));
 }

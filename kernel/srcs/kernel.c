@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 00:13:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/19 16:52:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,8 +250,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
             kernel_log_info("LOG", "INITRD");
         }
     }
-    initrd_display_hierarchy();
-    kpause();
+    // initrd_display_hierarchy();
 
     /*
     **  IDE INIT
@@ -263,6 +262,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     if ((ide_init()) != 0) {
         __WARND("Error: ide_init failed, (Kernel will not use IDE Driver)");
     } else {
+        // workflow_ide();
         kernel_log_info("LOG", "IDE");
     }
 
@@ -296,6 +296,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     } else {
         kernel_log_info("LOG", "FILESYSTEM EXT2");
     }
+    kpause();
 #else
     __INFOD("VFS is disabled, kernel will not use virtual filesystem");
 #endif

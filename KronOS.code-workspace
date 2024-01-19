@@ -67,7 +67,8 @@
 			"dma.h": "c",
 			"builtins.h": "c",
 			"ls.h": "c",
-			"vfs_algorithm.h": "c"
+			"vfs_algorithm.h": "c",
+			"workflows.h": "c"
 		}
 	}
 }

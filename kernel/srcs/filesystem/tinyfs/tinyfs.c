@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 15:00:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 00:27:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,12 @@
 
 Vfs *tiny_vfs = NULL;
 static TinyFS *tinyfs = NULL;
-TinyFS_Inode *tinyfs_root = NULL;
 TinyFS_SuperBlock *tinyfs_sb = NULL;
 Device *tinyfs_device = NULL;
 VfsCache *tinyfs_cache = NULL;
 
 VfsInfo tinyfs_infos = {
-    .name = "TinyFS",
+    .name = TINYFS_FILESYSTEM_NAME,
     .d_name = "tinyfs",
     .version = "0.1",
     .type = TINYFS_FILESYSTEM};
@@ -37,9 +36,9 @@ VfsFileOps tinyfs_fops = {
     .unlink = 0,
     .open = 0,
     .close = 0,
-    .readdir = 0,
-    .finddir = 0,
-    .mkdir = 0,
+    .readdir = tinyfs_readdir,
+    .finddir = tinyfs_finddir,
+    .mkdir = tinyfs_mkdir,
     .rmdir = 0,
     .move = 0,
     .chmod = 0,
@@ -83,6 +82,5 @@ int tinyfs_init(void) {
         __THROW("TinyFS: Failed to create cache", 1);
     }
 
-    printk("TinyFS: mounting filesystem\n");
     return (0);
 }

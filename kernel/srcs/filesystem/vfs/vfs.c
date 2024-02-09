@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 11:59:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 00:22:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,6 @@ Dirent *vfs_readdir(Vfs *vfs, VfsNode *node, uint32_t index) {
     } else {
         return (vfs->fops->readdir(node, index));
     }
-    return (NULL);
 }
 
 VfsNode *vfs_finddir(Vfs *vfs, VfsNode *node, const char *name) {
@@ -132,28 +131,38 @@ VfsNode *vfs_finddir(Vfs *vfs, VfsNode *node, const char *name) {
     } else {
         return (vfs->fops->finddir(node, name));
     }
-    return (NULL);
 }
 
-int vfs_opendir(VfsNode *node) {
-    __UNUSED(node);
-    return (0);
+int vfs_opendir(Vfs *vfs, VfsNode *node) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->opendir == NULL)
+        return (-1);
+    else {
+        return (vfs->fops->opendir(node));
+    }
 }
 
-int vfs_closedir(VfsNode *node) {
-    __UNUSED(node);
-    return (0);
+int vfs_closedir(Vfs *vfs, VfsNode *node) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->closedir == NULL)
+        return (-1);
+    else {
+        return (vfs->fops->closedir(node));
+    }
 }
 
-int vfs_open(VfsNode *node, uint32_t flags) {
-    __UNUSED(node);
-    __UNUSED(flags);
-    return (0);
+int vfs_open(Vfs *vfs, VfsNode *node, uint32_t flags) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->open == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->open(node, flags));
+    }
 }
 
-int vfs_close(VfsNode *node) {
-    __UNUSED(node);
-    return (0);
+int vfs_close(Vfs *vfs, VfsNode *node) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->close == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->close(node));
+    }
 }
 
 // ! ||--------------------------------------------------------------------------------||

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 15:02:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 00:28:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -416,25 +416,39 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // switch_to_user_mode();
 
-    Vfs *tiny_vfs = vfs_get_fs(TINYFS_FILESYSTEM_NAME);
-    if (tiny_vfs) {
-        VfsNode *root = tiny_vfs->fs_root;
-
+    Vfs *__tiny_vfs = vfs_get_fs(TINYFS_FILESYSTEM_NAME);
+    if (__tiny_vfs) {
+        VfsNode *root = __tiny_vfs->fs_root;
+        // Todo: debug tiny vfs, le fs_root n'est pas bien set, peut etre le vfs cache ? jsp
+        tinyfs_display_hierarchy((TinyFS_Inode *)root, 0);
+        kpause();
         if (root) {
 
-            tiny_vfs->fops->mkdir(root, "/test", 0755);
-            tiny_vfs->fops->mkdir(root, "/test2", 0755);
-            tiny_vfs->fops->mkdir(root, "/test3", 0755);
-            tiny_vfs->fops->mkdir(root, "/test4", 0755);
+            if (__tiny_vfs->fops->mkdir != NULL) {
 
-            Dirent *dir = NULL;
+                __tiny_vfs->fops->mkdir(root, "/test", 0755);
+                __tiny_vfs->fops->mkdir(root, "/test2", 0755);
+                __tiny_vfs->fops->mkdir(root, "/test3", 0755);
+                __tiny_vfs->fops->mkdir(root, "/test4", 0755);
 
-            while ((dir = tiny_vfs->fops->readdir(root, 0)) != NULL) {
-                printk("%s\n", dir->name);
-                if (strcmp(dir->name, "test") == 0) {
-                    tiny_vfs->fops->mkdir(root, "/subtest", 0755);  // Todo: replace root by dir vfs node
-                    tiny_vfs->fops->create(root, "file.txt", 0755); // Todo: replace root by dir vfs node
+                if (__tiny_vfs->fops->readdir != NULL) {
+
+                    Dirent *dir = NULL;
+                    uint32_t i = 0;
+
+                    while ((dir = __tiny_vfs->fops->readdir(root, i)) != NULL) {
+                        printk("%s\n", dir->name);
+                        if (strcmp(dir->name, "test") == 0) {
+                            __tiny_vfs->fops->mkdir(root, "/subtest", 0755);  // Todo: replace root by dir vfs node
+                            __tiny_vfs->fops->create(root, "file.txt", 0755); // Todo: replace root by dir vfs node
+                        }
+                        ++i;
+                    }
+                } else {
+                    __WARND("TinyFS readdir not implemented");
                 }
+            } else {
+                __WARND("TinyFS mkdir not implemented");
             }
         } else {
             __WARND("TinyFS root not found");

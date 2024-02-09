@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:15:35 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 10:09:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 22:31:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ typedef enum e_device_type {
 
 typedef int (*DeviceRead)(void *device, uint32_t lba, uint32_t sectors, void *buffer);
 typedef int (*DeviceWrite)(void *device, uint32_t lba, uint32_t sectors, const void *buffer);
+typedef int (*DeviceSRead)(void *device, uint32_t offset, uint32_t size, void *buffer);
+typedef int (*DeviceSWrite)(void *device, uint32_t offset, uint32_t size, const void *buffer);
 
 typedef uint32_t (*DeviceSize)(void *device);
 typedef uint32_t (*DeviceSectorSize)(void *device);
@@ -56,6 +58,8 @@ typedef struct s_device {
     // Device functions
     DeviceRead read;
     DeviceWrite write;
+    DeviceSRead sread;
+    DeviceSWrite swrite;
 
     // Interface functions
     DeviceInterface interface;
@@ -77,6 +81,6 @@ extern Device *device_get_by_id(uint32_t uid);
 extern Device *device_get_by_name(char *name);
 extern uint32_t device_get_devices_count(void);
 
-extern Device *device_init_new_device(char *name, DeviceType type, DeviceRead read, DeviceWrite write, DeviceInterface interface, void *device);
+extern Device *device_init_new_device(char *name, DeviceType type, DeviceRead read, DeviceWrite write, DeviceSRead sread ,DeviceSWrite swrite, DeviceInterface interface, void *device);
 
 #endif /* !DEVICES_H */

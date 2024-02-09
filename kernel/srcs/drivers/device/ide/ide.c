@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:34:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 10:23:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 22:32:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ int ide_register_device(IDEDevice *dev, uint8_t bus, uint8_t drive) {
         .get_sector_size = ide_device_get_sector_size,
         .get_sector_count = ide_device_get_sector_count};
 
-    Device *device = device_init_new_device("IDE", DEVICE_BLOCK, ide_device_read, ide_device_write, ide_device_interface, dev);
+    Device *device = device_init_new_device("IDE", DEVICE_BLOCK, ide_device_read, ide_device_write, ide_device_simple_read, ide_device_simple_write, ide_device_interface, dev);
     if ((device_register(device)) != 0) {
         __WARND("Failed to register IDE Device [%d]", bus * 2 + drive);
         kfree(dev);

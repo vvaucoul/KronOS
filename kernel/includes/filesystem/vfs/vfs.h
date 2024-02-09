@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 12:42:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 18:31:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,12 +175,10 @@ extern Vfs *vfs_create_fs(VfsFS *fs, VfsInfo *fs_info, VfsFsOps *fsops, VfsFileO
 extern VfsNode *vfs_create_node(Vfs *vfs, VfsNode *root_node, const char *node_name);
 extern int vfs_delete_node(Vfs *vfs, VfsNode *node);
 
-extern int vfs_open(VfsNode *node, uint32_t flags);
-extern int vfs_close(VfsNode *node);
-
-extern int vfs_opendir(VfsNode *node);
-extern int vfs_closedir(VfsNode *node);
-
+extern int vfs_open(Vfs *vfs, VfsNode *node, uint32_t flags);
+extern int vfs_close(Vfs *vfs, VfsNode *node);
+extern int vfs_opendir(Vfs *vfs, VfsNode *node);
+extern int vfs_closedir(Vfs *vfs, VfsNode *node);
 extern Dirent *vfs_readdir(Vfs *vfs, VfsNode *node, uint32_t index);
 extern VfsNode *vfs_finddir(Vfs *vfs, VfsNode *node, const char *name);
 

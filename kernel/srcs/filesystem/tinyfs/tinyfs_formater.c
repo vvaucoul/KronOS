@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:48:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 15:04:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 00:26:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,11 @@ int tinyfs_formater(Device *device) {
     // ! ||                                SETUP SUPERBLOCK                                ||
     // ! ||--------------------------------------------------------------------------------||
 
-    TinyFS_SuperBlock superblock = {
-        .magic_number = TINYFS_MAGIC,
-        .total_inodes = TINYFS_MAX_FILES,
-        .free_inodes = TINYFS_MAX_FILES,
-        .total_blocks = TINYFS_MAX_FILES,
-        .free_blocks = TINYFS_MAX_FILES};
+    ((TinyFS *)tiny_vfs->fs)->superblock->magic_number = TINYFS_MAGIC;
+    ((TinyFS *)tiny_vfs->fs)->superblock->total_inodes = TINYFS_MAX_FILES;
+    ((TinyFS *)tiny_vfs->fs)->superblock->free_inodes = TINYFS_MAX_FILES;
+    ((TinyFS *)tiny_vfs->fs)->superblock->total_blocks = TINYFS_MAX_FILES;
+    ((TinyFS *)tiny_vfs->fs)->superblock->free_blocks = TINYFS_MAX_FILES;
 
     // Calculating superblock size in sectors
     uint32_t superblock_size_sectors = sizeof(TinyFS_SuperBlock) / SECTOR_SIZE;
@@ -45,8 +44,7 @@ int tinyfs_formater(Device *device) {
     }
     printk("TinyFS: Superblock size in sectors: %d\n", superblock_size_sectors);
 
-    // Write superblock to disk (LBA 0)
-    if (device->write(device->device, 0, superblock_size_sectors, &superblock) != 0) {
+    if ((device->swrite(device->device, 0, sizeof(TinyFS_SuperBlock), ((TinyFS *)tiny_vfs->fs)->superblock)) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     }
@@ -55,7 +53,7 @@ int tinyfs_formater(Device *device) {
     uint8_t read_buffer[SECTOR_SIZE * superblock_size_sectors];
     TinyFS_SuperBlock read_superblock = {0};
 
-    if (device->read(device->device, 0, superblock_size_sectors, &read_buffer) != 0) {
+    if (device->sread(device->device, 0, sizeof(TinyFS_SuperBlock), &read_buffer) != 0) {
         printk("TinyFS: Formatting (read) failed\n");
         return (-1);
     } else {
@@ -74,20 +72,30 @@ int tinyfs_formater(Device *device) {
     // ! ||                                  SETUP INODES                                  ||
     // ! ||--------------------------------------------------------------------------------||
 
+    uint32_t inode_size = sizeof(TinyFS_Inode);
+    printk("TinyFS: Inode size: %d\n", inode_size);
+    printk("TinyFS: Toal inode size in disk: %d\n", inode_size * TINYFS_MAX_FILES);
+
     for (uint32_t i = 0; i < TINYFS_MAX_FILES; i++) {
+        uint32_t inode_offset = (i * inode_size) + sizeof(TinyFS_SuperBlock);
+
         TinyFS_Inode inode = {
-            .used = 0,
+            .name = "",
+            .mode = 0,
             .inode_number = i,
-            .name = {0},
+            .parent_inode_number = 0,
             .size = 0,
+            .nlink = 0,
+            .used = 0,
             .block_pointers = {0}};
 
-        // Write inode to disk (LBA 1 + i)
-        if (device->write(device->device, 1 + i, 1, &inode) != 0) {
+        // Write inode to disk at offset [inode_offset]
+
+        if (device->swrite(device->device, inode_offset, sizeof(TinyFS_Inode), &inode) != 0) {
             printk("TinyFS: Formatting (write) failed\n");
             return (-1);
         } else {
-            printk("TinyFS: Inode %d written to disk\n", i);
+            printk("TinyFS: Inode %d written to disk at offset [%d]\n", i, inode_offset);
             kmsleep(50);
         }
     }
@@ -104,15 +112,21 @@ static int __tinyfs_setup(Device *device) {
     // ! ||--------------------------------------------------------------------------------||
 
     // * Create root directory *
+    // TinyFS_Inode *root_directory = tinyfs_create_inode(NULL, "/", VFS_DIRECTORY);
+
     TinyFS_Inode root_directory = {
         .name = "/",
         .mode = VFS_DIRECTORY,
         .inode_number = 0,
         .parent_inode_number = 0,
-        .nlink = 0};
+        .size = 0,
+        .nlink = 0,
+        .used = 1,
+        .block_pointers = {0}};
 
     // * Write root directory to disk (LBA 1) *
-    if (device->write(device->device, 1, 1, &root_directory) != 0) {
+    printk("Write root directory to disk at offset [%d] with size [%d]\n", sizeof(TinyFS_SuperBlock), sizeof(TinyFS_Inode));
+    if (device->swrite(device->device, sizeof(TinyFS_SuperBlock), sizeof(TinyFS_Inode), &root_directory) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     } else {
@@ -125,13 +139,18 @@ static int __tinyfs_setup(Device *device) {
     // ! ||--------------------------------------------------------------------------------||
 
     // Create basic files
+    // TinyFS_Inode *file1 = tinyfs_create_inode(&root_directory, "file1.txt", VFS_FILE);
+    // TinyFS_Inode *file2 = tinyfs_create_inode(&root_directory, "file2.txt", VFS_FILE);
+
     TinyFS_Inode file1 = {
         .name = "file1.txt",
         .mode = VFS_FILE,
         .inode_number = 1,
         .parent_inode_number = 0,
         .size = 0,
-        .nlink = 0};
+        .nlink = 0,
+        .used = 1,
+        .block_pointers = {0}};
 
     TinyFS_Inode file2 = {
         .name = "file2.txt",
@@ -139,10 +158,12 @@ static int __tinyfs_setup(Device *device) {
         .inode_number = 2,
         .parent_inode_number = 0,
         .size = 0,
-        .nlink = 0};
+        .nlink = 0,
+        .used = 1,
+        .block_pointers = {0}};
 
     // * Write file1 to disk (LBA 2) *
-    if (device->write(device->device, 2, 1, &file1) != 0) {
+    if (device->swrite(device->device, sizeof(TinyFS_SuperBlock) + (sizeof(TinyFS_Inode) * 1), sizeof(TinyFS_Inode), &file1) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     } else {
@@ -151,7 +172,7 @@ static int __tinyfs_setup(Device *device) {
     }
 
     // * Write file2 to disk (LBA 3) *
-    if (device->write(device->device, 3, 1, &file2) != 0) {
+    if (device->swrite(device->device, sizeof(TinyFS_SuperBlock) * (sizeof(TinyFS_Inode) * 2), sizeof(TinyFS_Inode), &file2) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     } else {
@@ -159,9 +180,9 @@ static int __tinyfs_setup(Device *device) {
         kmsleep(50);
     }
 
-    ((TinyFS *)(tiny_vfs->fs))->inodes[0] = root_directory;
-    ((TinyFS *)(tiny_vfs->fs))->inodes[1] = file1;
-    ((TinyFS *)(tiny_vfs->fs))->inodes[2] = file2;
+    ((TinyFS *)(tiny_vfs->fs))->inodes[0] = &root_directory;    
+    ((TinyFS *)(tiny_vfs->fs))->inodes[1] = &file1;
+    ((TinyFS *)(tiny_vfs->fs))->inodes[2] = &file2;
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                               SETUP FILE CONTENT                               ||
@@ -174,7 +195,7 @@ static int __tinyfs_setup(Device *device) {
     memcpy_s(((TinyFS *)(tiny_vfs->fs))->data_blocks[1], strlen(FILE1_CONTENT), FILE1_CONTENT, strlen(FILE1_CONTENT));
     memcpy_s(((TinyFS *)(tiny_vfs->fs))->data_blocks[2], strlen(FILE2_CONTENT), FILE2_CONTENT, strlen(FILE2_CONTENT));
 
-    if (device->write(device->device, TINYFS_MAX_FILES + 1, 1, FILE1_CONTENT) != 0) {
+    if (device->swrite(device->device, TINY_FS_INODES_OFFSET, strlen(FILE1_CONTENT), FILE1_CONTENT) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     } else {
@@ -182,7 +203,7 @@ static int __tinyfs_setup(Device *device) {
         kmsleep(50);
     }
 
-    if (device->write(device->device, TINYFS_MAX_FILES + 2, 1, FILE2_CONTENT) != 0) {
+    if (device->swrite(device->device, TINY_FS_INODES_OFFSET + strlen(FILE1_CONTENT), strlen(FILE2_CONTENT), FILE2_CONTENT) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     } else {
@@ -191,40 +212,33 @@ static int __tinyfs_setup(Device *device) {
     }
 
     // Update inode information
-    ((TinyFS *)(tiny_vfs->fs))->inodes[1].size = strlen(FILE1_CONTENT);
-    ((TinyFS *)(tiny_vfs->fs))->inodes[2].size = strlen(FILE2_CONTENT);
+    ((TinyFS *)(tiny_vfs->fs))->inodes[1]->size = strlen(FILE1_CONTENT);
+    ((TinyFS *)(tiny_vfs->fs))->inodes[2]->size = strlen(FILE2_CONTENT);
 
-    ((TinyFS *)(tiny_vfs->fs))->inodes[0].used = 1;
-    ((TinyFS *)(tiny_vfs->fs))->inodes[1].used = 1;
-    ((TinyFS *)(tiny_vfs->fs))->inodes[2].used = 1;
+    ((TinyFS *)(tiny_vfs->fs))->inodes[1]->block_pointers[0] = TINYFS_MAX_FILES + 1;
+    ((TinyFS *)(tiny_vfs->fs))->inodes[2]->block_pointers[0] = TINYFS_MAX_FILES + 2;
 
-    ((TinyFS *)(tiny_vfs->fs))->inodes[1].block_pointers[0] = TINYFS_MAX_FILES + 1;
-    ((TinyFS *)(tiny_vfs->fs))->inodes[2].block_pointers[0] = TINYFS_MAX_FILES + 2;
-
-    ((TinyFS *)(tiny_vfs->fs))->inodes[0].nlink = 2;
+    ((TinyFS *)(tiny_vfs->fs))->inodes[0]->nlink = 2;
 
     // * Update Inodes on disk *
-    // Warning: At this point we can't use tinyfs_write_inode, because tinyfs_device is not set yet
-    if (device->write(device->device, 1, 1, &((TinyFS *)(tiny_vfs->fs))->inodes[0]) != 0) {
+    if (device->swrite(device->device, sizeof(TinyFS_SuperBlock), sizeof(TinyFS_Inode), ((TinyFS *)(tiny_vfs->fs))->inodes[0]) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     }
 
-    if (device->write(device->device, 2, 1, &((TinyFS *)(tiny_vfs->fs))->inodes[1]) != 0) {
+    if (device->swrite(device->device, sizeof(TinyFS_SuperBlock) + (sizeof(TinyFS_Inode) * 1), sizeof(TinyFS_Inode), ((TinyFS *)(tiny_vfs->fs))->inodes[1]) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     }
 
-    if (device->write(device->device, 3, 1, &((TinyFS *)(tiny_vfs->fs))->inodes[2]) != 0) {
+    if (device->swrite(device->device, sizeof(TinyFS_SuperBlock) + (sizeof(TinyFS_Inode) * 2), sizeof(TinyFS_Inode), ((TinyFS *)(tiny_vfs->fs))->inodes[2]) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     }
 
-    tiny_vfs->fs_root = (VfsNode *)(&(((TinyFS *)(tiny_vfs->fs))->inodes[0]));
-    printk("TinyFS: Root: 0x%x | %s\n", tiny_vfs->fs_root, ((TinyFS_Inode *)tiny_vfs->fs_root)->name);
-    kpause();
+    tiny_vfs->fs_root = (VfsNode *)(((TinyFS *)(tiny_vfs->fs))->inodes[0]);
 
+    printk("TinyFS: Root: 0x%x | %s\n", &tiny_vfs->fs_root, ((TinyFS_Inode *)tiny_vfs->fs_root)->name);
     printk("TinyFS: Setup success\n");
-
     return (0);
 }

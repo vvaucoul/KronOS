@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 12:00:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 18:32:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,7 +246,7 @@ void initrd_display_hierarchy(void) {
         return;
     }
 
-    vfs_opendir(node);
+    vfs_opendir(initrd_fs, node);
     while ((_d_node = vfs_readdir(initrd_fs, node, index)) != NULL) {
 
         InitrdNode *_f_node = vfs_finddir(initrd_fs, node, _d_node->name);
@@ -278,7 +278,7 @@ void initrd_display_hierarchy(void) {
         index++;
         ksleep(1);
     }
-    vfs_closedir(node);
+    vfs_closedir(initrd_fs, node);
 
     printk("Done!\n");
 }

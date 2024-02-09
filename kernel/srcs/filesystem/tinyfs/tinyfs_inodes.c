@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:20:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 14:56:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 21:38:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 uint32_t tinyfs_find_first_free_inode(TinyFS *fs) {
     for (uint32_t i = 0; i < TINYFS_MAX_FILES; i++) {
-        if (fs->inodes[i].used == 0) {
+        if (fs->inodes[i]->used == 0) {
             return (i);
         }
     }
@@ -23,23 +23,40 @@ uint32_t tinyfs_find_first_free_inode(TinyFS *fs) {
 }
 
 TinyFS_Inode *tinyfs_create_inode(TinyFS_Inode *parent_inode, const char name[TINYFS_FILENAME_MAX + 1], uint8_t mode) {
-    TinyFS_Inode *tinyfs_inode = (TinyFS_Inode*)kmalloc(sizeof(TinyFS_Inode));
+    TinyFS_Inode *tinyfs_inode = (TinyFS_Inode *)kmalloc(sizeof(TinyFS_Inode));
 
     if (tinyfs_inode == NULL) {
         __THROW("TinyFS: Failed to allocate memory for inode", NULL);
     }
 
+    // Fill inode with default values
     memset(tinyfs_inode, 0, sizeof(TinyFS_Inode));
 
+    // Set inode values
     memcpy(tinyfs_inode->name, name, TINYFS_FILENAME_MAX + 1);
     tinyfs_inode->used = 1;
     tinyfs_inode->mode = mode;
-    tinyfs_inode->size = 0;
+    tinyfs_inode->size = mode == VFS_FILE ? 0 : mode == VFS_DIRECTORY ? TINYFS_BLOCK_SIZE
+                                                                      : 0;
 
     tinyfs_inode->inode_number = tinyfs_find_first_free_inode((TinyFS *)tiny_vfs->fs);
+    tinyfs_inode->parent_inode_number = parent_inode ? parent_inode->inode_number : 0;
+    memset(tinyfs_inode->links, 0, TINYFS_MAX_FILES);
+    tinyfs_inode->nlink = 0;
+    memset(tinyfs_inode->block_pointers, 0, TINYFS_MAX_BLOCKS_PER_FILE);
 
-
+    // Update parent inode
+    if (parent_inode) {
+        parent_inode->links[parent_inode->nlink] = tinyfs_inode->inode_number;
+        parent_inode->nlink += 1;
+    }
     return (tinyfs_inode);
+}
+
+int tinyfs_delete_inode(TinyFS_Inode *tinyfs_inode) {
+    tinyfs_inode->used = 0;
+    kfree(tinyfs_inode);
+    return (0);
 }
 
 TinyFS_Inode tinyfs_read_inode(Vfs *fs, uint32_t inode) {
@@ -76,5 +93,5 @@ int tinyfs_write_inode(Vfs *fs, uint32_t inode, TinyFS_Inode *tinyfs_inode) {
 }
 
 TinyFS_Inode *tinyfs_get_inode(Vfs *fs, uint32_t inode) {
-    return (&((TinyFS *)fs->fs)->inodes[inode]);
+    return (((TinyFS *)fs->fs)->inodes[inode]);
 }

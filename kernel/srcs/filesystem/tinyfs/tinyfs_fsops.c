@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:43:47 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 15:05:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 00:10:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,11 @@ int tinyfs_mount(void *fs) {
         superblock_size_sectors += 1;
     }
 
-    uint8_t read_buffer[SECTOR_SIZE * superblock_size_sectors];
+    uint8_t read_buffer[sizeof(TinyFS_SuperBlock)];
     printk("TinyFS: Reading superblock\n");
-    if (vfs->fops->read(vfs, 0, superblock_size_sectors, read_buffer) != 0) {
+
+    // Todo: Use tiny_vfs instead of device
+    if (tinyfs_device->sread(tinyfs_device->device, 0, sizeof(TinyFS_SuperBlock), read_buffer) != 0) {
         __THROW("TinyFS: Failed to read superblock", 1);
     }
 
@@ -62,7 +64,7 @@ int tinyfs_mount(void *fs) {
     printk("TinyFS: Free inodes: %d\n", ((TinyFS *)(vfs->fs))->superblock->free_inodes);
     printk("TinyFS: Total blocks: %d\n", ((TinyFS *)(vfs->fs))->superblock->total_blocks);
     printk("TinyFS: Free blocks: %d\n", ((TinyFS *)(vfs->fs))->superblock->free_blocks);
-
+    
     // ! ||--------------------------------------------------------------------------------||
     // ! ||                                     INODES                                     ||
     // ! ||--------------------------------------------------------------------------------||
@@ -73,20 +75,25 @@ int tinyfs_mount(void *fs) {
     }
     printk("TinyFS: Inodes size in sectors: %d\n", inodes_size_sectors);
 
-    uint8_t read_buffer_inodes[SECTOR_SIZE * inodes_size_sectors];
-
-    // Todo: check IDE contigue read
+    uint8_t read_buffer_inode[sizeof(TinyFS_Inode)];
+    uint32_t inode_offset = sizeof(TinyFS_SuperBlock);
 
     printk("TinyFS: Reading inodes\n");
     for (uint32_t i = 0; i < ((TinyFS *)(vfs->fs))->superblock->total_inodes; i++) {
-        memset(read_buffer_inodes, 0, sizeof(read_buffer_inodes));
+        memset(read_buffer_inode, 0, sizeof(read_buffer_inode));
 
-        if (vfs->fops->read(vfs, superblock_size_sectors + i, inodes_size_sectors, read_buffer_inodes) != 0) {
+        // Todo: Use tiny_vfs instead of device
+        if (tinyfs_device->sread(tinyfs_device->device, inode_offset, sizeof(TinyFS_Inode), read_buffer_inode) != 0) {
             __THROW("TinyFS: Failed to read inodes", 1);
         } else {
-            memcpy_s(&((TinyFS *)(vfs->fs))->inodes[i], sizeof(TinyFS_Inode), read_buffer_inodes, sizeof(TinyFS_Inode));
+            TinyFS_Inode tmp_inode = {0};
+            memcpy_s(&tmp_inode, sizeof(TinyFS_Inode), read_buffer_inode, sizeof(TinyFS_Inode));
+            ((TinyFS *)(vfs->fs))->inodes[i] = &tmp_inode;
+            // memcpy_s(((TinyFS *)(vfs->fs))->inodes[i], sizeof(TinyFS_Inode), read_buffer_inode, sizeof(TinyFS_Inode));
+
             printk("TinyFS: Read Inode [%d]\n", i);
-            printk("TinyFS: Inode [%d] name: [%s] | %d %d\n", i, ((TinyFS *)(vfs->fs))->inodes[i].name, ((TinyFS *)(vfs->fs))->inodes[i].used, ((TinyFS *)(vfs->fs))->inodes[i].size);
+            printk("TinyFS: Inode [%d] name: [%s] | %d %d\n", ((TinyFS *)(vfs->fs))->inodes[i]->inode_number, ((TinyFS *)(vfs->fs))->inodes[i]->name, ((TinyFS *)(vfs->fs))->inodes[i]->used, ((TinyFS *)(vfs->fs))->inodes[i]->size);
+            inode_offset += sizeof(TinyFS_Inode);
             kmsleep(50);
         }
     }

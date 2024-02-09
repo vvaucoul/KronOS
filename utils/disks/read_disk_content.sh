@@ -24,7 +24,7 @@ printf "$WHITE    \t- Disk path: $GREEN%s\n" $hdd_path
 printf "$WHITE    \t- Disk filename: $GREEN%s\n$RESET" $hdd_filename
 
 qemu-img info $hdd_path/$hdd_filename >.hdd_output.log
-dd if=$hdd_path/$hdd_filename of=.sector.bin bs=512 count=1 
+dd if=$hdd_path/$hdd_filename of=.sector.bin bs=512 count=512 
 
 cat .sector.bin >>.hdd_output.log
 cat .sector.bin | hexdump -C >.sector.hex

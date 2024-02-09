@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 09:43:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 10:15:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 22:33:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,38 @@ int ide_device_read(void *device, uint32_t lba, uint32_t sectors, void *buffer) 
  */
 int ide_device_write(void *device, uint32_t lba, uint32_t sectors, const void *buffer) {
     return (ide_write((IDEDevice *)device, lba, sectors, buffer));
+}
+
+/**
+ * @brief Read from an IDE device
+ *
+ * @param device IDE Device
+ * @param offset Offset to read from
+ * @param size Size of the data to read
+ * @param buffer Buffer to read to
+ *
+ * @note This function is used to read from an IDE device
+ *
+ * @return int 0 if success, -1 if failed
+ */
+int ide_device_simple_read(void *device, uint32_t offset, uint32_t size, void *buffer) {
+    return (ide_simple_read((IDEDevice *)device, offset, size, buffer));
+}
+
+/**
+ * @brief Write to an IDE device
+ *
+ * @param device IDE Device
+ * @param offset Offset to write to
+ * @param size Size of the data to write
+ * @param buffer Buffer to write from
+ *
+ * @note This function is used to write to an IDE device
+ *
+ * @return int 0 if success, -1 if failed
+ */
+int ide_device_simple_write(void *device, uint32_t offset, uint32_t size, const void *buffer) {
+    return (ide_simple_write((IDEDevice *)device, offset, size, buffer));
 }
 
 /**

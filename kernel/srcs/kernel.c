@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 12:36:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 15:02:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,17 +290,26 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 #if __TINYFS__ == 1
     Device *dev = device_get_by_id(0);
 
+    // Check: Device is not NULL
     if (dev == NULL) {
         __WARND("Error: device_get_by_id failed, (Kernel will not use TINYFS)");
     } else {
+
+        // Init TINYFS
+        if ((tinyfs_init()) != 0) {
+            __WARND("Error: tinyfs_init failed, (Kernel will not use TINYFS)");
+        }
+
+        // Format TINYFS
         if ((tinyfs_formater(dev)) != 0) {
             __WARND("Error: tinyfs_formater failed, (Kernel will not use TINYFS)");
+        }
+
+        // Mount TINYFS
+        if ((vfs_mount(tiny_vfs)) != 0) {
+            __WARND("Error: vfs_mount failed, (Kernel will not use TINYFS)");
         } else {
-            if ((tinyfs_init()) != 0) {
-                __WARND("Error: tinyfs_init failed, (Kernel will not use TINYFS)");
-            } else {
-                kernel_log_info("LOG", "TINYFS");
-            }
+            kernel_log_info("LOG", "TINYFS");
         }
     }
 #else

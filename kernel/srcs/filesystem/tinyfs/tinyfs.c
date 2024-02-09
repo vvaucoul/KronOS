@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 12:02:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 15:00:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <memory/memory.h>
 
 Vfs *tiny_vfs = NULL;
-TinyFS *tinyfs = NULL;
+static TinyFS *tinyfs = NULL;
 TinyFS_Inode *tinyfs_root = NULL;
 TinyFS_SuperBlock *tinyfs_sb = NULL;
 Device *tinyfs_device = NULL;
@@ -67,17 +67,22 @@ int tinyfs_init(void) {
         if ((tinyfs = kmalloc(sizeof(TinyFS))) == NULL) {
             __THROW("TinyFS: Failed to allocate memory for tinyfs", 1);
         }
+
+        tinyfs->superblock = NULL;
+        memset(tinyfs->inodes, 0, sizeof(TinyFS_Inode) * TINYFS_MAX_FILES);
+
+        for (uint32_t i = 0; i < TINYFS_MAX_BLOCKS; i++) {
+            memset(tinyfs->data_blocks[i], 0, TINYFS_BLOCK_SIZE);
+        }
     }
 
     if ((tiny_vfs = vfs_create_fs(tinyfs, &tinyfs_infos, &tinyfs_fspos, &tinyfs_fops, &tinyfs_nops)) == NULL) {
         __THROW("TinyFS: Failed to create VFS", 1);
-    } else {
-        if ((tinyfs_cache = vfs_create_cache(tiny_vfs, tinyfs_cache_fn)) == NULL) {
-            __THROW("TinyFS: Failed to create cache", 1);
-        }
+    }
+    if ((tinyfs_cache = vfs_create_cache(tiny_vfs, tinyfs_cache_fn)) == NULL) {
+        __THROW("TinyFS: Failed to create cache", 1);
     }
 
     printk("TinyFS: mounting filesystem\n");
-    return (vfs_mount(tiny_vfs));
-    // return (tiny_fs->fsops->mount(tiny_fs));
+    return (0);
 }

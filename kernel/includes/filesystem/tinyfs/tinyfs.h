@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 13:23:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 14:56:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,17 @@
 
 /* File system structure */
 typedef struct {
-    uint8_t used : 0x1;                                  // 0: Free, 1: Used
-    uint8_t type;                                        // 1: File, 2: Directory (Ref vfs.h)
-    uint32_t inode_number;                               // Inode number
-    uint32_t parent_inode_number;                        // Parent inode number
-    char name[TINYFS_FILENAME_MAX + 1];                  // File name
-    uint32_t size;                                       // File size
+    char name[TINYFS_FILENAME_MAX + 1]; // File name
+    uint8_t used : 0x1;                 // 0: Free, 1: Used
+    uint8_t mode;                       // 1: File, 2: Directory (Ref vfs.h)
+    uint32_t size;                      // File size
+
+    uint32_t inode_number;           // Inode number
+    uint32_t parent_inode_number;    // Parent inode number
+    uint8_t links[TINYFS_MAX_FILES]; // Links to other files
+    uint32_t nlink;                  // Number of links
+
     uint32_t block_pointers[TINYFS_MAX_BLOCKS_PER_FILE]; // Direct block pointers
-    uint32_t indirect_pointer;                           // Indirect block pointer
 } __packed__ TinyFS_Inode;
 
 /* SuperBlock structure */
@@ -55,7 +58,6 @@ typedef struct {
 } TinyFS;
 
 extern Vfs *tiny_vfs;
-extern TinyFS *tinyfs;
 extern Device *tinyfs_device;
 
 extern int tinyfs_init(void);
@@ -69,7 +71,7 @@ extern int tinyfs_write_superblock(Vfs *fs);
 
 extern TinyFS_Inode tinyfs_read_inode(Vfs *fs, uint32_t inode);
 extern int tinyfs_write_inode(Vfs *fs, uint32_t inode, TinyFS_Inode *tinyfs_inode);
-extern TinyFS_Inode tinyfs_get_inode(Vfs *fs, uint32_t inode);
+extern TinyFS_Inode *tinyfs_get_inode(Vfs *fs, uint32_t inode);
 
 extern int tinyfs_set_cache_links(VfsNode *node, VfsCacheLinks *links);
 extern VfsCacheLinks *tinyfs_get_cache_links(VfsNode *node);

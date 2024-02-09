@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:43:47 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 13:46:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 15:05:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,8 @@ int tinyfs_mount(void *fs) {
     }
 
     // Update superblock information
-    tinyfs->superblock->free_inodes -= 2;
-    tinyfs->superblock->free_blocks -= 2;
+    ((TinyFS *)(tiny_vfs->fs))->superblock->free_inodes -= 2;
+    ((TinyFS *)(tiny_vfs->fs))->superblock->free_blocks -= 2;
 
     if ((tinyfs_write_superblock(tiny_vfs)) != 0) {
         printk("TinyFS: Formatting (write superblock) failed\n");

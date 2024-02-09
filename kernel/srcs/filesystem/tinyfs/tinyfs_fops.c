@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:49:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 13:29:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 14:43:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,25 @@ int tinyfs_read(__unused__ void *node, uint32_t offset, uint32_t size, uint8_t *
  */
 int tinyfs_write(__unused__ void *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
     return (tinyfs_device->write(tinyfs_device->device, offset, size, buffer));
+}
+
+VfsNode *tinyfs_finddir(void *node, const char *name) {
+    TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
+    // Check if the node is a directory
+    if ((tfs_node->mode & VFS_DIRECTORY) == 0) {
+        return NULL;
+    }
+
+    // Iterate over the entries in the directory
+    for (uint32_t i = 0; i < tfs_node->nlink; i++) {
+        TinyFS_Inode *child_node = tinyfs_get_inode(tiny_vfs, i); // tfs_node->block_pointers[i]
+
+        // Check if the child node's name matches the requested name
+        if (strcmp(child_node->name, name) == 0) {
+            return (child_node);
+        }
+    }
+
+    // If no matching entry was found, return NULL
+    return NULL;
 }

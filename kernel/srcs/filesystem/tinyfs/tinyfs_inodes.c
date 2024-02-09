@@ -6,11 +6,41 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:20:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 13:39:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 14:56:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/tinyfs/tinyfs.h>
+#include <memory/memory.h>
+
+uint32_t tinyfs_find_first_free_inode(TinyFS *fs) {
+    for (uint32_t i = 0; i < TINYFS_MAX_FILES; i++) {
+        if (fs->inodes[i].used == 0) {
+            return (i);
+        }
+    }
+    return (0);
+}
+
+TinyFS_Inode *tinyfs_create_inode(TinyFS_Inode *parent_inode, const char name[TINYFS_FILENAME_MAX + 1], uint8_t mode) {
+    TinyFS_Inode *tinyfs_inode = (TinyFS_Inode*)kmalloc(sizeof(TinyFS_Inode));
+
+    if (tinyfs_inode == NULL) {
+        __THROW("TinyFS: Failed to allocate memory for inode", NULL);
+    }
+
+    memset(tinyfs_inode, 0, sizeof(TinyFS_Inode));
+
+    memcpy(tinyfs_inode->name, name, TINYFS_FILENAME_MAX + 1);
+    tinyfs_inode->used = 1;
+    tinyfs_inode->mode = mode;
+    tinyfs_inode->size = 0;
+
+    tinyfs_inode->inode_number = tinyfs_find_first_free_inode((TinyFS *)tiny_vfs->fs);
+
+
+    return (tinyfs_inode);
+}
 
 TinyFS_Inode tinyfs_read_inode(Vfs *fs, uint32_t inode) {
     TinyFS_Inode tinyfs_inode = {0};
@@ -45,6 +75,6 @@ int tinyfs_write_inode(Vfs *fs, uint32_t inode, TinyFS_Inode *tinyfs_inode) {
     return (0);
 }
 
-TinyFS_Inode tinyfs_get_inode(Vfs *fs, uint32_t inode) {
-    return (((TinyFS *)fs->fs)->inodes[inode]);
+TinyFS_Inode *tinyfs_get_inode(Vfs *fs, uint32_t inode) {
+    return (&((TinyFS *)fs->fs)->inodes[inode]);
 }

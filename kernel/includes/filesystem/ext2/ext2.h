@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:36:09 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 11:22:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 11:27:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,46 @@
  */
 
 #include <filesystem/vfs/vfs.h>
+#include <filesystem/ext2/ext2_gd.h>
 #include <kernel.h>
 
 #include "ext2_bmap.h"
 
 // Use ext2 file system
-#define __EXT2__ 1
+#define __EXT2__ 0
 
 #define EXT2_MAGIC 0xEF53
 #define EXT2_FILE_NAME_MAX_SIZE 128
-#define EXT2_SUPERBLOCK_OFFSET 1024
+
+#define EXT2_SUPERBLOCK_MAGIC 0xEF53
+
+#define EXT2_SUPERBLOCK_TOTAL_INODE_OFFSET 0
+#define EXT2_SUPERBLOCK_TOTAL_BLOCK_OFFSET 4
+#define EXT2_SUPERBLOCK_RESERVED_BLOCKS_SUPERUSE_OFFSET 8
+#define EXT2_SUPERBLOCK_UNALLOCATED_BLOCKS_OFFSET 12
+#define EXT2_SUPERBLOCK_UNALLOCATED_INODES_OFFSET 16
+#define EXT2_SUPERBLOCK_SUPERBLOCK_BLOCK_NUMBER_OFFSET 20
+#define EXT2_SUPERBLOCK_LOG2_BLOCK_SIZE_OFFSET 24
+#define EXT2_SUPERBLOCK_LOG2_FRAGMENT_SIZE_OFFSET 28
+#define EXT2_SUPERBLOCK_BLOCKS_PER_GROUP_OFFSET 32
+#define EXT2_SUPERBLOCK_FRAGMENTS_PER_GROUP_OFFSET 36
+#define EXT2_SUPERBLOCK_INODES_PER_GROUP_OFFSET 40
+#define EXT2_SUPERBLOCK_LAST_MOUNT_TIME_OFFSET 44
+#define EXT2_SUPERBLOCK_LAST_WRITTEN_TIME_OFFSET 48
+#define EXT2_SUPERBLOCK_MOUNT_COUNT_SINCE_CHECK_OFFSET 52
+#define EXT2_SUPERBLOCK_MAX_MOUNT_COUNT_BEFORE_CHECK_OFFSET 54
+#define EXT2_SUPERBLOCK_EXT2_SIGNATURE_OFFSET 56
+#define EXT2_SUPERBLOCK_FILE_SYSTEM_STATE_OFFSET 58
+#define EXT2_SUPERBLOCK_ERROR_HANDLING_BEHAVIOR_OFFSET 60
+#define EXT2_SUPERBLOCK_VERSION_MINOR_PART_OFFSET 62
+#define EXT2_SUPERBLOCK_LAST_CONSISTENCY_CHECK_TIME_OFFSET 64
+#define EXT2_SUPERBLOCK_INTERVAL_BETWEEN_FSCKS_OFFSET 68
+#define EXT2_SUPERBLOCK_OPERATING_SYSTEM_ID_OFFSET 72
+#define EXT2_SUPERBLOCK_VERSION_MAJOR_PART_OFFSET 76
+#define EXT2_SUPERBLOCK_USER_ID_RESERVED_BLKS_OFFSET 80
+#define EXT2_SUPERBLOCK_GROUP_ID_RESERVED_BLKS_OFFSET 82
+
+#define EXT_SUPERBLOCK_SIZE sizeof(Ext2SuperBlock)
 
 // Reserved Inodes
 #define EXT2_BAD_INO 1         /* Bad blocks inode */
@@ -102,31 +132,31 @@ typedef struct s_file_operations {
  * the block size, and the location of important data structures.
  */
 typedef struct {
-    uint32_t inodes_count;      /* Number of inodes */
-    uint32_t blocks_count;      /* Number of blocks */
-    uint32_t r_blocks_count;    /* Number of reserved blocks */
-    uint32_t free_blocks_count; /* Number of free blocks */
-    uint32_t free_inodes_count; /* Number of free inodes */
-    uint32_t first_data_block;  /* First non-reserved block */
-    uint32_t log_block_size;    /* Block size in bits */
-    uint32_t log_frag_size;     /* Fragment size in bits */
-    uint32_t blocks_per_group;  /* Number of blocks per group */
-    uint32_t frags_per_group;   /* Number of fragments per group */
-    uint32_t inodes_per_group;  /* Number of inodes per group */
-    uint32_t mtime;             /* Time of last fsck */
-    uint32_t wtime;             /* Time of last mount */
-    uint16_t mnt_count;         /* Times mounted since last check */
-    uint16_t max_mnt_count;     /* Maximum allowed times mounted without check */
-    uint16_t magic;             /* Magic signature */
-    uint16_t state;             /* Filesystem state */
-    uint16_t errors;            /* Behavior when detecting errors */
-    uint16_t minor_rev_level;   /* Revision level of minor revision */
-    uint32_t lastcheck;         /* Time of last check */
-    uint32_t checkinterval;     /* Interval between checks */
-    uint32_t creator_os;        /* OS creating the filesystem */
-    uint32_t rev_level;         /* Major revision level */
-    uint16_t def_resuid;        /* Default uid for reserved blocks */
-    uint16_t def_resgid;        /* Default gid for reserved blocks */
+    uint32_t total_inodes;                 // Offset 0-3
+    uint32_t total_blocks;                 // Offset 4-7
+    uint32_t reserved_blocks_superuser;    // Offset 8-11
+    uint32_t unallocated_blocks;           // Offset 12-15
+    uint32_t unallocated_inodes;           // Offset 16-19
+    uint32_t superblock_block_number;      // Offset 20-23
+    uint32_t log2_block_size;              // Offset 24-27
+    uint32_t log2_fragment_size;           // Offset 28-31
+    uint32_t blocks_per_group;             // Offset 32-35
+    uint32_t fragments_per_group;          // Offset 36-39
+    uint32_t inodes_per_group;             // Offset 40-43
+    uint32_t last_mount_time;              // Offset 44-47
+    uint32_t last_written_time;            // Offset 48-51
+    uint16_t mount_count_since_check;      // Offset 52-53
+    uint16_t max_mount_count_before_check; // Offset 54-55
+    uint16_t signature;                    // Offset 56-57
+    uint16_t file_system_state;            // Offset 58-59
+    uint16_t error_handling_behavior;      // Offset 60-61
+    uint16_t version_minor_part;           // Offset 62-63
+    uint32_t last_consistency_check_time;  // Offset 64-67
+    uint32_t interval_between_fscks;       // Offset 68-71
+    uint32_t operating_system_id;          // Offset 72-75
+    uint32_t version_major_part;           // Offset 76-79
+    uint16_t user_id_reserved_blks;        // Offset 80-81
+    uint16_t group_id_reserved_blks;       // Offset 82-83
 } __attribute__((packed)) Ext2SuperBlock;
 
 /**

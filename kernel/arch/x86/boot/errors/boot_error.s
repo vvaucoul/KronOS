@@ -1,4 +1,4 @@
-%define __VGA_MEMORY__ 0x000B8000
+%define __VGA_MEMORY 0x000B8000
 %define __VGA_MEMORY_HHK__ 0xC00B8000
 IS_HIGHER_HALF_KERNEL equ 0
 
@@ -8,7 +8,7 @@ extern bsod
 
 global display_error_msg
 display_error_msg:
-    mov edi, __VGA_MEMORY__
+    mov edi, __VGA_MEMORY
 
     ; Clear the screen
     je __clear_screen

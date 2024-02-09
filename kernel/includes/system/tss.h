@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 18:56:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 15:45:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/08 20:21:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,9 @@
     0   not readable
     1   access bit, always 0, cpu set this to 1 when accessing this sector(why 0 now?)
 */
-#define TSS_KERNEL_ACCESS 0b11100101 // 0xE9
+// #define TSS_KERNEL_ACCESS 0b11100101 // 0xE9
+#define TSS_KERNEL_ACCESS 0b10001001 // 0x89
+//Check: 0b10001001
 
 #define TSS_SIZE 0x02
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 22:06:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/08 20:54:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 #include <memory/memory.h>
 
 #include <multitasking/process.h>
-#include <multitasking/scheduler.h>
 #include <multitasking/process_fs.h>
+#include <multitasking/scheduler.h>
 
 #include <system/tss.h>
 
@@ -25,6 +25,7 @@
 #include <asm/asm.h>
 
 #include <kernel.h>
+#include <userspace.h>
 
 task_t *current_task = NULL;
 uint32_t num_tasks = 0;
@@ -533,9 +534,39 @@ void task_exit(int32_t retval) {
     kill_task(get_current_task()->pid);
 }
 
+//Todo: fix this
 void switch_to_user_mode(void) {
-    tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
+    uint32_t user_stack = current_task->kernel_stack + KERNEL_STACK_SIZE;
+    tss_set_stack_pointer(user_stack);
 
+    uint32_t user_code_start = (uint32_t)(uintptr_t)&switch_user_mode_start;
+
+    __asm__ volatile (
+        "cli\n"                           // Désactive les interruptions
+        "mov %%ax, %%ds\n"
+        "mov %%ax, %%es\n"
+        "mov %%ax, %%fs\n"
+        "mov %%ax, %%gs\n"
+        :
+        : "a" (0x23)                      // 0x23 est un exemple, utilisez le sélecteur de segment de données utilisateur correct
+    );
+
+
+    __asm__ volatile (
+        "mov %0, %%esp\n"                 // Définissez ESP sur le haut de la pile utilisateur
+        "push $0xF6\n"                    // SS (sélecteur de segment de pile avec RPL 3)
+        "push %%esp\n"                    // ESP (valeur actuelle de ESP)
+        "pushf\n"                         // EFLAGS (peut aussi activer les interruptions ici si nécessaire)
+        "push $0xFA\n"                    // CS (sélecteur de segment de code avec RPL 3)
+        "push %1\n"                       // EIP (adresse de départ du code utilisateur)
+        "iret\n"                          // Passe en mode utilisateur
+        :
+        : "r" (user_stack), "r" (user_code_start)
+        : "memory"
+    );
+
+
+        
     /* Set up a stack structure for switching to user mode */
     // __asm__ __volatile__("cli; \
 	// mov $0x23, %ax; \
@@ -608,9 +639,9 @@ void switch_to_user_mode(void) {
     // "
     // : : : "ax", "eax"
     // );
-    switch_user_mode();
-
+    // switch_user_mode();
 }
+
 pid_t find_first_free_pid(void) {
     pid_t pid = 1;
     task_t *task = NULL;

@@ -1,24 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   terminal.h                                         :+:      :+:    :+:   */
+/*   vga.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/22 13:32:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Created: 2024/02/08 22:07:28 by vvaucoul          #+#    #+#             */
+/*   Updated: 2024/02/08 22:34:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TERMINAL_H
-#define TERMINAL_H
+#ifndef VGA_H
+#define VGA_H
+
+/**
+ * @file vga_driver.h
+ * @brief VGA driver for controlling the video graphics array display.
+ *
+ * This file provides functions for initializing and controlling the VGA display.
+ * The VGA display is a hardware text mode display that is used to output text to the
+ * screen. The VGA display is a 80x25 character display with 16 colors.
+ *
+ * @note This driver is specific to the VGA display and may not work with other types
+ * of displays.
+ */
 
 #include <kernel.h>
 #include <system/io.h>
 
 /* Hardware text mode color constants. */
-enum vga_color
-{
+enum vga_color {
     VGA_COLOR_BLACK = 0,
     VGA_COLOR_BLUE = 1,
     VGA_COLOR_GREEN = 2,
@@ -37,20 +48,15 @@ enum vga_color
     VGA_COLOR_WHITE = 15,
 };
 
-#define CHAR_ENDLINE 0x00
-#define CHAR_TAB 0x09
-#define CHAR_NEWLINE 0x0A
-
 #define VGA_ENTRY(uc, color) (((unsigned char)uc) | ((uint8_t)color) << 8)
 #define VGA_ENTRY_COLOR(fg, bg) (((enum vga_color)fg) | ((enum vga_color)bg) << 4)
 #define VGA_OUTPUT(uc, color) (uc & 0xFF) | ((color & 0xFF) << 8)
 
-#define __VGA_MEMORY__ (uint16_t *)(__HIGHER_HALF_KERNEL__ == true ? (0xC00B8000) : (0x000B8000))
+#define __VGA_MEMORY (uint16_t *)(__HIGHER_HALF_KERNEL__ == true ? (0xC00B8000) : (0x000B8000))
 
 #define __MAX_SCREEN_SUPPORTED__ (size_t)3
 
-extern void terminal_initialize(void);
-extern void terminal_update_screen(void);
+extern void vga_init(void);
 extern void terminal_putchar(char c);
 extern void terminal_writestring(const char *data);
 extern void terminal_setcolor(uint8_t color);
@@ -77,34 +83,27 @@ extern uint16_t *terminal_buffer;
 
 #define __TERMINAL_CURSOR_LOCATION__ get_terminal_index(terminal_row, terminal_column)
 
-static inline int get_terminal_index(size_t row, size_t column)
-{
+static inline int get_terminal_index(size_t row, size_t column) {
     return (row * VGA_WIDTH + column);
 }
 
-static inline bool __terminal_cursor_is_char__(void)
-{
+static inline bool __terminal_cursor_is_char__(void) {
     const size_t index = terminal_row * VGA_WIDTH + terminal_column;
     return ((bool)(terminal_buffer[index] == ' ' ? false : true));
 }
 
-static inline uint16_t *get_terminal_char(size_t column, size_t row)
-{
+static inline uint16_t *get_terminal_char(size_t column, size_t row) {
     return &(terminal_buffer[get_terminal_index(row, column)]);
 }
 
-static inline void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
-{
+static inline void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) {
     TERMINAL_CHAR(x, y) = VGA_ENTRY(c, color);
     UPDATE_CURSOR();
 }
 
-static inline void terminal_clear_screen(void)
-{
-    for (size_t y = 0; y < VGA_HEIGHT; y++)
-    {
-        for (size_t x = 0; x < VGA_WIDTH; x++)
-        {
+static inline void terminal_clear_screen(void) {
+    for (size_t y = 0; y < VGA_HEIGHT; y++) {
+        for (size_t x = 0; x < VGA_WIDTH; x++) {
             terminal_putentryat(' ', terminal_color, x, y);
         }
     }
@@ -113,40 +112,32 @@ static inline void terminal_clear_screen(void)
     UPDATE_CURSOR();
 }
 
-static inline void terminal_move_cursor_left(void)
-{
-    if (terminal_column > 0)
-    {
+static inline void terminal_move_cursor_left(void) {
+    if (terminal_column > 0) {
         terminal_column--;
     }
     UPDATE_CURSOR();
 }
 
-static inline void terminal_move_cursor_right(void)
-{
-    if (terminal_column < VGA_WIDTH)
-    {
+static inline void terminal_move_cursor_right(void) {
+    if (terminal_column < VGA_WIDTH) {
         terminal_column++;
     }
     UPDATE_CURSOR();
 }
 
-static inline void terminal_move_cursor_up(void)
-{
-    if (terminal_row > 0)
-    {
+static inline void terminal_move_cursor_up(void) {
+    if (terminal_row > 0) {
         terminal_row--;
     }
     UPDATE_CURSOR();
 }
 
-static inline void terminal_move_cursor_down(void)
-{
-    if (terminal_row < VGA_HEIGHT)
-    {
+static inline void terminal_move_cursor_down(void) {
+    if (terminal_row < VGA_HEIGHT) {
         terminal_row++;
     }
     UPDATE_CURSOR();
 }
 
-#endif /* !TERMINAL_H */
+#endif /* !VGA_H */

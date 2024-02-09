@@ -6,10 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:34:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 15:02:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 10:23:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <drivers/device/devices.h>
 #include <drivers/device/ide.h>
 #include <memory/memory.h>
 #include <system/io.h>
@@ -60,6 +61,27 @@ int ide_device_init(IDEDevice *dev, IDEChannel channel, IDEDrive drive,
     return (0);
 }
 
+int ide_register_device(IDEDevice *dev, uint8_t bus, uint8_t drive) {
+    ide_devices[bus * 2 + drive] = dev;
+
+    DeviceInterface ide_device_interface = {
+        .get_size = ide_device_get_size,
+        .get_sector_size = ide_device_get_sector_size,
+        .get_sector_count = ide_device_get_sector_count};
+
+    Device *device = device_init_new_device("IDE", DEVICE_BLOCK, ide_device_read, ide_device_write, ide_device_interface, dev);
+    if ((device_register(device)) != 0) {
+        __WARND("Failed to register IDE Device [%d]", bus * 2 + drive);
+        kfree(dev);
+        ide_devices[bus * 2 + drive] = NULL;
+        return (1);
+    } else {
+        printk("\t\t\t- IDE Device [%d] registered\n", bus * 2 + drive);
+        return (0);
+    }
+    return (0);
+}
+
 int ide_init(void) {
     irq_install_handler(IRQ_ATA1, ide_primary_irq_handler);
     irq_install_handler(IRQ_ATA2, ide_secondary_irq_handler);
@@ -93,9 +115,20 @@ int ide_init(void) {
                 continue;
             }
 
-            ide_device_init(dev, ide_channels[bus], ide_drives[drive],
-                            ide_io_ports[bus], ide_ctrl_ports[bus], ide_bus_master_ports[bus], 0);
-            ide_devices[bus * 2 + drive] = dev;
+            int ret = ide_device_init(dev, ide_channels[bus], ide_drives[drive],
+                                      ide_io_ports[bus], ide_ctrl_ports[bus], ide_bus_master_ports[bus], 0);
+
+            // On success, register the device
+            if (ret == 0) {
+                if ((ide_register_device(dev, bus, drive)) != 0) {
+                    __WARND("Failed to register IDE Device [%d]", bus * 2 + drive);
+                }
+            }
+            // On failure, free the memory
+            else {
+                kfree(dev);
+                ide_devices[bus * 2 + drive] = NULL;
+            }
             kmsleep(4);
         }
     }

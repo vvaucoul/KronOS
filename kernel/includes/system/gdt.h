@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/27 12:17:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/08 20:16:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,5 +147,7 @@ extern void print_gdt(void);
 extern void gdt_test(void);
 
 extern void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity);
+
+extern int gdt_setup_usermode(void);
 
 #endif /* !GDT_H_ */

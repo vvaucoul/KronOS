@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 14:03:10 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:53:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/30 12:36:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,5 +24,6 @@ void random_init() {
 
 uint32_t rand() {
     seed = (RA * seed + RC) % RM;
+
     return seed;
 }

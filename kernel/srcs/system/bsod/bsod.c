@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/11 20:57:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/08 22:10:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <system/bsod.h>
 #include <system/pit.h>
 #include <system/irq.h>
-#include <terminal.h>
+#include <drivers/vga.h>
 
 uint16_t *g_bsod_buffer = BSOD_MEMORY;
 char __bsod_error[__BSOD_BUFFER__] = {0};

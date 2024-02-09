@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/01/30 14:48:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,6 +192,9 @@ void fault_handler(struct regs *r) {
 
         if (zero == false && has_code == true)
             err_code = r->err_code;
+
+        /* Send End Of Interrupt to PIC */
+        pic8259_send_eoi(r->int_no);
 
         __PANIC_INTERRUPT((const char *)g_irqs[r->int_no].name, r->int_no, type, err_code);
     } else {

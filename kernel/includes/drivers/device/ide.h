@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:35:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 16:23:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 10:09:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,6 +221,12 @@ extern void ide_select_drive(IDEDevice *dev);
 
 extern int ide_read(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf);
 extern int ide_write(IDEDevice *dev, uint32_t lba, uint8_t sectors, const void *buf);
+
+extern int ide_device_read(void *device, uint32_t lba, uint32_t sectors, void *buffer);
+extern int ide_device_write(void *device, uint32_t lba, uint32_t sectors, const void *buffer);
+extern uint32_t ide_device_get_size(void *device);
+extern uint32_t ide_device_get_sector_size(void *device);
+extern uint32_t ide_device_get_sector_count(void *device);
 
 // Error
 extern uint8_t ide_error_msg(uint8_t status, uint8_t display);

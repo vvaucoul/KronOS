@@ -15,8 +15,7 @@ gdt_flush:
 	mov gs, ax             		   			; Pointer to still more extra data
 	mov ss, ax             		   			; Stack Segment
 
-	; Protected mode
-	cli
+	; Setup kernel in Protected Mode
 	mov eax, cr0
 	or eax, 0x1
 	mov cr0, eax

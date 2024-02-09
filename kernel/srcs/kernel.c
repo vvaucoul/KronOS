@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 16:52:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 12:36:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@
 #include <drivers/device/floppy.h>
 #include <drivers/device/ide.h>
 
-#include <drivers/device/blocks.h>
 #include <drivers/device/char.h>
 #include <drivers/device/devices.h>
 
@@ -58,6 +57,7 @@
 
 #include <filesystem/ext2/ext2.h>
 #include <filesystem/initrd.h>
+#include <filesystem/tinyfs/tinyfs.h>
 #include <filesystem/vfs/vfs.h>
 
 #include <memory/mmap.h>
@@ -112,8 +112,10 @@ void kernel_log_info(const char *part, const char *name) {
 // ! ||--------------------------------------------------------------------------------||
 
 static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
-    terminal_initialize();
+    vga_init();
     ksh_header();
+
+    kernel_log_info("LOG", "TERMINAL");
 
     time_init();
     kernel_log_info("LOG", "TIME");
@@ -130,7 +132,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // init_vbe_mode();
 
     printk("       - "_YELLOW
-           "[LOG] " _END "- "_END _GREEN "[CHK] " _END "HHK: "_GREEN
+           "[LOG] " _END "- "_END _GREEN "[CHK] " _END " HHK: "_GREEN
            "%s " _END "\n" _END,
            __HIGHER_HALF_KERNEL__ == true ? "true" : "false");
 
@@ -285,12 +287,33 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     __INFOD("FLOPPY Driver is disabled");
 #endif
 
+#if __TINYFS__ == 1
+    Device *dev = device_get_by_id(0);
+
+    if (dev == NULL) {
+        __WARND("Error: device_get_by_id failed, (Kernel will not use TINYFS)");
+    } else {
+        if ((tinyfs_formater(dev)) != 0) {
+            __WARND("Error: tinyfs_formater failed, (Kernel will not use TINYFS)");
+        } else {
+            if ((tinyfs_init()) != 0) {
+                __WARND("Error: tinyfs_init failed, (Kernel will not use TINYFS)");
+            } else {
+                kernel_log_info("LOG", "TINYFS");
+            }
+        }
+    }
+#else
+    __INFOD("TINYFS is disabled");
+#endif
+
     /*
     **  EXT2 INIT
     **
     **  EXT2 Filesystem initialization
     */
 #if __EXT2__ == 1
+    // Todo:
     if ((ext2_init()) != 0) {
         __WARND("Error: vfs_create_fs failed, (Kernel will not use EXT2 Filesystem)");
     } else {
@@ -298,7 +321,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     }
     kpause();
 #else
-    __INFOD("VFS is disabled, kernel will not use virtual filesystem");
+    __INFOD("EXT2 is disabled, (Kernel will not use EXT2 Filesystem)");
 #endif
 
     init_scheduler();
@@ -384,6 +407,33 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     // switch_to_user_mode();
 
+    Vfs *tiny_vfs = vfs_get_fs(TINYFS_FILESYSTEM_NAME);
+    if (tiny_vfs) {
+        VfsNode *root = tiny_vfs->fs_root;
+
+        if (root) {
+
+            tiny_vfs->fops->mkdir(root, "/test", 0755);
+            tiny_vfs->fops->mkdir(root, "/test2", 0755);
+            tiny_vfs->fops->mkdir(root, "/test3", 0755);
+            tiny_vfs->fops->mkdir(root, "/test4", 0755);
+
+            Dirent *dir = NULL;
+
+            while ((dir = tiny_vfs->fops->readdir(root, 0)) != NULL) {
+                printk("%s\n", dir->name);
+                if (strcmp(dir->name, "test") == 0) {
+                    tiny_vfs->fops->mkdir(root, "/subtest", 0755);  // Todo: replace root by dir vfs node
+                    tiny_vfs->fops->create(root, "file.txt", 0755); // Todo: replace root by dir vfs node
+                }
+            }
+        } else {
+            __WARND("TinyFS root not found");
+        }
+    } else {
+        __WARND("TinyFS not found");
+    }
+
 #include <cmds/ls.h>
     ls(0, NULL);
 
@@ -391,7 +441,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     pid_t pid = fork();
     if (pid == 0) {
-        // Todo: Must enter in user space
+        // Todo: Must enter in user space instead of using kernel space
         kronos_shell();
     } else {
 

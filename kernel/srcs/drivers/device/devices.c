@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:13:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/16 21:50:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 10:11:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ int device_unregister(Device *device) {
     __THROW("Cannot unregister device, no device with this id", 1);
 }
 
-Device *device_init_new_device(char *name, DeviceType type, DeviceRead read, DeviceWrite write, void *device) {
+Device *device_init_new_device(char *name, DeviceType type, DeviceRead read, DeviceWrite write, DeviceInterface interface, void *device) {
     Device *new_device = NULL;
 
     if (!(new_device = kmalloc(sizeof(Device)))) {
@@ -62,6 +62,7 @@ Device *device_init_new_device(char *name, DeviceType type, DeviceRead read, Dev
     new_device->read = read;
     new_device->write = write;
     new_device->device = device;
+    new_device->interface = interface;
 
     new_device->uid = devices_count;
     new_device->vfs = NULL;

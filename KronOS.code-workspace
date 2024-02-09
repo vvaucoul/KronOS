@@ -18,7 +18,7 @@
 			"kheap.h": "c",
 			"memory_map.h": "c",
 			"multiboot.h": "c",
-			"terminal.h": "c",
+			"vga.h": "c",
 			"bios.h": "c",
 			"frames.h": "c",
 			"kernel.h": "c",
@@ -68,7 +68,11 @@
 			"builtins.h": "c",
 			"ls.h": "c",
 			"vfs_algorithm.h": "c",
-			"workflows.h": "c"
+			"workflows.h": "c",
+			"userspace.h": "c",
+			"time.h": "c",
+			"ext2_formater.h": "c",
+			"tinyfs.h": "c"
 		}
 	}
 }

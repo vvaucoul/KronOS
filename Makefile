@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/10 19:43:18 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/02/08 20:44:27 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,6 +42,7 @@ ISO					=	$(NAME).iso
 
 LD					=	ld
 INLCUDES_PATH		=	-I./kernel/includes/ \
+						-I./userspace/includes/ \
 						-I./$(LIBKFS_DIR)/$(LIBKFS_DIR)/
 CFLAGS				=	-Wall -Wextra -Wfatal-errors \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
@@ -87,6 +88,7 @@ endif
 
 DEPENDS				=	$(KOBJS:.o=.d)
 DEPENDSXX			=	$(KOBJSXX:.o=.d)
+DEPENDS_USER		=	$(UOBJS:.o=.d)
 WDEPENDS			=	$(WOBJS:.o=.d)
 DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 
@@ -107,6 +109,8 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 		COLOR="$(_LCYAN)"; \
 	elif echo $< | grep -q "memory"; then \
 		COLOR="$(_LYELLOW)"; \
+	elif echo $< | grep -q "userspace"; then \
+		COLOR="$(_LWHITE)"; \
 	else \
 		COLOR="$(_LCYAN)"; \
 	fi; \
@@ -142,7 +146,7 @@ lkfs: lkfs-install
 $(BOOT): $(KBOOT_OBJS)
 	@printf "$(_LWHITE)- ASM BOOT $(_END)$(_DIM)--------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-$(KDSRCS): $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS)
+$(KDSRCS): $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS) $(UOBJS)
 	@printf "$(_LWHITE)- KERNEL SRCS $(_END)$(_DIM)-----------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 $(XORRISO):
@@ -161,12 +165,12 @@ clean-ccache:
 
 clean:
 	@make -s -C $(LIBKFS_DIR) clean
-	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM) $(DEPENDSXX)
+	@rm -rf $(NAME).iso $(KBOOT_OBJS) isodir $(BIN_DIR)/$(BIN) $(KOBJS) $(KOBJSXX) $(KOBJS_ASM) $(WOBJS) $(UOBJS) $(BIN) $(DEPENDS) $(WDEPENDS) $(DEPENDS_ASM) $(DEPENDSXX) $(DEPENDS_USER) 
 	@printf "$(_LWHITE)- CLEAN $(_END)$(_DIM)-----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 fclean: clean docker-clear clean-ccache
 	@make -s -C $(LIBKFS_DIR) fclean
-	@rm -rf $(DEPENDENCIES_DIR)/$(XORRISO) $(BIN_DIR) $(DEPENDENCIES_DIR)/$(CCACHE_DIR)
+	@rm -rf $(DEPENDENCIES_DIR)/$(XORRISO) $(BIN_DIR) $(DEPENDENCIES_DIR)/$(CCACHE_DIR) 
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 re: clean

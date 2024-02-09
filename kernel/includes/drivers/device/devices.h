@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:15:35 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 22:11:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 10:09:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,18 @@ typedef enum e_device_type {
     DEVICE_BLOCK
 } DeviceType;
 
-typedef struct s_device Device;
+typedef int (*DeviceRead)(void *device, uint32_t lba, uint32_t sectors, void *buffer);
+typedef int (*DeviceWrite)(void *device, uint32_t lba, uint32_t sectors, const void *buffer);
 
-typedef int (*DeviceRead)(Device *device, uint32_t sector, uint32_t count, void *buffer);
-typedef int (*DeviceWrite)(Device *device, uint32_t sector, uint32_t count, const void *buffer);
+typedef uint32_t (*DeviceSize)(void *device);
+typedef uint32_t (*DeviceSectorSize)(void *device);
+typedef uint32_t (*DeviceSectorCount)(void *device);
+
+typedef struct s_device_interface {
+    DeviceSize get_size;
+    DeviceSectorSize get_sector_size;
+    DeviceSectorCount get_sector_count;
+} DeviceInterface;
 
 typedef struct s_device {
     // Device informations
@@ -42,16 +50,15 @@ typedef struct s_device {
     uint32_t uid;
     DeviceType type;
 
-    // Virtual File System
+    // Virtual File System Related to the device
     Vfs *vfs;
 
     // Device functions
     DeviceRead read;
     DeviceWrite write;
 
-    // Device size
-    uint32_t sectors;
-    uint32_t sector_size;
+    // Interface functions
+    DeviceInterface interface;
 
     // Device specific data
     void *device;
@@ -70,6 +77,6 @@ extern Device *device_get_by_id(uint32_t uid);
 extern Device *device_get_by_name(char *name);
 extern uint32_t device_get_devices_count(void);
 
-extern Device *device_init_new_device(char *name, DeviceType type, DeviceRead read, DeviceWrite write, void *device);
+extern Device *device_init_new_device(char *name, DeviceType type, DeviceRead read, DeviceWrite write, DeviceInterface interface, void *device);
 
 #endif /* !DEVICES_H */

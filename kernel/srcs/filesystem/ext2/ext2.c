@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 10:29:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 12:00:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 Vfs *ext2_fs = NULL;
 Ext2Node *fs_root = NULL;
 Ext2SuperBlock *fs_superblock = NULL;
+Ext2GroupDescriptor *ext2_gd = NULL;
 
 VfsInfo ext2_fs_info = {
     .name = "ext2",
@@ -58,7 +59,7 @@ VfsNodeOps ext2_nops = {
 int ext2_init(void) {
     printk("Initializing EXT2 file system...\n");
 
-    ext2_fs = vfs_create_fs(&ext2_fs_info, &ext2_fsops, &ext2_fops, &ext2_nops);
+    ext2_fs = vfs_create_fs(NULL, &ext2_fs_info, &ext2_fsops, &ext2_fops, &ext2_nops);
     if (ext2_fs == NULL) {
         __THROW("EXT2: Failed to create EXT2 filesystem", 1);
     }

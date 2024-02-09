@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 00:12:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 11:59:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,15 @@ int vfs_init(void) {
 
 Vfs *vfs_get_current_fs(void) {
     // Todo: return current fs
-    return (hashtable_get(vfs_mounts, "ext2"));
+    return (hashtable_get(vfs_mounts, "TinyFS"));
+    // return (hashtable_get(vfs_mounts, "ext2"));
 }
 
 Vfs *vfs_get_fs(const char *fs_name) {
     return (hashtable_get(vfs_mounts, fs_name));
 }
 
-Vfs *vfs_create_fs(VfsInfo *fs_info, VfsFsOps *fsops, VfsFileOps *fops, VfsNodeOps *nops) {
+Vfs *vfs_create_fs(VfsFS *fs, VfsInfo *fs_info, VfsFsOps *fsops, VfsFileOps *fops, VfsNodeOps *nops) {
     Vfs *vfs = kmalloc(sizeof(Vfs));
 
     if (vfs == NULL) {
@@ -48,6 +49,7 @@ Vfs *vfs_create_fs(VfsInfo *fs_info, VfsFsOps *fsops, VfsFileOps *fops, VfsNodeO
     } else {
         memset(vfs, 0, sizeof(Vfs));
 
+        vfs->fs = fs;
         vfs->fs_info = fs_info;
         vfs->fs_root = NULL;
 
@@ -71,7 +73,7 @@ VfsNode *vfs_create_node(Vfs *vfs, VfsNode *root_node, const char *node_name) {
 
     if (vfs->use_vfs_cache == 1) {
         VfsNode *cache_node = vfs_create_cache_link(vfs->vfs_cache, node);
-    
+
         if ((vfs_add_node(vfs->vfs_cache, root_node, cache_node)) == NULL) {
             __WARN("VFS: Failed to add node to VFS Cache", NULL);
         }
@@ -168,7 +170,9 @@ int vfs_mount(Vfs *vfs) {
     if (vfs == NULL || vfs->fsops == NULL || vfs->fsops->mount == NULL) {
         return (-1);
     } else {
-        vfs->fsops->mount(vfs);
+        if ((vfs->fsops->mount(vfs)) != 0) {
+            return (1);
+        }
         hashtable_insert(vfs_mounts, vfs->fs_info->name, vfs);
     }
     return (0);
@@ -184,7 +188,9 @@ int vfs_unmount(Vfs *vfs) {
     if (vfs == NULL || vfs->fsops == NULL || vfs->fsops->unmount == NULL) {
         return (-1);
     } else {
-        vfs->fsops->mount(vfs);
+        if ((vfs->fsops->mount(vfs)) != 0) {
+            return (1);
+        }
         hashtable_remove(vfs_mounts, vfs->fs_info->name);
     }
     return (0);

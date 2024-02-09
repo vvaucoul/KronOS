@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 22:53:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 12:42:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,12 +66,17 @@
 #define INITRD_FILESYSTEM_NAME "initrd"
 #define INITRD_FILESYSTEM 0x2
 
+#define TINYFS_FILESYSTEM_NAME "TinyFS"
+#define TINYFS_FILESYSTEM 0x3
+
 typedef struct s_dirent {
     char name[VFS_NODE_FILE_LEN];
     uint32_t ino;
+    uint32_t parent_ino;
 } Dirent;
 
 typedef void VfsNode; // Filesystem node
+typedef void VfsFS;   // Filesystem
 
 #define vfs_custom_ops(name, ...) \
     int (*name)(void *node, ##__VA_ARGS__)
@@ -147,6 +152,9 @@ typedef struct s_vfs {
     VfsInfo *fs_info; // Filesystem info
     VfsNode *fs_root; // Filesystem root node
 
+    // Filesystem specific data
+    VfsFS *fs; // Filesystem specific data structure (EXT2, INITRD, ...)
+
     // VFS Cache (Use custom Cache or not)
     // ! 0x1 = Use default VFS Cache
     uint8_t use_vfs_cache; // Use Default VFS Cache (1) or not (0)
@@ -163,7 +171,7 @@ extern Hashtable *vfs_mounts;
 
 extern int vfs_init(void);
 
-extern Vfs *vfs_create_fs(VfsInfo *fs_info, VfsFsOps *fsops, VfsFileOps *fops, VfsNodeOps *nops);
+extern Vfs *vfs_create_fs(VfsFS *fs, VfsInfo *fs_info, VfsFsOps *fsops, VfsFileOps *fops, VfsNodeOps *nops);
 extern VfsNode *vfs_create_node(Vfs *vfs, VfsNode *root_node, const char *node_name);
 extern int vfs_delete_node(Vfs *vfs, VfsNode *node);
 

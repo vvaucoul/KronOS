@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 12:48:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/08 22:05:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <system/time.h>
 
 uint64_t startup_time = 0;
-tm_t startup_tm;
+tm_t startup_tm = {0};
 
 int month[12] = {
     0,
@@ -69,6 +69,9 @@ tm_t gettime(void) {
 }
 
 uint64_t difftime(tm_t *time1, tm_t *time2) {
+    if ((time_is_init()) == false) {
+        return (0);
+    }
     return (mktime(time1) - mktime(time2));
 }
 
@@ -132,6 +135,10 @@ char *asctime(tm_t *time) {
 
     // sprintf(buf, "%s %s %d %d:%d:%d %d",! days[time->day], months[time->month], time->day, time->hours, time->minutes, time->seconds, time->year);
     return buf;
+}
+
+bool time_is_init(void) {
+    return (startup_time != 0);
 }
 
 void time_init(void) {

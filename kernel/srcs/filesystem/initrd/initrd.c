@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 00:17:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/09 12:00:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ int initrd_init(uint32_t start, uint32_t end) {
     initrd_file_headers = (InitrdFileHeader *)((uintptr_t)(start + sizeof(InitrdHeader)));
 
     // Create initrd filesystem
-    initrd_fs = vfs_create_fs(&initrd_fs_info, &initrd_fs_ops, &initrd_fs_fops, &initrd_fs_nops);
+    initrd_fs = vfs_create_fs(NULL, &initrd_fs_info, &initrd_fs_ops, &initrd_fs_fops, &initrd_fs_nops);
 
     // Mount initrd filesystem
     return (vfs_mount(initrd_fs));

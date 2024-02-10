@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:48:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 00:26:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 10:23:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,11 +95,10 @@ int tinyfs_formater(Device *device) {
             printk("TinyFS: Formatting (write) failed\n");
             return (-1);
         } else {
-            printk("TinyFS: Inode %d written to disk at offset [%d]\n", i, inode_offset);
+            // printk("TinyFS: Inode %d written to disk at offset [%d]\n", i, inode_offset);
             kmsleep(50);
         }
     }
-
     printk("TinyFS: Formatting success\n");
     return (__tinyfs_setup(device));
 }
@@ -112,8 +111,6 @@ static int __tinyfs_setup(Device *device) {
     // ! ||--------------------------------------------------------------------------------||
 
     // * Create root directory *
-    // TinyFS_Inode *root_directory = tinyfs_create_inode(NULL, "/", VFS_DIRECTORY);
-
     TinyFS_Inode root_directory = {
         .name = "/",
         .mode = VFS_DIRECTORY,
@@ -138,10 +135,7 @@ static int __tinyfs_setup(Device *device) {
     // ! ||                                SETUP BASIC FILES                               ||
     // ! ||--------------------------------------------------------------------------------||
 
-    // Create basic files
-    // TinyFS_Inode *file1 = tinyfs_create_inode(&root_directory, "file1.txt", VFS_FILE);
-    // TinyFS_Inode *file2 = tinyfs_create_inode(&root_directory, "file2.txt", VFS_FILE);
-
+    // * Create basic files *
     TinyFS_Inode file1 = {
         .name = "file1.txt",
         .mode = VFS_FILE,
@@ -195,7 +189,7 @@ static int __tinyfs_setup(Device *device) {
     memcpy_s(((TinyFS *)(tiny_vfs->fs))->data_blocks[1], strlen(FILE1_CONTENT), FILE1_CONTENT, strlen(FILE1_CONTENT));
     memcpy_s(((TinyFS *)(tiny_vfs->fs))->data_blocks[2], strlen(FILE2_CONTENT), FILE2_CONTENT, strlen(FILE2_CONTENT));
 
-    if (device->swrite(device->device, TINY_FS_INODES_OFFSET, strlen(FILE1_CONTENT), FILE1_CONTENT) != 0) {
+    if (device->swrite(device->device, TINY_FS_DATA_OFFSET, strlen(FILE1_CONTENT), FILE1_CONTENT) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     } else {
@@ -203,7 +197,7 @@ static int __tinyfs_setup(Device *device) {
         kmsleep(50);
     }
 
-    if (device->swrite(device->device, TINY_FS_INODES_OFFSET + strlen(FILE1_CONTENT), strlen(FILE2_CONTENT), FILE2_CONTENT) != 0) {
+    if (device->swrite(device->device, TINY_FS_DATA_OFFSET + strlen(FILE1_CONTENT), strlen(FILE2_CONTENT), FILE2_CONTENT) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-1);
     } else {
@@ -219,6 +213,9 @@ static int __tinyfs_setup(Device *device) {
     ((TinyFS *)(tiny_vfs->fs))->inodes[2]->block_pointers[0] = TINYFS_MAX_FILES + 2;
 
     ((TinyFS *)(tiny_vfs->fs))->inodes[0]->nlink = 2;
+    ((TinyFS *)(tiny_vfs->fs))->inodes[0]->links[0] = 1;
+    ((TinyFS *)(tiny_vfs->fs))->inodes[0]->links[1] = 2;
+    
 
     // * Update Inodes on disk *
     if (device->swrite(device->device, sizeof(TinyFS_SuperBlock), sizeof(TinyFS_Inode), ((TinyFS *)(tiny_vfs->fs))->inodes[0]) != 0) {
@@ -236,9 +233,9 @@ static int __tinyfs_setup(Device *device) {
         return (-1);
     }
 
-    tiny_vfs->fs_root = (VfsNode *)(((TinyFS *)(tiny_vfs->fs))->inodes[0]);
+    // tiny_vfs->fs_root = (VfsNode *)(((TinyFS *)(tiny_vfs->fs))->inodes[0]);
 
-    printk("TinyFS: Root: 0x%x | %s\n", &tiny_vfs->fs_root, ((TinyFS_Inode *)tiny_vfs->fs_root)->name);
+    // printk("TinyFS: Root: 0x%x | %s\n", &tiny_vfs->fs_root, ((TinyFS_Inode *)tiny_vfs->fs_root)->name);
     printk("TinyFS: Setup success\n");
     return (0);
 }

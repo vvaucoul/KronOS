@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 17:38:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 17:39:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:09:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LS_H
-# define LS_H
+#define LS_H
 
 extern int ls(int argc, char **argv);
 

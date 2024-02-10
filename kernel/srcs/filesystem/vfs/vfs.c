@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 00:22:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:33:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <filesystem/initrd.h>
 
 #include <memory/memory.h>
+#include <multitasking/process.h>
 
 Hashtable *vfs_mounts = NULL;
 
@@ -201,6 +202,31 @@ int vfs_unmount(Vfs *vfs) {
             return (1);
         }
         hashtable_remove(vfs_mounts, vfs->fs_info->name);
+    }
+    return (0);
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                              VFS CHANGE DIRECTORY                              ||
+// ! ||--------------------------------------------------------------------------------||
+
+int vfs_chdir(Vfs *vfs, const char *path) {
+    if (vfs == NULL) {
+        return (-1);
+    } else {
+        VfsNode *node = vfs_finddir(vfs, vfs->fs_root, path);
+        if (node == NULL) {
+            printk("Failed to change directory (node not found)\n");
+            return (-1);
+        }
+        task_t *task = get_current_task();
+
+        if (task == NULL) {
+            printk("Failed to change directory (no current task)\n");
+            return -1;
+        } else {
+            memscpy(task->env.pwd, 64, path, strlen(path));
+        }
     }
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 18:31:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:25:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,9 @@ typedef struct s_vfs_fops {
     int (*symlink)(void *node, const char *name, const char *new_name);
     int (*readlink)(void *node, const char *name, const char *new_name);
 
+    // Change directory
+    int (*chdir)(void *node, const char *name);
+
     // Custom operations
     // Array of custom operations (implement custom operations in your filesystem)
     void *(*custom_ops[CUSTOM_OPS_SIZE])(void *node, ...);
@@ -127,6 +130,11 @@ typedef struct s_vfs_nops {
     // Node operations
     VfsNode *(*create_node)(VfsNode *root_node, const char *node_name);
     int (*remove_node)(VfsNode *node);
+
+    // Todo: Remove get_name, replace by stat function
+    char *(*get_name)(VfsNode *node);
+
+    VfsNode *(*get_parent)(VfsNode *node);
 
     // Custom operations
     // Array of custom operations (implement custom operations in your filesystem)
@@ -187,5 +195,10 @@ extern int vfs_unmount(Vfs *vfs);
 
 extern Vfs *vfs_get_current_fs(void);
 extern Vfs *vfs_get_fs(const char *fs_name);
+
+extern int vfs_chdir(Vfs *vfs, const char *name);
+
+// VFS Utils
+extern char *vfs_get_node_path(Vfs *vfs, VfsNode *node);
 
 #endif /* !VFS_H */

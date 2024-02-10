@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/13 17:20:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:19:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 #include <hephaistos.h>
 
-#define __KERNEL_VERSION__ "0.5.0"
+#define __KERNEL_VERSION__ "0.6.0"
 #define __KERNEL_NAME__ "KronOS"
 
 #define __DISPLAY_INIT_LOG__ true

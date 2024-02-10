@@ -72,7 +72,8 @@
 			"userspace.h": "c",
 			"time.h": "c",
 			"ext2_formater.h": "c",
-			"tinyfs.h": "c"
+			"tinyfs.h": "c",
+			"process_fs.h": "c"
 		}
 	}
 }

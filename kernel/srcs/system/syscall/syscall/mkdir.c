@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 15:04:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 22:11:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:07:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 #include <filesystem/vfs/vfs.h>
 
-int sys_mkdir(char *path, mode_t __unused__ permission) {
-    Ext2Node *node __unused__ = ext2_finddir(fs_root, path);
+int sys_mkdir(char *path, __unused__ uint16_t  permission) {
+    VfsNode *node __unused__ = vfs_finddir(vfs_get_current_fs(), vfs_get_current_fs()->fs_root, path);
 
     /*
     - Check if path already exist

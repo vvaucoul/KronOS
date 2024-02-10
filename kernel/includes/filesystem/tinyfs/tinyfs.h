@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 00:10:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:28:54 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,9 @@
 #define TINYFS_BLOCK_SIZE 1024        // 1KB
 #define TINYFS_MAX_BLOCKS_PER_FILE 12 // 12 direct blocks
 
-#define TINY_FS_INODES_OFFSET sizeof(TinyFS_SuperBlock) + (sizeof(TinyFS_Inode) * TINYFS_MAX_FILES)
+#define TINY_FS_SUPERBLOCK_OFFSET 0
+#define TINY_FS_INODES_OFFSET sizeof(TinyFS_SuperBlock)
+#define TINY_FS_DATA_OFFSET sizeof(TinyFS_SuperBlock) + (sizeof(TinyFS_Inode) * TINYFS_MAX_FILES)
 
 /* File system structure */
 typedef struct {
@@ -85,6 +87,11 @@ extern VfsCacheLinks *tinyfs_get_cache_links(VfsNode *node);
 extern int tinyfs_mkdir(void *node, const char *name, uint16_t permission);
 extern VfsNode *tinyfs_finddir(void *node, const char *name);
 extern Dirent *tinyfs_readdir(void *node, uint32_t index);
+
+extern int tinyfs_create(void *node, const char *name, uint16_t permission);
+
+extern char *tinyfs_get_name(VfsNode *node);
+extern VfsNode *tinyfs_get_parent(VfsNode *node);
 
 extern void tinyfs_display_hierarchy(TinyFS_Inode *node, uint32_t depth);
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 11:53:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:39:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,10 @@
 #include <cmds/ps.h>
 #include <cmds/pwd.h>
 #include <cmds/disks.h>
+#include <cmds/cat.h>
 #include <cmds/devices.h>
 #include <cmds/ls.h>
+#include <cmds/cd.h>
 
 #include <drivers/keyboard.h>
 
@@ -50,6 +52,7 @@ static void __ksh_help(void)
     printk("- " _GREEN "disks" _END ": display disks infos\n");
     printk("- " _GREEN "devices" _END ": display devices infos\n");
     printk("- " _GREEN "ls" _END ": display files in current directory\n");
+    printk("- " _GREEN "cd" _END ": change directory\n");
 
 }
 
@@ -83,11 +86,12 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"setxkbmap", ""}, &setxkbmap);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cpuinfos", ""}, &get_cpu_informations);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"ps", ""}, &ps);
-    // __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cat", ""}, &cat);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cat", ""}, &cat);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"pwd", ""}, &pwd);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"disks", ""}, &disks);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"devices", ""}, &__devices);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"ls", ""}, &ls);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cd", ""}, &cd);
 }
 
 void __ksh_execute_builtins(int argc, char **argv)

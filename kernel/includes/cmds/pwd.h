@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 16:06:14 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 17:13:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:11:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,7 @@
 # define PWD_H
 
 extern int pwd(int argc, char **argv);
+
+extern char kernel_pwd[64];
 
 #endif /* !PWD_H */

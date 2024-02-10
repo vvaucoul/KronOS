@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 17:38:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 22:11:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 12:34:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cmds/ls.h>
 
 #include <filesystem/vfs/vfs.h>
+#include <multitasking/process.h>
 
 /**
  * @brief List files in directory
@@ -35,7 +36,11 @@ int ls(int argc, char **argv) {
         __THROW("ls: no filesystem mounted", 1);
     }
 
-    VfsNode *node = vfs_finddir(vfs, vfs->fs_root, ".");
+    // Todo: implement current directory (pwd / cd)
+    task_t *task = get_task(getpid());
+    char path[64] = {0};
+    memscpy(path, 64, task->env.pwd, strlen(task->env.pwd));
+    VfsNode *node = vfs_finddir(vfs, vfs->fs_root, path);
 
     if (node == NULL) {
         __THROW("ls: no directory found", 1);
@@ -44,8 +49,15 @@ int ls(int argc, char **argv) {
     Dirent *dir;
     uint32_t i = 0;
 
+    printk("    ");
     while ((dir = vfs_readdir(vfs, node, i)) != NULL) {
-        printk("%s\n", dir->name);
+        VfsNode *node = vfs_finddir(vfs, vfs->fs_root, dir->name);
+
+        // Todo: Implement stat command / syscall to get file mode / type / size / permissions etc..
+        // todo: implement colors for file types
+
+        printk("%s ", dir->name);
+        i++;
     }
 
     return (0);

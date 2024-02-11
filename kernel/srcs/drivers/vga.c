@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/08 22:33:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 19:12:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,29 @@
 size_t terminal_row;
 size_t terminal_column;
 size_t terminal_screen;
-uint8_t terminal_color;
 uint16_t *terminal_buffer;
+
+uint8_t __vga_foreground_color = VGA_COLOR_LIGHT_GREY;
+uint8_t __vga_background_color = VGA_COLOR_BLACK;
 
 void vga_init(void) {
     terminal_row = 0;
     terminal_column = 0;
     terminal_screen = 0;
-    terminal_color = VGA_ENTRY_COLOR(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
     terminal_buffer = __VGA_MEMORY;
     for (size_t y = 0; y < VGA_HEIGHT; y++) {
         for (size_t x = 0; x < VGA_WIDTH; x++) {
-            TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', terminal_color);
+            TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color));
         }
     }
 }
 
 void terminal_setcolor(uint8_t color) {
-    terminal_color = color;
+    __vga_foreground_color = (color & 0x0F);
+}
+
+void terminal_set_background_color(uint8_t color) {
+    __vga_background_color = color;
 }
 
 void terminal_putchar(char c) {
@@ -55,7 +60,7 @@ void terminal_putchar(char c) {
         }
         return;
     } else
-        terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
+        terminal_putentryat(c, terminal_column, terminal_row);
     if (++terminal_column == VGA_WIDTH) {
         terminal_column = 0;
         ++terminal_row;
@@ -77,7 +82,7 @@ void terminal_writestring_location(const char *data, size_t x, size_t y) {
 
     for (size_t i = 0; i < strlen(data); i++) {
         char c = data[i];
-        terminal_putentryat(c, terminal_color, ux, uy);
+        terminal_putentryat(c, ux, uy);
         if (++ux == VGA_WIDTH) {
             ux = x;
             if (++uy == VGA_HEIGHT)
@@ -96,8 +101,9 @@ void update_cursor(int x, int y) {
 }
 
 void terminal_write_n_char(char c, size_t count) {
-    for (size_t i = 0; i < count; i++)
+    for (size_t i = 0; i < count; i++) {
         terminal_putchar(c);
+    }
 }
 
 void terminal_move_offset_down(void) {
@@ -109,5 +115,5 @@ void terminal_move_offset_down(void) {
         }
     }
     for (size_t x = 0; x < VGA_WIDTH; x++)
-        TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', terminal_color);
+        TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color));
 }

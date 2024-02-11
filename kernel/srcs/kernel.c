@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 13:57:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:42:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -379,7 +379,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
 #if __TEST_HEPHAISTOS__ == 1
     __INFOD("Test Hephaistos is enabled");
-    hephaistos_workflow();
+    return hephaistos_workflow();
 #else // !__TEST_HEPHAISTOS__
     __INFOD("Test Hephaistos is disabled");
 #endif
@@ -447,7 +447,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     printk("\n---------------------\n\n");
 
     kfe(0, NULL);
-    pause();
+    printk("End of KFE\n");
 
     pid_t pid2 = fork();
     if (pid2 == 0) {
@@ -478,7 +478,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         waitpid(pid2, &status, 0);
         printk("Child process exited with status: %d\n", status);
     }
-    kpause();
+    pause();
 
     pid_t pid = fork();
     if (pid == 0) {

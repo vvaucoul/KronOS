@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 12:50:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 14:05:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 21:29:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,14 @@
 #include <filesystem/vfs/vfs.h>
 #include <memory/memory.h>
 #include <system/pit.h>
+#include <cmds/pwd.h>
 
 static void __attribute__((constructor)) kfe_constructor(void) {
-    // Init kfe
-    CLEAR_SCREEN();
     printk("+------------------------------------------------------------------------------+");
     printk("|                            %s                              |", KFE_NAME);
+    printk("+------------------------------------------------------------------------------+");
+    printk("| %40s |", get_pwd());
+    kpause();
     printk("+------------------------------------------------------------------------------+");
     printk("| Inode | Type      | Name                              | Size       | Blocks  |");
     printk("+------------------------------------------------------------------------------+");
@@ -58,7 +60,35 @@ static void kfe_print_files(Kfe *kfe) {
             continue;
         }
 
-        printk("| %-8.4d | %-9s | %-33s | %-8.4d O | %-7d |", i, (st.st_mode & VFS_DIRECTORY) ? "Directory" : "File", dir->d_name, st.st_size * 1000, st.st_blocks);
+        printk("|");
+        if (kfe->selected_inode == st.st_ino) {
+            printk(_LGREEN);
+            printk("->");
+            printk(_END);
+        } else {
+            printk("  ");
+        }
+        printk(" %-6.4d ", st.st_ino);
+        printk("|");
+        if ((st.st_mode & VFS_DIRECTORY) != 0) {
+            printk(_BG_BLUE);
+        } else {
+            printk(_BG_YELLOW);
+        }
+        printk(" %-9s ", (st.st_mode & VFS_DIRECTORY) ? "Directory" : "File");
+
+        printk(_END);
+        printk("|");
+        printk(" %-33s ", dir->d_name);
+        printk("|");
+        printk(" %10d ", st.st_size);
+        printk("|");
+        printk(" %-7d ", st.st_blocks);
+        printk("|");
+
+        printk(_END);
+
+        // printk("| %-8.4d | %-9s | %-33s | %-8.4d O | %-7d |", i, (st.st_mode & VFS_DIRECTORY) ? "Directory" : "File", dir->d_name, st.st_size * 1000, st.st_blocks);
         ++i;
     }
     printk("+------------------------------------------------------------------------------+");
@@ -90,11 +120,16 @@ static int __kfe_controller(Kfe *kfe) {
     while (should_exit == false) {
         int c = 0;
 
+        // Todo: Instead of clearing the screen, clear old cursor position
+        // terminal_clear_screen();
+        CLEAR_SCREEN();
+        kfe_constructor();
+        kfe_print_files(kfe);
+
         if ((c = getchar()) != 0) {
             switch (c) {
             case 'q':
                 should_exit = true;
-                continue;
                 break;
             case 'w':
                 if (kfe->selected_inode > 0) {
@@ -106,8 +141,22 @@ static int __kfe_controller(Kfe *kfe) {
                 break;
             case 'a':
                 break;
-            case '\n':
-                break;
+            case '\n': {
+                /**
+                 * Todo: ...
+                 *
+                 * - If selected file is a directory
+                 *    - Change current node to selected file
+                 *    - Update current node
+                 * - If selected file is a file
+                 *   - Open file
+                 *   - choose action
+                 *      - Edit file
+                 *      - Delete file
+                 *      - Copy file
+                 *      - Display file content
+                 */
+            } break;
 
             default:
                 break;
@@ -125,8 +174,6 @@ int kfe(__unused__ int argc, __unused__ char **argv) {
         __THROW("KFE: Failed to create KFE", 1);
     }
 
-    kfe_constructor();
-    kfe_print_files(kfe);
     __kfe_controller(kfe);
 
     return (0);

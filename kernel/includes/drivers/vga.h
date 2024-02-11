@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 22:07:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 13:55:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 19:11:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,17 @@ extern void terminal_writestring_location(const char *data, size_t x, size_t y);
 extern void update_cursor(int x, int y);
 extern void terminal_write_n_char(char c, size_t count);
 extern void terminal_move_offset_down(void);
+extern void terminal_set_background_color(uint8_t color);
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 
 extern size_t terminal_row;
 extern size_t terminal_column;
-extern uint8_t terminal_color;
 extern uint16_t *terminal_buffer;
+
+extern uint8_t __vga_foreground_color;
+extern uint8_t __vga_background_color;
 
 #define UPDATE_CURSOR(void) update_cursor(terminal_column, terminal_row)
 #define SET_CURSOR(x, y)     \
@@ -102,7 +105,8 @@ static inline uint16_t *get_terminal_char(size_t column, size_t row) {
     return &(terminal_buffer[get_terminal_index(row, column)]);
 }
 
-static inline void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) {
+static inline void terminal_putentryat(char c, size_t x, size_t y) {
+    uint8_t color = VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color);
     TERMINAL_CHAR(x, y) = VGA_ENTRY(c, color);
     UPDATE_CURSOR();
 }
@@ -110,7 +114,7 @@ static inline void terminal_putentryat(char c, uint8_t color, size_t x, size_t y
 static inline void terminal_clear_screen(void) {
     for (size_t y = 0; y < VGA_HEIGHT; y++) {
         for (size_t x = 0; x < VGA_WIDTH; x++) {
-            terminal_putentryat(' ', terminal_color, x, y);
+            terminal_putentryat(' ', x, y);
         }
     }
     terminal_column = 0;

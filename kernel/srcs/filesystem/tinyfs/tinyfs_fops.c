@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:49:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 12:30:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 21:16:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,8 @@ int tinyfs_stat(void *node, struct stat *buf) {
         buf->st_uid = task->owner;
         // buf->st_gid = task->group; //Todo: Add group to task
     }
-
+    
+    buf->st_blocks = tfs_node->size / TINYFS_BLOCK_SIZE;
     // Todo: Add more information to the stat buffer (e.g. st_atime, st_mtime, st_ctime)
 
     return (0);

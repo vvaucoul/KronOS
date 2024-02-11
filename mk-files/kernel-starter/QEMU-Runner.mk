@@ -6,11 +6,11 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/19 10:46:23 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/02/11 18:47:11 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-GLOBAL_QEMU_FLAGS	=	-smp 4 -m 4G -cpu kvm32 -machine type=pc
+GLOBAL_QEMU_FLAGS	=	-smp 4 -m 4G -cpu kvm32 -machine type=pc -k en-us -rtc base=localtime
 
 ifeq ($(CHECK_USE_KVM), false)
 	QEMU			:=	qemu-system-i386

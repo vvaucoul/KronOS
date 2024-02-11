@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ksh_keyboard.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 22:55:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/11/20 13:56:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 19:11:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void ksh_init(void)
         for (size_t x = 0; x < VGA_WIDTH; x++)
         {
             const size_t index = TERMINAL_CURSOR_AT_LOCATION(x, y);
-            ksh_buffer[index] = VGA_ENTRY(' ', terminal_color);
+            ksh_buffer[index] = VGA_ENTRY(' ', VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color));
         }
     }
 }
@@ -30,7 +30,7 @@ void ksh_clear_terminal_shell_buffer(void)
     {
         for (size_t x = 0; x < VGA_WIDTH; x++)
         {
-            TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', terminal_color);
+            TERMINAL_CHAR(x, y) = VGA_ENTRY(' ', VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color));
         }
     }
 }

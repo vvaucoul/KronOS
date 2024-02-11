@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 10:48:53 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:11:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 21:28:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 #include <multitasking/process.h>
 
 char kernel_pwd[64] = {0};
+
+char *get_pwd(void) {
+    //Todo: return current directory
+    return (kernel_pwd);
+}
 
 int pwd(int argc, char **argv) {
 

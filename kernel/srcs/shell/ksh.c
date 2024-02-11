@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 17:21:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 13:58:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,12 @@ uint32_t ksh_current_line = __HEADER_HEIGHT__;
 uint32_t ksh_current_max_line = __HEADER_HEIGHT__;
 
 uint32_t *ksh_buffer = (uint32_t *)0x0000B000;
+
+bool __ksh_is_running = false;
+
+bool ksh_is_running(void) {
+    return (__ksh_is_running);
+}
 
 void ksh_clear(void) {
     KSH_CLR_TERM_SH();
@@ -68,7 +74,7 @@ void kronos_shell(void) {
     printk("Welcome to " _RED "KSH" _END " !\n");
     DISPLAY_PROMPT();
     UPDATE_CURSOR();
-
+    __ksh_is_running = true;
 
     while (1)
         ;

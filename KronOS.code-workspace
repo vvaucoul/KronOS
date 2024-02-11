@@ -73,7 +73,13 @@
 			"time.h": "c",
 			"ext2_formater.h": "c",
 			"tinyfs.h": "c",
-			"process_fs.h": "c"
+			"process_fs.h": "c",
+			"kfe.h": "c",
+			"syscall.h": "c",
+			"wait.h": "c",
+			"stat.h": "c",
+			"vfs_cache.h": "c",
+			"ksh.h": "c"
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:26:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 13:35:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ VfsFileOps tinyfs_fops = {
     .chmod = 0,
     .chown = 0,
     .create = tinyfs_create,
+    .stat = tinyfs_stat,
 };
 
 VfsNodeOps tinyfs_nops = {

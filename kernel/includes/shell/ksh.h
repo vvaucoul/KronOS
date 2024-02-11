@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/08 22:11:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 13:58:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ extern void ksh_execute_command(void);
 /*******************************************************************************
  *                                    UTILS                                    *
  ******************************************************************************/
+
+extern bool ksh_is_running(void);
 
 extern void ksh_init(void);
 extern void ksh_clear_terminal_shell_buffer(void);

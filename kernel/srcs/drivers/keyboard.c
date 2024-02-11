@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 17:43:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 14:00:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,10 +102,13 @@ static uint8_t __get_keyboard_lang(void) {
 }
 
 static unsigned char *__get_keyboard_codes(void) {
-    if (__keyboard_lang == KEYBOARD_LAYOUT_EN)
-        return (kbdus);
-    else
-        return (kbdfr);
+    // Todo: fix
+    return (kbdus);
+
+    // if (__keyboard_lang == KEYBOARD_LAYOUT_EN)
+    //     return (kbdus);
+    // else
+    //     return (kbdfr);
 }
 
 void keyboard_set_layout(kbd_lang_t lang) {
@@ -117,6 +120,11 @@ void keyboard_set_layout(kbd_lang_t lang) {
 }
 
 static bool scancode_handler(unsigned char scancode) {
+
+    // If ksh is not running, we do not handle scancode
+    if (ksh_is_running() == false)
+        return (false);
+
     switch (scancode) {
     /* KSHELL MODE */
     case KEYBOARD_KEY_ESCAPE:
@@ -161,6 +169,17 @@ static bool scancode_handler(unsigned char scancode) {
     return (false);
 }
 
+volatile char lastKey = 0;
+volatile bool keyReceived = false;
+
+// Todo: Improve this function (Do not use polling system (Cause CPU usage))
+int getchar(void) {
+    keyReceived = false;
+    while (!keyReceived)
+        ;
+    return lastKey;
+}
+
 void keyboard_handler(struct regs *r) {
     (void)r;
     unsigned char scancode;
@@ -175,6 +194,12 @@ void keyboard_handler(struct regs *r) {
         /* You can use this one to see if the user released the
          *  shift, alt, or control keys... */
         // printk("Keyboard: Release %c\n", kbdus[scancode & 0x7F]);
+
+        char key = __get_keyboard_codes()[scancode];
+        if (key) {
+            lastKey = key;
+            keyReceived = true;
+        }
 
         switch (scancode & 0x7F) {
         case KEYBOARD_LEFT_SHIFT:

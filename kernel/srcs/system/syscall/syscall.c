@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 13:16:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 13:25:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,7 @@ void init_syscall(void) {
     __add_syscall(SYSCALL_WAIT, "wait", syscall_wait);
     __add_syscall(SYSCALL_KILL, "kill", syscall_kill);
     __add_syscall(SYSCALL_GETUID, "getuid", getuid);
+    __add_syscall(SYSCALL_STAT, "stat", stat);
 
     idt_set_gate(0x80, (uint32_t)__syscall_handler, IDT_SELECTOR, IDT_FLAG_GATE);
 }

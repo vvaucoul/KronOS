@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 15:44:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 13:26:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <syscall/fork.h>
 #include <syscall/kill.h>
 #include <syscall/wait.h>
+#include <syscall/stat.h>
 
 /**
  * @file syscall.h
@@ -229,6 +230,19 @@ extern void init_syscall(void);
 ** EAX: 0x66
 ** EBX: 0x00
 ** ECX: 0x00
+** EDX: 0x00
+** ESI: 0x00
+** EDI: 0x00
+** EBP: 0x00
+*/
+
+#define SYSCALL_STAT 0x89
+#define __NR_stat 0x89
+
+/*
+** EAX: 0x89
+** EBX: const char *path
+** ECX: struct stat *buf
 ** EDX: 0x00
 ** ESI: 0x00
 ** EDI: 0x00

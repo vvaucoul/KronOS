@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:33:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 13:57:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,8 @@
 #include <memory/mmap.h>
 
 #include <workflows/workflows.h>
+
+#include <apps/kfe/kfe.h>
 
 #if __HIGHER_HALF_KERNEL__ == true
 #error "Higher Half Kernel is not supported yet"
@@ -418,7 +420,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     Vfs *__tiny_vfs = vfs_get_fs(TINYFS_FILESYSTEM_NAME);
     VfsNode *root = __tiny_vfs->fs_root;
-    tinyfs_display_hierarchy((TinyFS_Inode *)root, 0);
 
     __tiny_vfs->fops->mkdir(root, "/test", 0755);
     __tiny_vfs->fops->mkdir(root, "/test2", 0755);
@@ -432,7 +433,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     uint32_t i = 0;
 
     while ((dir = __tiny_vfs->fops->readdir(root, i)) != NULL) {
-        if (strcmp(dir->name, "test") == 0) {
+        if (strcmp(dir->d_name, "test") == 0) {
             VfsNode *newroot = __tiny_vfs->fops->finddir(root, "test");
             __tiny_vfs->fops->mkdir(newroot, "/subtest", 0755);
             __tiny_vfs->fops->create(newroot, "file.txt", 0755);
@@ -440,12 +441,17 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         ++i;
     }
 
-    tinyfs_display_hierarchy((TinyFS_Inode *)root, 0);
+    tinyfs_display_hierarchy((TinyFS_Inode *)(tiny_vfs->fs_root), 0);
+    // kpause();
 
     printk("\n---------------------\n\n");
 
+    kfe(0, NULL);
+    pause();
+
     pid_t pid2 = fork();
     if (pid2 == 0) {
+
 #include <cmds/cd.h>
 #include <cmds/ls.h>
 #include <cmds/pwd.h>
@@ -471,8 +477,8 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
         waitpid(pid2, &status, 0);
         printk("Child process exited with status: %d\n", status);
-        kpause();
     }
+    kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

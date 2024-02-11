@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 22:07:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/08 22:34:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 13:55:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,12 @@ extern uint8_t terminal_color;
 extern uint16_t *terminal_buffer;
 
 #define UPDATE_CURSOR(void) update_cursor(terminal_column, terminal_row)
+#define SET_CURSOR(x, y)     \
+    {                        \
+        terminal_column = x; \
+        terminal_row = y;    \
+        update_cursor(x, y);  \
+    }
 #define IS_CHAR(void) __terminal_cursor_is_char__()
 
 #define TERMINAL_CURSOR_AT_LOCATION(x, y) get_terminal_index((size_t)y, (size_t)x)

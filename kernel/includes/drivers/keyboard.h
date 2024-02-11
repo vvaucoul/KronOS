@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/08 22:11:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 13:00:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ extern kbd_lang_t __keyboard_lang;
 extern void keyboard_handler(struct regs *r);
 extern void keyboard_install();
 extern void keyboard_set_layout(kbd_lang_t lang);
+
+extern int getchar(void);
 
 extern bool __keyboard_uppercase;
 

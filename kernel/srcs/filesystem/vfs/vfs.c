@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:33:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 11:10:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,4 +229,15 @@ int vfs_chdir(Vfs *vfs, const char *path) {
         }
     }
     return (0);
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                    VFS UTILS                                   ||
+// ! ||--------------------------------------------------------------------------------||
+
+int vfs_get_node_stat(Vfs *vfs, VfsNode *node, struct stat *buf) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->stat == NULL) {
+        return (-1);
+    }
+    return (vfs->fops->stat(node, buf));
 }

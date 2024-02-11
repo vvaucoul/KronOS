@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 17:38:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:34:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 13:22:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,12 +51,12 @@ int ls(int argc, char **argv) {
 
     printk("    ");
     while ((dir = vfs_readdir(vfs, node, i)) != NULL) {
-        VfsNode *node = vfs_finddir(vfs, vfs->fs_root, dir->name);
+        VfsNode *node = vfs_finddir(vfs, vfs->fs_root, dir->d_name);
 
         // Todo: Implement stat command / syscall to get file mode / type / size / permissions etc..
         // todo: implement colors for file types
 
-        printk("%s ", dir->name);
+        printk("%s ", dir->d_name);
         i++;
     }
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 18:32:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 13:21:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ static Dirent *__initrd_fs_readdir(void *node, uint32_t index) {
         if (i == index) {
             InitrdNode *__child = (InitrdNode *)initrd_node->links->childrens[i]->node;
 
-            memcpy(dirent.name, __child->name, strlen(__child->name));
+            memcpy(dirent.d_name, __child->name, strlen(__child->name));
             dirent.ino = __child->inode;
             return (&dirent);
         }
@@ -249,7 +249,7 @@ void initrd_display_hierarchy(void) {
     vfs_opendir(initrd_fs, node);
     while ((_d_node = vfs_readdir(initrd_fs, node, index)) != NULL) {
 
-        InitrdNode *_f_node = vfs_finddir(initrd_fs, node, _d_node->name);
+        InitrdNode *_f_node = vfs_finddir(initrd_fs, node, _d_node->d_name);
 
         if (_f_node == NULL) {
             printk("Error: vfs_finddir failed\n");
@@ -258,11 +258,11 @@ void initrd_display_hierarchy(void) {
         }
 
         if ((_f_node->flags & VFS_DIRECTORY) != 0) {
-            printk("Directory: %s\n", _d_node->name);
+            printk("Directory: %s\n", _d_node->d_name);
             printk("--------------------\n");
 
         } else if ((_f_node->flags & VFS_FILE) != 0) {
-            printk("File: %s\n", _d_node->name);
+            printk("File: %s\n", _d_node->d_name);
 
             printk("Lenght: %u\n", _f_node->size);
             uint8_t *buffer = kmalloc(sizeof(char) * (_f_node->size + 1));

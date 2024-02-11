@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:25:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/11 11:10:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
  */
 
 #include <filesystem/vfs/vfs_cache.h>
+#include <syscall/stat.h>
 #include <kernel.h>
 
 // Use virtual file system
@@ -70,7 +71,7 @@
 #define TINYFS_FILESYSTEM 0x3
 
 typedef struct s_dirent {
-    char name[VFS_NODE_FILE_LEN];
+    char d_name[VFS_NODE_FILE_LEN];
     uint32_t ino;
     uint32_t parent_ino;
 } Dirent;
@@ -111,8 +112,9 @@ typedef struct s_vfs_fops {
     int (*symlink)(void *node, const char *name, const char *new_name);
     int (*readlink)(void *node, const char *name, const char *new_name);
 
-    // Change directory
+    // Utils operations
     int (*chdir)(void *node, const char *name);
+    int (*stat)(void *node, struct stat *buf);
 
     // Custom operations
     // Array of custom operations (implement custom operations in your filesystem)
@@ -135,6 +137,9 @@ typedef struct s_vfs_nops {
     char *(*get_name)(VfsNode *node);
 
     VfsNode *(*get_parent)(VfsNode *node);
+
+    // Todo: Check if we need to keep get_links
+    VfsNode **(*get_links)(VfsNode *node);
 
     // Custom operations
     // Array of custom operations (implement custom operations in your filesystem)
@@ -200,5 +205,6 @@ extern int vfs_chdir(Vfs *vfs, const char *name);
 
 // VFS Utils
 extern char *vfs_get_node_path(Vfs *vfs, VfsNode *node);
+extern int vfs_get_node_stat(Vfs *vfs, VfsNode *node, struct stat *buf);
 
 #endif /* !VFS_H */

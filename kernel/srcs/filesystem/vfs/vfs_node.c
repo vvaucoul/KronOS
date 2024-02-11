@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 11:51:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 11:56:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/10 13:35:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /**
  * @brief Get the name of a VFS node
- * 
+ *
  * @param vfs The VFS
  * @param node The VFS node
  * @return char* The name of the VFS node

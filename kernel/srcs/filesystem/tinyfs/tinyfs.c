@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 13:35:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/12 11:12:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/tinyfs/tinyfs.h>
 #include <memory/memory.h>
 
+// Todo: Set all vars into structure (cause, we can mount tinyfs more than once time)
 Vfs *tiny_vfs = NULL;
 static TinyFS *tinyfs = NULL;
 TinyFS_SuperBlock *tinyfs_sb = NULL;
@@ -52,6 +53,7 @@ VfsNodeOps tinyfs_nops = {
     .remove_node = NULL,
     .get_name = tinyfs_get_name,
     .get_parent = tinyfs_get_parent,
+    .get_links = tinyfs_get_links,
 };
 
 VfsCacheFn tinyfs_cache_fn = {
@@ -59,6 +61,7 @@ VfsCacheFn tinyfs_cache_fn = {
     .vfs_get_cache_links = tinyfs_get_cache_links,
 };
 
+//Todo: param device
 int tinyfs_init(void) {
     printk("TinyFS: Initializing file system\n");
 

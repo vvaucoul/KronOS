@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:20:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:28:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/12 10:34:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,29 @@ char *tinyfs_get_name(VfsNode *node) {
 
 VfsNode *tinyfs_get_parent(VfsNode *node) {
     return ((VfsNode *)(((TinyFS *)tiny_vfs->fs)->inodes[((TinyFS_Inode *)node)->parent_inode_number]));
+}
+
+VfsNode **tinyfs_get_links(Vfs *vfs, VfsNode *node) {
+    TinyFS_Inode *inode = (TinyFS_Inode *)node;
+
+    if (inode == NULL) {
+        return (NULL);
+    } else {
+        VfsNode **links = kmalloc(sizeof(TinyFS_Inode) * (inode->nlink + 1));
+
+        if (links == NULL) {
+            return (NULL);
+        } else {
+            uint8_t i = 0;
+
+            for (; i < inode->nlink && i < TINYFS_MAX_FILES; i++) {
+                links[i] = tinyfs_get_inode(vfs, inode->links[i]);
+            }
+            links[i] = NULL;
+        }
+        return (links);
+    }
+    return (NULL);
 }
 
 // ! ||--------------------------------------------------------------------------------||

@@ -6,17 +6,17 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 12:50:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/12 09:56:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/12 10:34:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <apps/kfe/kfe.h>
+#include <cmds/pwd.h>
 #include <drivers/keyboard.h>
 #include <drivers/vga.h>
 #include <filesystem/vfs/vfs.h>
 #include <memory/memory.h>
 #include <system/pit.h>
-#include <cmds/pwd.h>
 
 static void __attribute__((constructor)) kfe_constructor(void) {
     printk("+------------------------------------------------------------------------------+");
@@ -27,18 +27,16 @@ static void __attribute__((constructor)) kfe_constructor(void) {
     printk("| Inode | Type      | Name                              | Size       | Blocks  |");
     printk("+------------------------------------------------------------------------------+");
 }
-// tmp
-#include <filesystem/tinyfs/tinyfs.h>
 
 static void kfe_print_files(Kfe *kfe) {
     // Print files
     Vfs *vfs = kfe->vfs;
-    VfsNode *node = kfe->current_node;
+    VfsNode *__selected_node = kfe->current_node;
     Dirent *dir = NULL;
 
     uint32_t i = 0;
-    while ((dir = vfs_readdir(vfs, vfs->fs_root, i)) != NULL) {
-        VfsNode *node = vfs_finddir(vfs, vfs->fs_root, dir->d_name);
+    while ((dir = vfs_readdir(vfs, __selected_node, i)) != NULL) {
+        VfsNode *node = vfs_finddir(vfs, __selected_node, dir->d_name);
 
         if (node == NULL) {
             printk("Error: [%s] File not found\n", dir->d_name);
@@ -104,7 +102,7 @@ Kfe *kfe_create(void) {
         __THROW("KFE: Failed to create KFE", NULL);
     } else {
         memset(kfe, 0, sizeof(Kfe));
-        kfe->selected_inode = 0;
+        kfe->selected_inode = 1;
         kfe->vfs = vfs_get_current_fs();
         kfe->current_node = kfe->vfs->fs_root;
         memcpy(kfe->name, KFE_NAME, strlen(KFE_NAME));
@@ -131,7 +129,7 @@ static int __kfe_controller(Kfe *kfe) {
                 should_exit = true;
                 break;
             case 'w':
-                if (kfe->selected_inode > 0) {
+                if (kfe->selected_inode > 1) {
                     --kfe->selected_inode;
                 }
                 break;
@@ -145,7 +143,7 @@ static int __kfe_controller(Kfe *kfe) {
                  * Todo: ...
                  *
                  * - If selected file is a directory
-                 *    - Change current node to selected file
+                 *    - Change current node to selected directory
                  *    - Update current node
                  * - If selected file is a file
                  *   - Open file
@@ -155,6 +153,31 @@ static int __kfe_controller(Kfe *kfe) {
                  *      - Copy file
                  *      - Display file content
                  */
+
+                // VfsNode *__selected_node = kfe->current_node;
+                VfsNode *__selected_node = kfe->vfs->nops->get_links(kfe->vfs, kfe->current_node)[kfe->selected_inode];
+
+                struct stat st;
+                if ((vfs_get_node_stat(kfe->vfs, __selected_node, &st)) != 0) {
+                    printk("Error: stat\n");
+                    continue;
+                }
+                if (st.st_mode & VFS_DIRECTORY) {
+                    uint32_t i = 0;
+                    Dirent *dir = NULL;
+                    while ((dir = vfs_readdir(kfe->vfs, __selected_node, i)) != NULL) {
+                        VfsNode *node = vfs_finddir(kfe->vfs, __selected_node, dir->d_name);
+
+                        if (i == kfe->selected_inode) {
+                            kfe->current_node = node;
+                            break;
+                        }
+                        i++;
+                    }
+
+                } else if (st.st_mode & VFS_FILE) {
+                }
+
             } break;
 
             default:

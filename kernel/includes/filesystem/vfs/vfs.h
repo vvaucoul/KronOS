@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 11:10:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/12 10:33:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ typedef struct s_vfs_nops {
     VfsNode *(*get_parent)(VfsNode *node);
 
     // Todo: Check if we need to keep get_links
-    VfsNode **(*get_links)(VfsNode *node);
+    VfsNode **(*get_links)(Vfs *vfs, VfsNode *node);
 
     // Custom operations
     // Array of custom operations (implement custom operations in your filesystem)

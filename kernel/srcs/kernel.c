@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 23:36:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/12 10:55:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -445,6 +445,10 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     // kpause();
 
     printk("\n---------------------\n\n");
+
+    ksleep(1);
+    workflow_tinyfs();
+    kpause();
 
     kfe(0, NULL);
     printk("End of KFE\n");

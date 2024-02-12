@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 11:37:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/12 10:50:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,9 @@ extern void threads_test(void);
 
 /* IDE test */
 extern void workflow_ide(void);
+
+/* Filesystem TinyFS test */
+void workflow_tinyfs(void);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                      UTILS                                     ||

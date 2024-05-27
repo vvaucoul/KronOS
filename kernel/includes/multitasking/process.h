@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 17:25:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 17:02:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,6 +164,12 @@ extern double get_cpu_load(task_t *task);
 extern void print_task_info(task_t *task);
 extern void print_all_tasks();
 extern void print_parent_and_children(int pid);
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                       ENV                                      ||
+// ! ||--------------------------------------------------------------------------------||
+
+extern int process_init_env(task_t *task);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                   READY QUEUE                                  ||

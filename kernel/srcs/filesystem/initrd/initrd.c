@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 13:21:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 17:35:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,7 @@ static int __initrd_fs_mount(void *fs) {
     vfs_create_cache(initrd_fs, initrd_cache_fn);
 
     // Create initrd root node (initrd root directory)
-    initrd_fs->fs_root = vfs_create_node(initrd_fs, NULL, INITRD_FILESYSTEM_NAME);
+    initrd_fs->fs_root = initrd_fs->fs_current_node = vfs_create_node(initrd_fs, NULL, INITRD_FILESYSTEM_NAME);
     BIT_CLEAR(((InitrdNode *)initrd_fs->fs_root)->flags, VFS_FILE);
     BIT_SET(((InitrdNode *)initrd_fs->fs_root)->flags, VFS_DIRECTORY);
 

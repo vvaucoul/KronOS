@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 15:59:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:05:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 17:10:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,7 @@
  * It is used for managing process-specific environment variables and settings.
  */
 
-// #warning "Replace with VFS"
-
-#include <filesystem/vfs/vfs.h>
+#define PATH_MAX 256 // Max path length (Linux is 4096)
 
 typedef struct s_penv {
     char pwd[64];     // Current directory (Used for PWD)

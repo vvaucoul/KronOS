@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/19 18:10:07 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/19 18:20:09 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/02/13 14:25:52 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,16 +28,16 @@ else
     exit 1
 fi
 
-hdd_path="../../isodir/boot"
-hdd_filename=$(grep -oP 'disk_filename="\K[^"]+' ../../mk-files/.config)
+hda_path="../../isodir/boot"
+hda_filename=$(grep -oP 'hda_filename="\K[^"]+' ../../mk-files/.config)
 
 printf "$WHITE    - Dumping disk... $RESET\n"
 
 sudo mkdir -p /mnt/tmp
-sudo mount $hdd_path/$hdd_filename /mnt/tmp
+sudo mount $hda_path/$hda_filename /mnt/tmp
 
 printf "$WHITE    - Superblock: $GREEN%s $RESET\n"
-sudo dumpe2fs $hdd_path/$hdd_filename
+sudo dumpe2fs $hda_path/$hda_filename
 
 # superblock_offset=$(sudo dumpe2fs $hdd_path/$hdd_filename | grep -oP 'Block group: \K[^"]+')
 # printf "$WHITE    - Superblock offset: $GREEN%s $RESET\n" $superblock_offset

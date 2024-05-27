@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 13:58:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 16:30:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ bool ksh_is_running(void) {
 
 void ksh_clear(void) {
     KSH_CLR_TERM_SH();
-    CLEAR_SCREEN();
+    terminal_clear_screen();
     ksh_current_line = __HEADER_HEIGHT__;
     ksh_current_max_line = __HEADER_HEIGHT__;
     ksh_min_line = __HEADER_HEIGHT__;
@@ -57,7 +57,7 @@ void ksh_execute_command(void) {
     terminal_column = 0;
     DISPLAY_PROMPT();
     terminal_column = __PROMPT_ASCII_LEN__;
-    UPDATE_CURSOR();
+    // update_cursor();
 }
 
 void kronos_shell(void) {
@@ -73,7 +73,7 @@ void kronos_shell(void) {
     ASM_STI();
     printk("Welcome to " _RED "KSH" _END " !\n");
     DISPLAY_PROMPT();
-    UPDATE_CURSOR();
+    // update_cursor();
     __ksh_is_running = true;
 
     while (1)

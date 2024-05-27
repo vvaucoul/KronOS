@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 22:07:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 19:11:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 16:38:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,24 +50,21 @@ enum vga_color {
 
 #define VGA_ENTRY(uc, color) (((unsigned char)uc) | ((uint8_t)color) << 8)
 #define VGA_ENTRY_COLOR(fg, bg) (((enum vga_color)fg) | ((enum vga_color)bg) << 4)
-#define VGA_OUTPUT(uc, color) (uc & 0xFF) | ((color & 0xFF) << 8)
+#define __VGA_MEMORY ((uint16_t *)(0x000B8000))
 
-#define __VGA_MEMORY (uint16_t *)(__HIGHER_HALF_KERNEL__ == true ? (0xC00B8000) : (0x000B8000))
-
-#define __MAX_SCREEN_SUPPORTED__ (size_t)3
+#define VGA_WIDTH 80
+#define VGA_HEIGHT 25
 
 extern void vga_init(void);
 extern void terminal_putchar(char c);
 extern void terminal_writestring(const char *data);
-extern void terminal_setcolor(uint8_t color);
+extern void terminal_set_color(uint8_t color);
 extern void terminal_writestring_location(const char *data, size_t x, size_t y);
 extern void update_cursor(int x, int y);
+extern void refresh_cursor(void);
 extern void terminal_write_n_char(char c, size_t count);
 extern void terminal_move_offset_down(void);
 extern void terminal_set_background_color(uint8_t color);
-
-static const size_t VGA_WIDTH = 80;
-static const size_t VGA_HEIGHT = 25;
 
 extern size_t terminal_row;
 extern size_t terminal_column;
@@ -76,39 +73,12 @@ extern uint16_t *terminal_buffer;
 extern uint8_t __vga_foreground_color;
 extern uint8_t __vga_background_color;
 
-#define UPDATE_CURSOR(void) update_cursor(terminal_column, terminal_row)
-#define SET_CURSOR(x, y)     \
-    {                        \
-        terminal_column = x; \
-        terminal_row = y;    \
-        update_cursor(x, y);  \
-    }
-#define IS_CHAR(void) __terminal_cursor_is_char__()
-
-#define TERMINAL_CURSOR_AT_LOCATION(x, y) get_terminal_index((size_t)y, (size_t)x)
-#define TERMINAL_CHAR(x, y) *get_terminal_char((size_t)x, (size_t)y)
-
-#define CLEAR_SCREEN() terminal_clear_screen()
-
-#define __TERMINAL_CURSOR_LOCATION__ get_terminal_index(terminal_row, terminal_column)
-
-static inline int get_terminal_index(size_t row, size_t column) {
-    return (row * VGA_WIDTH + column);
-}
-
-static inline bool __terminal_cursor_is_char__(void) {
-    const size_t index = terminal_row * VGA_WIDTH + terminal_column;
-    return ((bool)(terminal_buffer[index] == ' ' ? false : true));
-}
-
-static inline uint16_t *get_terminal_char(size_t column, size_t row) {
-    return &(terminal_buffer[get_terminal_index(row, column)]);
-}
+#define TERMINAL_CHAR(x, y) (terminal_buffer[(y) * VGA_WIDTH + (x)])
 
 static inline void terminal_putentryat(char c, size_t x, size_t y) {
     uint8_t color = VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color);
     TERMINAL_CHAR(x, y) = VGA_ENTRY(c, color);
-    UPDATE_CURSOR();
+    update_cursor(terminal_column, terminal_row);
 }
 
 static inline void terminal_clear_screen(void) {
@@ -119,35 +89,35 @@ static inline void terminal_clear_screen(void) {
     }
     terminal_column = 0;
     terminal_row = 0;
-    UPDATE_CURSOR();
+    update_cursor(terminal_column, terminal_row);
 }
 
 static inline void terminal_move_cursor_left(void) {
     if (terminal_column > 0) {
         terminal_column--;
     }
-    UPDATE_CURSOR();
+    update_cursor(terminal_column, terminal_row);
 }
 
 static inline void terminal_move_cursor_right(void) {
     if (terminal_column < VGA_WIDTH) {
         terminal_column++;
     }
-    UPDATE_CURSOR();
+    update_cursor(terminal_column, terminal_row);
 }
 
 static inline void terminal_move_cursor_up(void) {
     if (terminal_row > 0) {
         terminal_row--;
     }
-    UPDATE_CURSOR();
+    update_cursor(terminal_column, terminal_row);
 }
 
 static inline void terminal_move_cursor_down(void) {
     if (terminal_row < VGA_HEIGHT) {
         terminal_row++;
     }
-    UPDATE_CURSOR();
+    update_cursor(terminal_column, terminal_row);
 }
 
-#endif /* !VGA_H */
+#endif /* VGA_H */

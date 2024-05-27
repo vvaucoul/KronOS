@@ -79,7 +79,19 @@
 			"wait.h": "c",
 			"stat.h": "c",
 			"vfs_cache.h": "c",
-			"ksh.h": "c"
+			"ksh.h": "c",
+			"getcwd.h": "c",
+			"process_env.h": "c",
+			"chdir.h": "c",
+			"cd.h": "c",
+			"idt.h": "c",
+			"hephaistos.h": "c",
+			"display.h": "c",
+			"char.h": "c",
+			"keyboard.h": "c",
+			"ksh_termcaps.h": "c",
+			"cmos.h": "c",
+			"serial.h": "c"
 		}
 	}
 }

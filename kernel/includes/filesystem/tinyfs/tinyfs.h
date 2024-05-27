@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/12 10:34:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 12:10:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@
 
 /* File system structure */
 typedef struct {
+    void *fs; // File system reference, must be casted to TinyFS
+
     char name[TINYFS_FILENAME_MAX + 1]; // File name
     uint8_t used;                       // 0: Free, 1: Used
     uint8_t mode;                       // 1: File, 2: Directory (Ref vfs.h)
@@ -60,25 +62,30 @@ typedef struct {
     TinyFS_SuperBlock *superblock;
     TinyFS_Inode *inodes[TINYFS_MAX_FILES];
     uint8_t data_blocks[TINYFS_MAX_BLOCKS][TINYFS_BLOCK_SIZE]; // 1024 * 1024 = 1MB of data
+
+    /* File system */
+    struct {
+        Vfs *vfs;       // Virtual file system
+        Device *device; // Device (IDE, etc...)
+    } fs;
 } TinyFS;
 
-extern Vfs *tiny_vfs;
-extern Device *tinyfs_device;
+extern TinyFS *tinyfs_init(Device *device);
 
-extern int tinyfs_init(void);
 extern int tinyfs_mount(void *fs);
 extern int tinyfs_unmount(void *fs);
+
 extern int tinyfs_read(void *node, uint32_t offset, uint32_t size, uint8_t *buffer);
 extern int tinyfs_write(void *node, uint32_t offset, uint32_t size, uint8_t *buffer);
-extern int tinyfs_formater(Device *device);
+
+extern int tinyfs_formater(TinyFS *tfs, bool hard_format);
 
 extern int tinyfs_write_superblock(Vfs *fs);
 
 extern TinyFS_Inode tinyfs_read_inode(Vfs *fs, uint32_t inode);
 extern int tinyfs_write_inode(Vfs *fs, uint32_t inode, TinyFS_Inode *tinyfs_inode);
 extern TinyFS_Inode *tinyfs_get_inode(Vfs *fs, uint32_t inode);
-
-extern TinyFS_Inode *tinyfs_create_inode(TinyFS_Inode *parent_inode, const char name[TINYFS_FILENAME_MAX + 1], uint8_t mode);
+extern TinyFS_Inode *tinyfs_create_inode(TinyFS *tfs, TinyFS_Inode *parent_inode, const char name[TINYFS_FILENAME_MAX + 1], uint8_t mode);
 extern int tinyfs_delete_inode(TinyFS_Inode *tinyfs_inode);
 
 extern int tinyfs_set_cache_links(VfsNode *node, VfsCacheLinks *links);

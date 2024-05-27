@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 11:10:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/03/14 20:12:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ Vfs *vfs_create_fs(VfsFS *fs, VfsInfo *fs_info, VfsFsOps *fsops, VfsFileOps *fop
         vfs->fs = fs;
         vfs->fs_info = fs_info;
         vfs->fs_root = NULL;
+        vfs->fs_current_node = NULL;
 
         vfs->use_vfs_cache = 0;
         vfs->vfs_cache = NULL;
@@ -118,22 +119,40 @@ void *vfs_custom_nops(Vfs *vfs, VfsNode *node, uint8_t nops_index, ...) {
 // ! ||                              VFS NODES OPERATIONS                              ||
 // ! ||--------------------------------------------------------------------------------||
 
-Dirent *vfs_readdir(Vfs *vfs, VfsNode *node, uint32_t index) {
-    if (vfs == NULL || vfs->fops == NULL || vfs->fops->readdir == NULL) {
-        return (NULL);
+/* File operations */
+int vfs_open(Vfs *vfs, VfsNode *node, uint32_t flags) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->open == NULL) {
+        return (-1);
     } else {
-        return (vfs->fops->readdir(node, index));
+        return (vfs->fops->open(node, flags));
     }
 }
 
-VfsNode *vfs_finddir(Vfs *vfs, VfsNode *node, const char *name) {
-    if (vfs == NULL || vfs->fops == NULL || vfs->fops->finddir == NULL) {
-        return (NULL);
+int vfs_close(Vfs *vfs, VfsNode *node) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->close == NULL) {
+        return (-1);
     } else {
-        return (vfs->fops->finddir(node, name));
+        return (vfs->fops->close(node));
     }
 }
 
+int vfs_read(Vfs *vfs, VfsNode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->read == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->read(node, offset, size, buffer));
+    }
+}
+
+int vfs_write(Vfs *vfs, VfsNode *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->write == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->write(node, offset, size, buffer));
+    }
+}
+
+/* Directory operations */
 int vfs_opendir(Vfs *vfs, VfsNode *node) {
     if (vfs == NULL || vfs->fops == NULL || vfs->fops->opendir == NULL)
         return (-1);
@@ -150,19 +169,137 @@ int vfs_closedir(Vfs *vfs, VfsNode *node) {
     }
 }
 
-int vfs_open(Vfs *vfs, VfsNode *node, uint32_t flags) {
-    if (vfs == NULL || vfs->fops == NULL || vfs->fops->open == NULL) {
-        return (-1);
+Dirent *vfs_readdir(Vfs *vfs, VfsNode *node, uint32_t index) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->readdir == NULL) {
+        return (NULL);
     } else {
-        return (vfs->fops->open(node, flags));
+        return (vfs->fops->readdir(node, index));
     }
 }
 
-int vfs_close(Vfs *vfs, VfsNode *node) {
-    if (vfs == NULL || vfs->fops == NULL || vfs->fops->close == NULL) {
+VfsNode *vfs_finddir(Vfs *vfs, VfsNode *node, const char *name) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->finddir == NULL) {
+        return (NULL);
+    } else {
+        return (vfs->fops->finddir(node, name));
+    }
+}
+
+/* Create and delete files and directories */
+int vfs_create(Vfs *vfs, VfsNode *node, const char *name, uint16_t permission) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->create == NULL) {
         return (-1);
     } else {
-        return (vfs->fops->close(node));
+        return (vfs->fops->create(node, name, permission));
+    }
+}
+
+int vfs_unlink(Vfs *vfs, VfsNode *node, const char *name) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->unlink == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->unlink(node, name));
+    }
+}
+
+int vfs_mkdir(Vfs *vfs, VfsNode *node, const char *name, uint16_t permission) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->mkdir == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->mkdir(node, name, permission));
+    }
+}
+
+int vfs_rmdir(Vfs *vfs, VfsNode *node, const char *name) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->rmdir == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->rmdir(node, name));
+    }
+}
+
+/* Other operations */
+int vfs_move(Vfs *vfs, VfsNode *node, const char *name, const char *new_name) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->move == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->move(node, name, new_name));
+    }
+}
+
+int vfs_chmod(Vfs *vfs, VfsNode *node, uint16_t permission) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->chmod == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->chmod(node, permission));
+    }
+}
+
+int vfs_chown(Vfs *vfs, VfsNode *node, uint16_t owner) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->chown == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->chown(node, owner));
+    }
+}
+
+/* Link operations */
+int vfs_link(Vfs *vfs, VfsNode *node, const char *name, const char *new_name) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->link == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->link(node, name, new_name));
+    }
+}
+
+int vfs_symlink(Vfs *vfs, VfsNode *node, const char *name, const char *new_name) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->symlink == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->symlink(node, name, new_name));
+    }
+}
+
+int vfs_readlink(Vfs *vfs, VfsNode *node, const char *name, const char *new_name) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->readlink == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->readlink(node, name, new_name));
+    }
+}
+
+/* Utils operations */
+int vfs_chdir(Vfs *vfs, const char *path) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->chdir == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->chdir(vfs, path));
+    }
+    //     if (vfs == NULL) {
+    //     return (-1);
+    // } else {
+    //     VfsNode *node = vfs_finddir(vfs, vfs->fs_root, path);
+    //     if (node == NULL) {
+    //         printk("Failed to change directory (node not found)\n");
+    //         return (-1);
+    //     }
+    //     task_t *task = get_current_task();
+
+    //     if (task == NULL) {
+    //         printk("Failed to change directory (no current task)\n");
+    //         return -1;
+    //     } else {
+    //         memscpy(task->env.pwd, 64, path, strlen(path));
+    //     }
+    // }
+    // return (0);
+}
+
+int vfs_stat(Vfs *vfs, VfsNode *node, struct stat *buf) {
+    if (vfs == NULL || vfs->fops == NULL || vfs->fops->stat == NULL) {
+        return (-1);
+    } else {
+        return (vfs->fops->stat(node, buf));
     }
 }
 
@@ -204,40 +341,4 @@ int vfs_unmount(Vfs *vfs) {
         hashtable_remove(vfs_mounts, vfs->fs_info->name);
     }
     return (0);
-}
-
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                              VFS CHANGE DIRECTORY                              ||
-// ! ||--------------------------------------------------------------------------------||
-
-int vfs_chdir(Vfs *vfs, const char *path) {
-    if (vfs == NULL) {
-        return (-1);
-    } else {
-        VfsNode *node = vfs_finddir(vfs, vfs->fs_root, path);
-        if (node == NULL) {
-            printk("Failed to change directory (node not found)\n");
-            return (-1);
-        }
-        task_t *task = get_current_task();
-
-        if (task == NULL) {
-            printk("Failed to change directory (no current task)\n");
-            return -1;
-        } else {
-            memscpy(task->env.pwd, 64, path, strlen(path));
-        }
-    }
-    return (0);
-}
-
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                                    VFS UTILS                                   ||
-// ! ||--------------------------------------------------------------------------------||
-
-int vfs_get_node_stat(Vfs *vfs, VfsNode *node, struct stat *buf) {
-    if (vfs == NULL || vfs->fops == NULL || vfs->fops->stat == NULL) {
-        return (-1);
-    }
-    return (vfs->fops->stat(node, buf));
 }

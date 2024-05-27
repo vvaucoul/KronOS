@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 12:50:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/12 10:34:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 16:30:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ static void kfe_print_files(Kfe *kfe) {
         ++i;
     }
     printk("+------------------------------------------------------------------------------+");
-    SET_CURSOR(0, VGA_HEIGHT - 3);
+    update_cursor(0, VGA_HEIGHT - 3);
     printk("+------------------------------------------------------------------------------+");
     printk("| Commands: [w]: Up | [s]: Down | [a]: Back | [Enter]: Select | [q]: Quit      |");
     printk("+------------------------------------------------------------------------------+");
@@ -118,8 +118,7 @@ static int __kfe_controller(Kfe *kfe) {
         int c = 0;
 
         // Todo: Instead of clearing the screen, clear old cursor position
-        // terminal_clear_screen();
-        CLEAR_SCREEN();
+        terminal_clear_screen();
         kfe_constructor();
         kfe_print_files(kfe);
 

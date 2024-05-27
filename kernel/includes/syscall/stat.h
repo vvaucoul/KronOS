@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 13:23:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 13:30:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 15:36:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,23 @@
  * The stat structure is used to store information about a file.
  * The stat function is used to get information about a file.
  */
+
+#define S_IFMT 0170000   // mask to extract the file type
+#define S_IFDIR 0040000  // directory
+#define S_IFCHR 0020000  // character device
+#define S_IFBLK 0060000  // block device
+#define S_IFREG 0100000  // regular file
+#define S_IFIFO 0010000  // FIFO
+#define S_IFLNK 0120000  // symbolic link
+#define S_IFSOCK 0140000 // socket
+
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)   // check if it's a directory
+#define S_ISCHR(m) (((m) & S_IFMT) == S_IFCHR)   // check if it's a character device
+#define S_ISBLK(m) (((m) & S_IFMT) == S_IFBLK)   // check if it's a block device
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)   // check if it's a regular file
+#define S_ISFIFO(m) (((m) & S_IFMT) == S_IFIFO)  // check if it's a FIFO
+#define S_ISLNK(m) (((m) & S_IFMT) == S_IFLNK)   // check if it's a symbolic link
+#define S_ISSOCK(m) (((m) & S_IFMT) == S_IFSOCK) // check if it's a socket
 
 struct stat {
     uint16_t st_dev;     /* ID of the device containing the file */

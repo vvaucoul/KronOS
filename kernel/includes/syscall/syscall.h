@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 13:26:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/24 11:40:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,16 @@ All x86 syscall: https://chromium.googlesource.com/chromiumos/docs/+/master/cons
 */
 
 #define SYSCALL_SIZE 0x180 // 384 syscall
-#define SYSCALL_IRQ 0x7F
+#define SYSCALL_IRQ 0x80
 
-typedef void sysfn_t;
+// typedef void sysfn_t;
+typedef int32_t (*sysfn_t)(void*, void*, void*);
 
 typedef struct s_syscall {
     uint32_t id;
     char *name;
-    sysfn_t *function;
+    sysfn_t function;
 } syscall_t;
-
-extern syscall_t __syscall[SYSCALL_SIZE];
 
 extern void init_syscall(void);
 
@@ -124,129 +123,131 @@ extern void init_syscall(void);
 // ! ||                                  SYSCALL LIST                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
-#define SYSCALL_RESTART 0x00
-#define __NR_restart 0x00
-/*
-** EAX: 0x00
-** EBX: 0x00
-** ECX: 0x00
-** EDX: 0x00
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+#define SYSCALL_WRITE 0x4
 
-#define SYSCALL_EXIT 0x01
-#define __NR_exit 0x01
+// #define SYSCALL_RESTART 0x00
+// #define __NR_restart 0x00
+// /*
+// ** EAX: 0x00
+// ** EBX: 0x00
+// ** ECX: 0x00
+// ** EDX: 0x00
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-// volatile void exit(int error_code);
-/*
-** EAX: 0x01
-** EBX: int error_code
-** ECX: 0x00
-** EDX: 0x00
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// #define SYSCALL_EXIT 0x01
+// #define __NR_exit 0x01
 
-#define SYSCALL_READ 0x03
-#define __NR_read 0x03
-/*
-** EAX: 0x03
-** EBX: unsigned int fd
-** ECX: char *buff
-** EDX: unsigned int count
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// // volatile void exit(int error_code);
+// /*
+// ** EAX: 0x01
+// ** EBX: int error_code
+// ** ECX: 0x00
+// ** EDX: 0x00
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-#define SYSCALL_WRITE 0x04
-#define __NR_write 0x04
-/*
-** EAX: 0x04
-** EBX: unsigned int fd
-** ECX: const char *buff
-** EDX: unsigned int count
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// #define SYSCALL_READ 0x03
+// #define __NR_read 0x03
+// /*
+// ** EAX: 0x03
+// ** EBX: unsigned int fd
+// ** ECX: char *buff
+// ** EDX: unsigned int count
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-// ... Continue ...
+// #define SYSCALL_WRITE 0x04
+// #define __NR_write 0x04
+// /*
+// ** EAX: 0x04
+// ** EBX: unsigned int fd
+// ** ECX: const char *buff
+// ** EDX: unsigned int count
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-#define SYSCALL_FORK 0x20
-#define __NR_fork 0x20
-/*
-** EAX: 0x20
-** EBX: 0x00
-** ECX: 0x00
-** EDX: 0x00
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// // ... Continue ...
 
-#define SYSCALL_WAIT 0x21
-#define __NR_wait 0x21
-/*
-** EAX: 0x21
-** EBX: int pid
-** ECX: 0x00
-** EDX: 0x00
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// #define SYSCALL_FORK 0x20
+// #define __NR_fork 0x20
+// /*
+// ** EAX: 0x20
+// ** EBX: 0x00
+// ** ECX: 0x00
+// ** EDX: 0x00
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-#define SYSCALL_WAITPID 0x22
-#define __NR_waitpid 0x22
-/*
-** EAX: 0x22
-** EBX: int pid
-** ECX: int options
-** EDX: int status
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// #define SYSCALL_WAIT 0x21
+// #define __NR_wait 0x21
+// /*
+// ** EAX: 0x21
+// ** EBX: int pid
+// ** ECX: 0x00
+// ** EDX: 0x00
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-#define SYSCALL_KILL 0x3E
-#define __NR_kill 0x3E
-/*
-** EAX: int signum
-** EBX: sighandler_t handler
-** ECX: 0x00
-** EDX: 0x00
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// #define SYSCALL_WAITPID 0x22
+// #define __NR_waitpid 0x22
+// /*
+// ** EAX: 0x22
+// ** EBX: int pid
+// ** ECX: int options
+// ** EDX: int status
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-#define SYSCALL_GETUID 0x66
-#define __NR_getuid 0x66
-/*
-** EAX: 0x66
-** EBX: 0x00
-** ECX: 0x00
-** EDX: 0x00
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// #define SYSCALL_KILL 0x3E
+// #define __NR_kill 0x3E
+// /*
+// ** EAX: int signum
+// ** EBX: sighandler_t handler
+// ** ECX: 0x00
+// ** EDX: 0x00
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-#define SYSCALL_STAT 0x89
-#define __NR_stat 0x89
+// #define SYSCALL_GETUID 0x66
+// #define __NR_getuid 0x66
+// /*
+// ** EAX: 0x66
+// ** EBX: 0x00
+// ** ECX: 0x00
+// ** EDX: 0x00
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
-/*
-** EAX: 0x89
-** EBX: const char *path
-** ECX: struct stat *buf
-** EDX: 0x00
-** ESI: 0x00
-** EDI: 0x00
-** EBP: 0x00
-*/
+// #define SYSCALL_STAT 0x89
+// #define __NR_stat 0x89
+
+// /*
+// ** EAX: 0x89
+// ** EBX: const char *path
+// ** ECX: struct stat *buf
+// ** EDX: 0x00
+// ** ESI: 0x00
+// ** EDI: 0x00
+// ** EBP: 0x00
+// */
 
 #endif /* !SYSCALL_H */

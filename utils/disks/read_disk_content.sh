@@ -16,17 +16,17 @@ else
     exit 1
 fi
 
-hdd_path="../../isodir/boot"
-hdd_filename=$(grep -oP 'disk_filename="\K[^"]+' ../../mk-files/.config)
+hda_path="../../isodir/boot"
+hda_filename=$(grep -oP 'hda_filename="\K[^"]+' ../../mk-files/.config)
 
 printf "$WHITE    - Reading disk content...\n"
-printf "$WHITE    \t- Disk path: $GREEN%s\n" $hdd_path
-printf "$WHITE    \t- Disk filename: $GREEN%s\n$RESET" $hdd_filename
+printf "$WHITE    \t- Disk path: $GREEN%s\n" $hda_path
+printf "$WHITE    \t- Disk filename: $GREEN%s\n$RESET" $hda_filename
 
-qemu-img info $hdd_path/$hdd_filename >.hdd_output.log
-dd if=$hdd_path/$hdd_filename of=.sector.bin bs=512 count=512 
+qemu-img info $hda_path/$hda_filename >.hda_output.log
+dd if=$hda_path/$hda_filename of=.sector.bin bs=512 count=512 
 
-cat .sector.bin >>.hdd_output.log
+cat .sector.bin >>.hda_output.log
 cat .sector.bin | hexdump -C >.sector.hex
 
-printf "$WHITE    - Disk content read. $RESET$DIM(log: .hdd_output.log)\n$RESET"
+printf "$WHITE    - Disk content read. $RESET$DIM(log: .hda_output.log)\n$RESET"

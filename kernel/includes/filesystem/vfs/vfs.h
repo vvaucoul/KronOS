@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/12 10:33:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 17:25:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@
  */
 
 #include <filesystem/vfs/vfs_cache.h>
-#include <syscall/stat.h>
 #include <kernel.h>
+#include <syscall/stat.h>
 
 // Use virtual file system
 #define __VFS__ 1
@@ -165,6 +165,9 @@ typedef struct s_vfs {
     VfsInfo *fs_info; // Filesystem info
     VfsNode *fs_root; // Filesystem root node
 
+    // Todo: Implement all functions for the current_node
+    VfsNode *fs_current_node; // Filesystem current node
+
     // Filesystem specific data
     VfsFS *fs; // Filesystem specific data structure (EXT2, INITRD, ...)
 
@@ -190,10 +193,24 @@ extern int vfs_delete_node(Vfs *vfs, VfsNode *node);
 
 extern int vfs_open(Vfs *vfs, VfsNode *node, uint32_t flags);
 extern int vfs_close(Vfs *vfs, VfsNode *node);
+extern int vfs_read(Vfs *vfs, VfsNode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
+extern int vfs_write(Vfs *vfs, VfsNode *node, uint32_t offset, uint32_t size, uint8_t *buffer);
 extern int vfs_opendir(Vfs *vfs, VfsNode *node);
 extern int vfs_closedir(Vfs *vfs, VfsNode *node);
 extern Dirent *vfs_readdir(Vfs *vfs, VfsNode *node, uint32_t index);
 extern VfsNode *vfs_finddir(Vfs *vfs, VfsNode *node, const char *name);
+extern int vfs_create(Vfs *vfs, VfsNode *node, const char *name, uint16_t permission);
+extern int vfs_unlink(Vfs *vfs, VfsNode *node, const char *name);
+extern int vfs_mkdir(Vfs *vfs, VfsNode *node, const char *name, uint16_t permission);
+extern int vfs_rmdir(Vfs *vfs, VfsNode *node, const char *name);
+extern int vfs_move(Vfs *vfs, VfsNode *node, const char *name, const char *new_name);
+extern int vfs_chmod(Vfs *vfs, VfsNode *node, uint16_t permission);
+extern int vfs_chown(Vfs *vfs, VfsNode *node, uint16_t owner);
+extern int vfs_link(Vfs *vfs, VfsNode *node, const char *name, const char *new_name);
+extern int vfs_symlink(Vfs *vfs, VfsNode *node, const char *name, const char *new_name);
+extern int vfs_readlink(Vfs *vfs, VfsNode *node, const char *name, const char *new_name);
+extern int vfs_chdir(Vfs *vfs, const char *path);
+extern int vfs_stat(Vfs *vfs, VfsNode *node, struct stat *buf);
 
 extern int vfs_mount(Vfs *vfs);
 extern int vfs_unmount(Vfs *vfs);
@@ -201,10 +218,10 @@ extern int vfs_unmount(Vfs *vfs);
 extern Vfs *vfs_get_current_fs(void);
 extern Vfs *vfs_get_fs(const char *fs_name);
 
-extern int vfs_chdir(Vfs *vfs, const char *name);
-
 // VFS Utils
 extern char *vfs_get_node_path(Vfs *vfs, VfsNode *node);
+extern VfsNode *vfs_find_node(Vfs *vfs, const char *path);
 extern int vfs_get_node_stat(Vfs *vfs, VfsNode *node, struct stat *buf);
+extern int vfs_set_current_node(Vfs *vfs, VfsNode *node);
 
 #endif /* !VFS_H */

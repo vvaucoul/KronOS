@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:13:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 22:32:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 14:33:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ int device_register(Device *device) {
     }
     devices[devices_count] = *device;
     ++devices_count;
-    return (devices_count - 1);
+    return (0);
 }
 
 int device_unregister(Device *device) {

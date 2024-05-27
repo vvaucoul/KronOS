@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:20:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/12 10:34:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 15:29:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@ uint32_t tinyfs_find_first_free_inode(TinyFS *fs) {
     return (0);
 }
 
-TinyFS_Inode *tinyfs_create_inode(TinyFS_Inode *parent_inode, const char name[TINYFS_FILENAME_MAX + 1], uint8_t mode) {
+TinyFS_Inode *tinyfs_create_inode(TinyFS *tfs, TinyFS_Inode *parent_inode, const char name[TINYFS_FILENAME_MAX + 1], uint8_t mode) {
     if (strlen(name) > TINYFS_FILENAME_MAX) {
         __THROW("TinyFS: File name too long", NULL);
-    } else if (((TinyFS *)(tiny_vfs->fs))->superblock->free_inodes == 0) {
+    } else if (((TinyFS *)(tfs->fs.vfs->fs))->superblock->free_inodes == 0) {
         __THROW("TinyFS: No free inodes", NULL);
     } else if (mode != VFS_FILE && mode != VFS_DIRECTORY) {
         __THROW("TinyFS: Invalid mode", NULL);
@@ -35,7 +35,7 @@ TinyFS_Inode *tinyfs_create_inode(TinyFS_Inode *parent_inode, const char name[TI
         __THROW("TinyFS: Parent inode is not a directory", NULL);
     } else if (parent_inode && parent_inode->nlink == TINYFS_MAX_FILES) {
         __THROW("TinyFS: Parent inode is full", NULL);
-    } else if (parent_inode && tinyfs_find_first_free_inode((TinyFS *)tiny_vfs->fs) == 0) {
+    } else if (parent_inode && tinyfs_find_first_free_inode((TinyFS *)tfs->fs.vfs->fs) == 0) {
         __THROW("TinyFS: No free inodes", NULL);
     }
 
@@ -55,10 +55,11 @@ TinyFS_Inode *tinyfs_create_inode(TinyFS_Inode *parent_inode, const char name[TI
     tinyfs_inode->size = mode == VFS_FILE ? 0 : mode == VFS_DIRECTORY ? TINYFS_BLOCK_SIZE
                                                                       : 0;
 
-    tinyfs_inode->inode_number = tinyfs_find_first_free_inode((TinyFS *)tiny_vfs->fs);
+    tinyfs_inode->inode_number = tinyfs_find_first_free_inode((TinyFS *)tfs->fs.vfs->fs);
     tinyfs_inode->parent_inode_number = parent_inode ? parent_inode->inode_number : 0;
     memset(tinyfs_inode->links, 0, TINYFS_MAX_FILES);
     tinyfs_inode->nlink = 0;
+    tinyfs_inode->fs = tfs;
     memset(tinyfs_inode->block_pointers, 0, TINYFS_MAX_BLOCKS_PER_FILE);
 
     // Update parent inode
@@ -67,7 +68,7 @@ TinyFS_Inode *tinyfs_create_inode(TinyFS_Inode *parent_inode, const char name[TI
         parent_inode->nlink += 1;
     }
 
-    ((TinyFS *)(tiny_vfs->fs))->inodes[tinyfs_inode->inode_number] = tinyfs_inode;
+    ((TinyFS *)(tfs->fs.vfs->fs))->inodes[tinyfs_inode->inode_number] = tinyfs_inode;
 
     return (tinyfs_inode);
 }
@@ -100,7 +101,7 @@ int tinyfs_write_inode(Vfs *fs, uint32_t inode, TinyFS_Inode *tinyfs_inode) {
 
     memcpy_s(write_buffer, sizeof(TinyFS_Inode), tinyfs_inode, sizeof(TinyFS_Inode));
 
-    if (fs->fops->write(fs, inode_offset, sizeof(TinyFS_Inode), write_buffer) != 0) {
+    if (fs->fops->write(tinyfs_inode, inode_offset, sizeof(TinyFS_Inode), write_buffer) != 0) {
         __THROW("TinyFS: Failed to write inode", -1);
     }
 
@@ -116,7 +117,15 @@ char *tinyfs_get_name(VfsNode *node) {
 }
 
 VfsNode *tinyfs_get_parent(VfsNode *node) {
-    return ((VfsNode *)(((TinyFS *)tiny_vfs->fs)->inodes[((TinyFS_Inode *)node)->parent_inode_number]));
+    TinyFS_Inode *inode = (TinyFS_Inode *)node;
+    TinyFS *tfs = (TinyFS *)inode->fs;
+
+    if (inode->inode_number == ((TinyFS_Inode *)tfs->fs.vfs->fs_root)->inode_number) {
+        return (NULL);
+    }
+
+    return ((VfsNode *)(tfs->inodes[inode->parent_inode_number]));
+    // return ((VfsNode *)(((TinyFS *)((TinyFS_Inode *)node)->fs->tfs->fs.vfs->fs)->inodes[((TinyFS_Inode *)node)->parent_inode_number]));
 }
 
 VfsNode **tinyfs_get_links(Vfs *vfs, VfsNode *node) {

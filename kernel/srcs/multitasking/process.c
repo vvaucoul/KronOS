@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/08 20:54:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/24 14:46:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,9 +148,9 @@ void init_tasking(void) {
     current_task->or_priority = current_task->priority = TASK_PRIORITY_LOW;
     current_task->zombie_hungry = 0;
 
-    /* Init process file system */
-    if ((process_fs_init(current_task)) != 0) {
-        __WARND("init_tasking : process_fs_init failed (process will not have fs)");
+    /* Init process env */
+    if ((process_init_env(current_task)) != 0) {
+        __WARND("init_tasking : process_init_env failed (process will not have fs)");
     }
 
     __process_sectors(current_task);
@@ -201,9 +201,9 @@ int32_t task_fork(void) {
     new_task->or_priority = new_task->priority = TASK_PRIORITY_MEDIUM;
     new_task->zombie_hungry = 0;
 
-    /* Init process file system */
-    if ((process_fs_init(new_task)) != 0) {
-        __WARND("init_tasking : process_fs_init failed (process will not have fs)");
+    /* Init process env */
+    if ((process_init_env(new_task)) != 0) {
+        __WARND("init_tasking : process_init_env failed (process will not have fs)");
     }
 
     __process_sectors(new_task);
@@ -534,112 +534,70 @@ void task_exit(int32_t retval) {
     kill_task(get_current_task()->pid);
 }
 
-//Todo: fix this
+// Todo: fix this
 void switch_to_user_mode(void) {
+    // uint32_t user_stack = current_task->kernel_stack + KERNEL_STACK_SIZE;
+    // tss_set_stack_pointer(user_stack);
+
+    // uint32_t user_code_start = (uint32_t)(uintptr_t)&switch_user_mode_start;
+
+    // // Désactiver les interruptions
+    // __asm__ volatile ("cli");
+
+    // // Charger les sélecteurs de segment pour l'espace utilisateur
+    // __asm__ volatile (
+    //     "mov %%ax, %%ds\n"
+    //     "mov %%ax, %%es\n"
+    //     "mov %%ax, %%fs\n"
+    //     "mov %%ax, %%gs\n"
+    //     :
+    //     : "a" (0x28)  // Sélecteur de segment de données utilisateur (5ème entrée, 0x28)
+    // );
+
+    // // Préparer la pile pour le mode utilisateur et effectuer le saut
+    // __asm__ volatile (
+    //     "mov %0, %%esp\n"                 // Définir ESP sur le sommet de la pile utilisateur
+    //     "push $0x28\n"                    // SS (sélecteur de segment de pile utilisateur, 0x28)
+    //     "push %%esp\n"                    // ESP (valeur actuelle de ESP)
+    //     "pushf\n"                         // EFLAGS (activer les interruptions ici si nécessaire avec popf/sti)
+    //     "push $0x23\n"                    // CS (sélecteur de segment de code utilisateur, 0x20 avec RPL 3)
+    //     "push %1\n"                       // EIP (adresse de départ du code utilisateur)
+    //     "iret\n"                          // Passer en mode utilisateur
+    //     :
+    //     : "r" (user_stack), "r" (user_code_start)
+    //     : "memory"
+    // );
+
+    // Configure the stack segment for user mode
     uint32_t user_stack = current_task->kernel_stack + KERNEL_STACK_SIZE;
+    printk("User stack : %x\n", user_stack);
     tss_set_stack_pointer(user_stack);
 
     uint32_t user_code_start = (uint32_t)(uintptr_t)&switch_user_mode_start;
 
-    __asm__ volatile (
-        "cli\n"                           // Désactive les interruptions
+    __asm__ volatile("cli");
+
+    // Charger les sélecteurs de segment pour l'espace utilisateur
+    __asm__ volatile(
         "mov %%ax, %%ds\n"
         "mov %%ax, %%es\n"
         "mov %%ax, %%fs\n"
         "mov %%ax, %%gs\n"
         :
-        : "a" (0x23)                      // 0x23 est un exemple, utilisez le sélecteur de segment de données utilisateur correct
+        : "a"(0x2B) // Sélecteur de segment de données utilisateur (index 5 en GDT avec RPL 3)
     );
 
-
-    __asm__ volatile (
-        "mov %0, %%esp\n"                 // Définissez ESP sur le haut de la pile utilisateur
-        "push $0xF6\n"                    // SS (sélecteur de segment de pile avec RPL 3)
-        "push %%esp\n"                    // ESP (valeur actuelle de ESP)
-        "pushf\n"                         // EFLAGS (peut aussi activer les interruptions ici si nécessaire)
-        "push $0xFA\n"                    // CS (sélecteur de segment de code avec RPL 3)
-        "push %1\n"                       // EIP (adresse de départ du code utilisateur)
-        "iret\n"                          // Passe en mode utilisateur
+    __asm__ volatile(
+        "mov %0, %%esp\n"
+        "push $0x2B\n"
+        "push %0\n"
+        "pushf\n"
+        "push $0x23\n" // Code segment selector
+        "push %1\n"
+        "iret\n"
         :
-        : "r" (user_stack), "r" (user_code_start)
-        : "memory"
-    );
-
-
-        
-    /* Set up a stack structure for switching to user mode */
-    // __asm__ __volatile__("cli; \
-	// mov $0x23, %ax; \
-	// mov %ax, %ds; \
-	// mov %ax, %es; \
-	// mov %ax, %fs; \
-	// mov %ax, %gs; \
-	// mov %esp, %eax; \
-	// pushl $0x23; \
-	// pushl %esp; \
-	// pushf; \
-	// pushl $0x1B; \
-	// push $1f; \
-	// sti; \
-	// iret; \
-	// 1: \
-	// ");
-
-    // unsigned int eflags, cs, ds, es, fs, gs;
-
-    // __asm__ volatile("pushf; pop %%eax" : "=a"(eflags));
-    // __asm__ volatile("mov %%cs, %%eax" : "=a"(cs));
-    // __asm__ volatile("mov %%ds, %%eax" : "=a"(ds));
-    // __asm__ volatile("mov %%es, %%eax" : "=a"(es));
-    // __asm__ volatile("mov %%fs, %%eax" : "=a"(fs));
-    // __asm__ volatile("mov %%gs, %%eax" : "=a"(gs));
-
-    // printk("EFLAGS: 0x%x\n", eflags);
-    // printk("CS: 0x%x\n", cs);
-    // printk("DS: 0x%x\n", ds);
-    // printk("ES: 0x%x\n", es);
-    // printk("FS: 0x%x\n", fs);
-    // printk("GS: 0x%x\n", gs);
-
-    // kpause();
-
-    // __asm__ __volatile__("cli; \
-	// mov $0x2B, %ax; \
-	// mov %ax, %ds; \
-	// mov %ax, %es; \
-	// mov %ax, %fs; \
-	// mov %ax, %gs; \
-	// mov %esp, %eax; \
-	// pushl $0x2B; \
-	// pushl %esp; \
-	// pushf; \
-	// pushl $0x23; \
-	// push $1f; \
-	// sti; \
-	// iret; \
-	// 1: \
-	// ");
-    // __asm__ volatile(
-    // "  \
-    // cli; \
-    // mov $0x2B, %%ax; \
-    // mov %%ax, %%ds; \
-    // mov %%ax, %%es; \
-    // mov %%ax, %%fs; \
-    // mov %%ax, %%gs; \
-    // \
-    // pushl $0x2B; \
-    // mov %%esp, %%eax; \
-    // pushl %%eax; \
-    // pushf; \
-    // pushl $0x1B; \
-    // push $1f; \
-    // iret; \
-    // 1: \
-    // "
-    // : : : "ax", "eax"
-    // );
-    // switch_user_mode();
+        : "r"(user_stack), "r"(user_code_start)
+        : "memory");
 }
 
 pid_t find_first_free_pid(void) {

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/13 12:32:30 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/02/13 14:30:01 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,18 +28,16 @@ LIBKFS					=	$(LIBKFS_DIR)/Hephaistos.a
 DEPENDENCIES_DIR		=	dependencies
 
 # ! ||--------------------------------------------------------------------------------||
-# ! ||                                   FILESYSTEM                                   ||
+# ! ||                                     DISKS                                      ||
 # ! ||--------------------------------------------------------------------------------||
 
 INITRD_DIR				= 	isodir/boot
 INITRD					=	initrd.img
 
-# DISK_PATH				=	isodir/boot
-# DISK_NAME				=	floppy.img
-# DISK_SIZE				=	256M
+HDA_PATH				=	isodir/boot
+HDA_FILENAME			=	$(shell grep -oP 'hda_filename="\K[^"]+' mk-files/.config)
+HDA_SIZE				=	$(shell grep -oP 'hda_size="\K[^"]+' mk-files/.config)
 
-# VFS_CLEAN_SCRIPT		=	./utils/vfs/clean.sh
-
-HDD_PATH				=	isodir/boot
-HDD_FILENAME			=	hdd.img
-HDD_SIZE				=	256M
+HDB_PATH				=	isodir/boot
+HDB_FILENAME			=	$(shell grep -oP 'hdb_filename="\K[^"]+' mk-files/.config)
+HDB_SIZE				=	$(shell grep -oP 'hdb_size="\K[^"]+' mk-files/.config)

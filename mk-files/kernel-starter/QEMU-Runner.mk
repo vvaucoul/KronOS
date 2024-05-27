@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/02/12 10:56:35 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/05/27 20:14:52 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,8 @@ else
 endif
 
 # QEMU_DISK_FLAGS		=	-drive file=$(HDD_PATH)/$(HDD_FILENAME),format=qcow2,if=ide,index=0,media=disk
-QEMU_DISK_FLAGS		=	 -drive file=$(HDD_PATH)/$(HDD_FILENAME),format=raw,if=ide,index=0,media=disk
+QEMU_DISK_FLAGS		=	 -drive file=$(HDA_PATH)/$(HDA_FILENAME),format=raw,if=ide,index=0,media=disk \
+						-drive file=$(HDB_PATH)/$(HDB_FILENAME),format=raw,if=ide,index=1,media=disk
 INITRD_FLAGS 		=	-initrd $(INITRD_DIR)/$(INITRD)
 
 #******************************************************************************#
@@ -47,11 +48,11 @@ run-debug: $(NAME)
 	@x-terminal-emulator -e gdb -q -x scripts/gdb-commands.txt 
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -display gtk -vga std -serial file:serial.log
 
-run-iso-disk: $(NAME) hda ext2 initrd
+run-iso-disk: $(NAME) hda hdb ext2 initrd
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) and $(_LYELLOW)disk$(_LWHITE): $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -cdrom $(NAME).iso -boot order=cd $(QEMU_DISK_FLAGS) -display gtk -vga std -full-screen
 
-run-disk: $(NAME) hda ext2 initrd
+run-disk: $(NAME) hda hdb ext2 initrd
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with disk: $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"
 	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -boot order=c -kernel isodir/boot/$(BIN) $(INITRD_FLAGS) $(QEMU_DISK_FLAGS) -display gtk -vga std -full-screen 
 

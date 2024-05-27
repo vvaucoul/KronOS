@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 13:25:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/24 17:45:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,86 +36,57 @@ extern int syscall_read(int fd) {
     __UNUSED(fd);
     return (0);
 }
-extern int syscall_write(int fd) {
-#warning "Syscall write not implemented yet"
-    __UNUSED(fd);
-    return (0);
+extern int syscall_write(const char *str) {
+    return (printk("%s", str));
 }
 
 extern int syscall_kill(pid_t pid, int sig) {
     return (kill(pid, sig));
 }
 
-syscall_t __syscall[SYSCALL_SIZE];
+static syscall_t syscalls[SYSCALL_SIZE];
 
-int64_t syscall(int64_t number, ...) {
-    sysfn_t *fn = __syscall[number].function;
-
-    if (fn) {
-        va_list args;
-        va_start(args, number);
-        int32_t ret = fn; //Todo: fix this [sysfn_t *function; to pointer function]
-        #warning "Fix this"
-        va_end(args);
-        return (ret);
-    } else {
-        __THROW("Syscall not found", 1);
-    }
-    return (0);
-}
-
-static void __add_syscall(uint32_t id, const char *name, sysfn_t *fn) {
-    __syscall[id].id = id;
-    __syscall[id].name = (char *)name;
-    __syscall[id].function = fn;
-
+static void syscall_register(uint32_t id, const char *name, sysfn_t fn) {
+    syscalls[id].id = id;
+    syscalls[id].name = (char *)name;
+    syscalls[id].function = fn;
     printk("\t\t\t   - Syscall " _YELLOW "[%d]" _END " - " _GREEN "%s" _END "\n", id, name);
 }
 
-static void __syscall_handler(struct regs *r) {
-    printk("Syscall %d Received\n", r->eax);
-    assert(r->eax < SYSCALL_SIZE);
+static void syscall_handler(struct regs *r) {
+    printk("Syscall %u Received\n", (uint32_t)r->eax);
+    printk("- EBX : %x\n", r->ebx);
+    printk("- ECX : %x\n", r->ecx);
+    printk("- EDX : %x\n", r->edx);
+    
 
-    uint32_t id = r->eax;
+    if (r->eax >= SYSCALL_SIZE) {
+        __THROW_NO_RETURN("Invalid syscall number: %u\n", r->eax);
+    }
 
-    // Update current process
-
-    uint32_t ret;
-
-    __asm__ volatile(
-        "push %1\n"
-        "push %2\n"
-        "push %3\n"
-        "push %4\n"
-        "push %5\n"
-        "push %6\n"
-        "call *%6\n"
-        "pop %%ebx\n"
-        "pop %%ebx\n"
-        "pop %%ebx\n"
-        "pop %%ebx\n"
-        "pop %%ebx\n"
-        : "=a"(ret)
-        : "r"(r->edi), "r"(r->esi), "r"(r->edx), "r"(r->ecx), "r"(r->ebx), "r"(id));
-
-    // todo: update current process
-    // r = current_process->regs;
-    r->eax = ret;
+    syscall_t *syscall = &(syscalls[r->eax]);
+    if (syscall && syscall->function) {
+        r->eax = syscall->function((void *)r->ebx, (void *)r->ecx, (void *)r->edx);
+    } else {
+        printk("Syscall not implemented: %u\n", r->eax);
+        __WARND("Syscall not implemented: %u\n", r->eax);
+    }
 }
 
 void init_syscall(void) {
-    memset(__syscall, 0, sizeof(__syscall));
+    memset(syscalls, 0, sizeof(syscalls));
 
-    // TMP syscall fn -> NULL -> WAIT for KFS-7
-    __add_syscall(SYSCALL_RESTART, "restart", syscall_restart);
-    __add_syscall(SYSCALL_EXIT, "exit", syscall_exit);
-    __add_syscall(SYSCALL_READ, "read", syscall_read);
-    __add_syscall(SYSCALL_WRITE, "write", syscall_write);
-    __add_syscall(SYSCALL_FORK, "fork", syscall_fork);
-    __add_syscall(SYSCALL_WAIT, "wait", syscall_wait);
-    __add_syscall(SYSCALL_KILL, "kill", syscall_kill);
-    __add_syscall(SYSCALL_GETUID, "getuid", getuid);
-    __add_syscall(SYSCALL_STAT, "stat", stat);
+    // Enregistrer les appels système
+    syscall_register(SYSCALL_WRITE, "write", (sysfn_t)syscall_write);
+    // Ajouter d'autres appels système ici
+    // syscall_register(SYSCALL_RESTART, "restart", (sysfn_t)syscall_restart);
+    // syscall_register(SYSCALL_EXIT, "exit", (sysfn_t)syscall_exit);
+    // syscall_register(SYSCALL_READ, "read", (sysfn_t)syscall_read);
+    // syscall_register(SYSCALL_FORK, "fork", (sysfn_t)syscall_fork);
+    // syscall_register(SYSCALL_WAIT, "wait", (sysfn_t)syscall_wait);
+    // syscall_register(SYSCALL_KILL, "kill", (sysfn_t)syscall_kill);
 
-    idt_set_gate(0x80, (uint32_t)__syscall_handler, IDT_SELECTOR, IDT_FLAG_GATE);
+    // idt_set_gate(0x80, (uint32_t)syscall_handler, 0x08, 0x8E);
+
+    idt_set_gate(0x80, (uint32_t)syscall_handler, 0x08, 0b11101110);
 }

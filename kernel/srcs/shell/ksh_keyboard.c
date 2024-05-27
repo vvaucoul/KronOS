@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 22:55:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 19:11:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 16:32:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void ksh_init(void)
     {
         for (size_t x = 0; x < VGA_WIDTH; x++)
         {
-            const size_t index = TERMINAL_CURSOR_AT_LOCATION(x, y);
+            const size_t index = TERMINAL_CHAR(x, y);
             ksh_buffer[index] = VGA_ENTRY(' ', VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color));
         }
     }
@@ -58,5 +58,5 @@ void ksh_move_buffer_offset_down(size_t offset)
     // KSH_UPDATE_TERM_SH();
     // terminal_row = VGA_HEIGHT - 1;
     // terminal_column = __PROMPT_ASCII_LEN__;
-    // UPDATE_CURSOR();
+    // update_cursor();
 }

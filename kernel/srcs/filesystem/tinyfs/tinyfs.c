@@ -6,19 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/12 11:12:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 12:08:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/tinyfs/tinyfs.h>
 #include <memory/memory.h>
-
-// Todo: Set all vars into structure (cause, we can mount tinyfs more than once time)
-Vfs *tiny_vfs = NULL;
-static TinyFS *tinyfs = NULL;
-TinyFS_SuperBlock *tinyfs_sb = NULL;
-Device *tinyfs_device = NULL;
-VfsCache *tinyfs_cache = NULL;
 
 VfsInfo tinyfs_infos = {
     .name = TINYFS_FILESYSTEM_NAME,
@@ -56,38 +49,34 @@ VfsNodeOps tinyfs_nops = {
     .get_links = tinyfs_get_links,
 };
 
-VfsCacheFn tinyfs_cache_fn = {
-    .vfs_set_cache_links = tinyfs_set_cache_links,
-    .vfs_get_cache_links = tinyfs_get_cache_links,
-};
-
-//Todo: param device
-int tinyfs_init(void) {
+TinyFS *tinyfs_init(Device *device) {
     printk("TinyFS: Initializing file system\n");
+    TinyFS *tinyfs = NULL;
 
-    // Todo: Update device index
-    tinyfs_device = device_get(0);
-    if (tinyfs_device == NULL) {
-        __THROW("TinyFS: Failed to get device", 1);
+    if (device == NULL) {
+        __THROW("TinyFS: Failed to get device", NULL);
     } else {
         if ((tinyfs = kmalloc(sizeof(TinyFS))) == NULL) {
-            __THROW("TinyFS: Failed to allocate memory for tinyfs", 1);
+            __THROW("TinyFS: Failed to allocate memory for tinyfs", NULL);
         }
 
+        /* Init SuperBlock */
         tinyfs->superblock = NULL;
-        memset(tinyfs->inodes, 0, sizeof(TinyFS_Inode) * TINYFS_MAX_FILES);
+        tinyfs->fs.device = device;
 
+        /* Init Inodes */
+        memset_s(tinyfs->inodes, sizeof(TinyFS_Inode) * TINYFS_MAX_FILES, 0, sizeof(TinyFS_Inode) * TINYFS_MAX_FILES);
+
+        /* Init Data Blocks */
         for (uint32_t i = 0; i < TINYFS_MAX_BLOCKS; i++) {
-            memset(tinyfs->data_blocks[i], 0, TINYFS_BLOCK_SIZE);
+            memset_s(tinyfs->data_blocks[i], TINYFS_BLOCK_SIZE, 0, TINYFS_BLOCK_SIZE);
+        }
+
+        /* Init VFS */
+        if ((tinyfs->fs.vfs = vfs_create_fs(tinyfs, &tinyfs_infos, &tinyfs_fspos, &tinyfs_fops, &tinyfs_nops)) == NULL) {
+            __THROW("TinyFS: Failed to create VFS", NULL);
         }
     }
 
-    if ((tiny_vfs = vfs_create_fs(tinyfs, &tinyfs_infos, &tinyfs_fspos, &tinyfs_fops, &tinyfs_nops)) == NULL) {
-        __THROW("TinyFS: Failed to create VFS", 1);
-    }
-    if ((tinyfs_cache = vfs_create_cache(tiny_vfs, tinyfs_cache_fn)) == NULL) {
-        __THROW("TinyFS: Failed to create cache", 1);
-    }
-
-    return (0);
+    return (tinyfs);
 }

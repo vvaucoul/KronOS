@@ -1709,7 +1709,7 @@ UNALIGNED_P	xorriso-1.4.6/libjte/sha512.c	/^#  define UNALIGNED_P(/;"	d	file:
 UNIX_NONE	xorriso-1.4.6/libisofs/hfsplus.h	/^  enum { UNIX_NONE, UNIX_SYMLINK, UNIX_SPECIAL } unix_type;$/;"	e	enum:hfsplus_node::__anon86abf0130103
 UNIX_SPECIAL	xorriso-1.4.6/libisofs/hfsplus.h	/^  enum { UNIX_NONE, UNIX_SYMLINK, UNIX_SPECIAL } unix_type;$/;"	e	enum:hfsplus_node::__anon86abf0130103
 UNIX_SYMLINK	xorriso-1.4.6/libisofs/hfsplus.h	/^  enum { UNIX_NONE, UNIX_SYMLINK, UNIX_SPECIAL } unix_type;$/;"	e	enum:hfsplus_node::__anon86abf0130103
-UPDATE_CURSOR	kernel/includes/terminal.h	/^#define UPDATE_CURSOR(/;"	d
+update_cursor	kernel/includes/terminal.h	/^#define update_cursor(/;"	d
 USER_DATA	xorriso-1.4.6/libburn/drive.h	/^#define USER_DATA /;"	d
 VERSION	xorriso-1.4.6/Makefile	/^VERSION = 1.4.6$/;"	m
 VERSION	xorriso-1.4.6/Makefile.in	/^VERSION = @VERSION@$/;"	m
@@ -8757,7 +8757,7 @@ terminal_putchar	kernel/srcs/terminal.c	/^void terminal_putchar(char c)$/;"	f	ty
 terminal_putentryat	kernel/includes/terminal.h	/^static inline void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)$/;"	f	typeref:typename:void
 terminal_row	kernel/srcs/terminal.c	/^size_t terminal_row;$/;"	v	typeref:typename:size_t
 terminal_screen	kernel/srcs/terminal.c	/^size_t terminal_screen;$/;"	v	typeref:typename:size_t
-terminal_setcolor	kernel/srcs/terminal.c	/^void terminal_setcolor(uint8_t color)$/;"	f	typeref:typename:void
+terminal_set_color	kernel/srcs/terminal.c	/^void terminal_set_color(uint8_t color)$/;"	f	typeref:typename:void
 terminal_write	kernel/srcs/terminal.c	/^static void terminal_write(const char *data, size_t size)$/;"	f	typeref:typename:void	file:
 terminal_write_n_char	kernel/srcs/terminal.c	/^void terminal_write_n_char(char c, size_t count)$/;"	f	typeref:typename:void
 terminal_writestring	kernel/srcs/terminal.c	/^void terminal_writestring(const char *data)$/;"	f	typeref:typename:void

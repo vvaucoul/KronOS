@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/19 10:40:47 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/19 10:52:38 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/02/13 14:27:11 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,17 +28,17 @@ else
     exit 1
 fi
 
-hdd_path="../../isodir/boot"
-hdd_filename=$(grep -oP 'disk_filename="\K[^"]+' ../../mk-files/.config)
+hda_path="../../isodir/boot"
+hda_filename=$(grep -oP 'hda_filename="\K[^"]+' ../../mk-files/.config)
 
 printf "$WHITE    - Formating disk... $RESET\n"
-printf "$WHITE    \t- Disk path: $GREEN%s $RESET\n" $hdd_path
-printf "$WHITE    \t- Disk filename: $GREEN%s $RESET\n" $hdd_filename
+printf "$WHITE    \t- Disk path: $GREEN%s $RESET\n" $hda_path
+printf "$WHITE    \t- Disk filename: $GREEN%s $RESET\n" $hda_filename
 
-sudo mkfs.ext2 $hdd_path/$hdd_filename
+sudo mkfs.ext2 $hda_path/$hda_filename
 tmp_mount="/mnt/tmp"
 sudo mkdir -p $tmp_mount
-sudo mount $hdd_path/$hdd_filename $tmp_mount
+sudo mount $hda_path/$hda_filename $tmp_mount
 
 sudo mkdir -p $tmp_mount/mnt
 sudo mkdir -p $tmp_mount/dev
@@ -59,7 +59,7 @@ sudo mkdir -p $tmp_mount/sbin
 sudo mkdir -p $tmp_mount/srv
 sudo mkdir -p $tmp_mount/sys
 
-ls -l $tmp_mount
+ls -l $tmp_mount --color=auto
 
 sudo umount $tmp_mount
 sudo rm -rf $tmp_mount

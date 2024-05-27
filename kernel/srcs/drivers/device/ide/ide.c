@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:34:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 22:32:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/24 10:39:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 IDEDevice *ide_devices[MAX_IDE_DEVICES];
 
 IDEDevice *ide_get_device(uint8_t drive) {
-    if (drive > 3) {
+    if (drive > MAX_IDE_DEVICES) {
         return (NULL);
     }
     return (ide_devices[drive]);

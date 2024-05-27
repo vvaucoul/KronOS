@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    create_disk.sh                                     :+:      :+:    :+:    #
+#    create_hda.sh                                      :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/16 17:59:42 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/01/16 18:10:33 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/02/13 14:23:01 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,17 +28,17 @@ else
     exit 1
 fi
 
-hdd_path="../../isodir/boot"
-hdd_filename=$(grep -oP 'disk_filename="\K[^"]+' ../../mk-files/.config)
-hdd_size=$(grep -oP 'disk_size="\K[^"]+' ../../mk-files/.config)
-hdd_format=$(grep -oP 'disk_format="\K[^"]+' ../../mk-files/.config)
+hda_path="../../isodir/boot"
+hda_filename=$(grep -oP 'hda_filename="\K[^"]+' ../../mk-files/.config)
+hda_size=$(grep -oP 'hda_size="\K[^"]+' ../../mk-files/.config)
+hda_format=$(grep -oP 'hda_format="\K[^"]+' ../../mk-files/.config)
 
 printf "$WHITE    - Creating disk...\n"
-printf "$WHITE    \t- Disk path: $GREEN%s\n" $hdd_path
-printf "$WHITE    \t- Disk filename: $GREEN%s\n" $hdd_filename
-printf "$WHITE    \t- Disk size: $GREEN%s\n" $hdd_size
-printf "$WHITE    \t- Disk format: $GREEN%s\n" $hdd_format
+printf "$WHITE    \t- Disk path: $GREEN%s\n" $hda_path
+printf "$WHITE    \t- Disk filename: $GREEN%s\n" $hda_filename
+printf "$WHITE    \t- Disk size: $GREEN%s\n" $hda_size
+printf "$WHITE    \t- Disk format: $GREEN%s\n" $hda_format
 
-qemu-img create -f $hdd_format $hdd_path/$hdd_filename $hdd_size >.hdd_output.log
+qemu-img create -f $hda_format $hda_path/$hda_filename $hda_size >.hda_output.log
 
-printf "$WHITE    - Disk created. $RESET$DIM(log: .hdd_output.log)\n$RESET"
+printf "$WHITE    - Disk created. $RESET$DIM(log: .hda_output.log)\n$RESET"

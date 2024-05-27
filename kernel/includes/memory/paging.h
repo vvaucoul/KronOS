@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 19:25:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,57 +74,43 @@ typedef struct s_page_directory {
 extern page_directory_t *kernel_directory;
 extern page_directory_t *current_directory;
 
-extern void init_paging(void);
-extern page_t *get_page(uint32_t address, page_directory_t *dir);
-extern page_t *create_page(uint32_t address, page_directory_t *dir);
+void init_paging(void);
+page_t *get_page(uint32_t address, page_directory_t *dir);
+page_t *create_page(uint32_t address, page_directory_t *dir);
 
-extern void page_fault(struct regs *r);
+void page_fault(struct regs *r);
 
-extern void enable_paging(page_directory_t *dir);
-extern uint32_t get_cr2(void);
+void enable_paging(page_directory_t *dir);
+uint32_t get_cr2(void);
 
-extern void *get_physical_address(page_directory_t *dir, void *addr);
-extern void *get_virtual_address(page_directory_t *dir, void *addr);
+void *get_physical_address(page_directory_t *dir, void *addr);
+void *get_virtual_address(page_directory_t *dir, void *addr);
 
-extern void switch_page_directory(page_directory_t *dir);
-extern void flush_tlb_entry(uint32_t addr);
+void switch_page_directory(page_directory_t *dir);
+void flush_tlb_entry(uint32_t addr);
 
-extern page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *dir);
-extern void destroy_user_page(page_t *page, page_directory_t *dir);
+page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *dir);
+void destroy_user_page(page_t *page, page_directory_t *dir);
 
-extern page_directory_t *clone_page_directory(page_directory_t *dir);
-extern page_table_t *clone_table(page_table_t *src, uint32_t *physAddr);
-extern void copy_page_physical(uint32_t, uint32_t);
+page_directory_t *clone_page_directory(page_directory_t *dir);
+page_table_t *clone_table(page_table_t *src, uint32_t *physAddr);
+void copy_page_physical(uint32_t src, uint32_t dest);
 
-extern void destroy_page_directory(page_directory_t *dir);
+void destroy_page_directory(page_directory_t *dir);
 
-extern int is_paging_enabled(void);
+int is_paging_enabled(void);
 
-extern int verify_page_directory(page_directory_t *dir);
-extern int verify_page_table(page_table_t *table, uint32_t table_idx);
-extern int verify_page(page_t *page, uint32_t page_idx, uint32_t table_idx);
-extern void display_page_directory(page_directory_t *dir);
+int verify_page_directory(page_directory_t *dir);
+int verify_page_table(page_table_t *table, uint32_t table_idx);
+int verify_page(page_t *page, uint32_t page_idx, uint32_t table_idx);
+void display_page_directory(page_directory_t *dir);
 
 extern bool paging_enabled;
-
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                                  PAGING MACROS                                 ||
-// ! ||--------------------------------------------------------------------------------||
 
 #define E_PAGING_NOT_ENABLED "Paging not enabled"
 #define E_INVALID_ADDRESS "Invalid address"
 #define E_ADDRESS_NOT_ALIGNED "Address not aligned"
 #define E_SWITCH_PAGE_DIRECTORY "Failed to switch page directory"
-
-#define __addr_validator(addr, is_virtual)        \
-    do {                                          \
-        if (!paging_enabled)                      \
-            __WARN(E_PAGING_NOT_ENABLED, NULL);  \
-        if (!addr)                                \
-            __WARN(E_INVALID_ADDRESS, NULL);     \
-        if ((uint32_t)addr % PAGE_SIZE != 0)      \
-            __WARN(E_ADDRESS_NOT_ALIGNED, NULL); \
-    } while (0)
 
 #define READ_CR3() ({                \
     uint32_t cr3;                    \

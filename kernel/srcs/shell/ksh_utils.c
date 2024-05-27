@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 15:41:33 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 15:32:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 16:29:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,12 +69,12 @@ void ksh_save_line(size_t y)
 void ksh_del_char_location(size_t x, size_t y)
 {
     ksh_move_offset_line_left(x, y, 1);
-    UPDATE_CURSOR();
+    // update_cursor();
 }
 
 void ksh_insert_char_location(char c, size_t x, size_t y)
 {
     ksh_move_offset_line_right(x, y, 1);
     putchar(c);
-    UPDATE_CURSOR();
+    // update_cursor();
 }

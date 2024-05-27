@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   idt.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:08:45 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 21:04:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/24 12:59:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,6 @@ extern void idt_set_gate(unsigned char num, unsigned long base, unsigned short s
 extern void push_regs(void);
 extern void pop_regs(void);
 
-void tmp(void);
+void print_idt_entry(uint8_t num);
 
 #endif /* !IDT_H */

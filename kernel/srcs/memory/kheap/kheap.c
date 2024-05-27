@@ -6,48 +6,39 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 19:59:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/kheap.h>
 #include <memory/paging.h>
 #include <memory/shared.h>
-
 #include <system/panic.h>
 
 uint32_t placement_addr = (uint32_t)(uint32_t *)(&__kernel_section_end);
 heap_t *kheap = NULL;
 
 static void *__kbrk(uint32_t size) {
-    void *addr = NULL;
-
     if (size == 0)
-        return (NULL);
-    else {
-        addr = (void *)placement_addr;
-        placement_addr += size;
-    }
-    return (addr);
+        return NULL;
+    void *addr = (void *)placement_addr;
+    placement_addr += size;
+    return addr;
 }
 
 static void *__kbrk_int(uint32_t size, bool align, uint32_t *phys) {
-    void *addr = NULL;
-
     if (align && (placement_addr & 0xFFFFF000)) {
         placement_addr &= 0xFFFFF000;
-        placement_addr += 0x1000;
+        placement_addr += PAGE_SIZE;
     }
-    if (phys) {
+    if (phys)
         *phys = placement_addr;
-    }
-    addr = (void *)placement_addr;
+    void *addr = (void *)placement_addr;
     placement_addr += size;
-    return (addr);
+    return addr;
 }
 
 static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys) {
-    /* If Heap exists -> Heap Algorithm with Virtual Memory */
     if (kheap) {
         void *addr = kheap_alloc(size, align, kheap);
         if (phys) {
@@ -57,54 +48,32 @@ static void *__kmalloc_int(uint32_t size, bool align, uint32_t *phys) {
             else
                 *phys = 0;
         }
-        if (align && (placement_addr & 0xFFFFF000)) {
-            if ((placement_addr & 0xFFFFF000)) {
-                placement_addr &= 0xFFFFF000;
-                placement_addr += PAGE_SIZE;
-            }
-        }
-        return (addr);
-    }
-    /* Either, use physical Memory */
-    else {
-        if (align && (placement_addr & 0xFFFFF000)) {
-            placement_addr &= 0xFFFFF000;
-            placement_addr += PAGE_SIZE;
-        }
-        if (phys) {
-            *phys = placement_addr;
-        }
-        /* Don't need to store data in block -> reverved for system */
-        return (__kbrk(size));
+        return addr;
+    } else {
+        return __kbrk_int(size, align, phys);
     }
 }
 
 static uint32_t __ksize(void *ptr) {
-    return (kheap_get_ptr_size(ptr));
+    return kheap_get_ptr_size(ptr);
 }
 
 static void *__krealloc(void *ptr, uint32_t size) {
-    void *new_ptr = NULL;
-
-    if (ptr == NULL)
-        return (NULL);
-    else {
-        new_ptr = kmalloc(size);
-        if (new_ptr == NULL)
-            return (NULL);
+    if (!ptr)
+        return kmalloc(size);
+    void *new_ptr = kmalloc(size);
+    if (new_ptr) {
         memcpy(new_ptr, ptr, size);
         kfree(ptr);
     }
-    return (new_ptr);
+    return new_ptr;
 }
 
 static void *__kcalloc(uint32_t count, uint32_t size) {
     void *ptr = kmalloc(count * size);
-
-    if (ptr == NULL)
-        return (NULL);
-    memset(ptr, 0, count * size);
-    return (ptr);
+    if (ptr)
+        memset(ptr, 0, count * size);
+    return ptr;
 }
 
 static void __kfree(void *ptr) {
@@ -117,21 +86,15 @@ static uint8_t header_t_less_than(void *a, void *b) {
 }
 
 static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly) {
-    if (!IS_ALIGNED(start_addr) || !IS_ALIGNED(end_addr))
-        __PANIC("KHEAP : Start and End address must be aligned to 0x1000");
-
-    assert(start_addr % 0x1000 == 0);
-    assert(end_addr % 0x1000 == 0);
+    assert(IS_ALIGNED(start_addr) && IS_ALIGNED(end_addr));
 
     heap_t *heap = (heap_t *)kmalloc(sizeof(heap_t));
-
     heap->array = heap_array_create((void *)start_addr, HEAP_INDEX_SIZE, &header_t_less_than);
 
     start_addr += sizeof(data_t) * HEAP_INDEX_SIZE;
-
     if (start_addr & 0xFFFFF000) {
         start_addr &= 0xFFFFF000;
-        start_addr += 0x1000;
+        start_addr += PAGE_SIZE;
     }
 
     heap->addr.start_address = start_addr;
@@ -145,12 +108,10 @@ static heap_t *__init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_
     hole->magic = KHEAP_MAGIC;
     hole->state = FREE;
     heap_array_insert_element((void *)hole, &heap->array);
-    return (heap);
+    return heap;
 }
 
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                               INTERFACE FUNCTIONS                              ||
-// ! ||--------------------------------------------------------------------------------||
+// Interface functions
 
 void init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32_t supervisor, uint32_t readonly) {
     kheap = __init_heap(start_addr, end_addr, max_addr, supervisor, readonly);
@@ -158,27 +119,27 @@ void init_heap(uint32_t start_addr, uint32_t end_addr, uint32_t max_addr, uint32
 }
 
 void *kmalloc_int(uint32_t size, bool align, uint32_t *phys) {
-    return (__kmalloc_int(size, align, phys));
+    return __kmalloc_int(size, align, phys);
 }
 
 void *kmalloc_a(uint32_t size) {
-    return (__kmalloc_int(size, 1, 0));
+    return __kmalloc_int(size, true, NULL);
 }
 
 void *kmalloc_p(uint32_t size, uint32_t *phys) {
-    return (__kmalloc_int(size, 0, phys));
+    return __kmalloc_int(size, false, phys);
 }
 
 void *kmalloc_ap(uint32_t size, uint32_t *phys) {
-    return (__kmalloc_int(size, 1, phys));
+    return __kmalloc_int(size, true, phys);
 }
 
 void *kmalloc(uint32_t size) {
-    return (__kmalloc_int(size, 0, 0));
+    return __kmalloc_int(size, false, NULL);
 }
 
 void *kmalloc_v(uint32_t size) {
-    return (__kmalloc_int(size, 0, 0));
+    return __kmalloc_int(size, false, NULL);
 }
 
 void kfree_v(void *ptr) {
@@ -186,7 +147,11 @@ void kfree_v(void *ptr) {
 }
 
 void kfree_p(void *ptr) {
-    __kfree(get_virtual_address(kernel_directory, ptr));
+    void *virtual_addr = get_virtual_address(kernel_directory, ptr);
+    if (virtual_addr == NULL) {
+        return;
+    }
+    __kfree(virtual_addr);
 }
 
 void kfree(void *ptr) {
@@ -194,92 +159,72 @@ void kfree(void *ptr) {
 }
 
 void *krealloc(void *ptr, uint32_t size) {
-    return (__krealloc(ptr, size));
+    return __krealloc(ptr, size);
 }
 
 void *kcalloc(uint32_t count, uint32_t size) {
-    return (__kcalloc(count, size));
+    return __kcalloc(count, size);
 }
 
 void *kbrk(uint32_t size) {
-    return (__kbrk(size));
+    return __kbrk(size);
 }
 
 void *kbrk_int(uint32_t size, bool align, uint32_t *phys) {
-    return (__kbrk_int(size, align, phys));
+    return __kbrk_int(size, align, phys);
 }
 
 void *kbrk_a(uint32_t size) {
-    return (__kbrk_int(size, 1, 0));
+    return __kbrk_int(size, true, NULL);
 }
 
 void *kbrk_p(uint32_t size, uint32_t *phys) {
-    return (__kbrk_int(size, 0, phys));
+    return __kbrk_int(size, false, phys);
 }
 
 void *kbrk_ap(uint32_t size, uint32_t *phys) {
-    return (__kbrk_int(size, 1, phys));
+    return __kbrk_int(size, true, phys);
 }
 
 void *kbrk_v(uint32_t size) {
-    return (__kbrk_int(size, 0, 0));
+    return __kbrk_int(size, false, NULL);
 }
 
 uint32_t ksize(void *ptr) {
-    return (__ksize(ptr));
+    return __ksize(ptr);
 }
 
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                                 DEBUG FUNCTIONS                                ||
-// ! ||--------------------------------------------------------------------------------||
+// Debug functions
 
-/**
- * @brief Allocate memory with debug informations
- */
 void *__kmalloc_debug(uint32_t size, bool align, uint32_t *phys, int line, const char *file, const char *function) {
     void *ptr = kmalloc_int(size, align, phys);
     if (!ptr) {
         __THROW("Failed to allocate memory\nFile [%s] - [%s] - [%d]", NULL, line, file, function);
     } else {
         printk(_RED "[DEBUG] " _END "Allocating memory at "_RED
-                    "[%p]"_END
-                    "\n"_YELLOW
-                    "[%s]"_END
-                    " -"_YELLOW
-                    " [%d]"_END
-                    " -"_YELLOW
-                    " [%s]"_END
-                    "\n",
+                    "[%p]" _END "\n"_YELLOW
+                    "[%s]" _END " -"_YELLOW
+                    " [%d]" _END " -"_YELLOW
+                    " [%s]" _END "\n",
                ptr, file, line, function);
     }
     uint32_t ptr_size = kheap_get_ptr_size(ptr);
     printk(_RED "[DEBUG] " _END "Memory size "_RED
-                "[%u]"_END
-                "\n"_YELLOW
-                "[%s]"_END
-                " -"_YELLOW
-                " [%d]"_END
-                " -"_YELLOW
-                " [%s]"_END
-                "\n",
+                "[%u]" _END "\n"_YELLOW
+                "[%s]" _END " -"_YELLOW
+                " [%d]" _END " -"_YELLOW
+                " [%s]" _END "\n",
            ptr_size, file, line, function);
-
-    return (ptr);
+    return ptr;
 }
 
-/**
- * @brief Free memory with debug informations
- */
 void __kfree_debug(void *ptr, int line, const char *file, const char *function) {
     printk(_RED "[DEBUG] " _END "Freeing memory at "_RED
-                "[%p]"_END
-                "\n"_YELLOW
-                "[%s]"_END
-                "- "_YELLOW
+                "[%p]" _END "\n"_YELLOW
+                "[%s]" _END "- "_YELLOW
                 "[%d] "_END
                 "- "_YELLOW
-                "[%s]"_END
-                "\n",
+                "[%s]" _END "\n",
            ptr, file, line, function);
     kfree(ptr);
 }

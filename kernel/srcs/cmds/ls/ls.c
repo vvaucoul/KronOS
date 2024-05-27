@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 17:38:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 13:22:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 15:41:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,28 @@ int ls(int argc, char **argv) {
         // Todo: Implement stat command / syscall to get file mode / type / size / permissions etc..
         // todo: implement colors for file types
 
+        struct stat st;
+        // char *path = vfs_get_node_path(vfs, node); // Todo: replace name by path (update stat function to take path as argument)
+        char *name = dir->d_name;
+
+        if ((stat(name, &st)) != 0) {
+            __WARND("ls: failed to get file stats");
+            i++;
+            continue;
+        }
+
+        if (S_ISDIR(st.st_mode)) {
+            printk(_BLUE);
+        } else if (S_ISREG(st.st_mode)) {
+            printk(_WHITE);
+        } else {
+            printk(_YELLOW);
+        }
         printk("%s ", dir->d_name);
+        printk(_END);
         i++;
     }
+    printk("\n" _END);
 
     return (0);
 }

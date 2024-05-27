@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:00:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 22:56:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 11:39:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,7 @@
  * @return int
  */
 int tinyfs_write_superblock(Vfs *fs) {
-    return (tinyfs_device->swrite(tinyfs_device->device, 0, sizeof(TinyFS_SuperBlock), ((TinyFS *)fs->fs)->superblock));
+    TinyFS *tinyfs = (TinyFS *)fs->fs;
+
+    return (tinyfs->fs.device->swrite(tinyfs->fs.device->device, 0, sizeof(TinyFS_SuperBlock), tinyfs->superblock));
 }

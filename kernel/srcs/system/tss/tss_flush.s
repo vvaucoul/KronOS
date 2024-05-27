@@ -1,9 +1,5 @@
 global tss_flush
 tss_flush:
-    mov eax, [esp + 4]
-    ltr [eax]
+    mov ax, 0x38  ; TSS selector is 0x30 (index 7 in GDT, multiplied by 8)
+    ltr ax
     ret
-
-    ; mov ax, 0x28 ; 0x28 is the TSS segment
-    ; ltr ax
-    ; ret

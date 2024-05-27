@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 15:43:33 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/02/12 10:58:53 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/02/13 14:31:47 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,12 +50,14 @@ initrd:
 	@printf "$(_LWHITE)- INITRD $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
 hda:
-	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(HDD_FILENAME)"
-	@cd ./utils/disks/ && sh create_disk.sh && cd - > /dev/null 2>&1
-	@printf "$(_LWHITE)    $(_DIM)- Log: $(_END)$(_DIM)--------------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" ".hdd_output.log"
+	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(HDA_FILENAME)"
+	@cd ./utils/disks/ && sh create_hda.sh && cd - > /dev/null 2>&1
+	@printf "$(_LWHITE)    $(_DIM)- Log: $(_END)$(_DIM)--------------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" ".hda_output.log"
 
 hdb:
-#Todo...
+	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(HDB_FILENAME)"
+	@cd ./utils/disks/ && sh create_hdb.sh && cd - > /dev/null 2>&1
+	@printf "$(_LWHITE)    $(_DIM)- Log: $(_END)$(_DIM)--------------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" ".hdb_output.log"
 
 ext2:
 	@printf "$(_LWHITE)    $(_DIM)- Generating: $(_END)$(_DIM)-------$(_END)$(_LYELLOW) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" "$(EXT2_FILENAME)"

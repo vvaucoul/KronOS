@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/08 20:16:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/24 12:40:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #define SEG_LONG(x) ((x) << 0x0D)
 #define SEG_SIZE(x) ((x) << 0x0E)
 #define SEG_GRAN(x) ((x) << 0x0F)
-#define SEG_PRIV(x) (((x)&0x03) << 0x05)
+#define SEG_PRIV(x) (((x) & 0x03) << 0x05)
 
 #define SEG_DATA_RD 0x00        // Read-Only
 #define SEG_DATA_RDA 0x01       // Read-Only, accessed
@@ -42,32 +42,26 @@
 #define SEG_CODE_EXRDC 0x0E     // Execute/Read, conforming
 #define SEG_CODE_EXRDCA 0x0F    // Execute/Read, conforming, accessed
 
-/* 0x9A */
 #define GDT_CODE_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(0) | SEG_CODE_EXRD
 
-/* 0x92 */
 #define GDT_DATA_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(0) | SEG_DATA_RDWR
 
-/* 0x96 */
 #define GDT_STACK_PL0 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                           SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                           SEG_PRIV(0) | SEG_DATA_RDWREXPD
 
-/* 0xFA */
 #define GDT_CODE_PL3 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(3) | SEG_CODE_EXRD
 
-/* 0xF2 */
 #define GDT_DATA_PL3 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(3) | SEG_DATA_RDWR
 
-/* 0xF6 */
 #define GDT_STACK_PL3 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
                           SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                           SEG_PRIV(3) | SEG_DATA_RDWREXPD
@@ -75,47 +69,8 @@
 #define GDT_ENTRY_FLAG_BASE 0xCF
 #define GDT_ENTRY_FLAG_ZERO 0x0
 
-// #define __GDT_ADDR (0x00000800) //+ (__HIGHER_HALF_KERNEL__ == true ? KERNEL_MEMORY_START : 0x0))
-#define __GDT_ADDR ((0x00000800) + (__HIGHER_HALF_KERNEL__ == true ? KERNEL_VIRTUAL_BASE : 0x0))
-#define __GDT_SIZE 0x07
-
-#define __GDT_LIMIT (uint16_t)0xFFFFF
-#define __GDT_USER_LIMIT (uint16_t)0xBFFFF
-#define __GDT_ERROR_LIMIT "GDT limit is too high"
-
-#define _GDT_KERNEL_CODE 0
-#define _GDT_KERNEL_DATA 1
-#define _GDT_KERNEL_STACK 2
-
-#define _GDT_USER_CODE 3
-#define _GDT_USER_DATA 4
-#define _GDT_USER_STACK 5
-
-/*
-    "code": kernel code, used to stored the executable binary code
-    "data": kernel data
-    "stack": kernel stack, used to stored the call stack during kernel execution
-    "ucode": user code, used to stored the executable binary code for user program
-    "udata": user program data
-    "ustack": user stack, used to stored the call stack during execution in userland
-*/
-
-#define GDT_LIMIT_LOW(limit) ((limit)&0xFFFF)
-#define GDT_BASE_LOW(base) ((base)&0xFFFF)
-#define GDT_BASE_MIDDLE(base) (((base) >> 16) & 0xFF)
-#define GDT_BASE_HIGH(base) (((base) >> 24) & 0xFF)
-#define GDT_FLAGS_LIMIT_HI(limit, flags) (((limit >> 16) & 0x0F) | (flags << 4) & 0xF0)
-#define GDT_ACCESS(access) (access)
-
-#define GDT_ENTRY(base, limit, access, flags) \
-    {                                         \
-        GDT_LIMIT_LOW(limit),                 \
-            GDT_BASE_LOW(base),               \
-            GDT_BASE_MIDDLE(base),            \
-            GDT_ACCESS(access),               \
-            GDT_FLAGS_LIMIT_HI(limit, flags), \
-            GDT_BASE_HIGH(base),              \
-    }
+#define GDT_ADDRESS 0x00000800
+#define GDT_SIZE 0x07
 
 typedef struct s_gdt_entry {
     uint16_t limit_low;  // Limit (bits 0-15)
@@ -124,30 +79,27 @@ typedef struct s_gdt_entry {
     uint8_t access;      // Access flags
     uint8_t granularity; // Granularity flags (bits 16-19)
     uint8_t base_high;   // Base address (bits 24-31)
-} __attribute__((packed)) t_gdt_entry;
+} __attribute__((packed)) gdt_entry_t;
 
-#define GDTEntry t_gdt_entry
+#define GDTEntry gdt_entry_t
 
 typedef struct s_gdt_ptr {
     uint16_t limit;
     uint32_t base;
-} __attribute__((packed)) t_gdt_ptr;
+} __attribute__((packed)) gdt_ptr_t;
 
-#define GDTPtr t_gdt_ptr
+#define GDTPtr gdt_ptr_t
 
 extern GDTEntry *gdt;
 extern GDTPtr gp;
 
 #define __GDT_LOGS__ false
 
-extern void gdt_flush(uint32_t gdt_ptr);
 extern void gdt_install(void);
-extern void print_stack(void);
-extern void print_gdt(void);
-extern void gdt_test(void);
-
 extern void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity);
+extern void gdt_flush(uint32_t gdt_ptr);
 
-extern int gdt_setup_usermode(void);
+/* Utils */
+extern void print_gdt(void);
 
 #endif /* !GDT_H_ */

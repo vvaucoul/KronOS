@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:49:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 21:16:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/02/13 17:47:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/tinyfs/tinyfs.h>
 #include <memory/memory.h>
 #include <multitasking/process.h>
+#include <syscall/stat.h>
 
 /**
  * @brief Read data from file
@@ -26,8 +27,10 @@
  *
  * @return int
  */
-int tinyfs_read(__unused__ void *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
-    return (tinyfs_device->sread(tinyfs_device->device, offset, size, buffer));
+int tinyfs_read(void *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
+
+    return (tinyfs->fs.device->sread(tinyfs->fs.device->device, offset, size, buffer));
 }
 
 /**
@@ -42,12 +45,16 @@ int tinyfs_read(__unused__ void *node, uint32_t offset, uint32_t size, uint8_t *
  *
  * @return int
  */
-int tinyfs_write(__unused__ void *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
-    return (tinyfs_device->swrite(tinyfs_device->device, offset, size, buffer));
+int tinyfs_write(void *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
+
+    return (tinyfs->fs.device->swrite(tinyfs->fs.device->device, offset, size, buffer));
 }
 
 VfsNode *tinyfs_finddir(void *node, const char *name) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
     TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
+    
     // Check if the node is a directory
     if ((tfs_node->mode & VFS_DIRECTORY) == 0) {
         return (NULL);
@@ -55,7 +62,7 @@ VfsNode *tinyfs_finddir(void *node, const char *name) {
 
     // Iterate over the entries in the directory
     for (uint32_t i = 0; i <= tfs_node->nlink; i++) {
-        TinyFS_Inode *child_node = tinyfs_get_inode(tiny_vfs, i); // tfs_node->block_pointers[i]
+        TinyFS_Inode *child_node = tinyfs_get_inode(tinyfs->fs.vfs, i);
 
         // Check if the child node's name matches the requested name
         if (strcmp(child_node->name, name) == 0) {
@@ -68,7 +75,13 @@ VfsNode *tinyfs_finddir(void *node, const char *name) {
 }
 
 int tinyfs_mkdir(void *node, const char *name, uint16_t permission) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
     TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
+
+    if (tinyfs == NULL || tfs_node == NULL) {
+        return -1;
+    }
+
     // Check if the node is a directory
     if ((tfs_node->mode & VFS_DIRECTORY) == 0) {
         return -1;
@@ -80,20 +93,21 @@ int tinyfs_mkdir(void *node, const char *name, uint16_t permission) {
     }
 
     // Create a new inode for the directory (parent automatically set to tfs_node)
-    TinyFS_Inode *new_node = tinyfs_create_inode(tfs_node, name, VFS_DIRECTORY);
+    TinyFS_Inode *new_node = tinyfs_create_inode(tinyfs, tfs_node, name, VFS_DIRECTORY);
     if (new_node == NULL) {
         return -1;
     }
 
     // Write the new directory to disk
-    tinyfs_write_inode(tiny_vfs, new_node->inode_number, new_node);
+    tinyfs_write_inode(tinyfs->fs.vfs, new_node->inode_number, new_node);
     // Update the parent directory's inode on disk
-    tinyfs_write_inode(tiny_vfs, tfs_node->inode_number, tfs_node);
+    tinyfs_write_inode(tinyfs->fs.vfs, tfs_node->inode_number, tfs_node);
 
     return 0;
 }
 
 Dirent *tinyfs_readdir(void *node, uint32_t index) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
     TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
     // Check if the node is a directory
     if ((tfs_node->mode & VFS_DIRECTORY) == 0) {
@@ -111,7 +125,7 @@ Dirent *tinyfs_readdir(void *node, uint32_t index) {
     memset(&dirent, 0, sizeof(Dirent));
 
     // Get the child node
-    TinyFS_Inode *child_node = tinyfs_get_inode(tiny_vfs, tfs_node->links[index]);
+    TinyFS_Inode *child_node = tinyfs_get_inode(tinyfs->fs.vfs, tfs_node->links[index]);
     if (child_node == NULL) {
         return (NULL);
     }
@@ -125,6 +139,7 @@ Dirent *tinyfs_readdir(void *node, uint32_t index) {
 }
 
 int tinyfs_create(void *node, const char *name, uint16_t permission) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
     TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
     // Check if the node is a directory
     if ((tfs_node->mode & VFS_DIRECTORY) == 0) {
@@ -137,46 +152,54 @@ int tinyfs_create(void *node, const char *name, uint16_t permission) {
     }
 
     // Create a new inode for the file (parent automatically set to tfs_node)
-    TinyFS_Inode *new_node = tinyfs_create_inode(tfs_node, name, VFS_FILE);
+    TinyFS_Inode *new_node = tinyfs_create_inode(tinyfs, tfs_node, name, VFS_FILE);
     if (new_node == NULL) {
         return -1;
     }
 
     // Write the new file to disk
-    tinyfs_write_inode(tiny_vfs, new_node->inode_number, new_node);
+    tinyfs_write_inode(tinyfs->fs.vfs, new_node->inode_number, new_node);
     // Update the parent directory's inode on disk
-    tinyfs_write_inode(tiny_vfs, tfs_node->inode_number, tfs_node);
+    tinyfs_write_inode(tinyfs->fs.vfs, tfs_node->inode_number, tfs_node);
 
     return 0;
 }
 
 int tinyfs_stat(void *node, struct stat *buf) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
     TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
 
     memset(buf, 0, sizeof(struct stat));
 
-    // Fill the stat buffer with the child node's information
-    buf->st_dev = tinyfs_device->uid;
+    buf->st_dev = tinyfs->fs.device->uid;
     buf->st_ino = tfs_node->inode_number;
-    buf->st_mode = tfs_node->mode;
+
+    // Todo: Add support for other file types
+    if (tfs_node->mode == VFS_DIRECTORY) {
+        buf->st_mode = S_IFDIR | (0777 & 0777); // Todo: Add support for permissions
+    } else if (tfs_node->mode == VFS_FILE) {
+        buf->st_mode = S_IFREG | (0777 & 0777); // Todo: Add support for permissions
+    }
+
     buf->st_nlink = tfs_node->nlink;
     buf->st_size = tfs_node->size;
-    
-    task_t *task = get_current_task();
 
+    task_t *task = get_current_task();
     if (task) {
         buf->st_uid = task->owner;
-        // buf->st_gid = task->group; //Todo: Add group to task
+        // buf->st_gid = task->group; // Add support for groups
     }
-    
-    buf->st_blocks = tfs_node->size / TINYFS_BLOCK_SIZE;
-    // Todo: Add more information to the stat buffer (e.g. st_atime, st_mtime, st_ctime)
+
+    buf->st_blocks = (tfs_node->size + TINYFS_BLOCK_SIZE - 1) / TINYFS_BLOCK_SIZE;
+    // Todo: support for timestamps and other fields
 
     return (0);
 }
 
 void tinyfs_display_hierarchy(TinyFS_Inode *node, uint32_t depth) {
-    if (node == NULL) {
+    TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
+
+    if (node == NULL || tinyfs == NULL) {
         return;
     }
 
@@ -198,7 +221,7 @@ void tinyfs_display_hierarchy(TinyFS_Inode *node, uint32_t depth) {
 
     if (node->mode == VFS_DIRECTORY) {
         for (uint32_t i = 0; i < node->nlink; i++) {
-            TinyFS_Inode *child_node = tinyfs_get_inode(tiny_vfs, node->links[i]);
+            TinyFS_Inode *child_node = tinyfs_get_inode(tinyfs->fs.vfs, node->links[i]);
 
             tinyfs_display_hierarchy(child_node, depth + 1);
         }

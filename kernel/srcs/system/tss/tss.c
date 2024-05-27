@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 18:56:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 17:16:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,31 +15,47 @@
 
 tss_entry_t tss_entry;
 
-void tss_init(uint32_t idx, uint32_t kss, uint32_t kesp) {
-    gdt_add_entry(idx, (uint32_t)(&tss_entry), ((uint32_t)(&tss_entry)) + sizeof(tss_entry_t), TSS_KERNEL_ACCESS, 0x0);
-    gdt_add_entry(idx + 1, 0x0, 0x0, 0x0, 0x0);
+void tss_init(uint32_t idx, uint32_t ss0, uint32_t esp0) {
+    uint32_t base = (uint32_t)(&tss_entry);
+    uint32_t limit = base + sizeof(tss_entry_t);
 
-    memset((uint32_t *)&tss_entry, 0, sizeof(tss_entry_t));
+    gdt_add_entry(idx, base, limit, TSS_KERNEL_ACCESS, 0x0); // 0x89 or 0xE9
 
-    tss_entry.ss0 = kss;   // Kernel stack segment
-    tss_entry.esp0 = kesp; // Kernel stack pointer
-    tss_entry.cs = 0x0B;  // Code segment
-    tss_entry.ss = tss_entry.ds = tss_entry.es = tss_entry.fs = tss_entry.gs = 0x13;
-    tss_flush(&tss_entry);
+    memset(&tss_entry, 0, sizeof(tss_entry_t));
+
+    tss_entry.ss0 = ss0;                                                             // Kernel stack segment
+    tss_entry.esp0 = esp0;                                                           // Kernel stack pointer
+    tss_entry.cs = 0x1B;                                                             // Code segment selector
+    tss_entry.ss = tss_entry.ds = tss_entry.es = tss_entry.fs = tss_entry.gs = 0x23; // Data segment selectors
+    tss_entry.iomap = sizeof(tss_entry_t);
+
+    gdt_flush((uint32_t)(&gp));
+    tss_flush();
 }
 
 /**
  * Set the kernel stack segment
- * @param kss Kernel stack segment
+ * @param ss0 Kernel stack segment
  */
-void tss_set_stack_segment(uint32_t kss) {
-    tss_entry.ss0 = kss;
+void tss_set_stack_segment(uint32_t ss0) {
+    tss_entry.ss0 = ss0;
 }
 
 /**
  * Set the kernel stack pointer
- * @param kesp Kernel stack pointer
+ * @param esp0 Kernel stack pointer
  */
-void tss_set_stack_pointer(uint32_t kesp) {
-    tss_entry.esp0 = kesp;
+void tss_set_stack_pointer(uint32_t esp0) {
+    tss_entry.esp0 = esp0;
+}
+
+/**
+ * Sets the stack values for the Task State Segment (TSS).
+ *
+ * @param ss0 The kernel stack segment selector.
+ * @param esp0 The kernel stack pointer.
+ */
+void tss_set_stack(uint32_t ss0, uint32_t esp0) {
+    tss_entry.ss0 = ss0;
+    tss_entry.esp0 = esp0;
 }

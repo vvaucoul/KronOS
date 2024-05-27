@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/27 17:14:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,30 @@
 #define IDT_FLAG_GATE 0x8E
 
 #define ISR_MAX_COUNT 32
+
+
+#define ISR_DIVIDE_BY_ZERO 0
+#define ISR_DEBUG 1
+#define ISR_NON_MASKABLE_INTERRUPT 2
+#define ISR_BREAKPOINT 3
+#define ISR_OVERFLOW 4
+#define ISR_BOUND_RANGE_EXCEED 5
+#define ISR_INVALID_OPCODE 6
+#define ISR_DEVICE_NOT 7
+#define ISR_DOUBLE_FAULT 8
+#define ISR_COPROCESSOR 9
+#define ISR_INVALID_TSS 10
+#define ISR_SEGMENT_NOT 11
+#define ISR_STACK_SEGMENT 12
+#define ISR_GENERAL_PROTECTION 13
+#define ISR_PAGE_FAULT 14
+#define ISR_RESERVED 15
+#define ISR_X87_FLOATING_POINT 16
+#define ISR_ALIGNMENT_CHECK 17
+#define ISR_MACHINE_CHECK 18
+#define ISR_SIMD_FLOATING_POINT 19
+#define ISR_VIRTUALIZATION 20
+#define ISR_CONTROL_PROTECTION 21
 
 typedef struct regs
 {

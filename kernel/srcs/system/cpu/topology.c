@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/26 12:42:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,9 @@ void get_cpu_topology(void)
 
     // Get Current Frequency
     cpu_topology.currentFrequency = get_cpu_frequency();
+    printk("\t\t\t   -"_GREEN
+           " FREQUENCY: " _END "%d MHz\n",
+           cpu_topology.currentFrequency);
 
     // printk("CPU Topology:\n");
     // printk("\tPhysical cores per package: %d\n", cpu_topology.physicalCoresPerPackage);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/12 10:50:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 14:34:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,9 @@ extern void workflow_ide(void);
 
 /* Filesystem TinyFS test */
 void workflow_tinyfs(void);
+
+/* Floppy Disk Controller test */
+void workflow_fdc(void);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                      UTILS                                     ||

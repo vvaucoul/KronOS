@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 15:11:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 16:43:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 14:40:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,47 +27,32 @@
  * as well as functions for controlling the motor and selecting the drive.
  */
 
-#define FLOPPY_CMD_READ 0x06
-#define FLOPPY_CMD_WRITE 0x05
-#define FLOPPY_CMD_SPECIFY 0x03
-#define FLOPPY_CMD_RECALIBRATE 0x07
-#define FLOPPY_CMD_SENSE_INTERRUPT 0x08
+#define FDC_DOR 0x3F2  // Digital Output Register
+#define FDC_MSR 0x3F4  // Main Status Register (Input)
+#define FDC_DATA 0x3F5 // Data Register
+#define FDC_CTRL 0x3F7 // Control Register
 
-#define FLOPPY_REG_STATUS_A 0x3F0
-#define FLOPPY_REG_STATUS_B 0x3F1
-#define FLOPPY_REG_DOR 0x3F2
-#define FLOPPY_REG_TDR 0x3F3
-#define FLOPPY_REG_MSR 0x3F4
-#define FLOPPY_REG_DSR 0x3F5
-#define FLOPPY_REG_FIFO 0x3F5
-#define FLOPPY_REG_DIR 0x3F7
-#define FLOPPY_REG_CCR 0x3F7
-#define FLOPPY_REG_CTRL 0x3F7
+#define FDC_IRQ 6
 
-#define FLOPPY_CMD_READ 0x06
-#define FLOPPY_CMD_WRITE 0x05
-#define FLOPPY_CMD_RECALIBRATE 0x07
+#define SECTOR_SIZE 512
 
-#define FLOPPY_CMD_PORT 0x3F5
-#define FLOPPY_DATA_PORT 0x3F5
-#define FLOPPY_STATUS_PORT 0x3F4
-
-#define FLOPPY_IRQ 0x06
+/**
+ * @brief Structure representing the Cylinder-Head-Sector (CHS) information of a floppy device.
+ */
+typedef struct {
+    uint8_t cyl;    /**< The cylinder number. */
+    uint8_t head;   /**< The head number. */
+    uint8_t sector; /**< The sector number. */
+} CHS;
 
 typedef struct {
-    uint8_t status;
-    uint8_t cylinder;
+    uint8_t drive;
+    CHS chs;
+    uint8_t *buffer;
+} FloppyDisk;
 
-    uint32_t id; // 0 = master, 1 = slave
-} FloppyDrive;
+extern void fdc_initialize();
+extern void fdc_read_sector(FloppyDisk *fd, uint8_t head, uint8_t track, uint8_t sector);
+extern void fdc_write_sector(FloppyDisk *fd, uint8_t head, uint8_t track, uint8_t sector);
 
-extern FloppyDrive *floppy_dev;
-
-extern int floppy_init(void);
-extern void floppy_send_command(uint8_t drive, uint8_t cmd);
-extern void floppy_read_sector(FloppyDrive *drive, uint8_t *buffer, uint8_t sector);
-extern void floppy_write_sector(FloppyDrive *drive, const uint8_t *buffer, uint8_t sector);
-
-extern void floppy_interrupt_handler(struct regs *r);
-
-#endif /* !FLOPPY_H */
+#endif /* FLOPPY_H */

@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:34:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 16:34:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 14:18:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/ide.h>
+#include <memory/memory.h>
 #include <system/pit.h>
 #include <workflows/workflows.h>
 
@@ -134,18 +135,15 @@ void test_ide_read_write_loop(IDEDevice *dev, uint32_t lba) {
 
 void test_ide_error_handling(IDEDevice *dev) {
     char buffer[SECTOR_SIZE];
-    // This LBA is intentionally set beyond the size of a typical disk to induce an error
     uint32_t invalid_lba = 0xFFFFFF;
 
     int result = ide_read(dev, invalid_lba, 1, buffer);
     if (result < 0) {
         printk("IDE: Error handling "_GREEN
-               "[OK]"_END
-               "\n");
+               "[OK]" _END "\n");
     } else {
         printk("IDE: Error handling "_RED
-               "[KO]"_END
-               "\n");
+               "[KO]" _END "\n");
     }
 }
 
@@ -190,6 +188,182 @@ void test_ide_perf(IDEDevice *dev) {
     printk("IDE: Performance test: %u sectors read in %u ms\n", NUM_SECTORS, elapsed);
 }
 
+void test_ide_large_transfer(IDEDevice *dev, uint32_t start_sector, uint32_t num_sectors) {
+    uint32_t buffer_size = SECTOR_SIZE * num_sectors; // 512 * 100 = 51200 = 50KB
+    char *write_buf = (char *)kmalloc(buffer_size);
+    char *read_buf = (char *)kmalloc(buffer_size);
+
+    // Initialisation du buffer d'écriture avec des motifs de données identifiables
+    for (uint32_t i = 0; i < num_sectors; ++i) {
+        memset(write_buf + i * SECTOR_SIZE, i % 256, SECTOR_SIZE);
+    }
+
+    // Effectuer l'opération d'écriture
+    printk("IDE: Starting large write test - Start Sector: %u, Number of Sectors: %u, Device Size: %u\n", start_sector, num_sectors, dev->size);
+    if (ide_write(dev, start_sector, num_sectors, write_buf) != 0) {
+        printk("IDE: Write operation failed during large transfer test\n");
+        kfree(write_buf);
+        kfree(read_buf);
+        return;
+    }
+
+    // Effectuer l'opération de lecture
+    printk("IDE: Starting large read test - Start Sector: %u, Number of Sectors: %u\n", start_sector, num_sectors);
+    if (ide_read(dev, start_sector, num_sectors, read_buf) != 0) {
+        printk("IDE: Read operation failed during large transfer test\n");
+        kfree(write_buf);
+        kfree(read_buf);
+        return;
+    }
+
+    // Validation des données lues par rapport aux données écrites
+    for (uint32_t i = 0; i < num_sectors; ++i) {
+        if (memcmp(write_buf + i * SECTOR_SIZE, read_buf + i * SECTOR_SIZE, SECTOR_SIZE) != 0) {
+            printk("IDE: Large transfer test "_RED
+                   "[KO]" _END "\n");
+            printk("IDE: Mismatch at sector %u\n", start_sector + i);
+            printk("IDE: Expected: ");
+            for (uint32_t j = 0; j < SECTOR_SIZE && j < 80; ++j) {
+                printk("%02x ", write_buf[i * SECTOR_SIZE + j]);
+            }
+            printk("\nIDE: Actual: ");
+            for (uint32_t j = 0; j < SECTOR_SIZE && j < 80; ++j) {
+                printk("%02x ", read_buf[i * SECTOR_SIZE + j]);
+            }
+            printk("\n");
+            kpause();
+            kfree(write_buf);
+            kfree(read_buf);
+            return;
+        }
+    }
+
+    printk("IDE: Large transfer test "_GREEN
+           "[OK]" _END "\n");
+
+    kfree(write_buf);
+    kfree(read_buf);
+}
+
+void test_ide_concurrent_access(IDEDevice *dev) {
+    char write_buf[SECTOR_SIZE];
+    char read_buf[SECTOR_SIZE];
+
+    strcpy(write_buf, "Concurrent access test");
+
+    for (int i = 0; i < 4; ++i) {
+        ide_write(dev, i, 1, write_buf);
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        ide_read(dev, i, 1, read_buf);
+        if (strcmp(write_buf, read_buf) != 0) {
+            printk("IDE: Concurrent access test "_RED
+                   "[KO]" _END "\n");
+            return;
+        }
+    }
+
+    printk("IDE: Concurrent access test "_GREEN
+           "[OK]" _END "\n");
+}
+
+void test_ide_simple_read_write(IDEDevice *dev) {
+    const uint32_t test_size = 2048; // Taille du buffer de test
+    char write_buf[test_size];
+    char read_buf[test_size];
+
+    // Initialisation du buffer de test avec des motifs reconnaissables
+    for (uint32_t i = 0; i < test_size; ++i) {
+        write_buf[i] = (char)(i % 256);
+    }
+
+    // Liste des offsets et tailles à tester
+    struct {
+        uint32_t offset;
+        uint32_t size;
+    } test_cases[] = {
+        {0, test_size},
+        {512, 1024},
+        {1024, 512},
+        {1, 512},
+        {512, 1},
+        {1023, 2048},
+        {0, 1},
+        {dev->size * SECTOR_SIZE - test_size, test_size}, // Near end of disk
+    };
+
+    int num_cases = sizeof(test_cases) / sizeof(test_cases[0]);
+
+    for (int i = 0; i < num_cases; ++i) {
+        uint32_t offset = test_cases[i].offset;
+        uint32_t size = test_cases[i].size;
+
+        // Effacer le buffer de lecture
+        memset(read_buf, 0, test_size);
+
+        // Écriture simple
+        if (ide_simple_write(dev, offset, size, write_buf) != 0) {
+            printk("IDE: test case %d - Write failed\n", i);
+            continue;
+        }
+
+        // Lecture simple
+        if (ide_simple_read(dev, offset, size, read_buf) != 0) {
+            printk("IDE: test case %d - Read failed\n", i);
+            continue;
+        }
+
+        // Validation des données
+        if (memcmp(write_buf, read_buf, size) != 0) {
+            printk("IDE: test case %d - Data mismatch\n", i);
+        } else {
+            printk("IDE: test case %d - Data match "_GREEN
+                   "[OK]\n"_END,
+                   i);
+        }
+    }
+
+    // Test des conditions d'erreur
+    printk("IDE: Testing invalid parameters...\n");
+
+    // Lecture avec offset au-delà de la taille du disque
+    if (ide_simple_read(dev, dev->size * SECTOR_SIZE, test_size, read_buf) < 0) {
+        printk("IDE: Invalid read beyond disk size "_GREEN
+               "[OK]\n"_END);
+    } else {
+        printk("IDE: Invalid read beyond disk size "_RED
+               "[KO]\n"_END);
+    }
+
+    // Écriture avec offset au-delà de la taille du disque
+    if (ide_simple_write(dev, dev->size * SECTOR_SIZE, test_size, write_buf) < 0) {
+        printk("IDE: Invalid write beyond disk size "_GREEN
+               "[OK]\n"_END);
+    } else {
+        printk("IDE: Invalid write beyond disk size "_RED
+               "[KO]\n"_END);
+    }
+
+    // Lecture de 0 octets
+    if (ide_simple_read(dev, 0, 0, read_buf) < 0) {
+        printk("IDE: Invalid read with zero size "_GREEN
+               "[OK]\n"_END);
+    } else {
+        printk("IDE: Invalid read with zero size "_RED
+               "[KO]\n"_END);
+    }
+
+    // Écriture de 0 octets
+    if (ide_simple_write(dev, 0, 0, write_buf) < 0) {
+        printk("IDE: Invalid write with zero size "_GREEN
+               "[OK]\n"_END);
+    } else {
+        printk("IDE: Invalid write with zero size "_RED
+               "[KO]\n"_END);
+    }
+}
+
 void workflow_ide(void) {
     __WORKFLOW_HEADER();
 
@@ -207,6 +381,9 @@ void workflow_ide(void) {
     test_ide_sector_limits(dev, 0);
     test_ide_hardware_error_handling(dev, 0xFFFFFF);
     test_ide_perf(dev);
+    test_ide_large_transfer(dev, 20, 100);
+    test_ide_concurrent_access(dev);
+    test_ide_simple_read_write(dev);
 
     __WORKFLOW_FOOTER();
 }

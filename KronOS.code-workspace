@@ -91,7 +91,9 @@
 			"keyboard.h": "c",
 			"ksh_termcaps.h": "c",
 			"cmos.h": "c",
-			"serial.h": "c"
+			"serial.h": "c",
+			"floppy.h": "c",
+			"irq.h": "c"
 		}
 	}
 }

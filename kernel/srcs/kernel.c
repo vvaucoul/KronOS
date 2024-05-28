@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 17:51:15 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 16:26:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,6 +224,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
         }
     }
     // initrd_display_hierarchy();
+    // kpause();
 
     /*
     **  IDE INIT
@@ -236,7 +237,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
         __WARND("Error: ide_init failed, (Kernel will not use IDE Driver)");
     } else {
         /* Workflow IDE must be called after IDE init */
-        // workflow_ide();
+        workflow_ide();
         kernel_log_info("LOG", "IDE");
     }
 
@@ -246,15 +247,13 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
  * Floppy Driver initialization
  */
 #if FLOPPY_DRIVER == 1
-    if ((floppy_init()) != 0) {
-        __WARND("Error: floppy_init failed, (Kernel will not use Floppy Driver)");
-    } else {
-        kernel_log_info("LOG", "FLOPPY");
+    // fdc_initialize();
+    kernel_log_info("LOG", "FLOPPY");
 
-        ksleep(1);
+    ksleep(1);
 
-        kernel_log_info("LOG", "FLOPPY READ/WRITE");
-    }
+    // workflow_fdc();
+    // kernel_log_info("LOG", "FLOPPY READ/WRITE");
 #else
     __INFOD("FLOPPY Driver is disabled");
 #endif
@@ -314,7 +313,6 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     time_init();
     kernel_log_info("LOG", "TIME");
-    
 
     // bga_init();
     // init_vbe_mode();
@@ -350,9 +348,6 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     init_paging();
     kernel_log_info("LOG", "PAGING");
     kernel_log_info("LOG", "HEAP");
-    
-    kheap_test();
-    kpause();
 
     init_syscall();
     kernel_log_info("LOG", "SYSCALL");
@@ -375,8 +370,6 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                   KERNEL MAIN                                  ||
 // ! ||--------------------------------------------------------------------------------||
-
-uint32_t placement_address;
 
 int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     ASM_CLI();
@@ -419,7 +412,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     }
 
     kpause();
-
 
     print_gdt();
     print_tss();

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:31:40 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 10:42:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 14:27:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,8 @@ uint16_t inw(uint32_t _port) {
     return _v;
 }
 
-
 void insw(uint16_t port, void *addr, uint32_t word_cnt) {
-    __asm__ volatile ("rep insw" : "+D" (addr), "+c" (word_cnt) : "d" (port) : "memory");
+    __asm__ volatile("rep insw" : "+D"(addr), "+c"(word_cnt) : "d"(port) : "memory");
 }
 
 uint32_t inl(uint32_t _port) {
@@ -78,7 +77,7 @@ void outw(uint16_t _port, uint16_t _data) {
 }
 
 void outsw(uint16_t port, const void *addr, uint32_t word_cnt) {
-    __asm__ volatile ("rep outsw" : "+S" (addr), "+c" (word_cnt) : "d" (port));
+    __asm__ volatile("rep outsw" : "+S"(addr), "+c"(word_cnt) : "d"(port));
 }
 
 void outl(uint32_t _port, uint32_t _data) {
@@ -101,7 +100,6 @@ uint32_t indd(uint16_t _port) {
                      : "d"(_port));
     return _v;
 }
-
 
 void halt() {
 loop:

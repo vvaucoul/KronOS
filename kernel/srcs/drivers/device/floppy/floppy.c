@@ -6,149 +6,126 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 15:11:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 16:30:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 14:39:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/floppy.h>
-
+#include <system/io.h>
 #include <system/irq.h>
 
-#include <memory/memory.h>
-#include <system/io.h>
+static volatile bool floppy_irq_received = false;
 
-FloppyDrive *floppy_dev = NULL;
+void floppy_irq_handler(struct regs *r) {
+    // Handle the IRQ...
+    __UNUSED(r);
 
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                                  FLOPPY UTILS                                  ||
-// ! ||--------------------------------------------------------------------------------||
-
-static int __floppy_wait_ready(void) {
-    // Wait for the drive to be not busy
-    while ((inb(FLOPPY_STATUS_PORT) & 0x80) != 0) {
-        printk("floppy_wait_ready: Floppy drive is busy (%d)\n", inb(FLOPPY_STATUS_PORT) & 0x80);
-        kmsleep(500);
-    }
-        ;
-
-    // Wait for the drive to be ready
-    while ((inb(FLOPPY_STATUS_PORT) & 0x40) == 0)
-        ;
-
-    // Check if there was an error
-    return (inb(FLOPPY_STATUS_PORT) & 0x20) == 0;
+    // Signal that the IRQ has been received
+    floppy_irq_received = true;
 }
 
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                                FLOPPY FUNCTIONS                                ||
-// ! ||--------------------------------------------------------------------------------||
+static void fdc_wait_irq() {
+    // Install the IRQ handler
+    irq_install_handler(IRQ_FLOPPY, floppy_irq_handler);
 
-int floppy_init(void) {
-    // Create the drive
-    if (!(floppy_dev = (FloppyDrive *)kmalloc(sizeof(FloppyDrive)))) {
-        __THROW("floppy_init: Failed to allocate floppy drive", 1);
-    }
-    floppy_dev->id = 0;
-    floppy_dev->status = inb(FLOPPY_STATUS_PORT);
-
-    irq_install_handler(FLOPPY_IRQ, floppy_interrupt_handler);
-
-
-    // Select the first drive
-    outb(FLOPPY_CMD_PORT, 0x10);
-
-    // Check if the drive exists
-    if (inb(FLOPPY_STATUS_PORT) == 0xFF) {
-        __THROW("floppy_init: No floppy drive found", 1);
-    } else {
-        printk("floppy_init: Floppy drive found\n");
+    // Wait for the IRQ
+    while (!floppy_irq_received) {
+        // This is a busy wait loop, you might want to put the process to sleep instead
     }
 
-    // Wait for the drive to be ready
-    __floppy_wait_ready();
+    // Reset the IRQ received flag
+    floppy_irq_received = false;
+}
 
-    // Return the drive
+static void fdc_send_command(uint8_t cmd) {
+    for (int i = 0; i < 600; i++) {
+        if (inb(FDC_MSR) & 0x80) {
+            outb(FDC_DATA, cmd);
+            return;
+        }
+    }
+}
+
+static uint8_t fdc_read_data() {
+    for (int i = 0; i < 600; i++) {
+        if (inb(FDC_MSR) & 0x80) {
+            return inb(FDC_DATA);
+        }
+    }
     return 0;
 }
 
-void floppy_send_command(uint8_t drive, uint8_t cmd) {
-    outb(FLOPPY_CMD_PORT, cmd);
-    outb(FLOPPY_DATA_PORT, drive);
+static void fdc_check_interrupt(int *st0, int *cyl) {
+    fdc_send_command(0x08);
+    *st0 = fdc_read_data();
+    *cyl = fdc_read_data();
 }
 
-void floppy_read_sector(FloppyDrive *drive, uint8_t *buffer, uint8_t sector) {
-    // Send the read command
-    floppy_send_command(drive->id, FLOPPY_CMD_READ);
+void fdc_initialize() {
+    outb(FDC_DOR, 0x00); // Désactiver le contrôleur
+    outb(FDC_DOR, 0x0C); // Activer le contrôleur
 
-    // Send the sector number
-    outb(FLOPPY_DATA_PORT, sector);
-
-    // Wait for the drive to be ready
-    __floppy_wait_ready();
-
-    // Read the data
-    for (int i = 0; i < 512; i++) {
-        buffer[i] = inb(FLOPPY_DATA_PORT);
-    }
+    printk("FDC initialized\n");
+    fdc_wait_irq(); // Attendre l'IRQ
+    printk("FDC IRQ received\n");
+    fdc_send_command(0x03); // Spécifiez la vitesse de transfert
+    fdc_send_command(0xDF);
+    fdc_send_command(0x02);
 }
 
-void floppy_write_sector(FloppyDrive *drive, const uint8_t *buffer, uint8_t sector) {
-    // Send the write command
-    floppy_send_command(drive->id, FLOPPY_CMD_WRITE);
-
-    // Send the sector number
-    outb(FLOPPY_DATA_PORT, sector);
-
-    // Wait for the drive to be ready
-    __floppy_wait_ready();
-
-    // Write the data
-    for (int i = 0; i < 512; i++) {
-        outb(FLOPPY_DATA_PORT, buffer[i]);
-    }
+void fdc_motor_on() {
+    outb(FDC_DOR, 0x1C);
+    // Attendre que le moteur soit prêt
 }
 
-void floppy_interrupt_handler(struct regs *r) {
-    // Read the interrupt status
-    uint8_t status = inb(FLOPPY_CMD_PORT);
+void fdc_motor_off() {
+    outb(FDC_DOR, 0x0C);
+}
 
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x80) == 0) {
-        return;
+void fdc_read_sector(FloppyDisk *fd, uint8_t head, uint8_t track, uint8_t sector) {
+    fdc_motor_on();
+
+    fdc_send_command(0x46); // Lire secteur avec MFM
+    fdc_send_command(head << 2 | fd->drive);
+    fdc_send_command(track);
+    fdc_send_command(head);
+    fdc_send_command(sector);
+    fdc_send_command(2);    // Taille du secteur = 512 octets
+    fdc_send_command(18);   // Dernier secteur
+    fdc_send_command(0x1B); // Gap3 length
+    fdc_send_command(0xFF); // Taille du secteur
+
+    fdc_wait_irq(); // Attendre l'IRQ
+
+    for (int i = 0; i < SECTOR_SIZE; i++) {
+        fd->buffer[i] = fdc_read_data();
     }
 
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x40) == 0) {
-        return;
+    int st0, cyl;
+    fdc_check_interrupt(&st0, &cyl);
+    fdc_motor_off();
+}
+
+void fdc_write_sector(FloppyDisk *fd, uint8_t head, uint8_t track, uint8_t sector) {
+    fdc_motor_on();
+
+    fdc_send_command(0x45); // Écrire secteur avec MFM
+    fdc_send_command(head << 2 | fd->drive);
+    fdc_send_command(track);
+    fdc_send_command(head);
+    fdc_send_command(sector);
+    fdc_send_command(2);    // Taille du secteur = 512 octets
+    fdc_send_command(18);   // Dernier secteur
+    fdc_send_command(0x1B); // Gap3 length
+    fdc_send_command(0xFF); // Taille du secteur
+
+    for (int i = 0; i < SECTOR_SIZE; i++) {
+        outb(FDC_DATA, fd->buffer[i]);
     }
 
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x20) == 0) {
-        return;
-    }
+    fdc_wait_irq(); // Attendre l'IRQ
 
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x10) == 0) {
-        return;
-    }
-
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x08) == 0) {
-        return;
-    }
-
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x04) == 0) {
-        return;
-    }
-
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x02) == 0) {
-        return;
-    }
-
-    // Check if the interrupt was caused by the floppy drive
-    if ((status & 0x01) == 0) {
-        return;
-    }
+    int st0, cyl;
+    fdc_check_interrupt(&st0, &cyl);
+    fdc_motor_off();
 }

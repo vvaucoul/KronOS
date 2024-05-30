@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 15:06:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/19 14:33:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 16:32:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,72 +18,74 @@
  ******************************************************************************/
 
 #define GET_ESP(x) __asm__ volatile("mov %%esp, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
+#define GET_SS(x) __asm__ volatile("mov %%ss, %0" \
+                                   : "=r"(x)::)
 #define GET_EBP(x) __asm__ volatile("mov %%ebp, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 #define GET_EIP(x) __asm__ volatile("mov %%eip, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 #define GET_ECX(x) __asm__ volatile("mov %%ecx, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 #define GET_EDX(x) __asm__ volatile("mov %%edx, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 #define GET_EBX(x) __asm__ volatile("mov %%ebx, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 #define GET_EAX(x) __asm__ volatile("mov %%eax, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 #define GET_ESI(x) __asm__ volatile("mov %%esi, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 #define GET_EDI(x) __asm__ volatile("mov %%edi, %0" \
-								: "=r"(x)::)
+                                    : "=r"(x)::)
 
 /*******************************************************************************
  *                                   EFLAGS                                    *
  ******************************************************************************/
 
 #define GET_EFLAGS(x) __asm__ volatile("pushf\n\t" \
-								   "pop %0"    \
-								   : "=r"(x)::)
+                                       "pop %0"    \
+                                       : "=r"(x)::)
 #define SET_EFLAGS(x) __asm__ volatile("push %0\n\t" \
-								   "popf" ::     \
-									   : "r"(x))
+                                       "popf" ::     \
+                                           : "r"(x))
 
 /*******************************************************************************
  *                                SET ASM FLAGS                                *
  ******************************************************************************/
 
 #define SET_EIP(x) __asm__ volatile("mov %0, %%eip" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_ESP(x) __asm__ volatile("mov %0, %%esp" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_EBP(x) __asm__ volatile("mov %0, %%ebp" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_ECX(x) __asm__ volatile("mov %0, %%ecx" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_EDX(x) __asm__ volatile("mov %0, %%edx" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_EBX(x) __asm__ volatile("mov %0, %%ebx" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_EAX(x) __asm__ volatile("mov %0, %%eax" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_ESI(x) __asm__ volatile("mov %0, %%esi" :: \
-									: "r"(x))
+                                        : "r"(x))
 #define SET_EDI(x) __asm__ volatile("mov %0, %%edi" :: \
-									: "r"(x))
+                                        : "r"(x))
 
 /*******************************************************************************
  *                              SET ASM REGISTER                               *
  ******************************************************************************/
 
 #define SET_CR4(x) __asm__ volatile("mov %0, %%cr4" :: \
-									: "r"(x))
+                                        : "r"(x))
 
 /*******************************************************************************
  *                                    CPUID                                    *
  ******************************************************************************/
 
 #define CPUID(eax, ebx, ecx, edx) __asm__ volatile("cpuid"                                          \
-											   : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx) \
-											   : "a"(*eax), "c"(*ecx))
+                                                   : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx) \
+                                                   : "a"(*eax), "c"(*ecx))
 
 /*******************************************************************************
  *                               INTERRUPT FLAG                                *

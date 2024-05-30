@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/24 11:40:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 12:14:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef struct s_syscall {
 } syscall_t;
 
 extern void init_syscall(void);
+extern void isr80_handler(struct regs *r);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                 SYSCALL MACROS                                 ||

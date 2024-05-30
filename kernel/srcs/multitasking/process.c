@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/24 14:46:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 12:52:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/frames.h>
 #include <memory/kheap.h>
 #include <memory/memory.h>
+#include <memory/paging.h>
 
 #include <multitasking/process.h>
 #include <multitasking/process_fs.h>
@@ -534,58 +535,63 @@ void task_exit(int32_t retval) {
     kill_task(get_current_task()->pid);
 }
 
+#define USER_STACK_START 0xC0000000
+#define USER_STACK_SIZE 0x4000 // 16 KB
+
+void allocate_user_stack(uint32_t user_stack_start, uint32_t size) {
+    for (uint32_t addr = user_stack_start; addr < user_stack_start + size; addr += PAGE_SIZE) {
+        page_t *page = get_page(addr, current_directory);
+        if (!page) {
+            page = create_page(addr, current_directory);
+        }
+        page->present = 1;
+        page->rw = 1;
+        page->user = 1;
+    }
+}
+
+void setup_user_stack() {
+    allocate_user_stack(USER_STACK_START, USER_STACK_SIZE);
+
+    uint32_t *stack_ptr = (uint32_t *)USER_STACK_START;
+    for (uint32_t i = 0; i < (USER_STACK_SIZE / sizeof(uint32_t)); i++) {
+        stack_ptr[i] = 0; // Initialisez la pile utilisateur à zéro
+    }
+
+    printk("User stack successfully set up from 0x%x to 0x%x\n", USER_STACK_START, USER_STACK_START + USER_STACK_SIZE);
+}
+
 // Todo: fix this
 void switch_to_user_mode(void) {
+    setup_user_stack();
     // uint32_t user_stack = current_task->kernel_stack + KERNEL_STACK_SIZE;
-    // tss_set_stack_pointer(user_stack);
+    uint32_t user_stack = USER_STACK_START + USER_STACK_SIZE;
+    printk("User stack : 0x%x\n", user_stack);
+    tss_set_stack_pointer(user_stack);
 
-    // uint32_t user_code_start = (uint32_t)(uintptr_t)&switch_user_mode_start;
+    uint32_t user_code_start = (uint32_t)&switch_user_mode_start;
 
-    // // Désactiver les interruptions
-    // __asm__ volatile ("cli");
+    ASM_CLI();
 
-    // // Charger les sélecteurs de segment pour l'espace utilisateur
-    // __asm__ volatile (
+    // Charger les sélecteurs de segment pour l'espace utilisateur
+    // __asm__ volatile(
     //     "mov %%ax, %%ds\n"
     //     "mov %%ax, %%es\n"
     //     "mov %%ax, %%fs\n"
     //     "mov %%ax, %%gs\n"
     //     :
-    //     : "a" (0x28)  // Sélecteur de segment de données utilisateur (5ème entrée, 0x28)
+    //     : "a"(0x2B) // Sélecteur de segment de données utilisateur (index 5 en GDT avec RPL 3)
     // );
 
-    // // Préparer la pile pour le mode utilisateur et effectuer le saut
-    // __asm__ volatile (
-    //     "mov %0, %%esp\n"                 // Définir ESP sur le sommet de la pile utilisateur
-    //     "push $0x28\n"                    // SS (sélecteur de segment de pile utilisateur, 0x28)
-    //     "push %%esp\n"                    // ESP (valeur actuelle de ESP)
-    //     "pushf\n"                         // EFLAGS (activer les interruptions ici si nécessaire avec popf/sti)
-    //     "push $0x23\n"                    // CS (sélecteur de segment de code utilisateur, 0x20 avec RPL 3)
-    //     "push %1\n"                       // EIP (adresse de départ du code utilisateur)
-    //     "iret\n"                          // Passer en mode utilisateur
-    //     :
-    //     : "r" (user_stack), "r" (user_code_start)
-    //     : "memory"
-    // );
-
-    // Configure the stack segment for user mode
-    uint32_t user_stack = current_task->kernel_stack + KERNEL_STACK_SIZE;
-    printk("User stack : %x\n", user_stack);
-    tss_set_stack_pointer(user_stack);
-
-    uint32_t user_code_start = (uint32_t)(uintptr_t)&switch_user_mode_start;
-
-    __asm__ volatile("cli");
-
-    // Charger les sélecteurs de segment pour l'espace utilisateur
     __asm__ volatile(
+        "mov $0x2B, %%ax\n" // Data segment selector (user mode)
         "mov %%ax, %%ds\n"
         "mov %%ax, %%es\n"
         "mov %%ax, %%fs\n"
         "mov %%ax, %%gs\n"
         :
-        : "a"(0x2B) // Sélecteur de segment de données utilisateur (index 5 en GDT avec RPL 3)
-    );
+        :
+        : "ax");
 
     __asm__ volatile(
         "mov %0, %%esp\n"

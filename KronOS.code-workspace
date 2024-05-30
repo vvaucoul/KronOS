@@ -93,7 +93,10 @@
 			"cmos.h": "c",
 			"serial.h": "c",
 			"floppy.h": "c",
-			"irq.h": "c"
+			"irq.h": "c",
+			"stdint.h": "c",
+			"panic.h": "c",
+			"user_syscall.h": "c"
 		}
 	}
 }

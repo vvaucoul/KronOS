@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/24 17:45:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 12:54:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,25 @@ extern int syscall_read(int fd) {
     __UNUSED(fd);
     return (0);
 }
+
+static bool is_user_address_valid(void *addr, size_t size) {
+    uint32_t start_addr = (uint32_t)addr;
+    uint32_t end_addr = start_addr + size;
+
+    for (uint32_t current_addr = start_addr; current_addr < end_addr; current_addr += PAGE_SIZE) {
+        page_t *page = get_page(current_addr, current_directory);
+        if (!page || !page->present || !page->user) {
+            return false;
+        }
+    }
+    return true;
+}
+
 extern int syscall_write(const char *str) {
-    return (printk("%s", str));
+    if (!is_user_address_valid((void *)str, strlen(str) + 1)) {
+        __PANIC("Invalid user address in syscall_write");
+    }
+    return printk("%s", str);
 }
 
 extern int syscall_kill(pid_t pid, int sig) {
@@ -53,23 +70,22 @@ static void syscall_register(uint32_t id, const char *name, sysfn_t fn) {
     printk("\t\t\t   - Syscall " _YELLOW "[%d]" _END " - " _GREEN "%s" _END "\n", id, name);
 }
 
-static void syscall_handler(struct regs *r) {
-    printk("Syscall %u Received\n", (uint32_t)r->eax);
-    printk("- EBX : %x\n", r->ebx);
-    printk("- ECX : %x\n", r->ecx);
-    printk("- EDX : %x\n", r->edx);
-    
+void syscall_handler(struct regs *r) {
+    printk("Syscall %d Received\n", r->eax);
+    int32_t syscall_number = r->eax;
+    uint32_t arg1 = r->ebx;
+    uint32_t arg2 = r->ecx;
+    uint32_t arg3 = r->edx;
 
-    if (r->eax >= SYSCALL_SIZE) {
-        __THROW_NO_RETURN("Invalid syscall number: %u\n", r->eax);
+    if (syscall_number >= SYSCALL_SIZE) {
+        __THROW_NO_RETURN("Invalid syscall number: %u\n", syscall_number);
     }
 
-    syscall_t *syscall = &(syscalls[r->eax]);
+    syscall_t *syscall = &(syscalls[syscall_number]);
     if (syscall && syscall->function) {
-        r->eax = syscall->function((void *)r->ebx, (void *)r->ecx, (void *)r->edx);
+        r->eax = syscall->function((void *)arg1, (void *)arg2, (void *)arg3);
     } else {
-        printk("Syscall not implemented: %u\n", r->eax);
-        __WARND("Syscall not implemented: %u\n", r->eax);
+        printk("Syscall not implemented: %u\n", syscall_number);
     }
 }
 
@@ -88,5 +104,6 @@ void init_syscall(void) {
 
     // idt_set_gate(0x80, (uint32_t)syscall_handler, 0x08, 0x8E);
 
-    idt_set_gate(0x80, (uint32_t)syscall_handler, 0x08, 0b11101110);
+    // isr_register_interrupt_handler(0x80, &syscall_handler);
+    idt_set_gate(0x80, (uint32_t)isr80_handler, 0x08, 0xEE);
 }

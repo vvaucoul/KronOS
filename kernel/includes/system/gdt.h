@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:48:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/24 12:40:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 17:31:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ extern GDTPtr gp;
 
 #define __GDT_LOGS__ false
 
-extern void gdt_install(void);
+extern void gdt_init(void);
 extern void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity);
 extern void gdt_flush(uint32_t gdt_ptr);
 

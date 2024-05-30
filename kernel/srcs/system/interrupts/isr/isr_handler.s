@@ -54,7 +54,6 @@ ISR_NO_ERROR 30
 ISR_NO_ERROR 31
 
 extern fault_handler
-
 isr_exception_handler:
 
     ; Save the registers

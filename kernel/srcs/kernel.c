@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 16:26:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/28 17:42:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ static int check_multiboot(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 }
 
 static int init_system_components(void) {
-    gdt_install();
+    gdt_init();
     kernel_log_info("LOG", "GDT");
 
     tss_init(7, 0x10, 0x0);
@@ -395,6 +395,29 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 #else // !__TEST_HEPHAISTOS__
     __INFOD("Test Hephaistos is disabled");
 #endif
+
+    switch_to_user_mode();
+
+    while (1) {
+    }
+
+    // threads_test();
+    // process_test();
+
+    // uint32_t esp;
+
+    // GET_ESP(esp);
+    // printk("ESP: " _GREEN "0x%x\n" _END, esp);
+
+    // tss_set_stack_pointer(esp);
+    // tss_set_stack_segment(0x10);
+
+    // switch_to_user_mode();
+
+    // // Todo: Fix priority
+    // task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
+    // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
 
     pid_t pid = fork();
     if (pid == 0) {

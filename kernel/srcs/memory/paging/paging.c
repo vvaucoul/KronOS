@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 20:17:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 14:25:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,30 +33,28 @@ bool paging_enabled = false;
  * @return The physical address corresponding to the virtual address
  */
 void *get_physical_address(page_directory_t *dir, void *addr) {
-    if (!addr) {
+    if (!addr)
         return NULL;
-    } else if (!paging_enabled) {
+    if (!paging_enabled)
         return (void *)((uint32_t)addr - KERNEL_VIRTUAL_BASE);
-    }
 
     uint32_t page_dir_idx = PAGEDIR_INDEX(addr);
     uint32_t page_tbl_idx = PAGETBL_INDEX(addr);
     uint32_t offset = PAGEFRAME_INDEX(addr);
 
     if (!dir->tables[page_dir_idx]) {
-        __THROW("Page directory not present!", NULL);
+        __THROW("Page directory entry not present!", NULL);
     }
 
     page_table_t *table = dir->tables[page_dir_idx];
 
-    // if (!table->pages[page_tbl_idx].present) {
-    //     __THROW("Page table not present!", NULL);
-    // }
+    if (!table->pages[page_tbl_idx].present) {
+        __THROW("Page table entry not present!", NULL);
+    }
 
     uint32_t physical_addr = (table->pages[page_tbl_idx].frame << 12) + offset;
     return (void *)physical_addr;
 }
-
 /**
  * Retrieves the virtual address corresponding to a given physical address
  * within a page directory.
@@ -67,13 +65,10 @@ void *get_physical_address(page_directory_t *dir, void *addr) {
  *         or NULL if no mapping exists.
  */
 void *get_virtual_address(page_directory_t *dir, void *addr) {
-    __UNUSED(dir);
-
-    if (!addr) {
+    if (!addr)
         return NULL;
-    } else if (!paging_enabled) {
+    if (!paging_enabled)
         return (void *)((uint32_t)addr + KERNEL_VIRTUAL_BASE);
-    }
 
     uint32_t page_dir_idx = PAGEDIR_INDEX(addr);
     uint32_t page_tbl_idx = PAGETBL_INDEX(addr);

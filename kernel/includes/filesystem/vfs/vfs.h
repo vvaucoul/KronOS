@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 17:25:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 18:37:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,12 +62,9 @@
 #define VFS_NODE_FILE_LEN 255
 
 #define EXT2_FILESYSTEM_NAME "ext2"
+
 #define EXT2_FILESYSTEM 0x1
-
-#define INITRD_FILESYSTEM_NAME "initrd"
 #define INITRD_FILESYSTEM 0x2
-
-#define TINYFS_FILESYSTEM_NAME "TinyFS"
 #define TINYFS_FILESYSTEM 0x3
 
 typedef struct s_dirent {

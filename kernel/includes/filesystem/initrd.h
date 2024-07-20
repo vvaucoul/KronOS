@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 09:43:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/18 22:54:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 16:29:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@
 #define INITRD_FILE_SIZE 64
 #define INITD_MAGIC 0xBF
 #define INITRD_FILESYSTEM_NAME "initrd"
+#define INITRD_FILESYSTEM_NAME_D_NAME "initrd filesystem"
+#define INITRD_VERSION "0.1"
 #define INITRD_DEV_NAME "dev"
 
 typedef struct {
@@ -64,12 +66,6 @@ typedef struct s_initrd_node {
 extern Vfs *initrd_fs;
 
 extern int initrd_init(uint32_t start, uint32_t end);
-
-/**
- * @brief Read initrd hierarchy
- *
- * This function reads the initrd hierarchy and displays the files and directories in the initrd filesystem.
- */
 extern void initrd_display_hierarchy(void);
 
 #endif /* INITRD_H */

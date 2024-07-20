@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 17:42:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 16:22:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,8 +223,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
             kernel_log_info("LOG", "INITRD");
         }
     }
-    // initrd_display_hierarchy();
-    // kpause();
+    initrd_display_hierarchy();
 
     /*
     **  IDE INIT
@@ -285,6 +284,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
 #else
     __INFOD("TINYFS is disabled");
 #endif
+    kpause();
 
     /*
     **  EXT2 INIT
@@ -396,29 +396,6 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     __INFOD("Test Hephaistos is disabled");
 #endif
 
-    switch_to_user_mode();
-
-    while (1) {
-    }
-
-    // threads_test();
-    // process_test();
-
-    // uint32_t esp;
-
-    // GET_ESP(esp);
-    // printk("ESP: " _GREEN "0x%x\n" _END, esp);
-
-    // tss_set_stack_pointer(esp);
-    // tss_set_stack_segment(0x10);
-
-    // switch_to_user_mode();
-
-    // // Todo: Fix priority
-    // task_set_priority(pid_tmp, TASK_PRIORITY_LOW);
-    // task_set_priority(pid_tmp2, TASK_PRIORITY_LOW);
-    // task_set_priority(pid_tmp3, TASK_PRIORITY_LOW);
-
     pid_t pid = fork();
     if (pid == 0) {
         // Todo: Must enter in user space instead of using kernel space
@@ -433,17 +410,7 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
         while (1) {
         }
     }
-
-    kpause();
-
-    print_gdt();
-    print_tss();
-    check_gdt_tss();
-    print_idt_entry(0x80);
-    switch_to_user_mode();
-
-    while (1) {
-    }
+    return (0);
 }
 
 //     // Display initrd files

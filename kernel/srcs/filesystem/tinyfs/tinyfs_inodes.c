@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:20:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 15:29:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 18:37:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ TinyFS_Inode *tinyfs_create_inode(TinyFS *tfs, TinyFS_Inode *parent_inode, const
     tinyfs_inode->mode = mode;
     tinyfs_inode->size = mode == VFS_FILE ? 0 : mode == VFS_DIRECTORY ? TINYFS_BLOCK_SIZE
                                                                       : 0;
-
     tinyfs_inode->inode_number = tinyfs_find_first_free_inode((TinyFS *)tfs->fs.vfs->fs);
     tinyfs_inode->parent_inode_number = parent_inode ? parent_inode->inode_number : 0;
     memset(tinyfs_inode->links, 0, TINYFS_MAX_FILES);

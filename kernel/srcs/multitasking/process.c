@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 12:52:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 14:06:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -555,16 +555,14 @@ void setup_user_stack() {
 
     uint32_t *stack_ptr = (uint32_t *)USER_STACK_START;
     for (uint32_t i = 0; i < (USER_STACK_SIZE / sizeof(uint32_t)); i++) {
-        stack_ptr[i] = 0; // Initialisez la pile utilisateur à zéro
+        stack_ptr[i] = 0;
     }
 
     printk("User stack successfully set up from 0x%x to 0x%x\n", USER_STACK_START, USER_STACK_START + USER_STACK_SIZE);
 }
 
-// Todo: fix this
 void switch_to_user_mode(void) {
     setup_user_stack();
-    // uint32_t user_stack = current_task->kernel_stack + KERNEL_STACK_SIZE;
     uint32_t user_stack = USER_STACK_START + USER_STACK_SIZE;
     printk("User stack : 0x%x\n", user_stack);
     tss_set_stack_pointer(user_stack);
@@ -572,16 +570,6 @@ void switch_to_user_mode(void) {
     uint32_t user_code_start = (uint32_t)&switch_user_mode_start;
 
     ASM_CLI();
-
-    // Charger les sélecteurs de segment pour l'espace utilisateur
-    // __asm__ volatile(
-    //     "mov %%ax, %%ds\n"
-    //     "mov %%ax, %%es\n"
-    //     "mov %%ax, %%fs\n"
-    //     "mov %%ax, %%gs\n"
-    //     :
-    //     : "a"(0x2B) // Sélecteur de segment de données utilisateur (index 5 en GDT avec RPL 3)
-    // );
 
     __asm__ volatile(
         "mov $0x2B, %%ax\n" // Data segment selector (user mode)

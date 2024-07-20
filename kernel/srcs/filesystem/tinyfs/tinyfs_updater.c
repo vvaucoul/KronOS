@@ -6,18 +6,21 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:00:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 11:39:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 18:35:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <filesystem/tinyfs/tinyfs.h>
 
 /**
- * @brief Write superblock to disk
+ * Writes the superblock of the TinyFS filesystem.
  *
- * @param fs
+ * This function is responsible for writing the superblock of the TinyFS filesystem.
+ * It takes a pointer to the Vfs structure representing the filesystem as a parameter.
  *
- * @return int
+ * @param fs A pointer to the Vfs structure representing the filesystem.
+ * @return Returns an integer indicating the success or failure of the operation.
+ *         0 indicates success, while a negative value indicates failure.
  */
 int tinyfs_write_superblock(Vfs *fs) {
     TinyFS *tinyfs = (TinyFS *)fs->fs;

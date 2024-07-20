@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 12:10:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 16:29:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@
 #define TINYFS_MAX_BLOCKS 1024        // 1024 blocks
 #define TINYFS_BLOCK_SIZE 1024        // 1KB
 #define TINYFS_MAX_BLOCKS_PER_FILE 12 // 12 direct blocks
+#define TINYFS_FILESYSTEM_NAME "TinyFS"
+#define TINYFS_FILESYSTEM_D_NAME "TinyFS Filesystem"
+#define TINYFS_VERSION "0.1"
 
 #define TINY_FS_SUPERBLOCK_OFFSET 0
 #define TINY_FS_INODES_OFFSET sizeof(TinyFS_SuperBlock)

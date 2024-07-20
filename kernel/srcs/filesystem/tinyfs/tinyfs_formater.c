@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:48:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 14:10:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 16:22:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,23 +229,22 @@ static int __tinyfs_setup(TinyFS *tfs) {
     root_directory.links[0] = file1.inode_number;
     root_directory.links[1] = file2.inode_number;
     root_directory.nlink = 2;
-    
+
     file1.size = strlen(FILE1_CONTENT);
     file2.size = strlen(FILE2_CONTENT);
-    
+
     file1.parent_inode_number = 0;
     file2.parent_inode_number = 0;
 
     file1.block_pointers[0] = TINYFS_MAX_FILES + 1;
     file2.block_pointers[0] = TINYFS_MAX_FILES + 2;
 
-
     // * Write root directory to disk (LBA 1) *
     if (tfs->fs.device->swrite(tfs->fs.device->device, TINY_FS_INODES_OFFSET, sizeof(TinyFS_Inode), &root_directory) != 0) {
         printk("TinyFS: Formatting (write) failed\n");
         return (-EIO);
     }
-    
+
     // * Write file1 to disk (LBA 2) *
     if (tfs->fs.device->swrite(tfs->fs.device->device, TINY_FS_INODES_OFFSET + (sizeof(TinyFS_Inode) * 1), sizeof(TinyFS_Inode), &file1) != 0) {
         printk("TinyFS: Formatting (write) failed\n");

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 12:08:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/05/30 18:34:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 VfsInfo tinyfs_infos = {
     .name = TINYFS_FILESYSTEM_NAME,
-    .d_name = "tinyfs",
-    .version = "0.1",
+    .d_name = TINYFS_FILESYSTEM_D_NAME,
+    .version = TINYFS_VERSION,
     .type = TINYFS_FILESYSTEM};
 
 VfsFsOps tinyfs_fspos = {
@@ -27,16 +27,16 @@ VfsFsOps tinyfs_fspos = {
 VfsFileOps tinyfs_fops = {
     .read = tinyfs_read,
     .write = tinyfs_write,
-    .unlink = 0,
-    .open = 0,
-    .close = 0,
+    .unlink = NULL,
+    .open = NULL,
+    .close = NULL,
     .readdir = tinyfs_readdir,
     .finddir = tinyfs_finddir,
     .mkdir = tinyfs_mkdir,
-    .rmdir = 0,
-    .move = 0,
-    .chmod = 0,
-    .chown = 0,
+    .rmdir = NULL,
+    .move = NULL,
+    .chmod = NULL,
+    .chown = NULL,
     .create = tinyfs_create,
     .stat = tinyfs_stat,
 };

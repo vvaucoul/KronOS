@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 12:50:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:30:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <cmds/pwd.h>
 #include <drivers/keyboard.h>
 #include <drivers/vga.h>
-#include <filesystem/vfs/vfs.h>
+#include <fs/vfs/vfs.h>
 #include <memory/memory.h>
 #include <system/pit.h>
 

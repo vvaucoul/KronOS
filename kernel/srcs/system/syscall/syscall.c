@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 12:54:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 18:17:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void init_syscall(void) {
     memset(syscalls, 0, sizeof(syscalls));
 
     // Enregistrer les appels système
-    syscall_register(SYSCALL_WRITE, "write", (sysfn_t)syscall_write);
+    syscall_register(SYS_WRITE, "write", (sysfn_t)syscall_write);
     // Ajouter d'autres appels système ici
     // syscall_register(SYSCALL_RESTART, "restart", (sysfn_t)syscall_restart);
     // syscall_register(SYSCALL_EXIT, "exit", (sysfn_t)syscall_exit);

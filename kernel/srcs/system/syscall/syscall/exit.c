@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 11:37:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 12:18:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 19:48:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <syscall/exit.h>
+#include <syscall/syscall.h>
 
 void exit(int32_t status) {
     task_exit(status);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 22:07:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:38:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 14:24:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,13 @@ enum vga_color {
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 
+/* CRTC (Cathode Ray Tube Controller) Defines */
+#define VGA_CRTC_INDEX 0x3D4
+#define VGA_CRTC_DATA  0x3D5
+
+#define VGA_CURSOR_START_REG 0x0A
+#define VGA_CURSOR_END_REG   0x0B
+
 extern void vga_init(void);
 extern void terminal_putchar(char c);
 extern void terminal_writestring(const char *data);
@@ -65,6 +72,9 @@ extern void refresh_cursor(void);
 extern void terminal_write_n_char(char c, size_t count);
 extern void terminal_move_offset_down(void);
 extern void terminal_set_background_color(uint8_t color);
+
+extern void vga_enable_cursor(void);
+extern void vga_disable_cursor(void);
 
 extern size_t terminal_row;
 extern size_t terminal_column;

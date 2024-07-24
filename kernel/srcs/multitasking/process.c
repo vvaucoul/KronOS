@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 14:06:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 00:32:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,7 @@ void init_tasking(void) {
     // printk("\t- Move stack\n");
 
     move_stack((void *)0xDEADBEEF, KERNEL_STACK_SIZE);
+    // move_stack((void *)0xDEADBEEF, KERNEL_STACK_SIZE);
 
     __ready_queue_init();
 
@@ -153,6 +154,9 @@ void init_tasking(void) {
     if ((process_init_env(current_task)) != 0) {
         __WARND("init_tasking : process_init_env failed (process will not have fs)");
     }
+
+    /* Init file descriptor table */
+    current_task->fd_table = fd_table_init();
 
     __process_sectors(current_task);
 
@@ -206,6 +210,9 @@ int32_t task_fork(void) {
     if ((process_init_env(new_task)) != 0) {
         __WARND("init_tasking : process_init_env failed (process will not have fs)");
     }
+
+    /* Init file descriptor table */
+    current_task->fd_table = fd_table_init();
 
     __process_sectors(new_task);
 

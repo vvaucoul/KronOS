@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 15:04:08 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 14:16:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 15:43:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ int ide_read(IDEDevice *dev, uint32_t lba, uint8_t sectors, void *buf) {
         ide_wait_drq(&dev->regs);
 
         for (int i = 0; i < sectors_to_read; ++i) {
-
             insw(dev->regs.base + ATA_REG_DATA, buffer_ptr + (i * SECTOR_SIZE), SECTOR_SIZE / 2);
             ide_wait(&dev->regs);
         }

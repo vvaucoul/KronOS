@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 17:29:08 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 17:00:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
  */
 
 // Todo: VFS
-// #include <filesystem/ext2/ext2.h>
+// #include <fs/ext2/ext2.h>
 // #include <multitasking/process.h>
 
 // extern int process_fs_init(task_t *task);

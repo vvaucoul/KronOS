@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 13:55:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 15:00:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 20:38:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ static uint32_t __ide_get_sector_count(const uint16_t buffer[256]) {
 // ! ||                                   DEVICE TYPE                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
-static IDEType __ide_get_devicetype(uint16_t base, uint16_t ctrl) {
+static IDEType __ide_get_devicetype(uint16_t base, __unused__ uint16_t ctrl) {
     uint8_t cl = inb(base + ATA_REG_LBA1);
     uint8_t ch = inb(base + ATA_REG_LBA2);
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:06:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 20:12:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 13:34:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,7 @@ extern uint32_t timer_ticks;
 extern uint32_t timer_subtick;
 
 extern void timer_display_ktimer(void);
+
+extern uint32_t pit_get_ticks(void);
 
 #endif /* !PIT_H */

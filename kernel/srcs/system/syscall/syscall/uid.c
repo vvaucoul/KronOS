@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 14:20:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 14:30:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 19:48:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <syscall/uid.h>
+#include <syscall/syscall.h>
 
 uid_t getuid(void)
 {

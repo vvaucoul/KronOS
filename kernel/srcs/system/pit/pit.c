@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 13:33:50 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,4 +122,8 @@ void timer_display_ktimer(void) {
            timer_subtick);
     printk("%8%% Seconds: %d\n", timer_ticks);
     printk("%8%% HZ: %d\n", (size_t)TIMER_PHASE);
+}
+
+uint32_t pit_get_ticks(void) {
+    return timer_ticks;
 }

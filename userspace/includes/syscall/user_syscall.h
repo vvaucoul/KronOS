@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 11:01:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 12:54:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 18:05:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static inline int32_t syscall(int32_t syscall_number, uint32_t arg1, uint32_t ar
 }
 
 static inline int32_t write(const char *str) {
-    return syscall(0x4, (uint32_t)str, 0, 0);
+    return syscall(0x1, (uint32_t)str, 0, 0);
 }
 
 #endif /* !USER_SYSCALL_H */

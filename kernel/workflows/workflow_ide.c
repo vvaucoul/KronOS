@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:34:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 14:18:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 14:49:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/ide.h>
 #include <memory/memory.h>
 #include <system/pit.h>
+#include <system/random.h>
 #include <workflows/workflows.h>
 
 #define NUM_SECTORS 10
@@ -364,6 +365,134 @@ void test_ide_simple_read_write(IDEDevice *dev) {
     }
 }
 
+void test_ide_unaligned_sectors(IDEDevice *dev) {
+    char write_buf[SECTOR_SIZE * 2];
+    char read_buf[SECTOR_SIZE * 2];
+    const char *test_str = "IDE unaligned sectors test";
+
+    // Write test
+    memset(write_buf, 0, SECTOR_SIZE * 2);
+    strcpy(write_buf + 100, test_str); // Write at an unaligned offset
+    ide_write(dev, 1, 2, write_buf);
+
+    // Read test
+    memset(read_buf, 0, SECTOR_SIZE * 2);
+    ide_read(dev, 1, 2, read_buf);
+
+    // Validation
+    if (strcmp(read_buf + 100, test_str) == 0) {
+        printk("IDE: Unaligned sectors test "_GREEN
+               "[OK]" _END "\n");
+    } else {
+        printk("IDE: Unaligned sectors test "_RED
+               "[KO]" _END "\n");
+        printk("IDE: Read: [%s]\n", read_buf + 100);
+    }
+}
+
+void test_ide_partial_sector_write(IDEDevice *dev) {
+    char write_buf[SECTOR_SIZE];
+    char read_buf[SECTOR_SIZE];
+    const char *test_str = "IDE partial sector write test";
+
+    // Write test
+    memset(write_buf, 0, SECTOR_SIZE);
+    strncpy(write_buf, test_str, strlen(test_str)); // Partial write
+    ide_write(dev, 1, 1, write_buf);
+
+    // Read test
+    memset(read_buf, 0, SECTOR_SIZE);
+    ide_read(dev, 1, 1, read_buf);
+
+    // Validation
+    if (strncmp(read_buf, test_str, strlen(test_str)) == 0) {
+        printk("IDE: Partial sector write test "_GREEN
+               "[OK]" _END "\n");
+    } else {
+        printk("IDE: Partial sector write test "_RED
+               "[KO]" _END "\n");
+        printk("IDE: Read: [%s]\n", read_buf);
+    }
+}
+
+void test_ide_random_access(IDEDevice *dev) {
+    char write_buf[SECTOR_SIZE];
+    char read_buf[SECTOR_SIZE];
+    const char *test_str = "IDE random access test";
+    uint32_t rand_sector;
+
+    // Initialize random seed
+    srand(pit_get_ticks());
+
+    // Stress test with random accesses
+    for (int i = 0; i < 100; ++i) {
+        rand_sector = rand() % dev->size; // Random sector within device size
+        memset(write_buf, 0, SECTOR_SIZE);
+        strcpy(write_buf, test_str);
+
+        ide_write(dev, rand_sector, 1, write_buf);
+        memset(read_buf, 0, SECTOR_SIZE);
+        ide_read(dev, rand_sector, 1, read_buf);
+
+        if (strcmp(read_buf, test_str) != 0) {
+            printk("IDE: Random access test failed at sector %u\n", rand_sector);
+            return;
+        }
+    }
+    printk("IDE: Random access test "_GREEN
+           "[OK]" _END "\n");
+}
+
+void test_ide_stress_long_term(IDEDevice *dev) {
+    char write_buf[SECTOR_SIZE];
+    char read_buf[SECTOR_SIZE];
+    const char *test_str = "IDE long term stress test";
+    uint32_t rand_sector;
+
+    int mi = 10000;
+    srand(pit_get_ticks());
+
+    for (int i = 0; i < mi; ++i) {
+        rand_sector = rand() % dev->size;
+        memset(write_buf, 0, SECTOR_SIZE);
+        strcpy(write_buf, test_str);
+
+        workflow_loading((i * 100 / mi));
+
+        ide_write(dev, rand_sector, 1, write_buf);
+        memset(read_buf, 0, SECTOR_SIZE);
+        ide_read(dev, rand_sector, 1, read_buf);
+
+        if (strcmp(read_buf, test_str) != 0) {
+            printk("IDE: Long term stress test failed at iteration %d, sector %u\n", i, rand_sector);
+            return;
+        }
+    }
+    workflow_loading(100);
+    printk("IDE: Long term stress test "_GREEN
+           "[OK]" _END "\n");
+}
+
+void test_ide_performance(IDEDevice *dev) {
+    char buffer[NUM_SECTORS * SECTOR_SIZE];
+    counter_t counter;
+    uint32_t iterations = 1000;
+
+    counter_start(&counter);
+
+    for (uint32_t i = 0; i < iterations; ++i) {
+        workflow_loading((i * 100 / iterations));
+        ide_write(dev, 0, NUM_SECTORS, buffer);
+        ide_read(dev, 0, NUM_SECTORS, buffer);
+    }
+    workflow_loading(100);
+
+    counter_stop(&counter);
+
+    uint32_t elapsed = counter_get_time(&counter);
+    printk("IDE: Performance test: %u iterations, %u sectors each, in %u ms\n", iterations, NUM_SECTORS, elapsed);
+}
+
 void workflow_ide(void) {
     __WORKFLOW_HEADER();
 
@@ -376,14 +505,30 @@ void workflow_ide(void) {
     test_ide_simple(dev);
     test_ide_single_sector(dev);
     test_ide_multiple_sectors(dev, 10, 5);
+
     test_ide_read_write_loop(dev, 10);
     test_ide_error_handling(dev);
     test_ide_sector_limits(dev, 0);
     test_ide_hardware_error_handling(dev, 0xFFFFFF);
     test_ide_perf(dev);
+
     test_ide_large_transfer(dev, 20, 100);
+    test_ide_large_transfer(dev, 100, 100);
+    test_ide_large_transfer(dev, 200, 100);
+
     test_ide_concurrent_access(dev);
     test_ide_simple_read_write(dev);
+
+    test_ide_unaligned_sectors(dev);
+    test_ide_partial_sector_write(dev);
+    test_ide_random_access(dev);
+
+#if __WHUGE_TESTS__ == 1
+    test_ide_stress_long_term(dev);
+    test_ide_performance(dev);
+#else
+    __WARND("Huge tests are disable");
+#endif 
 
     __WORKFLOW_FOOTER();
 }

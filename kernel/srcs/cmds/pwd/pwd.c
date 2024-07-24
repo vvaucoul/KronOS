@@ -6,13 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 10:48:53 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 17:12:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 19:32:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cmds/pwd.h>
-#include <multitasking/process.h>
-#include <syscall/getcwd.h>
+#include <syscall/syscall.h>
 
 int pwd(int argc, __unused__ char **argv) {
 

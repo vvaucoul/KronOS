@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 15:44:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/19 16:10:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 10:32:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,11 @@ uint8_t ide_error_msg(uint8_t status, uint8_t display) {
     return (0);
 }
 
+/**
+ * Displays the state of the IDE disk.
+ *
+ * @param dev The IDE device to display the state for.
+ */
 void ide_display_disk_state(IDEDevice *dev) {
     uint8_t status = inb(dev->regs.base + ATA_REG_STATUS);
     uint8_t err = inb(dev->regs.base + ATA_REG_ERROR);

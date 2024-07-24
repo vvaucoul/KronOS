@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:35:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 15:10:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/devices.h>
 #include <drivers/device/ide.h>
-#include <filesystem/tinyfs/tinyfs.h>
+#include <fs/tinyfs/tinyfs.h>
 #include <workflows/workflows.h>
 
 Device *g_hdb = NULL;
@@ -23,7 +23,7 @@ static int __format_disk(void) {
     uint32_t disk_size = ide_device_get_size(ide) * 1024;
     const char buffer[512] = {0};
 
-    printk(_LYELLOW "- Formating hda [%u] octets\n" _END, disk_size);
+    printk(_LYELLOW "- Formating hdb [%u] octets\n" _END, disk_size);
 
     for (uint32_t i = 0; i < disk_size; i += 512) {
         uint32_t size = 512;
@@ -35,6 +35,7 @@ static int __format_disk(void) {
         if ((ide_device_simple_write(ide, i, size, buffer)) != 0) {
             // Todo: get perror / strerror etc.. with errno kernel side
             printk("Error: writing [%d] octets to disk\n", size);
+            // perror("Error: ide_device_simple_write");
             return (1);
         }
     }

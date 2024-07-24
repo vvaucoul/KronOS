@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 14:34:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 14:53:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,14 @@
 #define WORKFLOW_CHAR '='
 
 #define __WORKFLOW_HEADER() workflow_header(__FUNCTION__)
-
 #define __WORKFLOW_FOOTER() workflow_footer();
+
+#define __WHUGE_TESTS__ 0
 
 /* Workflow Utils */
 extern void workflow_header(const char *function_name);
 extern void workflow_footer(void);
+extern void workflow_loading(uint32_t new_progress);
 
 /* Kernel Memory Map */
 extern void display_kernel_memory_map(void);

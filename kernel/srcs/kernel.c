@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 16:22:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 00:58:05 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <multitasking/scheduler.h>
 
 /* System */
-#include <syscall/syscall.h>
 #include <system/bsod.h>
 #include <system/cmos.h>
 #include <system/cpu.h>
@@ -40,6 +39,9 @@
 #include <system/time.h>
 #include <system/tss.h>
 
+/* Syscall */
+#include <syscall/syscall.h>
+
 /* Drivers */
 #include <drivers/device/char.h>
 #include <drivers/device/devices.h>
@@ -59,10 +61,12 @@
 #include <memory/paging.h>
 
 /* Filesystem */
-#include <filesystem/ext2/ext2.h>
-#include <filesystem/initrd.h>
-#include <filesystem/tinyfs/tinyfs.h>
-#include <filesystem/vfs/vfs.h>
+#include <fs/ext2/ext2.h>
+#include <fs/initrd/initrd.h>
+#include <fs/tinyfs/tinyfs.h>
+#include <fs/vfs/vfs.h>
+
+#include <system/fs/open.h>
 
 #include <workflows/workflows.h>
 
@@ -105,7 +109,6 @@ void kernel_log_info(const char *part, const char *name) {
                     "- "_YELLOW
                     "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
                diff_time, part, name);
-        // printk(_CURSOR_MOVE_UP);
     }
 
     // DEBUG ONLY
@@ -201,7 +204,6 @@ static int init_multitasking(void) {
 }
 
 static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
-
     // Init devices
     devices_init();
     kernel_log_info("LOG", "DEVICES");
@@ -258,7 +260,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
 #endif
 
 #if __TINYFS__ == 1
-    Device *dev = device_get_by_id(0);
+    Device *dev = device_get_by_id(0); // Get hda device
     TinyFS *tfs = NULL;
 
     /* Check if device is available */
@@ -270,13 +272,14 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
             __WARND("Error: tinyfs_init failed, (Kernel will not use TINYFS)");
         } else {
             /* Format TINYFS */
-            if ((tinyfs_formater(tfs, false)) != 0) { // TMP: Hard format is disabled
+            if ((tinyfs_formater(tfs, false)) != 0) { // Hard format is disabled
                 __WARND("Error: tinyfs_formater failed, (Kernel will not use TINYFS)");
             }
             /* Mount TINYFS on device */
             if ((vfs_mount(tfs->fs.vfs)) != 0) {
                 __WARND("Error: vfs_mount failed, (Kernel will not use TINYFS)");
             } else {
+                // workflow_tinyfs();
                 kernel_log_info("LOG", "TINYFS");
             }
         }
@@ -284,7 +287,8 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
 #else
     __INFOD("TINYFS is disabled");
 #endif
-    kpause();
+
+    // kpause(); // Tmp, test hephaistos
 
     /*
     **  EXT2 INIT
@@ -313,9 +317,6 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     time_init();
     kernel_log_info("LOG", "TIME");
-
-    // bga_init();
-    // init_vbe_mode();
 
     printk("       - "_YELLOW
            "[LOG] " _END "- "_END _GREEN "[CHK] " _END " HHK: "_GREEN
@@ -387,14 +388,57 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     tm_t date = gettime();
     printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
-    // printk("__TEST_HEPHAISTOS__ = %d\n", __TEST_HEPHAISTOS__);
-
 #if __TEST_HEPHAISTOS__ == 1
     __INFOD("Test Hephaistos is enabled");
     return hephaistos_workflow();
 #else // !__TEST_HEPHAISTOS__
     __INFOD("Test Hephaistos is disabled");
 #endif
+
+    pid_t test = fork();
+    if (test == 0) {
+#include <cmds/cat.h>
+#include <cmds/ls.h>
+#include <cmds/mkdir.h>
+#include <cmds/pwd.h>
+
+        pwd(0, NULL);
+        printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+        ls(0, NULL);
+
+        cat(2, (char *[]){"cat", "file1.txt", NULL});
+
+        mkdir(2, (char *[]){"mkdir", "test", NULL});
+        ls(0, NULL);
+
+        sys_chdir("test");
+        printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+
+        TinyFS_Inode *ino = tinyfs_get_inode(vfs_get_current_fs(), 0);
+        tinyfs_display_hierarchy(ino, 1);
+
+        pwd(0, NULL);
+        ls(0, NULL);
+
+        int fd = sys_creat("/test/test_file1.txt", O_RDWR);
+        int fd2 = sys_creat("test_file2.txt", O_RDWR);
+
+        ls(0, NULL);
+
+        if ((sys_write(fd, "Hello World !\n", 14)) != 0) {
+            printk("Error: sys_write failed\n");
+        }
+
+        cat(2, (char *[]){"cat", "test_file1.txt", NULL});
+
+        pause();
+    } else {
+        int status;
+        waitpid(test, &status, 0);
+        printk("Child process exited with status: %d\n", status);
+    }
+
+    kpause();
 
     pid_t pid = fork();
     if (pid == 0) {

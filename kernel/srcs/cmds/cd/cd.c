@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 10:48:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/10 12:30:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <filesystem/vfs/vfs.h>
+#include <fs/vfs/vfs.h>
 
 int cd(int argc, char **argv) {
     if (argc > 2) {

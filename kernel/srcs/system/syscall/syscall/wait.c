@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 12:21:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/23 21:00:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 19:37:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
-#include <syscall/wait.h>
+#include <syscall/syscall.h>
 
 static pid_t __wait(pid_t pid, int *status, int options) {
 

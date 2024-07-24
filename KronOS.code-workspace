@@ -96,7 +96,14 @@
 			"irq.h": "c",
 			"stdint.h": "c",
 			"panic.h": "c",
-			"user_syscall.h": "c"
+			"user_syscall.h": "c",
+			"random.h": "c",
+			"cmds_fs.h": "c",
+			"open.h": "c",
+			"file.h": "c",
+			"fd.h": "c",
+			"perm.h": "c",
+			"bitsperlong.h": "c"
 		}
 	}
 }

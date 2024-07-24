@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/02/08 20:44:27 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/23 11:06:17 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -82,7 +82,7 @@ ifeq ($(CLANG_INSTALLED), false)
 	CC				=	$(CCACHE) gcc
 	CXX				=	$(CCACHE) g++
 else
-	CC				=	$(CCACHE) clang
+	CC				=	$(CCACHE) clang-15
 	CXX				=	$(CCACHE) clang++
 endif
 

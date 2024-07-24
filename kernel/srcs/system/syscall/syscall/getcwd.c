@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 16:33:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 17:10:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 19:48:38 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 #include <multitasking/process.h>
-#include <syscall/getcwd.h>
+#include <syscall/syscall.h>
 
 /**
  * @brief Get the current working directory.

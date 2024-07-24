@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:42:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 14:42:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,4 +117,16 @@ void terminal_move_offset_down(void) {
     for (size_t x = 0; x < VGA_WIDTH; x++) {
         TERMINAL_CHAR(x, VGA_HEIGHT - 1) = VGA_ENTRY(' ', VGA_ENTRY_COLOR(__vga_foreground_color, __vga_background_color));
     }
+}
+
+void vga_enable_cursor(void) {
+    outb(VGA_CRTC_INDEX, VGA_CURSOR_START_REG);
+    outb(VGA_CRTC_DATA, (inb(VGA_CRTC_DATA) & 0xC0) | 14);
+    outb(VGA_CRTC_INDEX, VGA_CURSOR_END_REG);
+    outb(VGA_CRTC_DATA, (inb(VGA_CRTC_DATA) & 0xE0) | 15);
+}
+
+void vga_disable_cursor(void) {
+    outb(VGA_CRTC_INDEX, VGA_CURSOR_START_REG);
+    outb(VGA_CRTC_DATA, 0x20);
 }

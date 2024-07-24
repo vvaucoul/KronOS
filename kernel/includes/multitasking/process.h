@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 14:14:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/24 20:07:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 #include <system/threads.h>
 
 #include <multitasking/process_env.h>
+
+#include <system/fs/fd.h>
 
 #define KERNEL_STACK_SIZE 0x1000 // 4KB - Kernel Stack === PAGE_SIZE
 #define INIT_PID 0x1             // First process pid created
@@ -88,7 +90,10 @@ typedef struct s_task {
 
     signal_node_t *signal_queue; // Queue of signals to be processed
 
-    penv_t env; // Environment of the task (Task informations)
+    penv_t env;           // Environment of the task (Task informations)
+    
+    fd_table_t *fd_table; // File descriptor table
+    
     /*
     **  Task ID
     **

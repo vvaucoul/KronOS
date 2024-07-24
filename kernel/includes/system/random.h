@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 14:03:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:54:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/23 13:35:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,6 @@
 
 extern void random_init();
 extern uint32_t rand();
+extern void srand(uint32_t new_seed);
 
 #endif /* !RAND_H */

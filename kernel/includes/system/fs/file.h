@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 09:40:25 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:34:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 10:36:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,12 @@
 #include <system/fs/file.h>
 
 typedef long off_t;
+typedef unsigned int mode_t;
 
 typedef struct file {
     int fd;            // File descriptor
     off_t pos;         // Current position in the file
-    int mode;          // Opening mode (read, write, etc.)
+    mode_t mode;          // Opening mode (read, write, etc.)
     VfsNode *inode;    // Pointer to the corresponding inode
     VfsFileOps *f_ops; // Pointer to file operations
 } File;

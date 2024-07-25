@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:14:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 20:45:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 20:39:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/fs/file.h>
+#include <memory/memory.h>
 
 /**
  * Retrieves the file operations associated with a given VfsNode.

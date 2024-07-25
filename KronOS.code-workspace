@@ -103,7 +103,8 @@
 			"file.h": "c",
 			"fd.h": "c",
 			"perm.h": "c",
-			"bitsperlong.h": "c"
+			"bitsperlong.h": "c",
+			"sys_list.h": "c"
 		}
 	}
 }

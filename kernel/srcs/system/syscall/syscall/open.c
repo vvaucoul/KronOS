@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 23:36:08 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:19:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 20:42:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include <fs/vfs/vfs.h>
 
+#include <system/fs/cache.h>
 #include <system/fs/file.h>
 #include <system/fs/open.h>
 #include <system/fs/path.h>
@@ -59,6 +60,17 @@ int sys_open(const char *path, int flags, mode_t mode) {
         return -EACCES;
     }
 
+    // Setup File cache (retreive faster file)
+    file_cache_t *cache = get_file_cache(vfs->fs_info->name);
+
+    if (cache) {
+        File *cache_file = cache_open_file(cache, path, mode);
+
+        if (cache_file) {
+            return (cache_file->fd);
+        }
+    }
+
     // Allocate file descriptor
     int fd = allocate_file_descriptor(path, mode);
 
@@ -73,12 +85,6 @@ int sys_open(const char *path, int flags, mode_t mode) {
         release_file_descriptor(fd);
         return -ENOMEM;
     }
-
-    // Todo: Setup file cache
-    // Setup file cache
-    // 1: For each FS
-    // 2: With an hashtable (map) with keys values as fs and file_cache_t
-    // cache_open_file(file);
 
     // Todo: Lock file
     // Lock file

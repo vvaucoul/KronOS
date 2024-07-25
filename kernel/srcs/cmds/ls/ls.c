@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 17:38:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:26:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 20:37:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
  * - ls : list files in current directory
  * basic implementation of ls system command
  */
-int ls(int argc, char **argv) {
+int ls(__unused__ int argc, __unused__ char **argv) {
 
     // Todo: implement ls arguments
 
@@ -52,7 +52,7 @@ int ls(int argc, char **argv) {
 
     printk("    ");
     while ((dir = vfs_readdir(vfs, vfs->fs_current_node, i)) != NULL) {
-        VfsNode *node = vfs_finddir(vfs, vfs->fs_current_node, dir->d_name);
+        // VfsNode *node = vfs_finddir(vfs, vfs->fs_current_node, dir->d_name);
 
         // Todo: Implement stat command / syscall to get file mode / type / size / permissions etc..
         // todo: implement colors for file types

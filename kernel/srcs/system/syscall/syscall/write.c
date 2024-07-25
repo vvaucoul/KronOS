@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 00:28:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:36:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 10:05:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int sys_write(int fd, const void *buf, uint32_t count) {
         return (-EACCES);
     } else {
 
-        return (file->f_ops->write(file->inode, 0, count, buf));
+        return (file->f_ops->write(file->inode, file->pos, count, buf));
 
         // Todo: reformat write function fs like the following line
         // return (file->f_ops->write(file, buf, count));

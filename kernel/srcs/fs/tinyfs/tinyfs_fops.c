@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:49:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:57:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 10:18:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,22 +48,38 @@ int tinyfs_read(void *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
 int tinyfs_write(void *node, uint32_t offset, uint32_t size, uint8_t *buffer) {
     TinyFS *tinyfs = (TinyFS *)((TinyFS_Inode *)node)->fs;
 
-    int ret = tinyfs->fs.device->swrite(tinyfs->fs.device->device, offset, size, buffer);
+    uint32_t __offset;
 
-    if (ret == 0) {
+    if ((tinyfs_allocate_block((TinyFS_Inode *)node, &__offset, buffer, size, true)) != 0) {
+        return -EIO;
+    } else {
+
         TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
+
+        tfs_node->block_pointers[tfs_node->nlink] = __offset;
         if (offset + size > tfs_node->size) {
             tfs_node->size = offset + size;
-            // Todo: Update inode and write it to disk
-            // Avoid following line for now, it will cause a loop
-            // (tinyfs_write_inode -> tinyfs_write -> tinyfs_write_inode -> ...)
-            // tinyfs_write_inode(tinyfs->fs.vfs, tfs_node->inode_number, tfs_node);
         }
-    } else {
-        return (ret);
     }
 
     return (0);
+
+    // int ret = tinyfs->fs.device->swrite(tinyfs->fs.device->device, offset, size, buffer);
+
+    // if (ret == 0) {
+    //     TinyFS_Inode *tfs_node = (TinyFS_Inode *)node;
+    //     if (offset + size > tfs_node->size) {
+    //         tfs_node->size = offset + size;
+    //         // Todo: Update inode and write it to disk
+    //         // Avoid following line for now, it will cause a loop
+    //         // (tinyfs_write_inode -> tinyfs_write -> tinyfs_write_inode -> ...)
+    //         // tinyfs_write_inode(tinyfs->fs.vfs, tfs_node->inode_number, tfs_node);
+    //     }
+    // } else {
+    //     return (ret);
+    // }
+
+    // return (0);
 }
 
 /**

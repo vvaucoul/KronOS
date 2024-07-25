@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 19:59:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 20:36:52 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ static void __kfree(void *ptr) {
         kheap_free(ptr, kheap);
 }
 
-static uint8_t header_t_less_than(void *a, void *b) {
+static bool header_t_less_than(void *a, void *b) {
     return (((heap_header_t *)a)->size < ((heap_header_t *)b)->size) ? 1 : 0;
 }
 

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/23 11:06:17 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/25 09:46:43 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -101,7 +101,7 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 		COLOR="$(_LRED)"; \
 	elif echo $< | grep -q "multitasking"; then \
         COLOR="$(_LGREEN)"; \
-	elif echo $< | grep -q "filesystem"; then \
+	elif echo $< | grep -q "fs"; then \
 		COLOR="$(_LYELLOW)"; \
 	elif echo $< | grep -q "shell"; then \
 		COLOR="$(_LPURPLE)"; \

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 19:27:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:37:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 10:39:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ typedef unsigned int mode_t;
 struct stat;
 
 extern int sys_open(const char *path, int flags, mode_t mode);
+extern int sys_close(int fd);
 extern int sys_write(int fd, const void *buf, uint32_t count);
 extern int sys_creat(const char *path, mode_t mode);
 extern int sys_chdir(const char *path);

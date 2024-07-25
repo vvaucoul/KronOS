@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:58:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/25 10:39:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -425,11 +425,19 @@ int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
         ls(0, NULL);
 
-        if ((sys_write(fd, "Hello World !\n", 14)) != 0) {
+        if ((sys_write(fd, "Hello test File1 !\n", 20)) != 0) {
+            printk("Error: sys_write failed\n");
+        } else if ((sys_write(fd2, "Hello test File2 !\n", 20)) != 0) {
             printk("Error: sys_write failed\n");
         }
 
+        sys_close(fd);
+        sys_close(fd2);
+
         cat(2, (char *[]){"cat", "test_file1.txt", NULL});
+        cat(2, (char *[]){"cat", "test_file2.txt", NULL});
+
+        ls(3, (char *[]){"ls", "-l", "/", NULL});
 
         pause();
     } else {

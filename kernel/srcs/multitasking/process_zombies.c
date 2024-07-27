@@ -6,18 +6,20 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/23 21:11:57 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/26 13:32:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:44:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
 
+#include <stdio.h>
+#include <macros.h>
+
 extern task_t *ready_queue;
 
-int32_t __process_zombie(task_t *current_task) {
+int32_t __process_zombie(__unused__ task_t *current_task) {
     task_t *tmp = ready_queue;
-    __UNUSED(current_task);
 
     while (tmp) {
         if (tmp->pid == 0 || tmp->pid == INIT_PID) {

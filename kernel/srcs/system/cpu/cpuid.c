@@ -6,10 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:48:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <macros.h>
 #include <system/cpu.h>
 
 bool __cpuid_available = false;
@@ -20,40 +21,32 @@ uint32_t cpu_model;
 
 char hypervisor[CPU_INFOS_SIZE];
 
-static int get_model(void)
-{
+static int get_model(void) {
     int ebx, unused;
 
     __cpuid(0, unused, ebx, unused, unused);
     return (ebx);
 }
 
-void get_cpu_version()
-{
+void get_cpu_version() {
     unsigned int eax, ebx, ecx, edx;
 
     // Call __cpuid with an input value of 1 to get the CPU version
     __cpuid(1, eax, ebx, ecx, edx);
 
     // Extract the family and model information from the lower 16 bits of the eax register
-    unsigned int family = (eax & 0x0FFF0000) >> 16;
-    unsigned int model = (eax & 0x0000FFF0) >> 4;
+    __unused__ unsigned int family = (eax & 0x0FFF0000) >> 16;
+    __unused__ unsigned int model = (eax & 0x0000FFF0) >> 4;
 
     // Extract the stepping and reserved information from the upper 16 bits of the eax register
-    unsigned int stepping = eax & 0x0000000F;
-    unsigned int reserved = (eax & 0xF0000000) >> 28;
+    __unused__ unsigned int stepping = eax & 0x0000000F;
+    __unused__ unsigned int reserved = (eax & 0xF0000000) >> 28;
 
     // Print the CPU version information
     // printk("CPU version: family %u, model %u, stepping %u, reserved %u\n", family, model, stepping, reserved);
-
-    __UNUSED(family);
-    __UNUSED(model);
-    __UNUSED(stepping);
-    __UNUSED(reserved);
 }
 
-static void get_cpuid_vendor(char *vendor)
-{
+static void get_cpuid_vendor(char *vendor) {
     uint32_t eax, ebx, ecx, edx;
     char vendor_string[13];
 
@@ -66,8 +59,7 @@ static void get_cpuid_vendor(char *vendor)
     strcpy(vendor, vendor_string);
 }
 
-static void get_cpuid_hypervisor(char *hypervisor)
-{
+static void get_cpuid_hypervisor(char *hypervisor) {
     uint32_t eax, ebx, ecx, edx;
     char hypervisor_string[13];
 
@@ -80,16 +72,14 @@ static void get_cpuid_hypervisor(char *hypervisor)
     strcpy(hypervisor, hypervisor_string);
 }
 
-static int check_apic(cpu_info_t info)
-{
+static int check_apic(cpu_info_t info) {
     uint32_t eax, unused, ebx;
 
     __get_cpuid(1, &eax, &unused, &unused, &ebx);
     return (ebx & (info));
 }
 
-void get_cpu_informations(void)
-{
+void get_cpu_informations(void) {
     printk("\t   CPUID: ["_GREEN
            "%s"_END
            "]\n",
@@ -106,16 +96,12 @@ void get_cpu_informations(void)
            hypervisor);
 }
 
-bool init_cpuid(void)
-{
-    if (cpu_availability() == 0 || check_apic(CPUID_APIC) == 0)
-    {
+bool init_cpuid(void) {
+    if (cpu_availability() == 0 || check_apic(CPUID_APIC) == 0) {
         if (__DISPLAY_INIT_LOG__)
             printk(_YELLOW "[%s] " _END "- " _GREEN "[INIT] " _RED "%s " _END "\n", "CPUID", "CPUID not supported");
         return (false);
-    }
-    else
-    {
+    } else {
         bzero(cpu_vendor, CPU_INFOS_SIZE);
 
         cpu_family = 0;

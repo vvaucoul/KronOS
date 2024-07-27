@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 17:38:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 20:37:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:12:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #include <syscall/syscall.h>
 
 #include <multitasking/process.h>
+
+#include <macros.h>
+#include <string.h>
 
 /**
  * @brief List files in directory

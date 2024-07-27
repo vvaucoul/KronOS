@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/30 14:43:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:37:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <kernel.h>
 #include <system/kerrno.h>
+#include <stdbool.h>
 
 typedef enum e_panic_type {
     ABORT,

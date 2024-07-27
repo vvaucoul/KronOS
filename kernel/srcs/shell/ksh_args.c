@@ -6,12 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/09 23:05:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 19:03:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:47:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/kheap.h>
 #include <shell/ksh_args.h>
+#include <string.h>
 
 int ksh_get_argc(char **argv) {
     int i = 0;

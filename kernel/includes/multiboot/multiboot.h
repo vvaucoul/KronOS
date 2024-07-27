@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 13:28:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/07/20 15:42:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 21:57:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -301,7 +301,7 @@ typedef struct
 extern MultibootInfo *__multiboot_info;
 
 extern int multiboot_init(MultibootInfo *mboot_ptr);
-extern bool multiboot_check_magic_number(hex_t magic_number);
+extern bool multiboot_check_magic_number(uint32_t magic_number);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                     MACROS                                     ||

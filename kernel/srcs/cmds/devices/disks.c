@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 10:52:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/17 16:26:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:44:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 #include <memory/memory.h>
 #include <shell/ksh_args.h>
+
+#include <bit.h>
+#include <convert.h>
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                CMD DISKS DISPLAY                               ||

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 00:23:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 19:52:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:46:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define OPEN_H
 
 #include <multitasking/process.h>
+#include <system/fs/stat.h> // Include stat.h for permission constants
 
 #ifndef _OFF_T
 typedef long off_t;
@@ -32,20 +33,6 @@ typedef long off_t;
 #define O_NDELAY O_NONBLOCK // Same as O_NONBLOCK
 #define O_SYNC 04010000     // Synchronous write flag
 #define O_ASYNC 020000      // Asynchronous flag
-
-// Constants for the mode parameter of the open() function
-#define S_IRWXU 00700 // Read, write, execute/search by owner
-#define S_IRUSR 00400 // Read permission, owner
-#define S_IWUSR 00200 // Write permission, owner
-#define S_IXUSR 00100 // Execute/search permission, owner
-#define S_IRWXG 00070 // Read, write, execute/search by group
-#define S_IRGRP 00040 // Read permission, group
-#define S_IWGRP 00020 // Write permission, group
-#define S_IXGRP 00010 // Execute/search permission, group
-#define S_IRWXO 00007 // Read, write, execute/search by others
-#define S_IROTH 00004 // Read permission, others
-#define S_IWOTH 00002 // Write permission, others
-#define S_IXOTH 00001 // Execute/search permission, others
 
 // Other constants
 #define F_DUPFD 0  // Duplicate file descriptor

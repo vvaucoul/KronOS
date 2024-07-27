@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 22:07:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 14:24:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 21:53:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,10 @@
  * of displays.
  */
 
-#include <kernel.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <memory.h>
+
 #include <system/io.h>
 
 /* Hardware text mode color constants. */

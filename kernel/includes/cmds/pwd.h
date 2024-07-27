@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 16:06:14 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 17:13:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:47:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PWD_H
 # define PWD_H
 
-#include <kernel.h>
+#include <macros.h>
 
 extern int pwd(int argc, __unused__ char **argv);
 

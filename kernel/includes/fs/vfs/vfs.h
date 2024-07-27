@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 19:34:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:20:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@
 #include <kernel.h>
 #include <system/fs/stat.h>
 #include <system/fs/fd.h>
+
+#include <algorithms/hashtable.h>
+#include <string.h>
 
 // Use virtual file system
 #define __VFS__ 1

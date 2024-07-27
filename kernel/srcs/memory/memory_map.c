@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:18:24 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/31 18:34:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:34:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory_map.h>
+#include <assert.h>
 
 kernel_memory_map_t kernel_memory_map;
 memory_map_t memory_map[MMAP_SIZE];

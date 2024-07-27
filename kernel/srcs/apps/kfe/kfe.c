@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 12:50:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:11:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <fs/vfs/vfs.h>
 #include <memory/memory.h>
 #include <system/pit.h>
+
+#include <string.h>
 
 static void __attribute__((constructor)) kfe_constructor(void) {
     printk("+------------------------------------------------------------------------------+");

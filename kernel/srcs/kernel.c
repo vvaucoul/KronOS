@@ -6,9 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 10:39:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:23:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include <stdbool.h>
 
 #include <kernel.h>
 #include <shell/ksh.h>
@@ -73,6 +75,12 @@
 /* Apps */
 #include <apps/kfe/kfe.h>
 
+/* Libs Import */
+#include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+
+
 #if __HIGHER_HALF_KERNEL__ == true
 #error "Higher Half Kernel is not supported yet"
 #endif
@@ -120,15 +128,15 @@ void kernel_log_info(const char *part, const char *name) {
 // ! ||                                   KERNEL INIT                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
-static int check_multiboot(hex_t magic_number, hex_t addr, uint32_t *kstack) {
+static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
     /* Check Magic Number and assign multiboot info */
     if (multiboot_check_magic_number(magic_number) == false)
         return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
 
 #if __HIGHER_HALF_KERNEL__ == true
-    __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr + KERNEL_VIRTUAL_BASE));
+    __multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr + KERNEL_VIRTUAL_BASE));
 #else
-    __multiboot_info = (MultibootInfo *)((hex_t *)((hex_t)addr));
+    __multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr));
 #endif
 
     if (__multiboot_info == NULL)
@@ -309,7 +317,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
     return (0);
 }
 
-static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
+static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
     vga_init();
     ksh_header();
     kernel_log_info("LOG", "VGA - (80x25)");
@@ -339,8 +347,8 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
     uint32_t initrd_location = 0;
     uint32_t initrd_end = 0;
     if (__multiboot_info->mods_count > 0) {
-        initrd_location = *((uint32_t *)__multiboot_info->mods_addr);
-        initrd_end = *(uint32_t *)(__multiboot_info->mods_addr + 4);
+        initrd_location = *((uint32_t *)(uintptr_t)__multiboot_info->mods_addr);
+        initrd_end = *(uintptr_t *)((uintptr_t)__multiboot_info->mods_addr + 4);
         placement_addr = initrd_end;
     } else {
         __WARND("No multiboot modules found, kernel will not use initrd.");
@@ -361,7 +369,7 @@ static int init_kernel(hex_t magic_number, hex_t addr, uint32_t *kstack) {
 
     return (0);
 }
-int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
+int init_multiboot_kernel(uint32_t magic_number, uint32_t addr) {
     __UNUSED(addr);
     if (multiboot_check_magic_number(magic_number) == false)
         return (1);
@@ -372,7 +380,7 @@ int init_multiboot_kernel(hex_t magic_number, hex_t addr) {
 // ! ||                                   KERNEL MAIN                                  ||
 // ! ||--------------------------------------------------------------------------------||
 
-int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack) {
+int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
     ASM_CLI();
     if ((init_kernel(magic_number, addr, kstack)))
         return (1);

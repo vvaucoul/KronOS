@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/11 13:58:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:49:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <drivers/vga.h>
 
 #include <system/pit.h>
+
+#include <string.h>
 
 #include "ksh_buffer.h"
 #include "ksh_builtins.h"
@@ -39,10 +41,10 @@ extern void kronos_shell(void);
 
 extern uint32_t *ksh_buffer;
 
-extern size_t ksh_max_line;         // Max line of the shell
-extern size_t ksh_current_max_line; // Current max line of the shell
-extern size_t ksh_min_line;         // Min line of the shell
-extern size_t ksh_current_line;     // Current line of the shell
+extern uint32_t ksh_max_line;         // Max line of the shell
+extern uint32_t ksh_current_max_line; // Current max line of the shell
+extern uint32_t ksh_min_line;         // Min line of the shell
+extern uint32_t ksh_current_line;     // Current line of the shell
 
 /*******************************************************************************
  *                                   HISTORY                                   *

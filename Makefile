@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/25 09:46:43 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/27 09:09:44 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,15 +43,15 @@ ISO					=	$(NAME).iso
 LD					=	ld
 INLCUDES_PATH		=	-I./kernel/includes/ \
 						-I./userspace/includes/ \
-						-I./$(LIBKFS_DIR)/$(LIBKFS_DIR)/
-CFLAGS				=	-Wall -Wextra -Wfatal-errors \
+						-I./$(LIBKFS_DIR)/$(LIBKFS_DIR)/include
+CFLAGS				=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
-						-nostdlib -nodefaultlibs \
-						-std=c17 -ffreestanding -O2 
-CXXFLAGS			=	-Wall -Wextra -Wfatal-errors \
+						-nostdlib -nodefaultlibs -nostdinc \
+						-std=c17 -ffreestanding -O2 #-Werror
+CXXFLAGS			=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
-						-fno-rtti -nostdlib -nodefaultlibs \
-						-std=c++17 -ffreestanding -O2
+						-fno-rtti -nostdlib -nodefaultlibs -nostdinc \
+						-std=c++17 -ffreestanding -O2 #-Werror
 LDFLAGS				= 	-g3 -m32
 LD_FLAGS			=	-m elf_i386
 
@@ -173,7 +173,12 @@ fclean: clean docker-clear clean-ccache
 	@rm -rf $(DEPENDENCIES_DIR)/$(XORRISO) $(BIN_DIR) $(DEPENDENCIES_DIR)/$(CCACHE_DIR) 
 	@printf "$(_LWHITE)- FCLEAN $(_END)$(_DIM)----------------$(_END) $(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n"
 
-re: clean
+fre: clean
+	@rm -rf $(BIN_DIR)
+	@make -s -C $(LIBKFS_DIR) re #> /dev/null 2>&1
+	@make -s -C . all
+
+re: fclean
 	@rm -rf $(BIN_DIR)
 	@make -s -C $(LIBKFS_DIR) re #> /dev/null 2>&1
 	@make -s -C . all
@@ -205,4 +210,4 @@ include $(MK_INCLUDE_DIR)/dependencies/Dependencies.mk
 -include $(DEPENDS_ASM)
 -include $(DEPENDSXX)
 
-.PHONY: all clean fclean re debug ascii helper check clean-ccache
+.PHONY: all clean fclean fre re debug ascii helper check clean-ccache

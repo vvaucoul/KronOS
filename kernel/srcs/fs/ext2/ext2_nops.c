@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 10:22:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 09:08:53 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/ext2/ext2.h>
 #include <multitasking/process.h>
 #include <memory/memory.h>
+
+#include <macros.h>
 
 /**
  * @brief Creates a new node.
@@ -23,7 +25,7 @@
  * @param node_name The name of the node to create.
  * @return The created node.
  */
-VfsNode *ext2_create_node(VfsNode *root_node, const char *node_name) {
+VfsNode *ext2_create_node(__unused__ VfsNode *root_node, const char *node_name) {
     Ext2Node *ext2_node = kmalloc(sizeof(Ext2Node));
 
     if (ext2_node == NULL) {

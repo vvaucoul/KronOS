@@ -6,14 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/27 19:54:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 09:53:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <kernel.h>
 #include <system/cpu.h>
 #include <system/pit.h>
-
 #include <asm/asm.h>
+
+#include <stdint.h>
 
 /*
 ** RDTSC - Read Time Stamp Counter
@@ -22,10 +24,10 @@
 
 /* Pour lire le TSC */
 inline uint64_t rdtsc() {
-    uint64_t a, d;
+    uint32_t a, d;
     __asm__ volatile("rdtsc"
                      : "=a"(a), "=d"(d));
-    return ((uint128_t)d << 32) | a;
+    return ((uint64_t)d << 32) | a;
 }
 
 /* Pour obtenir la fréquence du CPU en MHz */

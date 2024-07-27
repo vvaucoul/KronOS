@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/24 18:09:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:45:56 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,12 @@
 
 #include <hephaistos.h>
 
-#define __KERNEL_VERSION__ "0.6.0"
+#include <stdint.h>
+#include <stddef.h>
+#include <memory.h>
+#include <stdio.h>
+
+#define __KERNEL_VERSION__ "0.6.2"
 #define __KERNEL_NAME__ "KronOS"
 
 #define __DISPLAY_INIT_LOG__ true
@@ -25,7 +30,7 @@
 
 extern void kernel_log_info(const char *part, const char *name);
 
-extern int kmain(hex_t magic_number, hex_t addr, uint32_t *kstack);
+extern int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack);
 
 // tmp
 __attribute__((unused)) extern void test_user_function();

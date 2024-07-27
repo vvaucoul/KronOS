@@ -6,11 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 11:05:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/24 00:41:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:44:34 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multitasking/scheduler.h>
+
+#include <stdio.h>
 
 extern task_t *ready_queue;
 

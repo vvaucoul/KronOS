@@ -6,16 +6,17 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:16:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:25:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MEMORY_MAP_H
 #define MEMORY_MAP_H
 
-#include <kernel.h>
 #include <multiboot/multiboot.h>
 #include <system/sections.h>
+
+#include <stdint.h>
 
 typedef struct s_kernel_memory_map
 {

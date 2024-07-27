@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 15:04:51 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 09:53:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/vfs/vfs.h>
 #include <memory/memory.h>
 #include <syscall/syscall.h>
+
+#include <macros.h>
 
 static VfsNode *find_or_create_dir(Vfs *vfs, VfsNode *parent, const char *name, uint16_t permission) {
     VfsNode *node = vfs_finddir(vfs, parent, name);

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:46:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:47:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include <shell/ksh.h>
 #include <system/irq.h>
 #include <shell/ksh_termcaps.h>
+
+#include <ctype.h>
 
 static bool __keyboard_uppercase = false;
 static kbd_lang_t __keyboard_lang = KEYBOARD_LAYOUT_EN;

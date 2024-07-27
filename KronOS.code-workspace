@@ -104,7 +104,12 @@
 			"fd.h": "c",
 			"perm.h": "c",
 			"bitsperlong.h": "c",
-			"sys_list.h": "c"
+			"sys_list.h": "c",
+			"stdbool.h": "c",
+			"kerrno.h": "c",
+			"macros.h": "c",
+			"strings.h": "c",
+			"string.h": "c"
 		}
 	}
 }

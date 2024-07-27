@@ -6,14 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:35:11 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/09 22:33:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:19:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef IDE_H
 #define IDE_H
 
-#include <kernel.h>
+#include <macros.h>
+#include <stdint.h>
 
 /**
  * @file ide.h

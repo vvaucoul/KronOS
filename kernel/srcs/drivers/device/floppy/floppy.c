@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/10 15:11:36 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 14:39:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:47:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,12 @@
 #include <system/io.h>
 #include <system/irq.h>
 
+#include <macros.h>
+
 static volatile bool floppy_irq_received = false;
 
-void floppy_irq_handler(struct regs *r) {
+void floppy_irq_handler(__unused__ struct regs *r) {
     // Handle the IRQ...
-    __UNUSED(r);
 
     // Signal that the IRQ has been received
     floppy_irq_received = true;

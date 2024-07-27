@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 23:22:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:12:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@
 #include <drivers/device/devices.h>
 #include <drivers/device/ide.h>
 #include <fs/vfs/vfs.h>
-#include <kernel.h>
+
+#include <stdint.h>
+#include <macros.h>
 
 #define __TINYFS__ 1
 

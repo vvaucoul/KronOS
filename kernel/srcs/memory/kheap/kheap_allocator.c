@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:09:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 17:34:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:43:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/frames.h>
 #include <memory/kheap.h>
 #include <memory/paging.h>
+
+#include <assert.h>
 
 static int64_t __kheap_find_hole(uint32_t size, bool align, heap_t *heap) {
     for (int64_t index = 0; index < (int64_t)heap->array.size; ++index) {

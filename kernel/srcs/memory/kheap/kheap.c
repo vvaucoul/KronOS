@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 20:36:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:35:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <memory/paging.h>
 #include <memory/shared.h>
 #include <system/panic.h>
+#include <assert.h>
 
 uint32_t placement_addr = (uint32_t)(uint32_t *)(&__kernel_section_end);
 heap_t *kheap = NULL;

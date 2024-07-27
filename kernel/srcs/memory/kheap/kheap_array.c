@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 16:47:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 17:35:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:43:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/kheap.h>
+#include <assert.h>
 
 // Heap predicate function
 bool heap_predicate(data_t a, data_t b) {

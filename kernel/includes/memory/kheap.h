@@ -6,19 +6,20 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 20:19:34 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:34:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KHEAP_H
 #define KHEAP_H
 
-#include <kernel.h>
-
 #include <memory/memory.h>
 #include <memory/memory_map.h>
 
 #include <system/backtrace/backtrace.h>
+
+#include <stdbool.h>
+#include <stdint.h>
 
 #define KHEAP_START 0xC0000000
 #define KHEAP_MAX_SIZE 0xCFFFF000 

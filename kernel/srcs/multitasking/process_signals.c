@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 22:32:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 13:01:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:44:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include <multitasking/process.h>
 
 #include <multitasking/scheduler.h>
+
+#include <stdio.h>
 
 /**
  * @brief Add a signal to a task

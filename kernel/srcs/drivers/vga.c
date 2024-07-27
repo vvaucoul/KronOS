@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:31:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 14:42:37 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:47:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/vga.h>
+#include <string.h>
 
 size_t terminal_row;
 size_t terminal_column;

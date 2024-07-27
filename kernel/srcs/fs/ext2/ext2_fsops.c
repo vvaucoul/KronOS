@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:17:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 09:08:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static Ext2FileOperations ext2_fops = {
     .chown = NULL,
 };
 
-static Ext2Node ext2_super_root = {
+__unused__ static Ext2Node ext2_super_root = {
     .name = "/",
     .inode = EXT2_ROOT_INO,
     .owner = 0,
@@ -60,8 +60,8 @@ static int init_group_descriptor(const Ext2SuperBlock *fs_superblock) {
 
     // Calculate the starting LBA of the group descriptor table
     // uint32_t desc_table_lba = (sizeof(Ext2SuperBlock) + fs_superblock->blocks_per_group * fs_superblock->fragments_per_group * sizeof(char) + fs_superblock->blocks_per_group * sizeof(char) + fs_superblock->inodes_per_group * sizeof(Ext2Inode)) / fs_superblock->log2_block_size;
-    uint32_t desc_table_start_block = 1 + 1;
-    uint32_t desc_table_lba = desc_table_start_block * (1024 / 512);
+    // uint32_t desc_table_start_block = 1 + 1;
+    // uint32_t desc_table_lba = desc_table_start_block * (1024 / 512);
 
     // Read the group descriptor table from the file system
     // ide_read(ide_devices[0], desc_table_lba, desc_table_size / fs_superblock->log2_block_size, buf);
@@ -136,7 +136,7 @@ static int ext2_read_superblock(Ext2SuperBlock *sb) {
 // ! ||                           EXT2 FILESYSTEM OPERATIONS                           ||
 // ! ||--------------------------------------------------------------------------------||
 
-int ext2_mount(void *fs) {
+int ext2_mount(__unused__ void *fs) {
     printk("Mounting EXT2 file system...\n");
 
     // Init root node
@@ -172,7 +172,7 @@ int ext2_mount(void *fs) {
     return (0);
 }
 
-int ext2_unmount(void *fs) {
+int ext2_unmount(__unused__ void *fs) {
     return (0);
 }
 

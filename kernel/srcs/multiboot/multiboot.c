@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:56:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/26 21:57:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 MultibootInfo *__multiboot_info = NULL;
 
-bool multiboot_check_magic_number(hex_t magic_number) {
+bool multiboot_check_magic_number(uint32_t magic_number) {
     if (magic_number != MULTIBOOT_BOOTLOADER_MAGIC) {
         kernel_log_info("CHK", "MAGIC NUMBER IS INVALID");
         return (false);

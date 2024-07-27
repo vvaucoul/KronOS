@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 10:48:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:50:26 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 08:46:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <system/fs/open.h>
 
 #include <cmds/cat.h>
+#include <string.h>
 
 int cat(int argc, char **argv) {
     if (argc == 0) {
@@ -36,7 +37,7 @@ int cat(int argc, char **argv) {
             __THROW("cat: no file specified", 1);
         }
 
-        task_t *task = get_task(getpid());
+        // task_t *task = get_task(getpid());
         char path[64] = {0};
         memscpy(path, 64, argv[1], strlen(argv[1]));
         // memscpy(path, 64, task->env.pwd, strlen(task->env.pwd));

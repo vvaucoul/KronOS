@@ -6,12 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/26 22:48:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 19:20:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <macros.h>
 #include <system/cpu.h>
+
+#include <cpuid.h>
+#include <string.h>
 
 bool __cpuid_available = false;
 

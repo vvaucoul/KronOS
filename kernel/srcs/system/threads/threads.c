@@ -6,14 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 17:43:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:11:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/threads.h>
-
 #include <memory/memory.h>
 #include <multitasking/process.h>
+
+#include <macros.h>
 
 thread_t *current_thread = NULL;
 
@@ -153,9 +154,8 @@ void thread_schedule(thread_t *list) {
 //     thread->state = THREAD_STOPPED;
 // }
 
-void thread_sleep(uint32_t ms) {
+void thread_sleep(__unused__ uint32_t ms) {
     thread_t *tmp = get_current_task()->threads;
-    __UNUSED(ms);
 
     while (tmp) {
         if (tmp == get_current_task()->threads) {

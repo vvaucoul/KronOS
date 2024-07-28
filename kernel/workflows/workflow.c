@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 15:40:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 14:49:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:17:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/vga.h>
 #include <workflows/workflows.h>
+
+#include <string.h>
 
 /**
  * @brief Function to generate the header for a workflow.

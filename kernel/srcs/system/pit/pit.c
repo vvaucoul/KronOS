@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:07:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 13:33:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 14:44:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <asm/asm.h>
 #include <multitasking/scheduler.h>
 #include <system/pit.h>
+
+#include <macros.h>
 
 void speaker_phase(int hz) {
     int divisor = __CHIPSET_FREQUENCY / hz;
@@ -24,6 +26,7 @@ void speaker_phase(int hz) {
 static void __timer_phase(void) {
     // This frequency is 1.1931816666 MHz
     int divisor = __CHIPSET_FREQUENCY / TIMER_PHASE;
+
     outportb(PIT_CMDREG, PIT_SET);
     outportb(PIT_CHANNEL_0, (uint8_t)(divisor & PIT_MASK));
     outportb(PIT_CHANNEL_0, (uint8_t)((divisor >> 8) & PIT_MASK));
@@ -32,10 +35,7 @@ static void __timer_phase(void) {
 uint32_t timer_ticks = 0;
 uint32_t timer_subtick = 0;
 
-void timer_handler(struct regs *r) {
-
-    __UNUSED(r);
-
+void timer_handler(__unused__ struct regs *r) {
     timer_subtick++;
 
     if (timer_subtick == TIMER_PHASE) {

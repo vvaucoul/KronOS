@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 20:20:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 23:51:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 #include <workflows/workflows.h>
 
 #include <system/pit.h>
+
+#include <assert.h>
+#include <string.h>
 
 /*******************************************************************************
  *                           KERNEL HEAP - WORKFLOW                            *

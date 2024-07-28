@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/27 09:09:44 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/28 01:30:38 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,7 +47,7 @@ INLCUDES_PATH		=	-I./kernel/includes/ \
 CFLAGS				=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs -nostdinc \
-						-std=c17 -ffreestanding -O2 #-Werror
+						-std=c2x -ffreestanding -O2 #-Werror
 CXXFLAGS			=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-fno-rtti -nostdlib -nodefaultlibs -nostdinc \

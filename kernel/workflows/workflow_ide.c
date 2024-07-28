@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:34:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 14:49:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 21:59:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include <system/pit.h>
 #include <system/random.h>
 #include <workflows/workflows.h>
+
+#include <string.h>
+#include <time.h>
 
 #define NUM_SECTORS 10
 

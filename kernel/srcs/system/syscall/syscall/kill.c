@@ -6,20 +6,20 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 11:04:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 19:36:52 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:13:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <syscall/syscall.h>
 
+#include <macros.h>
+
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                KILL PROMPT LINE                                ||
 // ! ||--------------------------------------------------------------------------------||
 
-int builtin_kill(int argc, char **argv) {
+int builtin_kill(__unused__ int argc, __unused__ char **argv) {
     #warning "Kill builtin not implemented yet"
-    __UNUSED(argc);
-    __UNUSED(argv);
     return (0);
 }
 

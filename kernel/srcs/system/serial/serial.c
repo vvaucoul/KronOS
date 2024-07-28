@@ -6,19 +6,22 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/01 16:14:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 10:13:58 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <system/serial.h>
 
+#include <stdio.h>
+#include <macros.h>
+
 static int __is_transmit_empty(void)
 {
     return (inportb(PORT_COM1 + 5) & 0x20);
 }
 
-static void __write_serial(const char c)
+__unused__ static void __write_serial(const char c)
 {
     while (__is_transmit_empty() == false)
         ;
@@ -29,7 +32,7 @@ void qemu_printf(const char *str, ...)
 {
     va_list(ap);
     va_start(ap, str);
-    vsprintk(str, __write_serial, str, ap);
+    // vsprintk(str, str, ap);
     va_end(ap);
 }
 

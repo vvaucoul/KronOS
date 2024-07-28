@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/26 12:42:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:09:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 // TMP
 #include <system/pit.h>
+
+#include <cpuid.h>
 
 cpu_topology_t cpu_topology;
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 22:07:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/26 21:53:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 11:31:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <memory.h>
+#include <string.h>
 
 #include <system/io.h>
 

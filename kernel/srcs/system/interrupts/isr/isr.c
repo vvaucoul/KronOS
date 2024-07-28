@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/30 14:48:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:10:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 #include <system/isr.h>
 #include <system/kerrno.h>
+
+#include <assert.h>
 
 ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS] = {0};
 irqs_t g_irqs[ISR_MAX_COUNT] = {0};

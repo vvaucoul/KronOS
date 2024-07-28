@@ -6,14 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 18:17:04 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:12:57 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <syscall/syscall.h>
 #include <system/irq.h>
-
 #include <multitasking/process.h>
+
+#include <macros.h>
+#include <string.h>
 
 extern int syscall_restart(void) {
 #warning "Syscall restart not implemented yet"
@@ -31,9 +33,8 @@ extern int syscall_wait(void) {
     return (0);
 }
 
-extern int syscall_read(int fd) {
+extern int syscall_read(__unused__ int fd) {
 #warning "Syscall read not implemented yet"
-    __UNUSED(fd);
     return (0);
 }
 

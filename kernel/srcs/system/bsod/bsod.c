@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/11 20:57:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/08 22:10:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:10:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include <system/pit.h>
 #include <system/irq.h>
 #include <drivers/vga.h>
+
+#include <macros.h>
 
 uint16_t *g_bsod_buffer = BSOD_MEMORY;
 char __bsod_error[__BSOD_BUFFER__] = {0};
@@ -74,10 +76,8 @@ void __bsod_callback(void) {
     }
 }
 
-void bsod(const char *error, const char *file) {
+void bsod(__unused__ const char *error, __unused__ const char *file) {
     __bsod_background();
-    __UNUSED(error);
-    __UNUSED(file);
     g_bsod_lock = 0x9;
     __bsod_content(__bsod_error, __bsod_file);
     __bsod_callback();

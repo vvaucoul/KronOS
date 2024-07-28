@@ -6,20 +6,18 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/26 22:45:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 11:31:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KERNEL_H
 #define KERNEL_H
 
-#pragma once
-
 #include <hephaistos.h>
 
 #include <stdint.h>
 #include <stddef.h>
-#include <memory.h>
+#include <string.h>
 #include <stdio.h>
 
 #define __KERNEL_VERSION__ "0.6.2"
@@ -29,12 +27,7 @@
 #define __HIGHER_HALF_KERNEL__ false
 
 extern void kernel_log_info(const char *part, const char *name);
-
 extern int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack);
-
-// tmp
-__attribute__((unused)) extern void test_user_function();
-__attribute__((unused)) extern void switch_to_user_mode();
 
 #define __THROW(msg, err, ...)                        \
     {                                                 \

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 10:35:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:13:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include <drivers/device/ide.h>
 #include <fs/tinyfs/tinyfs.h>
 #include <workflows/workflows.h>
+
+#include <assert.h>
 
 Device *g_hdb = NULL;
 IDEDevice *ide = NULL;

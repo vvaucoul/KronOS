@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 08:21:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:09:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include <drivers/device/devices.h>
 #include <memory/memory.h>
+
+#include <bit.h>
 
 InitrdHeader *initrd_header = NULL;
 InitrdFileHeader *initrd_file_headers = NULL;

@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 14:30:24 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:16:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <multitasking/process.h>
 #include <system/ipc.h>
+
+#include <string.h>
 
 static ipc_msg_t ipc_queue[IPC_QUEUE_MAX];
 static uint16_t ipc_queue_start = 0;

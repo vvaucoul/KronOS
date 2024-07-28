@@ -109,7 +109,13 @@
 			"kerrno.h": "c",
 			"macros.h": "c",
 			"strings.h": "c",
-			"string.h": "c"
+			"string.h": "c",
+			"assert.h": "c",
+			"printk.h": "c",
+			"stdarg.h": "c",
+			"convert.h": "c",
+			"stdio.h": "c",
+			"unistd.h": "c"
 		}
 	}
 }

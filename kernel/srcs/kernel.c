@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 08:23:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 14:44:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdbool.h>
-
 #include <kernel.h>
+#include <hephaistos.h>
+
 #include <shell/ksh.h>
 
 /* Multitasking */
@@ -76,10 +76,10 @@
 #include <apps/kfe/kfe.h>
 
 /* Libs Import */
-#include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
-
 
 #if __HIGHER_HALF_KERNEL__ == true
 #error "Higher Half Kernel is not supported yet"
@@ -93,7 +93,7 @@ uint32_t *kernel_stack = NULL;
 // ! ||--------------------------------------------------------------------------------||
 
 static inline void ksh_header(void) {
-    printk(_RED "\n \
+	printk(_RED "\n \
    \t\t\t\t\t\t\t##   ###   ##  \n \
    \t\t\t\t\t\t\t ##  ###  ##   \n \
    \t\t\t\t\t\t\t  ## ### ##    \n \
@@ -102,26 +102,30 @@ static inline void ksh_header(void) {
    \t\t\t\t\t\t\t ##  ###  ##   \n \
    \t\t\t\t\t\t\t##   ###   ##  \n \
     \n" _END);
-    printk(_RED);
-    terminal_write_n_char('#', VGA_WIDTH);
-    printk(_END);
-    printk("\n");
+	printk(_RED);
+	terminal_write_n_char('#', VGA_WIDTH);
+	printk(_END);
+	printk("\n");
 }
 
 void kernel_log_info(const char *part, const char *name) {
-    if (__DISPLAY_INIT_LOG__) {
-        tm_t tm = gettime();
+	if (__DISPLAY_INIT_LOG__) {
+		if (part == NULL || name == NULL) {
+			return;
+		}
 
-        uint64_t diff_time = difftime(&tm, &startup_tm);
-        printk(_END "[0:%02u] "_END
-                    "- "_YELLOW
-                    "[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
-               diff_time, part, name);
-    }
+		tm_t tm = gettime();
 
-    // DEBUG ONLY
-    if (irq_check_install(IRQ_PIT))
-        kmsleep(100);
+		uint64_t diff_time = difftime(&tm, &startup_tm);
+		printk(_END "[0:%02u] "_END
+					"- "_YELLOW
+					"[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
+			   diff_time, part, name);
+	}
+
+	// DEBUG ONLY
+	if (irq_check_install(IRQ_PIT))
+		kmsleep(100);
 }
 
 // ! ||--------------------------------------------------------------------------------||
@@ -129,126 +133,126 @@ void kernel_log_info(const char *part, const char *name) {
 // ! ||--------------------------------------------------------------------------------||
 
 static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
-    /* Check Magic Number and assign multiboot info */
-    if (multiboot_check_magic_number(magic_number) == false)
-        return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
+	/* Check Magic Number and assign multiboot info */
+	if (multiboot_check_magic_number(magic_number) == false)
+		return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
 
 #if __HIGHER_HALF_KERNEL__ == true
-    __multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr + KERNEL_VIRTUAL_BASE));
+	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr + KERNEL_VIRTUAL_BASE));
 #else
-    __multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr));
+	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr));
 #endif
 
-    if (__multiboot_info == NULL)
-        return (__BSOD_UPDATE("Multiboot Info is invalid") | 1);
-    printk("       - "_YELLOW
-           "[LOG] " _END "- "_END _GREEN "[CHK] " _END "MULTIBOOT: "_GREEN
-           "0x%x " _END "\n" _END,
-           __multiboot_info);
+	if (__multiboot_info == NULL)
+		return (__BSOD_UPDATE("Multiboot Info is invalid") | 1);
+	printk("       - "_YELLOW
+		   "[LOG] " _END "- "_END _GREEN "[CHK] " _END "MULTIBOOT: "_GREEN
+		   "0x%x " _END "\n" _END,
+		   __multiboot_info);
 
-    if (multiboot_init(__multiboot_info))
-        return (__BSOD_UPDATE("Error: multiboot_init failed") | 1);
-    kernel_log_info("LOG", "MULTIBOOT");
-    if (get_memory_map(__multiboot_info))
-        return (__BSOD_UPDATE("Error: kernel memory map failed") | 1);
-    kernel_log_info("LOG", "KERNEL MEMORY MAP");
+	if (multiboot_init(__multiboot_info))
+		return (__BSOD_UPDATE("Error: multiboot_init failed") | 1);
+	kernel_log_info("LOG", "MULTIBOOT");
+	if (get_memory_map(__multiboot_info))
+		return (__BSOD_UPDATE("Error: kernel memory map failed") | 1);
+	kernel_log_info("LOG", "KERNEL MEMORY MAP");
 
-    kernel_stack = kstack;
-    initial_esp = (uint32_t)kstack;
-    uint32_t kernel_stack_size = (uint32_t)kernel_stack / 1024 / 1024;
-    printk("       - "_YELLOW
-           "[LOG] " _END "- "_END _GREEN "[INIT] " _END "STACK: "_GREEN
-           "%u MB " _END "(%u bytes)\n" _END,
-           kernel_stack_size, kernel_stack);
-    return (0);
+	kernel_stack = kstack;
+	initial_esp = (uint32_t)kstack;
+	uint32_t kernel_stack_size = (uint32_t)kernel_stack / 1024 / 1024;
+	printk("       - "_YELLOW
+		   "[LOG] " _END "- "_END _GREEN "[INIT] " _END "STACK: "_GREEN
+		   "%u MB " _END "(%u bytes)\n" _END,
+		   kernel_stack_size, kernel_stack);
+	return (0);
 }
 
 static int init_system_components(void) {
-    gdt_init();
-    kernel_log_info("LOG", "GDT");
+	gdt_init();
+	kernel_log_info("LOG", "GDT");
 
-    tss_init(7, 0x10, 0x0);
-    kernel_log_info("LOG", "TSS");
+	tss_init(7, 0x10, 0x0);
+	kernel_log_info("LOG", "TSS");
 
-    idt_install();
-    kernel_log_info("LOG", "IDT");
+	idt_install();
+	kernel_log_info("LOG", "IDT");
 
-    isrs_install();
-    kernel_log_info("LOG", "ISR");
+	isrs_install();
+	kernel_log_info("LOG", "ISR");
 
-    irq_install();
-    kernel_log_info("LOG", "IRQ");
+	irq_install();
+	kernel_log_info("LOG", "IRQ");
 
-    timer_install();
-    kernel_log_info("LOG", "TIMER");
+	timer_install();
+	kernel_log_info("LOG", "TIMER");
 
-    if ((init_cpuid()) == true) {
-        kernel_log_info("LOG", "CPUID");
-        get_cpu_topology();
-        kernel_log_info("LOG", "CPU TOPOLOGY");
-    }
+	if ((init_cpuid()) == true) {
+		kernel_log_info("LOG", "CPUID");
+		get_cpu_topology();
+		kernel_log_info("LOG", "CPU TOPOLOGY");
+	}
 
-    keyboard_install();
-    kernel_log_info("LOG", "KEYBOARD");
+	keyboard_install();
+	kernel_log_info("LOG", "KEYBOARD");
 
-    enable_fpu();
-    kernel_log_info("LOG", "FPU");
+	enable_fpu();
+	kernel_log_info("LOG", "FPU");
 
-    random_init();
-    kernel_log_info("LOG", "RANDOM");
-    return (0);
+	random_init();
+	kernel_log_info("LOG", "RANDOM");
+	return (0);
 }
 
 static int init_multitasking(void) {
-    init_scheduler();
-    kernel_log_info("LOG", "SCHEDULER");
+	init_scheduler();
+	kernel_log_info("LOG", "SCHEDULER");
 
-    init_tasking();
-    kernel_log_info("LOG", "TASKING");
+	init_tasking();
+	kernel_log_info("LOG", "TASKING");
 
-    thread_init();
-    kernel_log_info("LOG", "THREADS");
-    return (0);
+	thread_init();
+	kernel_log_info("LOG", "THREADS");
+	return (0);
 }
 
 static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
-    // Init devices
-    devices_init();
-    kernel_log_info("LOG", "DEVICES");
+	// Init devices
+	devices_init();
+	kernel_log_info("LOG", "DEVICES");
 
-    if ((vfs_init()) != 0) {
-        __WARND("Error: vfs_init failed, (Kernel will not use VFS)");
-    } else {
-        kernel_log_info("LOG", "VFS");
-    }
+	if ((vfs_init()) != 0) {
+		__WARND("Error: vfs_init failed, (Kernel will not use VFS)");
+	} else {
+		kernel_log_info("LOG", "VFS");
+	}
 
-    // Init initrd filesystem
-    if (__multiboot_info->mods_count > 0) {
-        if ((initrd_init(initrd_location, initrd_end)) != 0) {
-            __PANIC("Error: initrd_init failed");
-            __BSOD_UPDATE("Error: initrd_init failed");
-            bsod("INITRD INIT FAILED", __FILE__);
-            return (1);
-        } else {
-            kernel_log_info("LOG", "INITRD");
-        }
-    }
-    initrd_display_hierarchy();
+	// Init initrd filesystem
+	if (__multiboot_info->mods_count > 0) {
+		if ((initrd_init(initrd_location, initrd_end)) != 0) {
+			__PANIC("Error: initrd_init failed");
+			__BSOD_UPDATE("Error: initrd_init failed");
+			bsod("INITRD INIT FAILED", __FILE__);
+			return (1);
+		} else {
+			kernel_log_info("LOG", "INITRD");
+		}
+	}
+	initrd_display_hierarchy();
 
-    /*
-    **  IDE INIT
-    **
-    **  Integrated Drive Electronics initialization
-    **  IDE Driver initialization
-    */
+	/*
+	**  IDE INIT
+	**
+	**  Integrated Drive Electronics initialization
+	**  IDE Driver initialization
+	*/
 
-    if ((ide_init()) != 0) {
-        __WARND("Error: ide_init failed, (Kernel will not use IDE Driver)");
-    } else {
-        /* Workflow IDE must be called after IDE init */
-        workflow_ide();
-        kernel_log_info("LOG", "IDE");
-    }
+	if ((ide_init()) != 0) {
+		__WARND("Error: ide_init failed, (Kernel will not use IDE Driver)");
+	} else {
+		/* Workflow IDE must be called after IDE init */
+		workflow_ide();
+		kernel_log_info("LOG", "IDE");
+	}
 
 /**
  * FLOPPY INIT
@@ -256,124 +260,123 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
  * Floppy Driver initialization
  */
 #if FLOPPY_DRIVER == 1
-    // fdc_initialize();
-    kernel_log_info("LOG", "FLOPPY");
+	// fdc_initialize();
+	kernel_log_info("LOG", "FLOPPY");
 
-    ksleep(1);
+	ksleep(1);
 
-    // workflow_fdc();
-    // kernel_log_info("LOG", "FLOPPY READ/WRITE");
+	// workflow_fdc();
+	// kernel_log_info("LOG", "FLOPPY READ/WRITE");
 #else
-    __INFOD("FLOPPY Driver is disabled");
+	__INFOD("FLOPPY Driver is disabled");
 #endif
 
 #if __TINYFS__ == 1
-    Device *dev = device_get_by_id(0); // Get hda device
-    TinyFS *tfs = NULL;
+	Device *dev = device_get_by_id(0); // Get hda device
+	TinyFS *tfs = NULL;
 
-    /* Check if device is available */
-    if (dev == NULL) {
-        __WARND("Error: device_get_by_id failed, (Kernel will not use TINYFS)");
-    } else {
-        /* Init TINYFS */
-        if ((tfs = tinyfs_init(dev)) == NULL) {
-            __WARND("Error: tinyfs_init failed, (Kernel will not use TINYFS)");
-        } else {
-            /* Format TINYFS */
-            if ((tinyfs_formater(tfs, false)) != 0) { // Hard format is disabled
-                __WARND("Error: tinyfs_formater failed, (Kernel will not use TINYFS)");
-            }
-            /* Mount TINYFS on device */
-            if ((vfs_mount(tfs->fs.vfs)) != 0) {
-                __WARND("Error: vfs_mount failed, (Kernel will not use TINYFS)");
-            } else {
-                // workflow_tinyfs();
-                kernel_log_info("LOG", "TINYFS");
-            }
-        }
-    }
+	/* Check if device is available */
+	if (dev == NULL) {
+		__WARND("Error: device_get_by_id failed, (Kernel will not use TINYFS)");
+	} else {
+		/* Init TINYFS */
+		if ((tfs = tinyfs_init(dev)) == NULL) {
+			__WARND("Error: tinyfs_init failed, (Kernel will not use TINYFS)");
+		} else {
+			/* Format TINYFS */
+			if ((tinyfs_formater(tfs, false)) != 0) { // Hard format is disabled
+				__WARND("Error: tinyfs_formater failed, (Kernel will not use TINYFS)");
+			}
+			/* Mount TINYFS on device */
+			if ((vfs_mount(tfs->fs.vfs)) != 0) {
+				__WARND("Error: vfs_mount failed, (Kernel will not use TINYFS)");
+			} else {
+				// workflow_tinyfs();
+				kernel_log_info("LOG", "TINYFS");
+			}
+		}
+	}
 #else
-    __INFOD("TINYFS is disabled");
+	__INFOD("TINYFS is disabled");
 #endif
 
-    // kpause(); // Tmp, test hephaistos
+	// kpause(); // Tmp, test hephaistos
 
-    /*
-    **  EXT2 INIT
-    **
-    **  EXT2 Filesystem initialization
-    */
+	/*
+	**  EXT2 INIT
+	**
+	**  EXT2 Filesystem initialization
+	*/
 #if __EXT2__ == 1
-    // Todo:
-    if ((ext2_init()) != 0) {
-        __WARND("Error: vfs_create_fs failed, (Kernel will not use EXT2 Filesystem)");
-    } else {
-        kernel_log_info("LOG", "FILESYSTEM EXT2");
-    }
-    kpause();
+	// Todo:
+	if ((ext2_init()) != 0) {
+		__WARND("Error: vfs_create_fs failed, (Kernel will not use EXT2 Filesystem)");
+	} else {
+		kernel_log_info("LOG", "FILESYSTEM EXT2");
+	}
+	kpause();
 #else
-    __INFOD("EXT2 is disabled, (Kernel will not use EXT2 Filesystem)");
+	__INFOD("EXT2 is disabled, (Kernel will not use EXT2 Filesystem)");
 #endif
-    return (0);
+	return (0);
 }
 
 static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
-    vga_init();
-    ksh_header();
-    kernel_log_info("LOG", "VGA - (80x25)");
-    kernel_log_info("LOG", "TERMINAL");
+	vga_init();
+	ksh_header();
+	kernel_log_info("LOG", "VGA - (80x25)");
+	kernel_log_info("LOG", "TERMINAL");
 
-    time_init();
-    kernel_log_info("LOG", "TIME");
+	time_init();
+	kernel_log_info("LOG", "TIME");
 
-    printk("       - "_YELLOW
-           "[LOG] " _END "- "_END _GREEN "[CHK] " _END " HHK: "_GREEN
-           "%s " _END "\n" _END,
-           __HIGHER_HALF_KERNEL__ == true ? "true" : "false");
+	printk("       - "_YELLOW
+		   "[LOG] " _END "- "_END _GREEN "[CHK] " _END " HHK: "_GREEN
+		   "%s " _END "\n" _END,
+		   __HIGHER_HALF_KERNEL__ == true ? "true" : "false");
 
-    kernel_log_info("LOG", "TERMINAL");
-    init_kerrno();
-    kernel_log_info("LOG", "KERRNO");
+	kernel_log_info("LOG", "TERMINAL");
+	init_kerrno();
+	kernel_log_info("LOG", "KERRNO");
 
-    check_multiboot(magic_number, addr, kstack);
-    init_system_components();
+	check_multiboot(magic_number, addr, kstack);
+	init_system_components();
 
-    /**
-     * INIT INITRD
-     *
-     * Init initrd if multiboot modules are found
-     * Initrd -> initial ramdisk
-     */
-    uint32_t initrd_location = 0;
-    uint32_t initrd_end = 0;
-    if (__multiboot_info->mods_count > 0) {
-        initrd_location = *((uint32_t *)(uintptr_t)__multiboot_info->mods_addr);
-        initrd_end = *(uintptr_t *)((uintptr_t)__multiboot_info->mods_addr + 4);
-        placement_addr = initrd_end;
-    } else {
-        __WARND("No multiboot modules found, kernel will not use initrd.");
-    }
+	/**
+	 * INIT INITRD
+	 *
+	 * Init initrd if multiboot modules are found
+	 * Initrd -> initial ramdisk
+	 */
+	uint32_t initrd_location = 0;
+	uint32_t initrd_end = 0;
+	if (__multiboot_info->mods_count > 0) {
+		initrd_location = *((uint32_t *)(uintptr_t)__multiboot_info->mods_addr);
+		initrd_end = *(uintptr_t *)((uintptr_t)__multiboot_info->mods_addr + 4);
+		placement_addr = initrd_end;
+	} else {
+		__WARND("No multiboot modules found, kernel will not use initrd.");
+	}
 
-    init_paging();
-    kernel_log_info("LOG", "PAGING");
-    kernel_log_info("LOG", "HEAP");
+	init_paging();
+	kernel_log_info("LOG", "PAGING");
+	kernel_log_info("LOG", "HEAP");
 
-    init_syscall();
-    kernel_log_info("LOG", "SYSCALL");
+	init_syscall();
+	kernel_log_info("LOG", "SYSCALL");
 
-    init_signals();
-    kernel_log_info("LOG", "SIGNALS");
+	init_signals();
+	kernel_log_info("LOG", "SIGNALS");
 
-    init_filesystems(initrd_location, initrd_end);
-    init_multitasking();
+	init_filesystems(initrd_location, initrd_end);
+	init_multitasking();
 
-    return (0);
+	return (0);
 }
-int init_multiboot_kernel(uint32_t magic_number, uint32_t addr) {
-    __UNUSED(addr);
-    if (multiboot_check_magic_number(magic_number) == false)
-        return (1);
-    return (0);
+int init_multiboot_kernel(uint32_t magic_number, __unused__ uint32_t addr) {
+	if (multiboot_check_magic_number(magic_number) == false)
+		return (1);
+	return (0);
 }
 
 // ! ||--------------------------------------------------------------------------------||
@@ -381,96 +384,96 @@ int init_multiboot_kernel(uint32_t magic_number, uint32_t addr) {
 // ! ||--------------------------------------------------------------------------------||
 
 int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
-    ASM_CLI();
-    if ((init_kernel(magic_number, addr, kstack)))
-        return (1);
-    if (__DISPLAY_INIT_LOG__) {
-        printk("\n");
-        printk(_RED);
-        terminal_write_n_char('#', VGA_WIDTH);
-        printk(_END);
-        printk("\n\n");
-    }
-    ASM_STI();
+	ASM_CLI();
+	if ((init_kernel(magic_number, addr, kstack)))
+		return (1);
+	if (__DISPLAY_INIT_LOG__) {
+		printk("\n");
+		printk(_RED);
+		terminal_write_n_char('#', VGA_WIDTH);
+		printk(_END);
+		printk("\n\n");
+	}
+	ASM_STI();
 
-    tm_t date = gettime();
-    printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
+	tm_t date = gettime();
+	printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
 #if __TEST_HEPHAISTOS__ == 1
-    __INFOD("Test Hephaistos is enabled");
-    return hephaistos_workflow();
+	__INFOD(_GREEN "Test Hephaistos is enabled" _END);
+	return hephaistos_workflow();
 #else // !__TEST_HEPHAISTOS__
-    __INFOD("Test Hephaistos is disabled");
+	__INFOD(_YELLOW "Test Hephaistos is disabled" _END);
 #endif
 
-    pid_t test = fork();
-    if (test == 0) {
+	pid_t test = fork();
+	if (test == 0) {
 #include <cmds/cat.h>
 #include <cmds/ls.h>
 #include <cmds/mkdir.h>
 #include <cmds/pwd.h>
 
-        pwd(0, NULL);
-        printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
-        ls(0, NULL);
+		pwd(0, NULL);
+		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+		ls(0, NULL);
 
-        cat(2, (char *[]){"cat", "file1.txt", NULL});
+		cat(2, (char *[]){"cat", "file1.txt", NULL});
 
-        mkdir(2, (char *[]){"mkdir", "test", NULL});
-        ls(0, NULL);
+		mkdir(2, (char *[]){"mkdir", "test", NULL});
+		ls(0, NULL);
 
-        sys_chdir("test");
-        printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+		sys_chdir("test");
+		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
 
-        TinyFS_Inode *ino = tinyfs_get_inode(vfs_get_current_fs(), 0);
-        tinyfs_display_hierarchy(ino, 1);
+		TinyFS_Inode *ino = tinyfs_get_inode(vfs_get_current_fs(), 0);
+		tinyfs_display_hierarchy(ino, 1);
 
-        pwd(0, NULL);
-        ls(0, NULL);
+		pwd(0, NULL);
+		ls(0, NULL);
 
-        int fd = sys_creat("/test/test_file1.txt", O_RDWR);
-        int fd2 = sys_creat("test_file2.txt", O_RDWR);
+		int fd = sys_creat("/test/test_file1.txt", O_RDWR);
+		int fd2 = sys_creat("test_file2.txt", O_RDWR);
 
-        ls(0, NULL);
+		ls(0, NULL);
 
-        if ((sys_write(fd, "Hello test File1 !\n", 20)) != 0) {
-            printk("Error: sys_write failed\n");
-        } else if ((sys_write(fd2, "Hello test File2 !\n", 20)) != 0) {
-            printk("Error: sys_write failed\n");
-        }
+		if ((sys_write(fd, "Hello test File1 !\n", 20)) != 0) {
+			printk("Error: sys_write failed\n");
+		} else if ((sys_write(fd2, "Hello test File2 !\n", 20)) != 0) {
+			printk("Error: sys_write failed\n");
+		}
 
-        sys_close(fd);
-        sys_close(fd2);
+		sys_close(fd);
+		sys_close(fd2);
 
-        cat(2, (char *[]){"cat", "test_file1.txt", NULL});
-        cat(2, (char *[]){"cat", "test_file2.txt", NULL});
+		cat(2, (char *[]){"cat", "test_file1.txt", NULL});
+		cat(2, (char *[]){"cat", "test_file2.txt", NULL});
 
-        ls(3, (char *[]){"ls", "-l", "/", NULL});
+		ls(3, (char *[]){"ls", "-l", "/", NULL});
 
-        pause();
-    } else {
-        int status;
-        waitpid(test, &status, 0);
-        printk("Child process exited with status: %d\n", status);
-    }
+		pause();
+	} else {
+		int status;
+		waitpid(test, &status, 0);
+		printk("Child process exited with status: %d\n", status);
+	}
 
-    kpause();
+	kpause();
 
-    pid_t pid = fork();
-    if (pid == 0) {
-        // Todo: Must enter in user space instead of using kernel space
-        kronos_shell();
-    } else {
+	pid_t pid = fork();
+	if (pid == 0) {
+		// Todo: Must enter in user space instead of using kernel space
+		kronos_shell();
+	} else {
 
-        /*
-        ** Task 0 -> Kernel
-        ** Must infinite loop
-        */
+		/*
+		** Task 0 -> Kernel
+		** Must infinite loop
+		*/
 
-        while (1) {
-        }
-    }
-    return (0);
+		while (1) {
+		}
+	}
+	return (0);
 }
 
 //     // Display initrd files

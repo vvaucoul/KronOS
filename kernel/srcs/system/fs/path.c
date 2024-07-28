@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:52:59 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:00:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 21:58:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 #include <system/fs/path.h>
+
+#include <string.h>
 
 /**
  * @brief Retrieves the directory path from a given full path.

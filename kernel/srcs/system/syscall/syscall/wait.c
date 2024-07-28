@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 12:21:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 19:37:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 22:13:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 #include <multitasking/scheduler.h>
 #include <syscall/syscall.h>
 
-static pid_t __wait(pid_t pid, int *status, int options) {
+#include <macros.h>
 
-    __UNUSED(options);
+static pid_t __wait(pid_t pid, int *status, __unused__ int options) {
 
     // If pid == -1, wait for any child process
     if (pid == -1) {

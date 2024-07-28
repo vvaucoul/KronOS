@@ -6,12 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 12:48:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:55:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 19:45:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/cmos.h>
 #include <system/time.h>
+
+#include <convert.h>
 
 uint64_t startup_time = 0;
 tm_t startup_tm = {0};

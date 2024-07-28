@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 14:53:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 10:32:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __WORKFLOWS_H
 #define __WORKFLOWS_H
 
-#include <kernel.h>
+#include <stdint.h>
 
 #define WORKFLOW_CHAR '='
 

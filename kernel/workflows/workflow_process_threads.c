@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 20:42:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/11 13:07:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/27 21:59:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 
 #include <multitasking/process.h>
 #include <workflows/workflows.h>
+
+#include <macros.h>
 
 __unused__ static void __thread_01(void) {
     printk("\t - Thread [01]\n");

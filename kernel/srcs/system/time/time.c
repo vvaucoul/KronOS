@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 12:48:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 01:10:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 01:11:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ uint64_t mktime(const tm_t *time) {
  *
  * @return The current system time as a `tm_t` structure.
  */
-__attribute__((weak)) tm_t gettime(void) {
+tm_t gettime(void) {
 	tm_t current_time;
 
 	do {

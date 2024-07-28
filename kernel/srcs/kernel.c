@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 00:47:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 01:02:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,9 @@ void kernel_log_info(const char *part, const char *name) {
 		}
 
 		tm_t tm = gettime();
+		tm_t date = gettime();
 
-		uint64_t diff_time = difftime(&tm, &startup_tm);
+		uint64_t diff_time = difftime(&tm, &date);
 		printk(_END "[0:%02u] "_END
 					"- "_YELLOW
 					"[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
@@ -394,7 +395,7 @@ int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	ASM_STI();
 
 	tm_t date = gettime();
-	printk("Date: " _GREEN "%04u-%02u-%u:%02u-%02u-%02u\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
+	printk("Date: " _GREEN "%04d-%02d-%d:%02d-%02d-%02d\n\n" _END, date.year + 2000, date.month, date.day, date.hours + 1, date.minutes, date.seconds);
 
 #if __TEST_HEPHAISTOS__ == 1
 	__INFOD(_GREEN "Test Hephaistos is enabled" _END);

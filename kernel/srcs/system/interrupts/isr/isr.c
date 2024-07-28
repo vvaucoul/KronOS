@@ -6,13 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 22:10:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 22:08:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/memory.h>
 #include <system/isr.h>
 #include <system/kerrno.h>
+#include <system/irq.h>
 
 #include <assert.h>
 

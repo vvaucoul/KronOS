@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/21 11:43:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/10/22 15:23:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 22:05:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,12 +43,12 @@ void __process_sleeping(task_t *current_task) {
     // Loop through all tasks
     do {
         // If the task is sleeping and its wake-up tick has passed, wake it up
-        if (tmp->state == TASK_SLEEPING && tmp->wake_up_tick <= timer_subtick) {
+        if (tmp->state == TASK_SLEEPING && tmp->wake_up_tick <= pit_get_subticks()) {
             // printk("Process %d woke up\n", tmp->pid);
             tmp->state = TASK_RUNNING;
             tmp->wake_up_tick = 0;
-        } else if (tmp->state == TASK_SLEEPING && tmp->wake_up_tick > timer_subtick) {
-            // printk("Process %d is sleeping for %d ticks / %d\n", tmp->pid, tmp->wake_up_tick, timer_subtick);
+        } else if (tmp->state == TASK_SLEEPING && tmp->wake_up_tick > pit_get_subticks()) {
+            // printk("Process %d is sleeping for %d ticks / %d\n", tmp->pid, tmp->wake_up_tick, pit_get_subticks());
         }
 
         // Move to the next task

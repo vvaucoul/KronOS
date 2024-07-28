@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 22:07:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include <system/time.h>
 #include <system/tss.h>
+#include <system/io.h>
 
 extern task_t *current_task;
 extern task_t *ready_queue;
@@ -125,7 +126,7 @@ void switch_task(void) {
         // uint64_t sys_time = get_system_time();
 
         // prev_task->cpu_load.load_time = sys_time - prev_task->cpu_load.start_time;
-        prev_task->cpu_load.load_time += timer_subtick;
+        prev_task->cpu_load.load_time += pit_get_subticks();
         prev_task->cpu_load.total_load_time += prev_task->cpu_load.load_time;
 
         // if (prev_task->pid > 1) {

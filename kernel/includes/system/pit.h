@@ -6,65 +6,49 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:06:54 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 14:41:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 23:40:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIT_H
 #define PIT_H
 
-#include "../kernel.h"
-#include "idt.h"
-#include "io.h"
-#include "irq.h"
-#include "isr.h"
+/**
+ * This file contains the function prototypes and constants for the PIT module.
+ * The PIT module provides a timer that generates periodic interrupts at a specified frequency.
+ */
 
-#define PIT_CMDREG 0x43 // PIT Chip's Command Register Port
+#include <limits.h>
+#include <stdint.h>
 
-#define PIT_CHANNEL_0 0x00               // 00......
-#define PIT_CHANNEL_1 0x40               // 01......
-#define PIT_CHANNEL_2 0x80               // 10......
-#define PIT_CHANNEL_READBACK 0xC0        // 11......
-#define PIT_ACCESS_LATCHCOUNT 0x00       // ..00....
-#define PIT_ACCESS_LOBYTE 0x10           // ..01....
-#define PIT_ACCESS_HIBYTE 0x20           // ..10....
-#define PIT_ACCESS_LOHIBYTE 0x30         // ..11....
-#define PIT_OPMODE_0_IOTC 0x00           // ....000.
-#define PIT_OPMODE_1_ONESHOT 0x02        // ....001.
-#define PIT_OPMODE_2_RATE_GEN 0x04       // ....010.
-#define PIT_OPMODE_3_SQUARE_WAV 0x06     // ....011.
-#define PIT_OPMODE_4_SOFTWARESTROBE 0x08 // ....100.
-#define PIT_OPMODE_4_HARDWARESTROBE 0x0A // ....101.
-#define PIT_OPMODE_4_RATE_GEN 0x0C       // ....110.
-#define PIT_OPMODE_4_SQUARE_WAV 0x0E     // ....111.
-#define PIT_BINARY 0x00                  // .......0
-#define PIT_BCD 0x01                     // .......1
+#define PIT_COMMAND 0x43 // PIT Chip's Command Register Port
 
-#define PIT_MASK 0xFF
-#define PIT_SET 0x36
+#define PIT_CHANNEL_0 0x40 // PIT Chip's Channel 0 Port
+#define PIT_CHANNEL_1 0x41 // PIT Chip's Channel 1 Port
+#define PIT_CHANNEL_2 0x42 // PIT Chip's Channel 2 Port
 
-#define __CHIPSET_FREQUENCY 1193180 // The frequency of the PIT chip
-// #define TIMER_PHASE (int)(18.2065)
-#define TIMER_PHASE 18 // Timer frequency in HZ
-#define TIMER_FREQUENCY (uint32_t)(__CHIPSET_FREQUENCY / TIMER_PHASE)
-#define TIMER_MAX_TICKS (uint32_t)(0xFFFFFFFF / TIMER_FREQUENCY) // Max ticks before overflow
+#define PIT_MASK 0xFF // Mask for PIT Chip
 
-extern void timer_install();
-extern void timer_handler(struct regs *r);
-extern void timer_wait(uint32_t ticks);
-extern void busy_wait(uint32_t ticks);
+#define PIT_FREQUENCY 1193182 // The frequency of the PIT chip
+#define TIMER_PHASE 1000 // Timer frequency in HZ
+#define PIT_DIVISOR (PIT_FREQUENCY / TIMER_PHASE)
 
-#define ksleep(seconds) timer_wait(seconds *TIMER_PHASE)
-#define kusleep(microseconds) timer_wait((microseconds * TIMER_PHASE) / 1000000)
-#define kmsleep(milliseconds) timer_wait((milliseconds * TIMER_PHASE) / 1000)
+#define PIT_MAX_TICKS (__UINT64_MAX__) // Max ticks before overflow
+
+extern void pit_setup();
+extern void pit_wait(uint64_t ticks);
+extern void busy_wait(uint64_t ticks);
+
+#define ksleep(seconds) pit_wait((seconds) * TIMER_PHASE)
+#define kmsleep(milliseconds) pit_wait((milliseconds) * TIMER_PHASE / 1000)
+#define kusleep(microseconds) pit_wait((microseconds) * TIMER_PHASE / 1000000)
 
 extern void kpause(void);
+extern void pit_display_phase(void);
 
-extern uint32_t timer_ticks;
-extern uint32_t timer_subtick;
-
-extern void timer_display_ktimer(void);
-
-extern uint32_t pit_get_ticks(void);
+extern uint32_t read_pit_count(void);
+extern uint64_t pit_get_ticks(void);
+extern uint64_t pit_get_subticks(void);
+extern uint64_t pit_get_continous_ticks(void);
 
 #endif /* !PIT_H */

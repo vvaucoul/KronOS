@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 19:55:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 20:36:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 22:08:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <kernel.h>
 #include <system/pit.h>
+#include <system/isr.h>
 
 /* Base address for BIOS interrupt handling */
 #define BIOS_DEFAULT_MEMORY 0x5000

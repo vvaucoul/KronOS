@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 14:44:45 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 00:14:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,10 +122,6 @@ void kernel_log_info(const char *part, const char *name) {
 					"[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
 			   diff_time, part, name);
 	}
-
-	// DEBUG ONLY
-	if (irq_check_install(IRQ_PIT))
-		kmsleep(100);
 }
 
 // ! ||--------------------------------------------------------------------------------||
@@ -183,8 +179,9 @@ static int init_system_components(void) {
 	irq_install();
 	kernel_log_info("LOG", "IRQ");
 
-	timer_install();
-	kernel_log_info("LOG", "TIMER");
+	pit_setup();
+	kernel_log_info("LOG", "PIT");
+	ksleep(1);
 
 	if ((init_cpuid()) == true) {
 		kernel_log_info("LOG", "CPUID");
@@ -406,58 +403,60 @@ int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	__INFOD(_YELLOW "Test Hephaistos is disabled" _END);
 #endif
 
-	pid_t test = fork();
-	if (test == 0) {
-#include <cmds/cat.h>
-#include <cmds/ls.h>
-#include <cmds/mkdir.h>
-#include <cmds/pwd.h>
+// 	pid_t test = fork();
+// 	if (test == 0) {
+// #include <cmds/cat.h>
+// #include <cmds/ls.h>
+// #include <cmds/mkdir.h>
+// #include <cmds/pwd.h>
 
-		pwd(0, NULL);
-		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
-		ls(0, NULL);
+// 		pwd(0, NULL);
+// 		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+// 		ls(0, NULL);
 
-		cat(2, (char *[]){"cat", "file1.txt", NULL});
+// 		cat(2, (char *[]){"cat", "file1.txt", NULL});
 
-		mkdir(2, (char *[]){"mkdir", "test", NULL});
-		ls(0, NULL);
+// 		mkdir(2, (char *[]){"mkdir", "test", NULL});
+// 		ls(0, NULL);
 
-		sys_chdir("test");
-		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+// 		sys_chdir("test");
+// 		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
 
-		TinyFS_Inode *ino = tinyfs_get_inode(vfs_get_current_fs(), 0);
-		tinyfs_display_hierarchy(ino, 1);
+// 		TinyFS_Inode *ino = tinyfs_get_inode(vfs_get_current_fs(), 0);
+// 		tinyfs_display_hierarchy(ino, 1);
 
-		pwd(0, NULL);
-		ls(0, NULL);
+// 		pwd(0, NULL);
+// 		ls(0, NULL);
 
-		int fd = sys_creat("/test/test_file1.txt", O_RDWR);
-		int fd2 = sys_creat("test_file2.txt", O_RDWR);
+// 		int fd = sys_creat("/test/test_file1.txt", O_RDWR);
+// 		int fd2 = sys_creat("test_file2.txt", O_RDWR);
 
-		ls(0, NULL);
+// 		ls(0, NULL);
 
-		if ((sys_write(fd, "Hello test File1 !\n", 20)) != 0) {
-			printk("Error: sys_write failed\n");
-		} else if ((sys_write(fd2, "Hello test File2 !\n", 20)) != 0) {
-			printk("Error: sys_write failed\n");
-		}
+// 		if ((sys_write(fd, "Hello test File1 !\n", 20)) != 0) {
+// 			printk("Error: sys_write failed\n");
+// 		} else if ((sys_write(fd2, "Hello test File2 !\n", 20)) != 0) {
+// 			printk("Error: sys_write failed\n");
+// 		}
 
-		sys_close(fd);
-		sys_close(fd2);
+// 		sys_close(fd);
+// 		sys_close(fd2);
 
-		cat(2, (char *[]){"cat", "test_file1.txt", NULL});
-		cat(2, (char *[]){"cat", "test_file2.txt", NULL});
+// 		cat(2, (char *[]){"cat", "test_file1.txt", NULL});
+// 		cat(2, (char *[]){"cat", "test_file2.txt", NULL});
 
-		ls(3, (char *[]){"ls", "-l", "/", NULL});
+// 		ls(3, (char *[]){"ls", "-l", "/", NULL});
 
-		pause();
-	} else {
-		int status;
-		waitpid(test, &status, 0);
-		printk("Child process exited with status: %d\n", status);
-	}
+// 		pause();
+// 	} else {
+// 		int status;
+// 		waitpid(test, &status, 0);
+// 		printk("Child process exited with status: %d\n", status);
+// 	}
 
-	kpause();
+
+
+
 
 	pid_t pid = fork();
 	if (pid == 0) {

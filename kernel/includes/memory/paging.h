@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 19:25:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/28 22:07:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <asm/asm.h>
 #include <kernel.h>
 #include <system/pit.h>
+#include <system/isr.h>
 
 #define PAGE_SIZE 0x1000 // 4KB
 #define PAGE_TABLE_SIZE 0x0400 // 1024

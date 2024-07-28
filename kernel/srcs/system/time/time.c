@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 12:48:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 01:11:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 01:12:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ uint64_t mktime(const tm_t *time) {
 	uint32_t year = time->year - 70;
 	total_time = __YEAR * year + __DAY * ((year + 1) / 4);
 
-	for (int i = 0; i < time->month - 1; i++) {
+	for (uint32_t i = 0; i < time->month - 1; i++) {
 		total_time += __DAY * month_days[i];
 	}
 
@@ -105,7 +105,7 @@ tm_t gettime(void) {
 	} else if (total_minutes >= 1440) {
 		// If total_minutes exceeds the number of minutes in a day, we move to the next day
 		current_time.day += 1;
-		int days_in_month = month_days[current_time.month - 1];
+		uint32_t days_in_month = month_days[current_time.month - 1];
 		if (current_time.day > days_in_month) {
 			current_time.day = 1;
 			current_time.month += 1;

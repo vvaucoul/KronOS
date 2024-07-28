@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 12:48:58 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 01:07:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 01:10:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <system/time.h>
 
 #include <convert.h>
+#include <macros.h>
 
 static volatile uint64_t startup_time = 0; // Time at which the system was started
 static volatile tm_t startup_tm = {0};	   // Time at which the system was started
@@ -64,7 +65,7 @@ uint64_t mktime(const tm_t *time) {
  *
  * @return The current system time as a `tm_t` structure.
  */
-tm_t gettime(void) {
+__attribute__((weak)) tm_t gettime(void) {
 	tm_t current_time;
 
 	do {

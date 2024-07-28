@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 10:32:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 00:18:35 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,9 @@ void workflow_tinyfs(void);
 
 /* Floppy Disk Controller test */
 void workflow_fdc(void);
+
+/* VGA (Video Graphics Array) test */
+void workflow_vga(void);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                      UTILS                                     ||

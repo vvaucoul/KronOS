@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 00:14:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 00:47:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -457,6 +457,7 @@ int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 
 
 
+	kpause();
 
 	pid_t pid = fork();
 	if (pid == 0) {

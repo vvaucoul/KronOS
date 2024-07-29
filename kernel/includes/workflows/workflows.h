@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/28 13:38:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 00:18:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 12:25:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,6 @@
 extern void workflow_header(const char *function_name);
 extern void workflow_footer(void);
 extern void workflow_loading(uint32_t new_progress);
-
-/* Kernel Memory Map */
-extern void display_kernel_memory_map(void);
-
-/* Multiboot Info */
-extern void display_multiboot_infos(void);
 
 /* Physical memory manager */
 extern void pmm_display(void);

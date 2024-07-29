@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/05 01:12:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 23:06:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 12:41:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include <shell/builtins/builtins.h>
 #include <system/gdt.h>
 #include <multiboot/multiboot.h>
-#include <system/sections.h>
 #include <system/cpu.h>
 
 #include <cmds/ps.h>
@@ -79,10 +78,10 @@ void __ksh_init_builtins(void)
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"print-gdt", "gdt", ""}, &print_gdt);
     // __add_builtin((char *[__BUILTINS_MAX_NAMES]){"gdt-test", ""}, &gdt_test);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"time", ""}, &pit_display_phase);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &display_multiboot_infos);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &display_sections);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"mboot", "multiboot", ""}, &print_multiboot_info);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"sections", ""}, &print_kernel_sections);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"help", ""}, &__ksh_help);
-    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &display_kernel_memory_map);
+    __add_builtin((char *[__BUILTINS_MAX_NAMES]){"kmmap", ""}, &print_memory_map);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"setxkbmap", ""}, &setxkbmap);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"cpuinfos", ""}, &get_cpu_informations);
     __add_builtin((char *[__BUILTINS_MAX_NAMES]){"ps", ""}, &ps);

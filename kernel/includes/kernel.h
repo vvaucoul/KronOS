@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:37:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 11:31:13 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 12:06:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 
 #define __DISPLAY_INIT_LOG__ true
 #define __HIGHER_HALF_KERNEL__ false
+
+#define KERNEL_STACK_SIZE 0x4000
 
 extern void kernel_log_info(const char *part, const char *name);
 extern int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack);

@@ -1,21 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sections.h                                         :+:      :+:    :+:   */
+/*   multiboot_mmap.h                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/04 16:11:29 by vvaucoul          #+#    #+#             */
-/*   Updated: 2023/05/30 11:52:16 by vvaucoul         ###   ########.fr       */
+/*   Created: 2024/07/29 11:33:46 by vvaucoul          #+#    #+#             */
+/*   Updated: 2024/07/29 12:26:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SECTIONS_H
-#define SECTIONS_H
+#ifndef MULTIBOOT_MMAP_H
+#define MULTIBOOT_MMAP_H
 
-#include <kernel.h>
+#include <stdint.h>
 
-extern uint32_t __kernel_section_start;
+#define MAX_MEMORY_SECTIONS 10
+
+// Structure describing an available memory section
+typedef struct memory_section {
+	uint64_t addr;
+	uint64_t len;
+} memory_section_t;
+
+int get_available_memory_sections(memory_section_t *sections, int max_sections, void *mb_info);
+
+// Linker defined symbols
 extern uint32_t __kernel_text_section_start;
 extern uint32_t __kernel_text_section_end;
 extern uint32_t __kernel_data_section_start;
@@ -24,18 +34,7 @@ extern uint32_t __kernel_rodata_section_start;
 extern uint32_t __kernel_rodata_section_end;
 extern uint32_t __kernel_bss_section_start;
 extern uint32_t __kernel_bss_section_end;
-extern uint32_t __kernel_section_end;
-
-extern uint32_t __multiboot_start;
-extern uint32_t __multiboot_end;
-
-extern uint32_t __kernel_physical_memory_start;
-extern uint32_t __kernel_physical_memory_end;
-extern uint32_t __kernel_virtual_memory_start;
-extern uint32_t __kernel_virtual_memory_end;
 extern uint32_t __kernel_section_start;
 extern uint32_t __kernel_section_end;
 
-extern void display_sections(void);
-
-#endif /* !SECTIONS_H */
+#endif /* !MULTIBOOT_MMAP_H */

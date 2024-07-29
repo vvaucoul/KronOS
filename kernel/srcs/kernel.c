@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 01:02:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 12:42:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <kernel.h>
 #include <hephaistos.h>
+#include <kernel.h>
 
 #include <shell/ksh.h>
 
@@ -34,7 +34,6 @@
 #include <system/panic.h>
 #include <system/pit.h>
 #include <system/random.h>
-#include <system/sections.h>
 #include <system/serial.h>
 #include <system/signal.h>
 #include <system/threads.h>
@@ -55,11 +54,11 @@
 
 #include <memory/mmap.h>
 #include <multiboot/multiboot.h>
+#include <multiboot/multiboot_mmap.h>
 
 /* Memory */
 #include <memory/kheap.h>
 #include <memory/memory.h>
-#include <memory/memory_map.h>
 #include <memory/paging.h>
 
 /* Filesystem */
@@ -130,37 +129,82 @@ void kernel_log_info(const char *part, const char *name) {
 // ! ||--------------------------------------------------------------------------------||
 
 static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
-	/* Check Magic Number and assign multiboot info */
-	if (multiboot_check_magic_number(magic_number) == false)
-		return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
+	// 	/* Check Magic Number and assign multiboot info */
+	// 	if (multiboot_check_magic_number(magic_number) == false) {
+	// 		return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
+	// 	}
 
-#if __HIGHER_HALF_KERNEL__ == true
-	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr + KERNEL_VIRTUAL_BASE));
-#else
-	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr));
-#endif
+	// 	kpause();
 
-	if (__multiboot_info == NULL)
-		return (__BSOD_UPDATE("Multiboot Info is invalid") | 1);
-	printk("       - "_YELLOW
-		   "[LOG] " _END "- "_END _GREEN "[CHK] " _END "MULTIBOOT: "_GREEN
-		   "0x%x " _END "\n" _END,
-		   __multiboot_info);
+	// #if __HIGHER_HALF_KERNEL__ == true
+	// 	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr + KERNEL_VIRTUAL_BASE));
+	// #else
+	// 	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr));
+	// #endif
 
-	if (multiboot_init(__multiboot_info))
-		return (__BSOD_UPDATE("Error: multiboot_init failed") | 1);
-	kernel_log_info("LOG", "MULTIBOOT");
-	if (get_memory_map(__multiboot_info))
-		return (__BSOD_UPDATE("Error: kernel memory map failed") | 1);
-	kernel_log_info("LOG", "KERNEL MEMORY MAP");
+	// 	if (__multiboot_info == NULL)
+	// 		return (__BSOD_UPDATE("Multiboot Info is invalid") | 1);
+	// 	printk("       - "_YELLOW
+	// 		   "[LOG] " _END "- "_END _GREEN "[CHK] " _END "MULTIBOOT: "_GREEN
+	// 		   "0x%x " _END "\n" _END,
+	// 		   __multiboot_info);
 
-	kernel_stack = kstack;
-	initial_esp = (uint32_t)kstack;
-	uint32_t kernel_stack_size = (uint32_t)kernel_stack / 1024 / 1024;
-	printk("       - "_YELLOW
-		   "[LOG] " _END "- "_END _GREEN "[INIT] " _END "STACK: "_GREEN
-		   "%u MB " _END "(%u bytes)\n" _END,
-		   kernel_stack_size, kernel_stack);
+	// 	if (multiboot_init(__multiboot_info))
+	// 		return (__BSOD_UPDATE("Error: multiboot_init failed") | 1);
+	// 	kernel_log_info("LOG", "MULTIBOOT");
+	// 	if (get_memory_map(__multiboot_info))
+	// 		return (__BSOD_UPDATE("Error: kernel memory map failed") | 1);
+	// 	kernel_log_info("LOG", "KERNEL MEMORY MAP");
+
+	// 	kernel_stack = kstack;
+	// 	initial_esp = (uint32_t)kstack;
+	// 	uint32_t kernel_stack_size = (uint32_t)kernel_stack / 1024 / 1024;
+	// 	printk("       - "_YELLOW
+	// 		   "[LOG] " _END "- "_END _GREEN "[INIT] " _END "STACK: "_GREEN
+	// 		   "%u MB " _END "(%u bytes)\n" _END,
+	// 		   kernel_stack_size, kernel_stack);
+	// 	return (0);
+
+	/**
+	 * Init Multiboot
+	 *
+	 * - Check Magic Number
+	 * - Check Multiboot Info
+	 * - Check Multiboot flags
+	 * ...
+	 *
+	 */
+
+	if ((multiboot_init(magic_number, addr, kstack)) != 0) {
+		__PANIC("Error: multiboot_init failed");
+		__BSOD_UPDATE("Error: multiboot_init failed");
+		bsod("MULTIBOOT INIT FAILED", __FILE__);
+		return (1);
+	} else {
+		const char *m_device = multiboot_get_device_name();
+		uint32_t m_mem_lower, m_mem_upper;
+
+		int m_sections_count;
+		memory_section_t sections[MAX_MEMORY_SECTIONS] = {0};
+
+		m_mem_lower = multiboot_get_mem_lower();
+		m_mem_upper = multiboot_get_mem_upper();
+		m_sections_count = get_available_memory_sections(sections, MAX_MEMORY_SECTIONS, get_multiboot_info());
+
+		printk("\t   - Device: " _GREEN "%s\n" _END, m_device);
+		printk("\t   - Memory: " _GREEN "%d KB (%ld MB)\n" _END, m_mem_lower + m_mem_upper, (m_mem_lower + m_mem_upper) / 1024);
+
+		printk("\t   - Available memory sections:\n");
+		for (int i = 0; i < m_sections_count; i++) {
+			printk("\t\t   Section %d: Addr: 0x%llx, Len: 0x%llx\n", i, sections[i].addr, sections[i].len);
+		}
+
+		print_kernel_sections();
+
+		kernel_log_info("LOG", "MULTIBOOT");
+	}
+
+	kpause();
 	return (0);
 }
 
@@ -225,7 +269,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
 	}
 
 	// Init initrd filesystem
-	if (__multiboot_info->mods_count > 0) {
+	if (get_multiboot_info()->mods_count > 0) {
 		if ((initrd_init(initrd_location, initrd_end)) != 0) {
 			__PANIC("Error: initrd_init failed");
 			__BSOD_UPDATE("Error: initrd_init failed");
@@ -334,6 +378,8 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 		   __HIGHER_HALF_KERNEL__ == true ? "true" : "false");
 
 	kernel_log_info("LOG", "TERMINAL");
+
+	// Todo: Remove kerrno (unused / useless lib)
 	init_kerrno();
 	kernel_log_info("LOG", "KERRNO");
 
@@ -348,9 +394,9 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	 */
 	uint32_t initrd_location = 0;
 	uint32_t initrd_end = 0;
-	if (__multiboot_info->mods_count > 0) {
-		initrd_location = *((uint32_t *)(uintptr_t)__multiboot_info->mods_addr);
-		initrd_end = *(uintptr_t *)((uintptr_t)__multiboot_info->mods_addr + 4);
+	if (get_multiboot_info()->mods_count > 0) {
+		initrd_location = *((uint32_t *)(uintptr_t)get_multiboot_info()->mods_addr);
+		initrd_end = *(uintptr_t *)((uintptr_t)get_multiboot_info()->mods_addr + 4);
 		placement_addr = initrd_end;
 	} else {
 		__WARND("No multiboot modules found, kernel will not use initrd.");
@@ -369,11 +415,6 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	init_filesystems(initrd_location, initrd_end);
 	init_multitasking();
 
-	return (0);
-}
-int init_multiboot_kernel(uint32_t magic_number, __unused__ uint32_t addr) {
-	if (multiboot_check_magic_number(magic_number) == false)
-		return (1);
 	return (0);
 }
 
@@ -404,59 +445,56 @@ int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	__INFOD(_YELLOW "Test Hephaistos is disabled" _END);
 #endif
 
-// 	pid_t test = fork();
-// 	if (test == 0) {
-// #include <cmds/cat.h>
-// #include <cmds/ls.h>
-// #include <cmds/mkdir.h>
-// #include <cmds/pwd.h>
+	// 	pid_t test = fork();
+	// 	if (test == 0) {
+	// #include <cmds/cat.h>
+	// #include <cmds/ls.h>
+	// #include <cmds/mkdir.h>
+	// #include <cmds/pwd.h>
 
-// 		pwd(0, NULL);
-// 		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
-// 		ls(0, NULL);
+	// 		pwd(0, NULL);
+	// 		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+	// 		ls(0, NULL);
 
-// 		cat(2, (char *[]){"cat", "file1.txt", NULL});
+	// 		cat(2, (char *[]){"cat", "file1.txt", NULL});
 
-// 		mkdir(2, (char *[]){"mkdir", "test", NULL});
-// 		ls(0, NULL);
+	// 		mkdir(2, (char *[]){"mkdir", "test", NULL});
+	// 		ls(0, NULL);
 
-// 		sys_chdir("test");
-// 		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
+	// 		sys_chdir("test");
+	// 		printk("TFS Current Node: %s\n", vfs_get_fs(TINYFS_FILESYSTEM_NAME)->nops->get_name(vfs_get_fs((TINYFS_FILESYSTEM_NAME))->fs_current_node));
 
-// 		TinyFS_Inode *ino = tinyfs_get_inode(vfs_get_current_fs(), 0);
-// 		tinyfs_display_hierarchy(ino, 1);
+	// 		TinyFS_Inode *ino = tinyfs_get_inode(vfs_get_current_fs(), 0);
+	// 		tinyfs_display_hierarchy(ino, 1);
 
-// 		pwd(0, NULL);
-// 		ls(0, NULL);
+	// 		pwd(0, NULL);
+	// 		ls(0, NULL);
 
-// 		int fd = sys_creat("/test/test_file1.txt", O_RDWR);
-// 		int fd2 = sys_creat("test_file2.txt", O_RDWR);
+	// 		int fd = sys_creat("/test/test_file1.txt", O_RDWR);
+	// 		int fd2 = sys_creat("test_file2.txt", O_RDWR);
 
-// 		ls(0, NULL);
+	// 		ls(0, NULL);
 
-// 		if ((sys_write(fd, "Hello test File1 !\n", 20)) != 0) {
-// 			printk("Error: sys_write failed\n");
-// 		} else if ((sys_write(fd2, "Hello test File2 !\n", 20)) != 0) {
-// 			printk("Error: sys_write failed\n");
-// 		}
+	// 		if ((sys_write(fd, "Hello test File1 !\n", 20)) != 0) {
+	// 			printk("Error: sys_write failed\n");
+	// 		} else if ((sys_write(fd2, "Hello test File2 !\n", 20)) != 0) {
+	// 			printk("Error: sys_write failed\n");
+	// 		}
 
-// 		sys_close(fd);
-// 		sys_close(fd2);
+	// 		sys_close(fd);
+	// 		sys_close(fd2);
 
-// 		cat(2, (char *[]){"cat", "test_file1.txt", NULL});
-// 		cat(2, (char *[]){"cat", "test_file2.txt", NULL});
+	// 		cat(2, (char *[]){"cat", "test_file1.txt", NULL});
+	// 		cat(2, (char *[]){"cat", "test_file2.txt", NULL});
 
-// 		ls(3, (char *[]){"ls", "-l", "/", NULL});
+	// 		ls(3, (char *[]){"ls", "-l", "/", NULL});
 
-// 		pause();
-// 	} else {
-// 		int status;
-// 		waitpid(test, &status, 0);
-// 		printk("Child process exited with status: %d\n", status);
-// 	}
-
-
-
+	// 		pause();
+	// 	} else {
+	// 		int status;
+	// 		waitpid(test, &status, 0);
+	// 		printk("Child process exited with status: %d\n", status);
+	// 	}
 
 	kpause();
 

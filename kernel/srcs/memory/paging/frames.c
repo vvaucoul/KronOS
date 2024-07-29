@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 17:26:58 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 12:24:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <memory/frames.h>
 #include <memory/kheap.h>
 #include <system/panic.h>
+
+#include <multiboot/multiboot.h>
 
 uint32_t n_frames;
 uint32_t *frames;
@@ -107,7 +109,8 @@ void free_frame(page_t *page) {
  * It performs any necessary setup or initialization tasks.
  */
 void init_frames(void) {
-    n_frames = kernel_memory_map.total.total_memory_length * 1024 / PAGE_SIZE;
+    // n_frames = kernel_memory_map.total.total_memory_length * 1024 / PAGE_SIZE;
+    n_frames = multiboot_get_mem_upper() * 1024 / PAGE_SIZE;
     frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
 
     if (!frames) {

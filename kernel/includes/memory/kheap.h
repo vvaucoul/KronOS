@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 08:34:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 12:27:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define KHEAP_H
 
 #include <memory/memory.h>
-#include <memory/memory_map.h>
 
 #include <system/backtrace/backtrace.h>
 

@@ -1,3 +1,4 @@
+; isr.asm
 bits 32
 
 section .text
@@ -55,7 +56,6 @@ ISR_NO_ERROR 31
 
 extern fault_handler
 isr_exception_handler:
-
     ; Save the registers
     pusha
 
@@ -76,10 +76,8 @@ isr_exception_handler:
     mov eax, esp
     push eax
 
-
     ; Call the fault handler
-    mov eax, fault_handler
-    call eax
+    call fault_handler
 
     ; Restore the stack pointer
     pop eax
@@ -91,9 +89,7 @@ isr_exception_handler:
     ; Restore the registers
     popa
 
-    ; Restore the stack
-    add esp, 0x8
-
     ; Restore the interrupt flag
+    add esp, 8
     sti
     iret

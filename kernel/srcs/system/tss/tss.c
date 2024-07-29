@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 18:56:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 12:52:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 23:00:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void tss_init(uint32_t idx, uint32_t ss0, uint32_t esp0) {
     tss_entry.ss = tss_entry.ds = tss_entry.es = tss_entry.fs = tss_entry.gs = 0x23; // User mode data segment selectors
     tss_entry.iomap = sizeof(tss_entry_t);
 
-    gdt_flush((uint32_t)(&gp));
+    gdt_flush((uint32_t)((uint32_t)(&gp)));
     tss_flush();
 }
 

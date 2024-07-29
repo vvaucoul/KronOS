@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 18:33:27 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:27:53 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 23:31:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,15 @@ static void putpixel(unsigned char *screen, int x, int y, int color)
 
 static int get_vbe_info(void)
 {
-    regs16_t regs_in;
-    regs16_t regs_out;
+    // regs16_t regs_in;
+    // regs16_t regs_out;
 
-    regs_in.ax = 0x4F00;
-    regs_in.di = 0x9500;
-    int86(0x10, &regs_in, &regs_out);
-    kpause();
-    memcpy(&vesa, (void *)0x9500, sizeof(vesa_t));
-    return (regs_out.ax == 0x004F);
+    // regs_in.ax = 0x4F00;
+    // regs_in.di = 0x9500;
+    // int86(0x10, &regs_in, &regs_out);
+    // kpause();
+    // memcpy(&vesa, (void *)0x9500, sizeof(vesa_t));
+    // return (regs_out.ax == 0x004F);
 }
 
 void init_vbe_mode(void)

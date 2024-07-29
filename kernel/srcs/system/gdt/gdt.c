@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 18:52:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 17:31:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 21:59:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,5 +39,5 @@ void gdt_init(void) {
     gdt_add_entry(5, 0, 0xFFFFFFFF, (uint8_t)(GDT_DATA_PL3), GDT_ENTRY_FLAG_BASE);  // User data segment (PL3) - 0xF2 - 0xCF
     gdt_add_entry(6, 0, 0xFFFFFFFF, (uint8_t)(GDT_STACK_PL3), GDT_ENTRY_FLAG_BASE); // User stack segment (PL3) - 0xF2 - 0xCF
 
-    gdt_flush((uint32_t)&gp);
+    gdt_flush((uint32_t)(uintptr_t)&gp);
 }

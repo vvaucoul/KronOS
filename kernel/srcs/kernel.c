@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 15:39:28 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 01:00:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,10 @@ void kernel_log_info(const char *part, const char *name) {
 					"- "_YELLOW
 					"[%s] " _END "- " _GREEN "[INIT] " _CYAN "%s " _END "\n",
 			   diff_time, part, name);
+
+		if (irq_check_install(IRQ_PIT)) {
+			kmsleep(20);
+		}
 	}
 }
 
@@ -160,7 +164,6 @@ static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstac
 		kernel_log_info("LOG", "MULTIBOOT");
 	}
 
-	kpause();
 	return (0);
 }
 
@@ -173,16 +176,13 @@ static int init_system_components(void) {
 
 	idt_install();
 	kernel_log_info("LOG", "IDT");
-
-	isrs_install();
+	isr_install();
 	kernel_log_info("LOG", "ISR");
-
 	irq_install();
 	kernel_log_info("LOG", "IRQ");
 
 	pit_setup();
 	kernel_log_info("LOG", "PIT");
-	ksleep(1);
 
 	if ((init_cpuid()) == true) {
 		kernel_log_info("LOG", "CPUID");
@@ -198,6 +198,8 @@ static int init_system_components(void) {
 
 	random_init();
 	kernel_log_info("LOG", "RANDOM");
+	// kpause();
+
 	return (0);
 }
 
@@ -336,8 +338,8 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	kernel_log_info("LOG", "TERMINAL");
 
 	// Todo: Remove kerrno (unused / useless lib)
-	init_kerrno();
-	kernel_log_info("LOG", "KERRNO");
+	// init_kerrno();
+	// kernel_log_info("LOG", "KERRNO");
 
 	check_multiboot(magic_number, addr, kstack);
 	init_system_components();
@@ -452,7 +454,7 @@ int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	// 		printk("Child process exited with status: %d\n", status);
 	// 	}
 
-	kpause();
+	// kpause();
 
 	pid_t pid = fork();
 	if (pid == 0) {

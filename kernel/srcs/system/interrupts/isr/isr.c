@@ -6,205 +6,175 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 22:08:49 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 00:45:00 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/memory.h>
+#include <stdio.h>
+#include <system/irq.h>
 #include <system/isr.h>
 #include <system/kerrno.h>
-#include <system/irq.h>
 
-#include <assert.h>
+static InterruptHandler isr_interrupt_handlers[NB_INTERRUPT_HANDLERS] = {0};
+static irqs_t irqs[ISR_MAX_COUNT] = {0};
 
-ISR g_interrupt_handlers[NB_INTERRUPT_HANDLERS] = {0};
-irqs_t g_irqs[ISR_MAX_COUNT] = {0};
+const char *exception_messages[ISR_MAX_COUNT] = {
+	"Division By Zero", "Debug", "Non Maskable Interrupt", "Breakpoint Exception",
+	"Into Detected Overflow Exception", "Out of Bounds Exception", "Invalid Opcode Exception",
+	"No Coprocessor Exception", "Double Fault Exception", "Coprocessor Segment Overrun Exception",
+	"Bad TSS Exception", "Segment Not Present Exception", "Stack Fault Exception",
+	"General Protection Fault Exception", "Page Fault Exception", "Unknown Interrupt Exception",
+	"Coprocessor Fault Exception", "Alignment Check Exception", "Machine Check Exception",
+	"Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
+	"Reserved", "Reserved", "Reserved", "Reserved"};
 
-unsigned char *exception_messages[ISR_MAX_COUNT] =
-    {
-        (unsigned char *)"Division By Zero",
-        (unsigned char *)"Debug",
-        (unsigned char *)"Non Maskable Interrupt",
-        (unsigned char *)"Breakpoint Exception",
-        (unsigned char *)"Into Detected Overflow Exception",
-        (unsigned char *)"Out of Bounds Exception",
-        (unsigned char *)"Invalid Opcode Exception",
-        (unsigned char *)"No Coprocessor Exception",
-        (unsigned char *)"Double Fault Exception",
-        (unsigned char *)"Coprocessor Segment Overrun Exception",
-        (unsigned char *)"Bad TSS Exception",
-        (unsigned char *)"Segment Not Present Exception",
-        (unsigned char *)"Stack Fault Exception",
-        (unsigned char *)"General Protection Fault Exception",
-        (unsigned char *)"Page Fault Exception",
-        (unsigned char *)"Unknown Interrupt Exception",
-        (unsigned char *)"Coprocessor Fault Exception",
-        (unsigned char *)"Alignment Check Exception",
-        (unsigned char *)"Machine Check Exception",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved",
-        (unsigned char *)"Reserved"};
+/**
+ * Interrupt Service Routine (ISR) functions.
+ *
+ * Each ISR function is responsible for handling a specific interrupt.
+ * The ISR functions are stored in an array of function pointers.
+ *
+ * @note The ISR functions are defined in the file `isr_handlers.s`.
+ *
+ */
+const void *isr_fn[ISR_MAX_COUNT] = {
+	isr0, isr1, isr2, isr3, isr4, isr5, isr6, isr7,
+	isr8, isr9, isr10, isr11, isr12, isr13, isr14, isr15,
+	isr16, isr17, isr18, isr19, isr20, isr21, isr22, isr23,
+	isr24, isr25, isr26, isr27, isr28, isr29, isr30, isr31};
 
-static void isr_register(uint8_t index, char *name, isr_code_t code, panic_t type, char *exception, bool zero, bool has_code) {
-    g_irqs[index].name = name;
-    g_irqs[index].code = code;
-    g_irqs[index].type = type;
-    g_irqs[index].exception = exception;
-    g_irqs[index].zero = zero;
-    g_irqs[index].has_code = has_code;
-}
-
-static __attribute__((no_caller_saved_registers)) void __display_interrupt_frame(struct regs *r) {
-    printk("REGS:\n");
-    printk("eax=0x%x, ebx=0x%x, ecx=0x%x, edx=0x%x\n", r->eax, r->ebx, r->ecx, r->edx);
-    printk("edi=0x%x, esi=0x%x, ebp=0x%x, esp=0x%x\n", r->edi, r->esi, r->ebp, r->esp);
-    printk("eip=0x%x, cs=0x%x, ss=0x%x, eflags=0x%x, useresp=0x%x\n", r->eip, r->ss, r->eflags, r->useresp);
-}
-
-void isrs_install() {
-    idt_set_gate(0, (unsigned)isr0, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(0, "Division By Zero", 0x0, FAULT, "#DE", false, false);
-
-    idt_set_gate(1, (unsigned)isr1, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(1, "Debug", 0x1, FAULT, "#DB", false, false);
-
-    idt_set_gate(2, (unsigned)isr2, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(2, "Non Maskable Interrupt", 0x2, INTERRUPT, "NMI", false, false);
-
-    idt_set_gate(3, (unsigned)isr3, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(3, "Breakpoint Exception", 0x3, TRAP, "#BP", false, false);
-
-    idt_set_gate(4, (unsigned)isr4, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(4, "Overflow Exception", 0x4, TRAP, "#OF", false, false);
-
-    idt_set_gate(5, (unsigned)isr5, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(5, "Bound Range Exceeded", 0x5, FAULT, "#BR", false, false);
-
-    idt_set_gate(6, (unsigned)isr6, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(6, "Invalid Opcode", 0x6, FAULT, "#UD", false, false);
-
-    idt_set_gate(7, (unsigned)isr7, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(7, "Device Not Available", 0x7, FAULT, "#NM", false, false);
-
-    idt_set_gate(8, (unsigned)isr8, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(8, "Double Fault", 0x8, ABORT, "#DF", true, true);
-
-    idt_set_gate(9, (unsigned)isr9, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(9, "Coprocessor Segment Overrun", 0x9, FAULT, "COP", false, false);
-
-    idt_set_gate(10, (unsigned)isr10, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(10, "Invalid TSS", 0xA, FAULT, "#TS", false, true);
-
-    idt_set_gate(11, (unsigned)isr11, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(11, "Segment Not Present", 0xB, FAULT, "#NP", false, true);
-
-    idt_set_gate(12, (unsigned)isr12, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(12, "Stack Fault", 0xC, FAULT, "#SS", false, true);
-
-    idt_set_gate(13, (unsigned)isr13, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(13, "General Protection Fault", 0xD, ABORT, "#GP", false, true);
-
-    idt_set_gate(14, (unsigned)isr14, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(14, "Page Fault", 0xE, FAULT, "#PF", false, true);
-
-    idt_set_gate(15, (unsigned)isr15, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(15, "Reserved", 0xF, FAULT, "RES", false, true);
-
-    idt_set_gate(16, (unsigned)isr16, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(16, "x87 Floating Point Exception", 0x10, FAULT, "#MF", false, false);
-
-    idt_set_gate(17, (unsigned)isr17, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(17, "Alignment Check", 0x11, FAULT, "#AC", false, true);
-
-    idt_set_gate(18, (unsigned)isr18, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(18, "Machine Check", 0x12, ABORT, "#MC", false, false);
-
-    idt_set_gate(19, (unsigned)isr19, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(19, "SIMD Floating Point Exception", 0x13, FAULT, "#XM", false, false);
-
-    idt_set_gate(20, (unsigned)isr20, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(20, "Virtualization Exception", 0x14, FAULT, "#VE", false, false);
-
-    idt_set_gate(21, (unsigned)isr21, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(21, "Control Protection", 0x15, FAULT, "CP", false, true);
-
-    idt_set_gate(22, (unsigned)isr22, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(22, "Reserved", 0x16, FAULT, "", false, false);
-
-    idt_set_gate(23, (unsigned)isr23, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(23, "Hypervisor", 0x1C, FAULT, "HV", false, false);
-
-    idt_set_gate(24, (unsigned)isr24, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(24, "VMM Communication", 0x1D, FAULT, "VC", false, true);
-
-    idt_set_gate(25, (unsigned)isr25, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(25, "Security", 0x1E, FAULT, "SX", false, true);
-
-    idt_set_gate(26, (unsigned)isr26, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(26, "Reserved", 0x1F, FAULT, "", false, false);
-
-    idt_set_gate(27, (unsigned)isr27, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(27, "Triple Fault", 0x20, ABORT, "", false, false);
-
-    idt_set_gate(28, (unsigned)isr28, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(28, "FPU Error Interrupt", 0x21, FAULT, "", false, false);
-
-    idt_set_gate(29, (unsigned)isr29, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(29, "Reserved", 0x22, FAULT, "", false, true);
-
-    idt_set_gate(30, (unsigned)isr30, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(30, "Reserved", 0x23, FAULT, "", false, true);
-
-    idt_set_gate(31, (unsigned)isr31, IDT_SELECTOR, IDT_FLAG_GATE);
-    isr_register(31, "Reserved", 0x24, FAULT, "", false, false);
-}
-
-void isr_register_interrupt_handler(int num, ISR handler) {
-    assert(num < NB_INTERRUPT_HANDLERS);
-    idt_set_gate(num, (unsigned)handler, IDT_SELECTOR, IDT_FLAG_GATE);
+/**
+ * Registers an Interrupt Service Routine (ISR) handler.
+ *
+ * @param index The index of the ISR.
+ * @param name The name of the ISR.
+ * @param code The code to be executed when the ISR is triggered.
+ * @param type The type of panic to be triggered if the ISR encounters an error.
+ * @param exception The exception associated with the ISR.
+ * @param zero A flag indicating if the ISR should be zeroed out.
+ * @param has_code A flag indicating if the ISR has code associated with it.
+ */
+static void isr_register(uint8_t index, const char *name, isr_code_t code, panic_t type, const char *exception, bool zero, bool has_code) {
+	irqs[index].name = name;
+	irqs[index].code = code;
+	irqs[index].type = type;
+	irqs[index].exception = exception;
+	irqs[index].zero = zero;
+	irqs[index].has_code = has_code;
 }
 
 /**
- * @brief Fault Handler Called by ASM Interrupt Handler
+ * @brief Handles the display interrupt frame.
  *
- * @param r (struct regs *)
+ * This function is responsible for handling the interrupt frame for display interrupts.
+ * It takes a pointer to the interrupt registers as a parameter.
+ * The interrupt frame contains the state of the CPU registers at the time of the interrupt.
+ * This function does not save any caller-saved registers.
+ *
+ * @param r Pointer to the interrupt registers.
+ */
+static __attribute__((no_caller_saved_registers)) void isr_display_interrupt_frame(t_regs *r) {
+
+	/**
+	 * Function with attribute 'no_caller_saved_registers' should only call a function with attribute 'no_caller_saved_registers'
+	 * Check: -mgeneral-regs-only
+	 */
+
+	printk("Interrupt Frame:\n");
+	printk("------------------------------------------------\n");
+	printk("General Purpose Registers:\n");
+	printk("  EAX: 0x%08x  EBX: 0x%08x  ECX: 0x%08x  EDX: 0x%08x\n", r->eax, r->ebx, r->ecx, r->edx);
+	printk("  EDI: 0x%08x  ESI: 0x%08x  EBP: 0x%08x  ESP: 0x%08x\n", r->edi, r->esi, r->ebp, r->esp);
+	printk("\n");
+	printk("Segment Registers:\n");
+	printk("  GS: 0x%08x  FS: 0x%08x  ES: 0x%08x  DS: 0x%08x\n", r->gs, r->fs, r->es, r->ds);
+	printk("\n");
+	printk("Control Registers:\n");
+	printk("  EIP: 0x%08x  CS: 0x%08x  SS: 0x%08x  EFLAGS: 0x%08x\n", r->eip, r->cs, r->ss, r->eflags);
+	printk("  User ESP: 0x%08x\n", r->useresp);
+	printk("------------------------------------------------\n");
+	printk(_END);
+}
+
+/**
+ * @brief Sets up an Interrupt Service Routine (ISR) gate.
+ *
+ * This function is responsible for setting up an ISR gate for a specific interrupt index.
+ * It takes the ISR function pointer, name, code, type, exception, zero, and has_code as parameters.
+ *
+ * @param index The interrupt index.
+ * @param isr_fn The ISR function pointer.
+ * @param name The name of the ISR gate.
+ * @param code The ISR code.
+ * @param type The panic type.
+ * @param exception The exception name.
+ * @param zero A boolean indicating if the ISR gate should be zeroed.
+ * @param has_code A boolean indicating if the ISR gate has code.
+ */
+static void setup_isr_gate(int index, void *isr_fn, const char *name, isr_code_t code, panic_t type, const char *exception, bool zero, bool has_code) {
+	idt_set_gate(index, (uint32_t)(uintptr_t)isr_fn, IDT_SELECTOR, IDT_FLAG_GATE);
+	isr_register(index, name, code, type, exception, zero, has_code);
+}
+
+/**
+ * @brief Installs the Interrupt Service Routine (ISR).
+ *
+ * This function is responsible for installing the Interrupt Service Routine (ISR).
+ * It sets up the necessary configurations to handle interrupts.
+ *
+ * @note This function should be called before enabling interrupts.
+ */
+void isr_install(void) {
+	for (int i = 0; i < ISR_MAX_COUNT; ++i) {
+		setup_isr_gate(i, (void *)isr_fn[i], exception_messages[i], i, FAULT, exception_messages[i], false, false);
+	}
+}
+
+/**
+ * Registers an interrupt handler for a specific interrupt number.
+ *
+ * @param num The interrupt number to register the handler for.
+ * @param handler The function pointer to the interrupt handler.
+ * @return 0 if the registration was successful, -1 otherwise.
+ */
+int isr_register_interrupt_handler(int num, InterruptHandler handler) {
+	if (num < 0 || num >= ISR_MAX_COUNT) {
+		return (1);
+	}
+	idt_set_gate(num, (unsigned int)(uintptr_t)handler, IDT_SELECTOR, IDT_FLAG_GATE);
+	isr_interrupt_handlers[num] = handler;
+
+	return (0);
+}
+
+/**
+ * @brief Handles faults in the system.
+ *
+ * This function is responsible for handling faults in the system. It takes a pointer to a `struct regs` as a parameter.
+ * The `struct regs` contains the register values at the time of the fault.
+ *
+ * @param r Pointer to a `struct regs` containing the register values at the time of the fault.
  */
 void fault_handler(struct regs *r) {
-    uint8_t err_code = 0x0;
+	uint8_t err_code = 0x0;
+	r->int_no &= 0xFF; /* Extend 8-bit interrupts to 32-bit */
 
-    /* CPU Extend 8bits interrupts to 32bits */
-    r->int_no &= 0xFF;
+	if (r->int_no < ISR_MAX_COUNT) {
+		isr_display_interrupt_frame(r);
+		panic_t type = irqs[r->int_no].type;
+		bool has_code = irqs[r->int_no].has_code;
+		bool zero = irqs[r->int_no].zero;
 
-    KERNO_ASSIGN_ERROR(__KERRNO_SECTOR_ISR, r->int_no);
-    if (r->int_no < 32) {
-        __display_interrupt_frame(r);
+		if (!zero && has_code)
+			err_code = r->err_code;
 
-        panic_t type = g_irqs[r->int_no].type;
-        bool has_code = g_irqs[r->int_no].has_code;
-        bool zero = g_irqs[r->int_no].zero;
+		pic8259_send_eoi(r->int_no);
+		__PANIC_INTERRUPT(irqs[r->int_no].name, r->int_no, type, err_code);
+	} else {
+		isr_display_interrupt_frame(r);
+		__PANIC_INTERRUPT("Unhandled Interrupt", r->int_no, ABORT, r->err_code);
+	}
 
-        if (zero == false && has_code == true)
-            err_code = r->err_code;
-
-        /* Send End Of Interrupt to PIC */
-        pic8259_send_eoi(r->int_no);
-
-        __PANIC_INTERRUPT((const char *)g_irqs[r->int_no].name, r->int_no, type, err_code);
-    } else {
-        __display_interrupt_frame(r);
-        __PANIC_INTERRUPT("Unhandled Interrupt", r->int_no, ABORT, r->err_code);
-    }
-
-    if (g_interrupt_handlers[r->int_no] != NULL)
-        g_interrupt_handlers[r->int_no](r);
+	if (isr_interrupt_handlers[r->int_no] != NULL)
+		isr_interrupt_handlers[r->int_no](r);
 }

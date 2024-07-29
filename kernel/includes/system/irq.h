@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:54:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/10 15:38:25 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 00:50:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,25 +51,25 @@
 // ! ||--------------------------------------------------------------------------------||
 
 #define MASTER_PIC 0x20 /* IO base address for master PIC */
-#define SLAVE_PIC 0xA0  /* IO base address for slave PIC */
+#define SLAVE_PIC 0xA0	/* IO base address for slave PIC */
 
 #define MASTER_DATA (MASTER_PIC + 1) /* IRQs 0-7 are mapped to entries 0x20-0x27 */
-#define SLAVE_DATA (SLAVE_PIC + 1)   /* IRQs 8-15 are mapped to entries 0x28-0x2F */
+#define SLAVE_DATA (SLAVE_PIC + 1)	 /* IRQs 8-15 are mapped to entries 0x28-0x2F */
 
-#define ICW1_ICW4 0x01      /* ICW4 (not) needed */
-#define ICW1_SINGLE 0x02    /* Single (cascade) mode */
+#define ICW1_ICW4 0x01		/* ICW4 (not) needed */
+#define ICW1_SINGLE 0x02	/* Single (cascade) mode */
 #define ICW1_INTERVAL4 0x04 /* Call address interval 4 (8) */
-#define ICW1_LEVEL 0x08     /* Level triggered (edge) mode */
-#define ICW1_INIT 0x10      /* Initialization - required! */
+#define ICW1_LEVEL 0x08		/* Level triggered (edge) mode */
+#define ICW1_INIT 0x10		/* Initialization - required! */
 
-#define ICW4_8086 0x01       /* 8086/88 (MCS-80/85) mode */
-#define ICW4_AUTO 0x02       /* Auto (normal) EOI */
-#define ICW4_BUF_SLAVE 0x08  /* Buffered mode/slave */
+#define ICW4_8086 0x01		 /* 8086/88 (MCS-80/85) mode */
+#define ICW4_AUTO 0x02		 /* Auto (normal) EOI */
+#define ICW4_BUF_SLAVE 0x08	 /* Buffered mode/slave */
 #define ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
-#define ICW4_SFNM 0x10       /* Special fully nested (not) */
+#define ICW4_SFNM 0x10		 /* Special fully nested (not) */
 
 #define ICW3_MASTER 0x04 /* IRQ2 -> connection to slave */
-#define ICW3_SLAVE 0x02  /* IRQ2 <- connection from master */
+#define ICW3_SLAVE 0x02	 /* IRQ2 <- connection from master */
 
 #define MASTER_OFFSET 0x20 /* IRQ0-7 mapped to 0x20-0x27 */
 #define SLAVE_OFFSET 0x28  /* IRQ8-15 mapped to 0x28-0x2F */
@@ -80,37 +80,31 @@
 // ! ||                                    IRQ LIST                                    ||
 // ! ||--------------------------------------------------------------------------------||
 
-#define IRQ_PIT 0 /* Programmable Interrupt Timer Interrupt */
-#define IRQ_KBD 1 /* Keyboard Interrupt */
-#define IRQ_COM2 3 /* COM2 (if enabled) */
-#define IRQ_COM1 4 /* COM1 (if enabled) */
-#define IRQ_LPT2 5 /* LPT2 (if enabled) */
+#define IRQ_PIT 0	 /* Programmable Interrupt Timer Interrupt */
+#define IRQ_KBD 1	 /* Keyboard Interrupt */
+#define IRQ_COM2 3	 /* COM2 (if enabled) */
+#define IRQ_COM1 4	 /* COM1 (if enabled) */
+#define IRQ_LPT2 5	 /* LPT2 (if enabled) */
 #define IRQ_FLOPPY 6 /* Floppy Disk */
-#define IRQ_LPT1 7 /* LPT1 */
-#define IRQ_RTC 8 /* CMOS real-time clock (if enabled) */
-#define IRQ_NIC 9 /* Free for peripherals / legacy SCSI / NIC */
-#define IRQ_NIC2 10 /* Free for peripherals / SCSI / NIC */
-#define IRQ_NIC3 11 /* Free for peripherals / SCSI / NIC */
+#define IRQ_LPT1 7	 /* LPT1 */
+#define IRQ_RTC 8	 /* CMOS real-time clock (if enabled) */
+#define IRQ_NIC 9	 /* Free for peripherals / legacy SCSI / NIC */
+#define IRQ_NIC2 10	 /* Free for peripherals / SCSI / NIC */
+#define IRQ_NIC3 11	 /* Free for peripherals / SCSI / NIC */
 #define IRQ_MOUSE 12 /* PS2 Mouse */
-#define IRQ_FPU 13 /* FPU / Coprocessor / Inter-processor */
-#define IRQ_ATA1 14 /* Primary ATA Hard Disk */
-#define IRQ_ATA2 15 /* Secondary ATA Hard Disk */
+#define IRQ_FPU 13	 /* FPU / Coprocessor / Inter-processor */
+#define IRQ_ATA1 14	 /* Primary ATA Hard Disk */
+#define IRQ_ATA2 15	 /* Secondary ATA Hard Disk */
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                  IRQ FUNCTIONS                                 ||
 // ! ||--------------------------------------------------------------------------------||
 
-extern void irq_install();
+extern void irq_install(void);
 extern void irq_handler(struct regs *r);
 extern void irq_install_handler(int irq, void (*handler)(struct regs *r));
 extern void irq_uninstall_handler(int irq);
 extern void pic8259_send_eoi(uint8_t irq);
 extern bool irq_check_install(int irq);
-
-// ! ||--------------------------------------------------------------------------------||
-// ! ||                                   EXCEPTIONS                                   ||
-// ! ||--------------------------------------------------------------------------------||
-
-extern panic_t exceptions_errors[ISR_MAX_COUNT];
 
 #endif /* !IRQ_H */

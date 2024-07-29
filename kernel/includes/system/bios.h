@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/18 19:55:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 22:08:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 23:31:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,6 @@ extern void *bios32_int_number_ptr;
 #define REBASE_ADDRESS(x) (void *)(0x7c00 + (void *)x - (uint32_t)BIOS32_START)
 
 extern void init_bios32();
-extern void int86(uint8_t interrupt, regs16_t *in, regs16_t *out);
+// extern void int86(uint8_t interrupt, regs16_t *in, regs16_t *out);
 
 #endif /* !BIOS_H */

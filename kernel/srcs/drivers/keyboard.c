@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 08:47:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 00:59:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,7 @@ void keyboard_handler(struct regs *r) {
                 ksh_write_char(key);
         }
     }
+    pic8259_send_eoi(IRQ_KBD);
 }
 
 void keyboard_install(void) {

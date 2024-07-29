@@ -6,56 +6,73 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:09:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/24 17:51:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 00:42:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/idt.h>
 #include <system/isr.h>
 
-struct idt_entry idt[IDT_SIZE] __attribute__((aligned(0x10)));
-struct idt_ptr idtp;
+static struct idt_entry idt[IDT_ENTRIES] = {0};
+static struct idt_ptr idtp;
 
-void idt_set_gate(unsigned char num, unsigned long base, unsigned short selector, unsigned char flags)
-{
-    idt[num].base_low = (base & 0xFFFF);
-    idt[num].base_high = (base >> 16) & 0xFFFF;
-
-    idt[num].selector = selector; // Selector
-    idt[num].zero = 0;
-    idt[num].flags = flags;// | 0x60;// <- Uncomment this for user mode interrupts
+/**
+ * Sets a gate in the Interrupt Descriptor Table (IDT).
+ *
+ * @param num      The interrupt number.
+ * @param base     The base address of the interrupt handler function.
+ * @param selector The selector of the interrupt handler function.
+ * @param flags    The flags for the interrupt gate.
+ */
+void idt_set_gate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags) {
+	idt[num].base_low = (base & 0xFFFF);
+	idt[num].base_high = (base >> 16) & 0xFFFF;
+	idt[num].selector = selector; /* Kernel segment selector */
+	idt[num].zero = 0;			  /* Must always be zero */
+	idt[num].flags = flags;		  /* Flags, e.g., 0x8E for interrupt gate */
+								  // | 0x60;// <- Add this for user mode interrupts
 }
 
-/* Installs the IDT */
-void idt_install()
-{
-    /* Sets the special IDT pointer up, just like in 'gdt.c' */
-    idtp.limit = (sizeof(struct idt_entry) * IDT_SIZE) - 1;
-    idtp.base = (unsigned int)&idt;
+/**
+ * @brief Installs the Interrupt Descriptor Table (IDT).
+ *
+ * This function is responsible for installing the Interrupt Descriptor Table (IDT)
+ * in the system. The IDT is a data structure used by the processor to handle interrupts
+ * and exceptions. By installing the IDT, the system can properly handle hardware and
+ * software interrupts.
+ */
+void idt_install() {
+	/* Sets the special IDT pointer up, just like in 'gdt.c' */
+	idtp.limit = (sizeof(struct idt_entry) * IDT_ENTRIES) - 1;
+	idtp.base = (uint32_t)(uintptr_t)&idt;
 
-    /* Clear out the entire IDT, initializing it to zeros */
-    memset(&idt, 0, sizeof(struct idt_entry) * IDT_SIZE);
-
-    /* Init Interrupt Handlers */
-    memset(&g_interrupt_handlers, 0, sizeof(ISR) * NB_INTERRUPT_HANDLERS);
-
-    /* Load IDT */
-    idt_load(&idtp);
+	/* Load IDT */
+	idt_load(&idtp);
 }
 
-static inline void read_idtr(struct idt_ptr* idtr) {
-    __asm__ volatile ("sidt (%0)" : : "r"(idtr));
+/**
+ * Reads the Interrupt Descriptor Table Register (IDTR) value.
+ *
+ * @param idtr Pointer to the IDT pointer structure.
+ */
+static inline void read_idtr(struct idt_ptr *idtr) {
+	__asm__ volatile("sidt (%0)" : : "r"(idtr));
 }
 
+/**
+ * @brief Prints the IDT entry for the specified interrupt number.
+ *
+ * @param num The interrupt number.
+ */
 void print_idt_entry(uint8_t num) {
-    struct idt_ptr idtr;
-    read_idtr(&idtr);
+	struct idt_ptr idtr;
+	read_idtr(&idtr);
 
-    struct idt_entry* idt = (struct idt_entry*)idtr.base;
-    struct idt_entry entry = idt[num];
+	struct idt_entry *idt = (struct idt_entry *)idtr.base;
+	struct idt_entry entry = idt[num];
 
-    printk("IDT Entry %d:\n", num);
-    printk("Base: 0x%04x%04x\n", entry.base_high, entry.base_low);
-    printk("Selector: 0x%04x\n", entry.selector);
-    printk("Flags: 0x%02x\n", entry.flags);
+	printk("IDT Entry %d:\n", num);
+	printk("Base: 0x%04x%04x\n", entry.base_high, entry.base_low);
+	printk("Selector: 0x%04x\n", entry.selector);
+	printk("Flags: 0x%02x\n", entry.flags);
 }

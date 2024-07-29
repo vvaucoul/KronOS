@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 00:52:31 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 22:09:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 01:13:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,8 @@
 
 cpu_topology_t cpu_topology;
 
-// static inline void cpuid(int code, uint32_t* a, uint32_t* b, uint32_t* c, uint32_t* d) {
-//     __asm__ volatile("cpuid":"=a"(*a),"=b"(*b),"=c"(*c),"=d"(*d):"a"(code));
-// }
-
-/* Check Flags HTT */
-static bool cpuid_is_supported(void)
-{
+/* Vérifier si CPUID est supporté (avec flag HTT) */
+static bool cpuid_is_supported(void) {
     uint32_t eax, ebx, ecx, edx;
     uint32_t htt = 0;
 
@@ -33,49 +28,33 @@ static bool cpuid_is_supported(void)
     htt = (edx >> 28) & 1;
 
     if (htt == 1)
-        printk("\t\t "_YELLOW
-               "[CID]"_END
-               " - "_GREEN
-               "%s" _END "\n",
-               "[SUPPORTED]");
+        printk("\t\t "_YELLOW "[CID]"_END " - "_GREEN "%s" _END "\n", "[SUPPORTED]");
     else
-        printk("\t\t "_YELLOW
-               "[CID]"_END
-               " - "_RED
-               "%s" _END "\n",
-               "[NOT SUPPORTED]");
-
-    // uint32_t count = (ebx >> 23) & 0x1F;
-    // uint32_t count_max = (ebx >> 16) & 0xFF;
+        printk("\t\t "_YELLOW "[CID]"_END " - "_RED "%s" _END "\n", "[NOT SUPPORTED]");
 
     return (htt == 1);
 }
 
-void get_cpu_topology(void)
-{
-    // CPUID eax = 0x00000001;
-
-    // Check if CPUID is supported (with flag HTT)
-    if (cpuid_is_supported() == false)
+/* Obtenir la topologie du CPU */
+void get_cpu_topology(void) {
+    // Vérifier si CPUID est supporté
+    if (!cpuid_is_supported())
         return;
-    else
-    {
-        __cpuid_available = true;
-        memset(&cpu_topology, 0, sizeof(cpu_topology));
-    }
 
-    int cpuInfo[4] = {0, 0, 0, 0};
-    unsigned nExIds, i = 0;
+    __cpuid_available = true;
+    memset(&cpu_topology, 0, sizeof(cpu_topology));
 
-    // Get the information associated with each extended ID.
+    uint32_t cpuInfo[4] = {0, 0, 0, 0};
+    uint32_t nExIds, i;
+
+    // Obtenir le nombre d'IDs étendus
     __cpuid(0x80000000, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     nExIds = cpuInfo[0];
 
-    for (i = 0x80000000; i <= nExIds; ++i)
-    {
+    // Lire les informations de la marque du CPU
+    for (i = 0x80000000; i <= nExIds; ++i) {
         __cpuid(i, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
 
-        // Interpret CPU brand string and cache information.
         if (i == 0x80000002)
             memcpy(cpu_topology.brandString, cpuInfo, sizeof(cpuInfo));
         else if (i == 0x80000003)
@@ -84,62 +63,43 @@ void get_cpu_topology(void)
             memcpy(cpu_topology.brandString + 32, cpuInfo, sizeof(cpuInfo));
     }
 
-    // Get the number of physical cores per package.
+    // Obtenir le nombre de cores physiques par package
     __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.physicalCoresPerPackage = (cpuInfo[0] >> 26) + 1;
 
-    // Get the number of logical cores per physical core.
+    // Obtenir le nombre de cores logiques par core physique
     __cpuid(0x00000001, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.logicalCoresPerPhysicalCore = ((cpuInfo[1] >> 16) & 0xff);
 
-    // Get Socket count
+    // Obtenir le nombre de sockets
     __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.socketCount = ((cpuInfo[0] >> 14) & 0xfff) + 1;
 
-    // Get Core Count
+    // Obtenir le nombre de cores
     __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.coreCount = ((cpuInfo[0] >> 26) & 0x3f) + 1;
 
-    // Get Thread Count
+    // Obtenir le nombre de threads
     __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.threadCount = ((cpuInfo[0] >> 14) & 0xfff) + 1;
 
-    // Get L1 Cache Size
+    // Obtenir la taille du cache L1
     __cpuid(0x00000005, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.l1CacheSize = cpuInfo[2] * 1024;
 
-    // Get L2 Cache Size
+    // Obtenir la taille du cache L2
     __cpuid(0x00000006, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.l2CacheSize = ((cpuInfo[2] >> 16) & 0xffff) * 1024;
 
-    // Get L3 Cache Size
+    // Obtenir la taille du cache L3
     __cpuid(0x00000004, cpuInfo[0], cpuInfo[1], cpuInfo[2], cpuInfo[3]);
     cpu_topology.l3CacheSize = (((cpuInfo[2] >> 22) + 1) * ((cpuInfo[2] & 0x3ff) + 1) * ((cpuInfo[2] >> 12) & 0x3ff) * (cpuInfo[1] & 0xff)) * 64;
 
-    // Get Current Frequency
+    // Obtenir la fréquence actuelle du CPU
     cpu_topology.currentFrequency = get_cpu_frequency();
-    printk("\t\t\t   -"_GREEN
-           " FREQUENCY: " _END "%d MHz\n",
-           cpu_topology.currentFrequency);
+    printk("\t\t\t   -"_GREEN " FREQUENCY: " _END "%d MHz\n", cpu_topology.currentFrequency);
 
-    // printk("CPU Topology:\n");
-    // printk("\tPhysical cores per package: %d\n", cpu_topology.physicalCoresPerPackage);
-    // printk("\tLogical cores per physical core: %d\n", cpu_topology.logicalCoresPerPhysicalCore);
-    // printk("\tSocket count: %d\n", cpu_topology.socketCount);
-    // printk("\tCore count: %d\n", cpu_topology.coreCount);
-    // printk("\tThread count: %d\n", cpu_topology.threadCount);
-    // printk("\tL1 Cache Size: %d\n", cpu_topology.l1CacheSize);
-    // printk("\tL2 Cache Size: %d\n", cpu_topology.l2CacheSize);
-    // printk("\tL3 Cache Size: %d\n", cpu_topology.l3CacheSize);
-    // printk("\tCurrent Frequency: %d MHz\n", cpu_topology.currentFrequency);
-    // printk("\tCPU Brand: %s\n", cpu_topology.brandString);
-
-    // kpause();
-
-    printk(_END "\t\t\t   -"_GREEN
-                " VENDOR: " _END "%s" _END "\n",
-           cpu_vendor);
-    printk(_END "\t\t\t   -"_GREEN
-                " HYPERVISOR: " _END "%s" _END "\n",
-           hypervisor);
+    // Afficher les informations du CPU
+    printk(_END "\t\t\t   -"_GREEN " VENDOR: " _END "%s" _END "\n", cpu_vendor);
+    printk(_END "\t\t\t   -"_GREEN " HYPERVISOR: " _END "%s" _END "\n", hypervisor);
 }

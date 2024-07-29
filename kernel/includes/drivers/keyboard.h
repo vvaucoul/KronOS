@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 16:45:05 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 01:26:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <kernel.h>
 #include <drivers/vga.h>
+#include <kernel.h>
 #include <system/io.h>
 #include <system/irq.h>
 #include <system/isr.h>
@@ -33,10 +33,14 @@
 #define KEYBOARD_LEFT_SHIFT 42
 #define KEYBOARD_RIGHT_SHIFT 54
 #define KEYBOARD_CAPS 58
+#define KEYBOARD_LEFT_CTRL 29
+#define KEYBOARD_RIGHT_CTRL 97
+#define KEYBOARD_LEFT_ALT 56
+#define KEYBOARD_RIGHT_ALT 100
 
 typedef enum e_kbd_lang {
-    KEYBOARD_LAYOUT_FR,
-    KEYBOARD_LAYOUT_EN
+	KEYBOARD_LAYOUT_FR,
+	KEYBOARD_LAYOUT_EN
 } kbd_lang_t;
 
 void keyboard_handler(struct regs *r);

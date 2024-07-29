@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 01:16:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 01:23:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,10 +190,11 @@ static int init_system_components(void) {
 		kernel_log_info("LOG", "CPU TOPOLOGY");
 	}
 
-	kpause();
 
 	keyboard_install();
 	kernel_log_info("LOG", "KEYBOARD");
+
+	// kpause();
 
 	enable_fpu();
 	kernel_log_info("LOG", "FPU");

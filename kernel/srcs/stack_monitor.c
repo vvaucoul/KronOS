@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 13:02:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 14:11:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 14:15:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,23 @@
  */
 uint32_t sm_get_stack_usage(void) {
 	uint32_t s_base, s_top, s_size;
+	uint32_t count = 0;
 
 	s_base = sm_get_stack_base();
 	s_top = sm_get_stack_top();
 	s_size = sm_get_stack_size();
 
-	return (s_size - (s_top - s_base));
+	for (uint32_t i = s_base; i < s_top && i < s_base + s_size; i += 4) {
+		uint32_t *ptr = (uint32_t *)i;
+
+		if (*ptr == sm_get_stack_marker()) {
+			break;
+		} else {
+			count++;
+		}
+	}
+
+	return (count);
 }
 
 /**
@@ -40,13 +51,12 @@ uint32_t sm_get_stack_usage(void) {
  * @return The percentage of stack usage.
  */
 uint32_t sm_get_stack_usage_percentage(void) {
-	uint32_t s_base, s_top, s_size;
+	uint32_t s_base, s_top, s_size, s_usage;
 
-	s_base = sm_get_stack_base();
-	s_top = sm_get_stack_top();
 	s_size = sm_get_stack_size();
+	s_usage = sm_get_stack_usage();
 
-	return ((s_size - (s_top - s_base)) * 100 / s_size);
+	return ((s_usage * 100) / s_size);
 }
 
 /**

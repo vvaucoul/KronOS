@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 14:12:35 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 14:16:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,7 +209,7 @@ static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstac
 	printk("\t- Top: 0x%x\n", s_top);
 	printk("\t- Size: 0x%x\n", s_size);
 	printk("\t- Usage: 0x%x\n", s_usage);
-	printk("\t- Usage Percentage: %u%%\n", s_usage_percentage);
+	printk("\t- Usage Percentage: %u % \n", s_usage_percentage);
 	
 
 

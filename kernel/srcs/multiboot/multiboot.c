@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 15:26:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 15:38:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multiboot/multiboot.h>
 #include <multiboot/multiboot_mmap.h>
 
-#include <memory/memory.h>
 #include <asm/asm.h>
+#include <memory/memory.h>
 
 #include <kernel.h>
 #include <macros.h>
@@ -60,24 +60,9 @@ static int multiboot_init_kernel_stack(uint32_t *kstack) {
 		return (1);
 	} else {
 		kernel_stack = kstack;
+		initial_esp = (uint32_t)(uintptr_t)kstack;
 	}
 
-
-	uint32_t s_base, s_top;
-
-	s_base = (uintptr_t)kstack;
-	s_top = (uintptr_t)kstack + KERNEL_STACK_SIZE;
-	
-	printk("Kernel stack: 0x%x -> 0x%x\n", s_base, s_top);
-
-	/* Set kernel stack marker */
-	for (uint32_t i = s_base; i < s_top; i += sizeof(uint32_t)) {
-		uint32_t *ptr = (uint32_t *)(uintptr_t)i;
-
-		if (*ptr == 0x0) {
-			*ptr = KERNEL_STACK_MARKER;
-		}
-	}
 	/**
 	 * Set kernel stack
 	 *

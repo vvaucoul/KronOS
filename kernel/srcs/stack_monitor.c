@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 13:02:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 14:15:06 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 14:31:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ uint32_t sm_get_stack_usage(void) {
 	s_top = sm_get_stack_top();
 	s_size = sm_get_stack_size();
 
-	for (uint32_t i = s_base; i < s_top && i < s_base + s_size; i += 4) {
-		uint32_t *ptr = (uint32_t *)i;
+	for (uint32_t i = s_base; i < s_top && i < s_base + s_size; i += sizeof(uint32_t)) {
+		uint32_t *ptr = (uint32_t *)(uintptr_t)i;
 
 		if (*ptr == sm_get_stack_marker()) {
 			break;
@@ -51,7 +51,7 @@ uint32_t sm_get_stack_usage(void) {
  * @return The percentage of stack usage.
  */
 uint32_t sm_get_stack_usage_percentage(void) {
-	uint32_t s_base, s_top, s_size, s_usage;
+	uint32_t s_size, s_usage;
 
 	s_size = sm_get_stack_size();
 	s_usage = sm_get_stack_usage();

@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 12:24:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 14:03:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <multiboot/multiboot.h>
+#include <multiboot/multiboot_mmap.h>
 
 #include <kernel.h>
 #include <macros.h>
@@ -51,13 +52,22 @@ static int multiboot_check_flag(uint32_t flag) {
 }
 
 static int multiboot_init_kernel_stack(uint32_t *kernel_stack) {
-	// Check if kernel stack is valid
+	/* Check if kernel stack is valid */
 	if (kernel_stack == NULL) {
 		return (1);
 	}
 
-	// Align stack to 4 bytes
-	__unused__ uint32_t stack_top = *(uint32_t *)kernel_stack + KERNEL_STACK_SIZE;
+	/* Set kernel stack marker */
+	uint32_t stack_top = *(uint32_t *)kernel_stack & 0xFFFFFFF0;
+
+	for (uint32_t i = 0; i <= KERNEL_STACK_SIZE; i += sizeof(uint32_t)) {
+		uint32_t stack_value = *(uint32_t *)((uintptr_t)(stack_top - i));
+
+		if (stack_value != 0) {
+			continue;
+		}
+		*(uint32_t *)((uintptr_t)stack_top - i) = KERNEL_STACK_MARKER;
+	}
 
 	/**
 	 * Set kernel stack
@@ -128,7 +138,7 @@ int multiboot_init(uint32_t magic_number, uint32_t addr, uint32_t *kernel_stack)
 	// 	__WARND("No VBE information available", 1);
 	// }
 
-    /* Initialize kernel stack */
+	/* Initialize kernel stack */
 	if ((multiboot_init_kernel_stack(kernel_stack)) != 0) {
 		__WARND("Failed to initialize kernel stack", 1);
 	}

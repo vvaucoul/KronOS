@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 12:42:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 12:59:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,10 +171,9 @@ static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstac
 	 * - Check Magic Number
 	 * - Check Multiboot Info
 	 * - Check Multiboot flags
-	 * ...
+	 * - Initialize kernel stack
 	 *
 	 */
-
 	if ((multiboot_init(magic_number, addr, kstack)) != 0) {
 		__PANIC("Error: multiboot_init failed");
 		__BSOD_UPDATE("Error: multiboot_init failed");
@@ -184,22 +183,12 @@ static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstac
 		const char *m_device = multiboot_get_device_name();
 		uint32_t m_mem_lower, m_mem_upper;
 
-		int m_sections_count;
-		memory_section_t sections[MAX_MEMORY_SECTIONS] = {0};
-
 		m_mem_lower = multiboot_get_mem_lower();
 		m_mem_upper = multiboot_get_mem_upper();
-		m_sections_count = get_available_memory_sections(sections, MAX_MEMORY_SECTIONS, get_multiboot_info());
 
 		printk("\t   - Device: " _GREEN "%s\n" _END, m_device);
 		printk("\t   - Memory: " _GREEN "%d KB (%ld MB)\n" _END, m_mem_lower + m_mem_upper, (m_mem_lower + m_mem_upper) / 1024);
-
-		printk("\t   - Available memory sections:\n");
-		for (int i = 0; i < m_sections_count; i++) {
-			printk("\t\t   Section %d: Addr: 0x%llx, Len: 0x%llx\n", i, sections[i].addr, sections[i].len);
-		}
-
-		print_kernel_sections();
+		printk("\t   - Kernel Stack: " _GREEN "%d KB\n" _END, KERNEL_STACK_SIZE / 1024);
 
 		kernel_log_info("LOG", "MULTIBOOT");
 	}

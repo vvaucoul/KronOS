@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 11:33:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 12:26:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 13:58:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <stdint.h>
 
+#define KERNEL_STACK_MARKER 0x4B52304E // KRONOST (KRONOS STACK)
 #define MAX_MEMORY_SECTIONS 10
 
 // Structure describing an available memory section

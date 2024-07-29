@@ -118,7 +118,8 @@
 			"unistd.h": "c",
 			"multiboot_mmap.h": "c",
 			"backtrace.h": "c",
-			"sections.h": "c"
+			"sections.h": "c",
+			"stack_monitor.h": "c"
 		}
 	}
 }

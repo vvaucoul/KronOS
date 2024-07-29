@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 15:36:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 15:39:28 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,42 +132,6 @@ void kernel_log_info(const char *part, const char *name) {
 // ! ||--------------------------------------------------------------------------------||
 
 static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
-	// 	/* Check Magic Number and assign multiboot info */
-	// 	if (multiboot_check_magic_number(magic_number) == false) {
-	// 		return (__BSOD_UPDATE("Multiboot Magic Number is invalid") | 1);
-	// 	}
-
-	// 	kpause();
-
-	// #if __HIGHER_HALF_KERNEL__ == true
-	// 	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr + KERNEL_VIRTUAL_BASE));
-	// #else
-	// 	__multiboot_info = (MultibootInfo *)((uint32_t *)((uint32_t)addr));
-	// #endif
-
-	// 	if (__multiboot_info == NULL)
-	// 		return (__BSOD_UPDATE("Multiboot Info is invalid") | 1);
-	// 	printk("       - "_YELLOW
-	// 		   "[LOG] " _END "- "_END _GREEN "[CHK] " _END "MULTIBOOT: "_GREEN
-	// 		   "0x%x " _END "\n" _END,
-	// 		   __multiboot_info);
-
-	// 	if (multiboot_init(__multiboot_info))
-	// 		return (__BSOD_UPDATE("Error: multiboot_init failed") | 1);
-	// 	kernel_log_info("LOG", "MULTIBOOT");
-	// 	if (get_memory_map(__multiboot_info))
-	// 		return (__BSOD_UPDATE("Error: kernel memory map failed") | 1);
-	// 	kernel_log_info("LOG", "KERNEL MEMORY MAP");
-
-	// 	kernel_stack = kstack;
-	// 	initial_esp = (uint32_t)kstack;
-	// 	uint32_t kernel_stack_size = (uint32_t)kernel_stack / 1024 / 1024;
-	// 	printk("       - "_YELLOW
-	// 		   "[LOG] " _END "- "_END _GREEN "[INIT] " _END "STACK: "_GREEN
-	// 		   "%u MB " _END "(%u bytes)\n" _END,
-	// 		   kernel_stack_size, kernel_stack);
-	// 	return (0);
-
 	/**
 	 * Init Multiboot
 	 *

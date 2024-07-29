@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/27 17:36:21 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/05/31 18:46:53 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/29 15:21:05 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ BOOT_DIR_ERROR 	=	$(KERNEL_BOOT_DIR)/errors
 MULTIBOOT_DIR	=	$(KERNEL_BOOT_DIR)/multiboot
 
 KBOOT_SRCS		=	$(BOOT).s \
+					$(KERNEL_BOOT_DIR)/stack.s \
 					$(BOOT_DIR_ERROR)/boot_error.s
 
 ifeq ($(CHECK_HIGHER_HALF_KERNEL), false)

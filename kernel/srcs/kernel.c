@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 14:16:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 15:36:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@
 #endif
 
 uint32_t initial_esp;
-uint32_t *kernel_stack = NULL;
+uint32_t *kernel_stack;
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                             KERNEL UTILS FUNCTIONS                             ||
@@ -195,23 +195,6 @@ static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstac
 
 		kernel_log_info("LOG", "MULTIBOOT");
 	}
-
-	uint32_t s_base, s_top, s_size, s_usage, s_usage_percentage;
-
-	s_base = sm_get_stack_base();
-	s_top = sm_get_stack_top();
-	s_size = sm_get_stack_size();
-	s_usage = sm_get_stack_usage();
-	s_usage_percentage = sm_get_stack_usage_percentage();
-
-	printk(_YELLOW "Stack Info:\n" _END);
-	printk("\t- Base: 0x%x\n", s_base);
-	printk("\t- Top: 0x%x\n", s_top);
-	printk("\t- Size: 0x%x\n", s_size);
-	printk("\t- Usage: 0x%x\n", s_usage);
-	printk("\t- Usage Percentage: %u % \n", s_usage_percentage);
-	
-
 
 	kpause();
 	return (0);

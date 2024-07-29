@@ -6,13 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 13:02:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 14:31:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/29 15:36:02 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <kernel.h>
 #include <kronos/stack_monitor.h>
 #include <multiboot/multiboot_mmap.h>
+
+#include <memory/memory.h>
 
 /**
  * @brief Get the stack usage.
@@ -22,24 +24,21 @@
  * @return The stack usage in bytes.
  */
 uint32_t sm_get_stack_usage(void) {
-	uint32_t s_base, s_top, s_size;
+	uint32_t s_base = sm_get_stack_base();
+	uint32_t s_top = sm_get_stack_top();
 	uint32_t count = 0;
 
-	s_base = sm_get_stack_base();
-	s_top = sm_get_stack_top();
-	s_size = sm_get_stack_size();
-
-	for (uint32_t i = s_base; i < s_top && i < s_base + s_size; i += sizeof(uint32_t)) {
+	for (uint32_t i = s_base; i < s_top; i += sizeof(uint32_t)) {
 		uint32_t *ptr = (uint32_t *)(uintptr_t)i;
 
-		if (*ptr == sm_get_stack_marker()) {
-			break;
-		} else {
+		if (*ptr != KERNEL_STACK_MARKER) {
 			count++;
+		} else {
+			break;
 		}
 	}
 
-	return (count);
+	return count * sizeof(uint32_t);
 }
 
 /**
@@ -51,12 +50,15 @@ uint32_t sm_get_stack_usage(void) {
  * @return The percentage of stack usage.
  */
 uint32_t sm_get_stack_usage_percentage(void) {
-	uint32_t s_size, s_usage;
+	uint32_t s_size = sm_get_stack_size();
+	uint32_t s_usage = sm_get_stack_usage();
 
-	s_size = sm_get_stack_size();
-	s_usage = sm_get_stack_usage();
+	/* Avoid division by zero */
+	if (s_size == 0) {
+		return 0;
+	}
 
-	return ((s_usage * 100) / s_size);
+	return (s_usage * 100) / s_size;
 }
 
 /**
@@ -67,7 +69,7 @@ uint32_t sm_get_stack_usage_percentage(void) {
  * @return The size of the stack in bytes.
  */
 uint32_t sm_get_stack_size(void) {
-	return (KERNEL_STACK_SIZE);
+	return (sm_get_stack_top() - sm_get_stack_base());
 }
 
 /**
@@ -78,10 +80,7 @@ uint32_t sm_get_stack_size(void) {
  * @return The base address of the stack.
  */
 uint32_t sm_get_stack_base(void) {
-	uint32_t esp;
-
-	__asm__ volatile("mov %%esp, %0" : "=r"(esp));
-	return (esp);
+	return (uintptr_t)kernel_stack;
 }
 
 /**
@@ -92,10 +91,7 @@ uint32_t sm_get_stack_base(void) {
  * @return The top address of the stack.
  */
 uint32_t sm_get_stack_top(void) {
-	uint32_t esp;
-
-	__asm__ volatile("mov %%esp, %0" : "=r"(esp));
-	return (esp + KERNEL_STACK_SIZE);
+	return (uintptr_t)kernel_stack + KERNEL_STACK_SIZE;
 }
 
 /**
@@ -116,13 +112,11 @@ uint32_t sm_get_stack_marker(void) {
  * It can be used to monitor the stack usage in a program.
  */
 void sm_print_stack_info(void) {
-	uint32_t s_base, s_top, s_size, s_usage, s_usage_percentage;
-
-	s_base = sm_get_stack_base();
-	s_top = sm_get_stack_top();
-	s_size = sm_get_stack_size();
-	s_usage = sm_get_stack_usage();
-	s_usage_percentage = sm_get_stack_usage_percentage();
+	uint32_t s_base = sm_get_stack_base();
+	uint32_t s_top = sm_get_stack_top();
+	uint32_t s_size = sm_get_stack_size();
+	uint32_t s_usage = sm_get_stack_usage();
+	uint32_t s_usage_percentage = sm_get_stack_usage_percentage();
 
 	printk(_YELLOW "Stack Info:\n" _END);
 	printk("\t- Base: 0x%x\n", s_base);

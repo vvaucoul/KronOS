@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 14:00:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:58:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -390,8 +390,8 @@ int32_t kill_task(int32_t pid) {
     if (tmp_task->ppid != 0) {
         /* If its stack is reachable, delete it */
         if (tmp_task->kernel_stack) {
-            // kfree((void *)tmp_task->kernel_stack);
-            kfree_debug((void *)tmp_task->kernel_stack);
+            kfree((void *)tmp_task->kernel_stack);
+            // kfree_debug((void *)tmp_task->kernel_stack);
             tmp_task->kernel_stack = 0x0;
         }
 

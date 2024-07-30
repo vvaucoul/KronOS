@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:08:45 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 23:54:54 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:49:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ struct idt_entry {
 /* Defines a pointer to an array of interrupt handlers */
 struct idt_ptr {
 	uint16_t limit;
-	uint32_t base;
+	uintptr_t base;
 } __attribute__((packed));
 
 /* This exists in 'start.asm', and is used to load our IDT */
@@ -39,7 +39,5 @@ extern void idt_set_gate(uint8_t num, uint32_t base, uint16_t selector, uint8_t 
 
 extern void push_regs(void);
 extern void pop_regs(void);
-
-void print_idt_entry(uint8_t num);
 
 #endif /* !IDT_H */

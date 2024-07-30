@@ -3,8 +3,6 @@
 global idt_load
 
 idt_load:
-    cli ; Disable interrupts
     mov eax, [esp + 4]
     lidt [eax] ; Load IDT
-    sti ; Enable interrupts
     ret

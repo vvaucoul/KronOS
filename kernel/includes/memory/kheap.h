@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 12:27:24 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 23:18:42 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,15 +21,15 @@
 #include <stdint.h>
 
 #define KHEAP_START 0xC0000000
-#define KHEAP_MAX_SIZE 0xCFFFF000 
+#define KHEAP_MAX_SIZE 0xCFFFF000
 #define KHEAP_INITIAL_SIZE 0x100000 // 1MB initial size
 #define KHEAP_MAGIC 0x123890AB
 #define HEAP_INDEX_SIZE 0x20000
 #define HEAP_MIN_SIZE 0x70000
 
 enum kheap_block_status {
-    USED,
-    FREE
+	USED,
+	FREE
 };
 
 /* Magic Number: Sentinel Number
@@ -39,43 +39,40 @@ enum kheap_block_status {
 typedef void *data_t;
 
 typedef struct s_heap_header {
-    uint32_t magic;
-    enum kheap_block_status state;
-    uint32_t size;
+	uint32_t magic;
+	enum kheap_block_status state;
+	uint32_t size;
 } heap_header_t;
 
 typedef struct s_heap_footer {
-    uint32_t magic;
-    heap_header_t *header;
+	uint32_t magic;
+	heap_header_t *header;
 } heap_footer_t;
 
 typedef bool (*heap_node_predicate_t)(data_t, data_t);
 
 typedef struct s_heap_array {
-    data_t *array;
-    uint32_t size;
-    uint32_t max_size;
-    heap_node_predicate_t predicate;
+	data_t *array;
+	uint32_t size;
+	uint32_t max_size;
+	heap_node_predicate_t predicate;
 } heap_array_t;
 
 typedef struct s_heap {
-    heap_array_t array;
-    struct
-    {
-        uint32_t start_address;
-        uint32_t end_address;
-        uint32_t max_address;
-    } addr;
+	heap_array_t array;
+	struct
+	{
+		uint32_t start_address;
+		uint32_t end_address;
+		uint32_t max_address;
+	} addr;
 
-    struct
-    {
-        uint8_t supervisor;
-        uint8_t readonly;
-    } flags;
+	struct
+	{
+		uint8_t supervisor;
+		uint8_t readonly;
+	} flags;
 } heap_t;
-
-extern heap_t *kheap;
-extern uint32_t placement_addr;
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                               INTERFACE FUNCTIONS                              ||
@@ -118,6 +115,9 @@ extern void vfree(void *addr);
 extern void *vrealloc(void *addr, uint32_t size);
 extern void *vcalloc(uint32_t count, uint32_t size);
 extern uint32_t vsize(void *addr);
+
+extern uint32_t get_placement_address(void);
+extern void set_placement_address(uint32_t addr);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                   HEAP ARRAY                                   ||

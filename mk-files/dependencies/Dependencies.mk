@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 20:39:54 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/21 19:52:28 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/31 01:42:27 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ install-dependencies:
 	@sudo apt-get install mtools -y
 	@sudo apt-get install xorriso -y
 	@sudo apt-get install ccache -y
-	@sudo apt-get install clang clang-15 -y
+	@sudo apt-get install clang clang-15 gcc-12 -y
 	@sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager -y
 	@sudo usermod -aG libvirt $(USER)
 	@sudo apt-get update && sudo apt-get upgrade -y

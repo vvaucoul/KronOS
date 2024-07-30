@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/30 14:25:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:59:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -412,7 +412,7 @@ void init_paging(void) {
         create_page(i, kernel_directory);
     }
 
-    for (uint32_t i = 0; i < (placement_addr + PAGE_SIZE); i += PAGE_SIZE) {
+    for (uint32_t i = 0; i < (get_placement_address() + PAGE_SIZE); i += PAGE_SIZE) {
         page_t *page = get_page(i, kernel_directory);
         if (!page) {
             page = create_page(i, kernel_directory);

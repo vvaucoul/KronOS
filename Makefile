@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/29 14:35:42 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/31 01:26:35 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,11 +44,11 @@ LD					=	ld
 INLCUDES_PATH		=	-I./kernel/includes/ \
 						-I./userspace/includes/ \
 						-I./$(LIBKFS_DIR)/$(LIBKFS_DIR)/include
-CFLAGS				=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration \
+CFLAGS				=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration -Wincompatible-pointer-types \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs -nostdinc \
 						-std=c2x -ffreestanding -O2 #-Werror
-CXXFLAGS			=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration \
+CXXFLAGS			=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration -Wincompatible-pointer-types \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-fno-rtti -nostdlib -nodefaultlibs -nostdinc \
 						-std=c++17 -ffreestanding -O2 #-Werror
@@ -76,14 +76,6 @@ ifeq ($(CCACHE_INSTALLED), false)
 	CCACHE			=	./$(DEPENDENCIES_DIR)/$(CCACHE_DIR)/ccache
 else
 	CCACHE 			=	ccache
-endif
-
-ifeq ($(CLANG_INSTALLED), false)
-	CC				=	$(CCACHE) gcc
-	CXX				=	$(CCACHE) g++
-else
-	CC				=	$(CCACHE) clang-15
-	CXX				=	$(CCACHE) clang++
 endif
 
 DEPENDS				=	$(KOBJS:.o=.d)

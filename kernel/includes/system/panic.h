@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/26 22:37:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:14:59 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ typedef enum e_panic_type {
  *                                PANIC MACROS                                 *
  ******************************************************************************/
 
-static bool __panic_handler = false;
+extern bool __panic_handler;
 #define __DISPLAY_HEADER__()            \
     {                                   \
         if (__panic_handler == false) { \
@@ -79,7 +79,8 @@ static bool __panic_handler = false;
  ******************************************************************************/
 
 extern void kernel_panic(const char *str);
-extern __attribute__((no_caller_saved_registers)) void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code);
+// extern __attribute__((no_caller_saved_registers)) void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code);
+extern void kernel_panic_interrupt(const char *str, uint32_t index, panic_t fault, uint32_t code);
 extern void kernel_panic_multistr(const char *str[], size_t count);
 
 /*******************************************************************************

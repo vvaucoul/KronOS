@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 22:07:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 22:55:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,7 @@ void flush_tlb_entry(uint32_t addr);
 
 page_t *create_user_page(uint32_t address, uint32_t end_addr, page_directory_t *dir);
 void destroy_user_page(page_t *page, page_directory_t *dir);
+page_t *map_page(uint32_t phys_addr, uint32_t flags, page_directory_t *dir);
 
 page_directory_t *clone_page_directory(page_directory_t *dir);
 page_table_t *clone_table(page_table_t *src, uint32_t *physAddr);

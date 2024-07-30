@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 12:25:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:34:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 
 #include <multiboot/multiboot_mmap.h>
 
-uint32_t placement_addr = (uint32_t)(uint32_t *)(&__kernel_section_end);
-heap_t *kheap = NULL;
+static uint32_t placement_addr = (uint32_t)(uint32_t *)(&__kernel_section_end);
+static heap_t *kheap = NULL;
 
 static void *__kbrk(uint32_t size) {
     if (size == 0)
@@ -196,6 +196,15 @@ void *kbrk_v(uint32_t size) {
 uint32_t ksize(void *ptr) {
     return __ksize(ptr);
 }
+
+uint32_t get_placement_address(void) {
+    return placement_addr;
+}
+
+void set_placement_address(uint32_t addr) {
+    placement_addr = addr;
+}
+
 
 // Debug functions
 

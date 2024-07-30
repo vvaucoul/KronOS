@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 11:28:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 16:18:22 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/irq.h>
+#include <asm/asm.h>
 
 /* External declarations for IRQ handlers */
 extern void irq0();
@@ -43,7 +44,7 @@ static void (*irq_routines[16])(struct regs *r) = {0};
  * @param irq The IRQ number to send EOI signal for.
  */
 void pic8259_send_eoi(uint8_t irq) {
-	if (irq >= 0x28) {
+	if (irq >= 0x0C) {
 		outportb(SLAVE_PIC, IRQ_EOI); /* Send reset signal to slave */
 	}
 	outportb(MASTER_PIC, IRQ_EOI); /* Send reset signal to master */
@@ -133,15 +134,9 @@ void irq_install(void) {
 
 	/* Set the IDT entries for IRQs */
 	for (int i = 0; i < 16; ++i) {
-		idt_set_gate(32 + i, (uint32_t)(uintptr_t)isq_fn[i], IDT_SELECTOR, IDT_FLAG_GATE);
+		idt_set_gate(32 + i, (uint32_t)(isq_fn[i]), IDT_SELECTOR, IDT_FLAG_GATE);
 	}
 
-	/* Clear the IRQ routines */
-	memset(irq_routines, 0, sizeof(irq_routines));
-
-	/* Enable IRQs */
-	// outportb(MASTER_DATA, 0x0);
-	// outportb(SLAVE_DATA, 0x0);
 }
 
 /**
@@ -154,6 +149,7 @@ void irq_install(void) {
  * @param r A pointer to a `struct regs` object containing the register values at the time of the interrupt.
  */
 void irq_handler(struct regs *r) {
+	ASM_CLI();
 	if (r->int_no >= 32 && r->int_no < 48) {
 		uint8_t irq = r->int_no - 32;
 		void (*handler)(struct regs *r) = irq_routines[irq];
@@ -162,4 +158,5 @@ void irq_handler(struct regs *r) {
 		}
 		pic8259_send_eoi(irq);
 	}
+	ASM_STI();
 }

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 00:45:00 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:17:33 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +73,18 @@ static void isr_register(uint8_t index, const char *name, isr_code_t code, panic
  *
  * @param r Pointer to the interrupt registers.
  */
+#if defined(__GNUC__)
+static void isr_display_interrupt_frame(t_regs *r) {
+#elif defined(__clang__)
 static __attribute__((no_caller_saved_registers)) void isr_display_interrupt_frame(t_regs *r) {
+#endif
 
 	/**
 	 * Function with attribute 'no_caller_saved_registers' should only call a function with attribute 'no_caller_saved_registers'
 	 * Check: -mgeneral-regs-only
 	 */
 
-	printk("Interrupt Frame:\n");
+	printk(_END "\nInterrupt Frame:\n");
 	printk("------------------------------------------------\n");
 	printk("General Purpose Registers:\n");
 	printk("  EAX: 0x%08x  EBX: 0x%08x  ECX: 0x%08x  EDX: 0x%08x\n", r->eax, r->ebx, r->ecx, r->edx);

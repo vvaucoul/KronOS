@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 11:58:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 01:55:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -358,14 +358,46 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	if (get_multiboot_info()->mods_count > 0) {
 		initrd_location = *((uint32_t *)(uintptr_t)get_multiboot_info()->mods_addr);
 		initrd_end = *(uintptr_t *)((uintptr_t)get_multiboot_info()->mods_addr + 4);
-		placement_addr = initrd_end;
+		// placement_addr = initrd_end;
+		set_placement_address(initrd_end);
+
+		printk("\t   - Initrd Location: " _GREEN);
+		printk("0x%x\n" _END, initrd_location);
+		printk("\t   - Initrd End: " _GREEN);
+		printk("0x%x\n" _END, initrd_end);
 	} else {
 		__WARND("No multiboot modules found, kernel will not use initrd.");
 	}
-
 	init_paging();
 	kernel_log_info("LOG", "PAGING");
 	kernel_log_info("LOG", "HEAP");
+
+	goto jmp;
+
+	printk("Heap test \n");
+	reboot();
+	ksleep(1);
+
+	// kheap_test();
+	kpause();
+
+	uint32_t i = 0, size = 0;
+	while (1) {
+		uint32_t *ptr = kmalloc(100000);
+		if (ptr == NULL) {
+			__PANIC("Error: kmalloc failed");
+		}
+
+		size += 100000;
+		printk("Allocated: 0x%x [%ld] - [%ld KB]\n", ptr, i, size / 1024);
+
+		kmsleep(5);
+		i++;
+	}
+
+	kpause();
+
+jmp:
 
 	init_syscall();
 	kernel_log_info("LOG", "SYSCALL");

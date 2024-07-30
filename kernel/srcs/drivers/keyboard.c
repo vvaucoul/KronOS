@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 11:24:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 11:34:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 static bool kbd_uppercase = false;
 static bool kbd_ctrl = false;
 static bool kbd_alt = false;
+static bool kbd_capslock = false;
 static kbd_lang_t kbd_language = KEYBOARD_LAYOUT_EN;
 
 /* en-US Keyboard Layout */
@@ -185,6 +186,7 @@ static bool scancode_handler(uint8_t scancode, int pressed) {
 			case KEY_RIGHTCTRL: kbd_ctrl = true; return true;
 			case KEY_LEFTALT: kbd_alt = true; return true;
 			case KEY_RIGHTALT: kbd_alt = true; return true;
+			case KEY_CAPSLOCK: kbd_capslock = !kbd_capslock; return true; // Toggle caps lock
 			default: break;
 		}
 	} else {
@@ -247,6 +249,9 @@ void keyboard_handler(__unused__ struct regs *r) {
 			/* Get the key from the scancode */
 			char key = get_keyboard_codes()[scancode];
 			if (key) {
+				if (kbd_capslock && isalpha(key)) {
+					key = toupper(key);
+				}
 				kbd_buffer_insert(kbd_uppercase ? toupper(key) : key);
 			}
 		}

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:56:00 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 01:02:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 11:28:40 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,11 +128,20 @@ static void irq_remap(void) {
  *       handling of IRQs.
  */
 void irq_install(void) {
+	/* Remap the IRQs */
 	irq_remap();
 
+	/* Set the IDT entries for IRQs */
 	for (int i = 0; i < 16; ++i) {
 		idt_set_gate(32 + i, (uint32_t)(uintptr_t)isq_fn[i], IDT_SELECTOR, IDT_FLAG_GATE);
 	}
+
+	/* Clear the IRQ routines */
+	memset(irq_routines, 0, sizeof(irq_routines));
+
+	/* Enable IRQs */
+	// outportb(MASTER_DATA, 0x0);
+	// outportb(SLAVE_DATA, 0x0);
 }
 
 /**

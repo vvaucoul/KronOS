@@ -6,43 +6,119 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:56:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 01:28:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 11:24:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/keyboard.h>
-#include <shell/ksh.h>
 #include <shell/ksh_termcaps.h>
 #include <system/irq.h>
 
 #include <ctype.h>
+#include <macros.h>
 
-static bool __keyboard_uppercase = false;
-static bool __keyboard_ctrl = false;
-static bool __keyboard_alt = false;
-static kbd_lang_t __keyboard_lang = KEYBOARD_LAYOUT_EN;
+static bool kbd_uppercase = false;
+static bool kbd_ctrl = false;
+static bool kbd_alt = false;
+static kbd_lang_t kbd_language = KEYBOARD_LAYOUT_EN;
 
-static const unsigned char kbdus[128] = {
+/* en-US Keyboard Layout */
+static const uint8_t kbdus[128] = {
 	0, 27, '1', '2', '3', '4', '5', '6', '7', '8',
 	'9', '0', '-', '=', '\b',
 	'\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0,
-	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', KEYBOARD_LEFT_SHIFT,
-	'\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', KEYBOARD_RIGHT_SHIFT,
-	'*', 0, ' ', KEYBOARD_CAPS, KEYBOARD_F1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-',
+	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', KEY_LEFTSHIFT,
+	'\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', KEY_RIGHTSHIFT,
+	'*', 0, ' ', KEY_CAPSLOCK, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, 0, 0, '-',
 	0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-static const unsigned char kbdfr[128] = {
+static const uint8_t kbdus_shift[128] = {
+	0, 27, '!', '@', '#', '$', '%', '^', '&', '*',
+	'(', ')', '_', '+', '\b',
+	'\t', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', 0,
+	'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', KEY_LEFTSHIFT,
+	'|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', KEY_RIGHTSHIFT,
+	'*', 0, ' ', KEY_CAPSLOCK, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, 0, 0, '-',
+	0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+/* fr-FR Keyboard Layout */
+static const uint8_t kbdfr[128] = {
 	0, 27, '&', 0xE9, '"', '\'', '(', '-', 0xE8, '_',
 	0xE7, 0xE0, ')', '=', '\b',
 	'\t', 'a', 'z', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '^', '$', '\n', 0,
-	'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 0xF9, '*', KEYBOARD_LEFT_SHIFT,
-	'<', 'w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '!', KEYBOARD_RIGHT_SHIFT,
-	0, 0, ' ', KEYBOARD_CAPS, KEYBOARD_F1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-',
+	'q', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 0xF9, '*', KEY_LEFTSHIFT,
+	'<', 'w', 'x', 'c', 'v', 'b', 'n', ',', ';', ':', '!', KEY_RIGHTSHIFT,
+	0, 0, ' ', KEY_CAPSLOCK, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, 0, 0, '-',
 	0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-static const unsigned char *get_keyboard_codes(void) {
-	return (__keyboard_lang == KEYBOARD_LAYOUT_FR) ? kbdfr : kbdus;
+static const uint8_t kbdfr_shift[128] = {
+	0, 27, '1', '2', '3', '4', '5', '6', '7', '8',
+	'9', '0', (uint8_t)0xA8, '+', '\b',
+	'\t', 'A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', (uint8_t)0xA8, '*', '\n', 0,
+	'Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', '%', (uint8_t)0xB5, KEY_LEFTSHIFT,
+	'>', 'W', 'X', 'C', 'V', 'B', 'N', '?', '.', '/', (uint8_t)0xA7, KEY_RIGHTSHIFT,
+	'*', 0, ' ', KEY_CAPSLOCK, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, 0, 0, '-',
+	0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+static const uint8_t *get_keyboard_codes(void) {
+	if (kbd_uppercase) {
+		switch (kbd_language) {
+			case KEYBOARD_LAYOUT_FR:
+				return kbdfr_shift;
+			default:
+				return kbdus_shift;
+		}
+	} else {
+		switch (kbd_language) {
+			case KEYBOARD_LAYOUT_FR:
+				return kbdfr;
+			default:
+				return kbdus;
+		}
+	}
 }
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                 Keyboard Buffer                                ||
+// ! ||--------------------------------------------------------------------------------||
+
+static char kbd_buffer[KBD_BUFFER_SIZE];
+static int kbd_buffer_head = 0;
+static int kbd_buffer_tail = 0;
+
+/**
+ * @brief Insert a character into the keyboard buffer.
+ *
+ * This function is responsible for adding a character to the keyboard buffer.
+ *
+ * @param c The character to be added to the buffer.
+ */
+static void kbd_buffer_insert(char c) {
+	kbd_buffer[kbd_buffer_head] = c;
+	kbd_buffer_head = (kbd_buffer_head + 1) % KBD_BUFFER_SIZE;
+	if (kbd_buffer_head == kbd_buffer_tail) {
+		// Buffer overflow, advance the tail
+		kbd_buffer_tail = (kbd_buffer_tail + 1) % KBD_BUFFER_SIZE;
+	}
+}
+
+/**
+ * Retrieves a character from the keyboard buffer.
+ *
+ * @return The character retrieved from the keyboard buffer.
+ */
+static char kbd_buffer_get(void) {
+	if (kbd_buffer_head == kbd_buffer_tail) {
+		return 0; // Buffer is empty
+	}
+	char c = kbd_buffer[kbd_buffer_tail];
+	kbd_buffer_tail = (kbd_buffer_tail + 1) % KBD_BUFFER_SIZE;
+	return c;
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                 Keyboard Layout                                ||
+// ! ||--------------------------------------------------------------------------------||
 
 /**
  * Sets the keyboard layout to the specified language.
@@ -50,72 +126,80 @@ static const unsigned char *get_keyboard_codes(void) {
  * @param lang The language to set the keyboard layout to.
  */
 void keyboard_set_layout(kbd_lang_t lang) {
-	__keyboard_lang = lang;
+	kbd_language = lang;
 	printk("\t   Keyboard layout set to "_GREEN
 		   "%s"_END
 		   "\n",
 		   lang == KEYBOARD_LAYOUT_EN ? "EN" : "FR");
 }
 
-static bool scancode_handler(unsigned char scancode) {
-	if (!ksh_is_running())
-		return false;
+/**
+ * @brief Retrieves the status of the uppercase mode of the keyboard.
+ *
+ * This function returns the current status of the uppercase mode of the keyboard.
+ *
+ * @return The status of the uppercase mode of the keyboard.
+ */
+int kbd_uppercase_status(void) {
+	return kbd_uppercase;
+}
 
-	switch (scancode) {
-	case KEYBOARD_KEY_ESCAPE:
-		poweroff();
-		return true;
-	case KEYBOARD_KEY_BACK:
-		ksh_del_one();
-		return true;
-	case KEYBOARD_KEY_ARROW_LEFT:
-		ksh_move_cursor_left();
-		return true;
-	case KEYBOARD_KEY_ARROW_RIGHT:
-		ksh_move_cursor_right();
-		return true;
-	case KEYBOARD_KEY_ARROW_DOWN:
-		ksh_move_cursor_down();
-		return true;
-	case KEYBOARD_KEY_ARROW_TOP:
-		ksh_move_cursor_up();
-		return true;
-	case KEYBOARD_KEY_ENTER:
-		ksh_new_line();
-		return true;
-	case KEYBOARD_KEY_SUPPR:
-		ksh_suppr_char();
-		return true;
-	case KEYBOARD_F1:
-		reboot();
-		return true;
-	case KEYBOARD_LEFT_SHIFT:
-	case KEYBOARD_RIGHT_SHIFT:
-		__keyboard_uppercase = true;
-		return true;
-	case KEYBOARD_CAPS:
-		__keyboard_uppercase = !__keyboard_uppercase;
-		return true;
-	case KEYBOARD_LEFT_CTRL:
-		__keyboard_ctrl = true;
-		return true;
-	case KEYBOARD_RIGHT_CTRL:
-		__keyboard_ctrl = true;
-		return true;
-	case KEYBOARD_LEFT_ALT:
-		__keyboard_alt = true;
-		return true;
-	case KEYBOARD_RIGHT_ALT:
-		__keyboard_alt = true;
-		return true;
-	default:
-		break;
+/**
+ * @brief Retrieves the control status of the keyboard.
+ *
+ * This function returns the control status of the keyboard.
+ *
+ * @return The control status of the keyboard.
+ */
+int kbd_ctrl_status(void) {
+	return kbd_ctrl;
+}
+
+/**
+ * @brief Retrieves the status of the Alt key on the keyboard.
+ *
+ * This function returns the status of the Alt key on the keyboard.
+ *
+ * @return The status of the Alt key.
+ */
+int kbd_alt_status(void) {
+	return kbd_alt;
+}
+
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                scan code handler                               ||
+// ! ||--------------------------------------------------------------------------------||
+
+/**
+ * Handles the given scancode.
+ *
+ * @param scancode The scancode to be handled.
+ * @return True if the scancode was successfully handled, false otherwise.
+ */
+static bool scancode_handler(uint8_t scancode, int pressed) {
+	if (pressed) {
+		switch (scancode) {
+			case KEY_LEFTSHIFT: kbd_uppercase = true; return true;
+			case KEY_RIGHTSHIFT: kbd_uppercase = true; return true;
+			case KEY_LEFTCTRL: kbd_ctrl = true; return true;
+			case KEY_RIGHTCTRL: kbd_ctrl = true; return true;
+			case KEY_LEFTALT: kbd_alt = true; return true;
+			case KEY_RIGHTALT: kbd_alt = true; return true;
+			default: break;
+		}
+	} else {
+		switch (scancode) {
+			case KEY_LEFTSHIFT: kbd_uppercase = false; return true;
+			case KEY_RIGHTSHIFT: kbd_uppercase = false; return true;
+			case KEY_LEFTCTRL: kbd_ctrl = false; return true;
+			case KEY_RIGHTCTRL: kbd_ctrl = false; return true;
+			case KEY_LEFTALT: kbd_alt = false; return true;
+			case KEY_RIGHTALT: kbd_alt = false; return true;
+			default: break;
+		}
 	}
 	return false;
 }
-
-volatile char lastKey = 0;
-volatile bool keyReceived = false;
 
 /**
  * @brief Retrieves a character from the keyboard input buffer.
@@ -125,10 +209,12 @@ volatile bool keyReceived = false;
  * @return The character read from the keyboard input buffer.
  */
 int getchar(void) {
-	keyReceived = false;
-	while (!keyReceived)
-		;
-	return lastKey;
+	char c;
+
+	while ((c = kbd_buffer_get()) == 0) {
+		__asm__ volatile("hlt");
+	}
+	return (int)c;
 }
 
 /**
@@ -140,44 +226,28 @@ int getchar(void) {
  *
  * @param r A pointer to a struct regs containing the register values at the time of the interrupt.
  */
-void keyboard_handler(struct regs *r) {
-	(void)r;
-	unsigned char scancode = inportb(0x60);
+void keyboard_handler(__unused__ struct regs *r) {
+	uint8_t scancode = inb(KBD_DATA_PORT);
 
+	/* Check if the key was released */
 	if (scancode & 0x80) {
-		unsigned char keycode = scancode & 0x7F;
-		char key = get_keyboard_codes()[keycode];
-		if (key) {
-			lastKey = key;
-			keyReceived = true;
-		}
-		switch (keycode) {
-		case KEYBOARD_LEFT_SHIFT:
-		case KEYBOARD_RIGHT_SHIFT:
-			__keyboard_uppercase = false;
-			break;
-		case KEYBOARD_LEFT_CTRL:
-			__keyboard_ctrl = false;
-			break;
-		case KEYBOARD_RIGHT_CTRL:
-			__keyboard_ctrl = false;
-			break;
-		case KEYBOARD_LEFT_ALT:
-			__keyboard_alt = false;
-			break;
-		case KEYBOARD_RIGHT_ALT:
-			__keyboard_alt = false;
-			break;
-		default:
-			break;
-		}
-	} else {
-		if (!scancode_handler(scancode)) {
+		uint8_t keycode = scancode & 0x7F;
+
+		/* Handle the key release */
+		scancode_handler(keycode, false);
+	}
+	/* Check if the key was pressed */
+	else {
+		/**
+		 * Check if the scancode is a special key (e.g. shift, ctrl, alt, etc.)
+		 * We don't want to add these to the buffer, so we handle them separately.
+		 */
+		if (!scancode_handler(scancode, true)) {
+
+			/* Get the key from the scancode */
 			char key = get_keyboard_codes()[scancode];
-			if (isalpha(key)) {
-				ksh_write_char(__keyboard_uppercase ? toupper(key) : key);
-			} else {
-				ksh_write_char(key);
+			if (key) {
+				kbd_buffer_insert(kbd_uppercase ? toupper(key) : key);
 			}
 		}
 	}

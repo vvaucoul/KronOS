@@ -119,7 +119,8 @@
 			"multiboot_mmap.h": "c",
 			"backtrace.h": "c",
 			"sections.h": "c",
-			"stack_monitor.h": "c"
+			"stack_monitor.h": "c",
+			"ctype.h": "c"
 		}
 	}
 }

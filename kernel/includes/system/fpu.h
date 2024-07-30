@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fpu.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+        */
+/*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/04 16:53:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2022/12/09 22:34:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/30 11:50:03 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #define __FPU_INVALID_OPERAND 0x37E
 #define __FPU_DIVIDE_BY_ZERO 0x37A
 
-/* Enable Float Point Units */
+int fpu_is_present(void);
 void enable_fpu(void);
 
 #endif /* !FPU_H */

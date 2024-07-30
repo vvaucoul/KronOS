@@ -120,7 +120,8 @@
 			"backtrace.h": "c",
 			"sections.h": "c",
 			"stack_monitor.h": "c",
-			"ctype.h": "c"
+			"ctype.h": "c",
+			"fpu.h": "c"
 		}
 	}
 }

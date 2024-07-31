@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 02:08:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 16:33:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -325,6 +325,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
 }
 
 static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
+	printk("kstack: 0x%x\n", kstack);
 	vga_init();
 	ksh_header();
 	kernel_log_info("LOG", "VGA - (80x25)");
@@ -345,6 +346,7 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	// kernel_log_info("LOG", "KERRNO");
 
 	check_multiboot(magic_number, addr, kstack);
+
 	init_system_components();
 
 	/**
@@ -372,7 +374,27 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	kernel_log_info("LOG", "PAGING");
 	kernel_log_info("LOG", "HEAP");
 
-	goto jmp;
+	uint32_t mem_upper = multiboot_get_mem_upper();
+	printk("Memory Lower: %d KB (%d MB)\n", multiboot_get_mem_lower(), multiboot_get_mem_lower() / 1024);
+	printk("Memory Upper: %d KB (%d MB)\n", mem_upper, mem_upper / 1024);
+
+	kpause();
+	// goto jmp;
+
+//  uint16_t low_memory_kb = get_low_memory_size_kb();
+//     printk("Low memory size: %u KB\n", low_memory_kb);
+// kpause();
+
+	uint32_t *phys = kmalloc(0x1000);
+	uint32_t *virt = vmalloc(0x1000);
+
+	printk("Phys: 0x%x\n", phys);
+	printk("Virt: 0x%x\n", virt);
+
+	printk("Get Phys: 0x%08x\n", get_physical_address(virt));
+	printk("Get Virt: 0x%08x\n", (uint32_t)get_virtual_address(phys));
+
+	// kpause();
 
 	printk("Heap test \n");
 	ksleep(1);
@@ -380,21 +402,22 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	// kheap_test();
 	// kpause();
 
-	uint32_t i = 0, size = 0;
+	uint32_t i = 0, size = 0, alloc_size = 0x1000 * 0x100;
 	while (1) {
-		uint32_t *ptr = kmalloc(100000);
+		uint32_t *ptr = kmalloc(alloc_size);
 		if (ptr == NULL) {
-			__PANIC("Error: kmalloc failed");
+			printk("Error: kmalloc failed at [%ld, [%ld KB (%ld MB)]\n", i, size / 1024, size / 1024 / 1024);
+			ksleep(1);
+			break;
 		}
 
-		size += 100000;
-		printk("Allocated: 0x%x [%ld] - [%ld KB]\n", ptr, i, size / 1024);
+		size += alloc_size;
+		printk("Allocated: 0x%x [%ld] - [%ld KB (%ld MB)]\n", ptr, i, size / 1024, size / 1024 / 1024);
 
 		kmsleep(5);
 		i++;
 	}
 
-	kpause();
 
 jmp:
 

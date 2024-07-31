@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 22:55:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:56:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@
 #define IS_PAGE_READABLE(x) (get_page(x, current_directory)->rw)
 #define ALIGN(x) (x = ((x & PAGE_MASK) + PAGE_SIZE))
 
-#define VIRTUAL_TO_PHYSICAL(dir, vaddr) (get_physical_address(dir, vaddr))
-#define PHYSICAL_TO_VIRTUAL(dir, paddr) (get_virtual_address(dir, paddr))
+#define VIRTUAL_TO_PHYSICAL(vaddr) (get_physical_address(vaddr))
+#define PHYSICAL_TO_VIRTUAL(paddr) (get_virtual_address(paddr))
 
 #define PAGEDIR_INDEX(vaddr) (((uint32_t)vaddr) >> 22)
 #define PAGETBL_INDEX(vaddr) ((((uint32_t)vaddr) >>12) & 0x3FF)
@@ -84,8 +84,8 @@ void page_fault(struct regs *r);
 void enable_paging(page_directory_t *dir);
 uint32_t get_cr2(void);
 
-void *get_physical_address(page_directory_t *dir, void *addr);
-void *get_virtual_address(page_directory_t *dir, void *addr);
+uint32_t get_physical_address(void *virtual_addr);
+void *get_virtual_address(void *physical_addr);
 
 void switch_page_directory(page_directory_t *dir);
 void flush_tlb_entry(uint32_t addr);

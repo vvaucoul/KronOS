@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 23:18:42 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 15:59:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define KHEAP_START 0xC0000000
-#define KHEAP_MAX_SIZE 0xCFFFF000
-#define KHEAP_INITIAL_SIZE 0x100000 // 1MB initial size
+#define KHEAP_START 0xC0000000		 // 3GB
+#define KHEAP_MAX_SIZE 0xD0000000	 // 3GB + 512MB
+
+// #define KHEAP_MAX_SIZE 0xFFFFF000	 // ~4GB, slightly less to stay within 32-bit limit
+
+#define KHEAP_INITIAL_SIZE 0x1000000 // 16MB initial size
+
 #define KHEAP_MAGIC 0x123890AB
 #define HEAP_INDEX_SIZE 0x20000
 #define HEAP_MIN_SIZE 0x70000
@@ -118,6 +122,7 @@ extern uint32_t vsize(void *addr);
 
 extern uint32_t get_placement_address(void);
 extern void set_placement_address(uint32_t addr);
+extern heap_t *get_kheap(void);
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                   HEAP ARRAY                                   ||

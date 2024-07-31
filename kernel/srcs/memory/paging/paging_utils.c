@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/27 17:07:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/27 17:29:32 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:56:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ int verify_page_directory(page_directory_t *dir) {
                     }
                     verify_page_table(table, i);
                     uint32_t physical_page_addr = (table->pages[j].frame << 12);
-                    uint32_t physical_page_addr_from_virt = (uint32_t)VIRTUAL_TO_PHYSICAL(dir, (void *)((uint32_t)(table->pages[j].frame << 12)));
+                    uint32_t physical_page_addr_from_virt = (uint32_t)VIRTUAL_TO_PHYSICAL((void *)((uint32_t)(table->pages[j].frame << 12)));
 
                     if (physical_page_addr != physical_page_addr_from_virt) {
                         printk("Physical Address: 0x%x\n", physical_page_addr);

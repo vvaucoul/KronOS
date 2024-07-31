@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/30 13:39:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 01:06:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:13:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,8 @@ void test_cr0() {
 void test_get_physical_address() {
     void *ptr = kmalloc_a(PAGE_SIZE);
     assert(ptr != NULL);
-    assert(get_physical_address(kernel_directory, NULL) == NULL);
-    void *phys_addr = get_physical_address(kernel_directory, ptr);
+    assert(get_physical_address(NULL) == NULL);
+    void *phys_addr = (void*)get_physical_address(ptr);
     assert(phys_addr != NULL);
     assert((uint32_t)phys_addr % PAGE_SIZE == 0);
     assert((uint32_t)phys_addr < KERNEL_VIRTUAL_BASE);

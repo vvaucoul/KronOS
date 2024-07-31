@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/10 13:11:34 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 01:09:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 16:34:24 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ void get_cpu_version() {
     uint32_t reserved = (eax & 0xF0000000) >> 28;
 
     // Print the CPU version information
-    printk("CPU version: family %u, model %u, stepping %u, reserved %u\n", family, model, stepping, reserved);
+    printk("\t   - CPU version: family %u, model %u, stepping %u, reserved %u\n", family, model, stepping, reserved);
 }
 
 static int check_apic(cpu_info_t info) {

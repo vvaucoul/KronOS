@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 22:09:01 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 11:28:20 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,7 +305,7 @@ void initrd_display_hierarchy(void) {
             if (buffer) {
                 memset(buffer, 0, size + 1);
                 initrd_fs->fops->read(_f_node, 0, size, buffer);
-                strncpy(content, buffer, 20);
+                strncpy((char*)content, (char*)buffer, 20);
                 kfree(buffer);
             }
         }

@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/31 01:26:35 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/07/31 13:25:34 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,14 +44,14 @@ LD					=	ld
 INLCUDES_PATH		=	-I./kernel/includes/ \
 						-I./userspace/includes/ \
 						-I./$(LIBKFS_DIR)/$(LIBKFS_DIR)/include
-CFLAGS				=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration -Wincompatible-pointer-types \
+CFLAGS				=	-Wall -Wextra -Wimplicit-function-declaration -Wincompatible-pointer-types \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs -nostdinc \
-						-std=c2x -ffreestanding -O2 #-Werror
-CXXFLAGS			=	-Wall -Wextra -Wfatal-errors -Wimplicit-function-declaration -Wincompatible-pointer-types \
+						-std=c2x -ffreestanding -O2 #-Werror -Wfatal-errors
+CXXFLAGS			=	-Wall -Wextra -Wimplicit-function-declaration -Wincompatible-pointer-types \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-fno-rtti -nostdlib -nodefaultlibs -nostdinc \
-						-std=c++17 -ffreestanding -O2 #-Werror
+						-std=c++17 -ffreestanding -O2 #-Werror -Wfatal-errors
 LDFLAGS				= 	-g3 -m32
 LD_FLAGS			=	-m elf_i386
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 01:55:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/07/31 02:08:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,11 +375,10 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	goto jmp;
 
 	printk("Heap test \n");
-	reboot();
 	ksleep(1);
 
 	// kheap_test();
-	kpause();
+	// kpause();
 
 	uint32_t i = 0, size = 0;
 	while (1) {

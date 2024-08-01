@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 16:00:11 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <multitasking/process.h>
 
 // ! ||--------------------------------------------------------------------------------||

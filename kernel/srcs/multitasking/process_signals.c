@@ -6,11 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 22:32:32 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/26 22:44:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:09:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <multitasking/process.h>
 
 #include <multitasking/scheduler.h>

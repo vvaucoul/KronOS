@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 11:51:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 00:44:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/vfs/vfs.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <multitasking/process_env.h>
 
 /**

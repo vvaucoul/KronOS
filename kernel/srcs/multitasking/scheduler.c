@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:33:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 22:07:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:04:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,7 +179,8 @@ void switch_task(void) {
     ebp = current_task->ebp;
 
     /* Make sure the memory manager knows we've changed page directory */
-    current_directory = current_task->page_directory;
+    // mmu_get_current_directory() = current_task->page_directory;
+    mmu_set_current_directory(current_task->page_directory);
 
     /* Change kernel stack over */
     tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
@@ -231,5 +232,5 @@ void switch_task(void) {
 	sti;			\
 	jmp *%%ecx		"
                          :
-                         : "r"(eip), "r"(esp), "r"(ebp), "r"(current_directory->physicalAddr));
+                         : "r"(eip), "r"(esp), "r"(ebp), "r"(mmu_get_current_directory()->physicalAddr));
 }

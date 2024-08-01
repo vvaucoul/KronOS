@@ -6,11 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 16:33:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 22:14:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:10:11 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/memory.h>
+#include <mm/mm.h>
+#include <mm/mm.h>
 #include <multitasking/process.h>
 #include <syscall/syscall.h>
 

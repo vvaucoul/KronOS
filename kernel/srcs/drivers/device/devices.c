@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/11 17:13:52 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/02/13 14:33:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/devices.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 
 Device *devices = NULL;
 uint8_t devices_count = 0;

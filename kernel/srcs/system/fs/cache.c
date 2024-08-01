@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 20:19:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/25 20:43:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <syscall/syscall.h>
 
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <multitasking/process.h>
 
 // cache_manager_t *init_cache_manager(uint32_t size) {

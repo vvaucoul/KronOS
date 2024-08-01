@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 14:15:15 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/vfs/vfs.h>
 
-#include <memory/memory.h>
+#include <mm/mm.h>
 
 /**
  * @brief Creates a Vfs cache.

@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 13:04:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 21:59:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:17:44 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/mmap.h>
-#include <memory/shared.h>
+#include <mm/mmap.h>
+#include <mm/shared.h>
 #include <multitasking/process.h>
 #include <multitasking/scheduler.h>
 #include <syscall/syscall.h>

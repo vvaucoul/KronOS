@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 12:50:04 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <fs/ext2/ext2.h>
 #include <fs/initrd/initrd.h>
 
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <multitasking/process.h>
 
 Hashtable *vfs_mounts = NULL;

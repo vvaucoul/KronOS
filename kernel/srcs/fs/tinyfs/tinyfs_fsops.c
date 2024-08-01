@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 10:43:47 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:09:19 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/tinyfs/tinyfs.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 
 static int __tinyfs_init_fs(TinyFS *fs) {
     printk("TinyFS: Initializing file system\n");

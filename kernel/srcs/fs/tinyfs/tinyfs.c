@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/08 23:25:17 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 13:26:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:09:23 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/tinyfs/tinyfs.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 
 VfsInfo tinyfs_infos = {
     .name = TINYFS_FILESYSTEM_NAME,

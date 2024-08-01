@@ -6,14 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:17:38 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 09:08:19 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:09:12 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/ext2/ext2.h>
 
 #include <drivers/device/ide.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
+#include <system/pit.h>
 
 static Ext2FileOperations ext2_fops = {
     .read = ext2_read,

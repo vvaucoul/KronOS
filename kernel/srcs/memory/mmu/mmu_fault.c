@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   page_fault.c                                       :+:      :+:    :+:   */
+/*   mmu_fault.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:59:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/05/28 17:51:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:26:07 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,74 +57,123 @@
 /******************************************************************************/
 
 #include <drivers/vga.h>
-#include <memory/memory.h>
-#include <memory/paging.h>
+#include <mm/memory.h>
+#include <mm/mm.h>
+#include <mm/mmu.h>
 #include <system/panic.h>
 
-static void dump_page_info(uint32_t address) {
-    page_t *page = get_page(address, current_directory);
-    if (page) {
-        printk("Page details for address 0x%08x:\n", address);
-        printk("Present: %d, RW: %d, User: %d, Accessed: %d, Dirty: %d, Frame: 0x%08x\n",
-               page->present, page->rw, page->user, page->accessed, page->dirty, page->frame << 12);
-    } else {
-        printk("No page information available for address 0x%08x\n", address);
-    }
+/**
+ * @brief Reads the value of the CR2 register.
+ *
+ * This function reads the value of the CR2 register and stores it in the provided pointer.
+ *
+ * @param cr2 Pointer to a uint32_t variable where the value of the CR2 register will be stored.
+ */
+static void read_cr2(uint32_t *cr2) {
+	__asm__ volatile("movl %%cr2, %0" : "=r"(*cr2));
 }
 
-void page_fault(struct regs *r) {
-    uint32_t faulting_address;
+/**
+ * @brief Reads the value of the CR3 register.
+ *
+ * This function reads the value of the CR3 register and stores it in the provided pointer.
+ *
+ * @param cr3 Pointer to a uint32_t variable where the value of the CR3 register will be stored.
+ */
+static void read_cr3(uint32_t *cr3) {
+	__asm__ volatile("movl %%cr3, %0" : "=r"(*cr3));
+}
 
-    faulting_address = get_cr2();
+/**
+ * @brief Dump page information.
+ *
+ * This function is responsible for dumping page information given the registers and the address.
+ *
+ * @param r A pointer to the `regs` structure containing register information.
+ * @param address The address of the page.
+ */
+static void dump_page_info(struct regs *r, uint32_t address) {
+	page_t *page = mmu_get_page(address, mmu_get_current_directory());
+	if (page) {
+		printk("Page details for address 0x%08x (EIP: 0x%08x):\n", address, r->eip);
+		printk("Present: %d, RW: %d, User: %d, Accessed: %d, Dirty: %d, Frame: 0x%08x\n",
+			   page->present, page->rw, page->user, page->accessed, page->dirty, page->frame << 12);
+	} else {
+		printk("No page information available for address 0x%08x (EIP: 0x%08x)\n", address, r->eip);
+	}
+}
 
-    int present = !(r->err_code & 0x1); // Page not present
-    int rw = r->err_code & 0x2;         // Write operation
-    int us = r->err_code & 0x4;         // Processor was in user-mode
-    int reserved = r->err_code & 0x8;   // Overwritten CPU-reserved bits of page entry
-    int id = r->err_code & 0x10;        // Caused by an instruction fetch
+/**
+ * @brief Handles the page fault exception in the MMU.
+ *
+ * This function is responsible for handling the page fault exception in the MMU.
+ * It takes a pointer to a struct `regs` as a parameter, which contains the register
+ * values at the time of the exception.
+ *
+ * @param r A pointer to a struct `regs` containing the register values.
+ */
+void mmu_page_fault_handler(struct regs *r) {
+	uint32_t faulting_address, cr3;
 
-    printk(_RED "Page fault! "_END
-                "( ");
-    if (present)
-        printk("present ");
-    if (rw)
-        printk("read-only ");
-    if (us)
-        printk("user-mode ");
-    if (reserved)
-        printk("reserved ");
-    if (id)
-        printk("instruction fetch ");
-    printk(") at ");
-    printk(_RED "0x%08x"_END, faulting_address);
-    printk(" - EIP: 0x%08x\n", r->eip);
+	read_cr2(&faulting_address);
 
-    dump_page_info(faulting_address);
+	int present = !(r->err_code & 0x1); // Page not present
+	int rw = r->err_code & 0x2;			// Write operation
+	int us = r->err_code & 0x4;			// Processor was in user-mode
+	int reserved = r->err_code & 0x8;	// Overwritten CPU-reserved bits of page entry
+	int id = r->err_code & 0x10;		// Caused by an instruction fetch
 
-    uint32_t cr3 = READ_CR3();
-    printk("CR3: 0x%08x\n", cr3);
+	printk(_RED "Page fault! "_END
+				"( ");
+	if (present)
+		printk(_YELLOW "present " _END);
+	if (rw)
+		printk(_YELLOW "read-only " _END);
+	if (us)
+		printk(_YELLOW "user-mode " _END);
+	if (reserved)
+		printk(_YELLOW "reserved " _END);
+	if (id)
+		printk(_YELLOW "instruction fetch "_END);
+	printk(") at ");
+	printk(_RED "0x%08x"_END, faulting_address);
+	printk(" - EIP: 0x%08x\n", r->eip);
 
-    // Print out registers
-    printk("REGS:\n");
-    printk("eax=0x%08x, ebx=0x%08x, ecx=0x%08x, edx=0x%08x\n", r->eax, r->ebx, r->ecx, r->edx);
-    printk("edi=0x%08x, esi=0x%08x, ebp=0x%08x, esp=0x%08x\n", r->edi, r->esi, r->ebp, r->esp);
-    printk("eip=0x%08x, cs=0x%08x, ss=0x%08x, ds=0x%08x\n", r->eip, r->cs, r->ss, r->ds);
-    printk("fs=0x%08x, gs=0x%08x, es=0x%08x, eflags=0x%08x\n", r->fs, r->gs, r->es, r->eflags);
+	/* Dump page information */
+	dump_page_info(r, faulting_address);
 
-    // Determine the cause of the fault
-    if (faulting_address == 0x0) {
-        __PANIC("Page fault at NULL pointer");
-    } else if (faulting_address >= KERNEL_BASE) {
-        __PANIC("Page fault at kernel address");
-    } else if (reserved) {
-        __PANIC("Page fault at reserved address");
-    } else if (rw && !present) {
-        __PANIC("Page fault trying to write to non-present page");
-    } else if (!us && present) {
-        __PANIC("Page fault trying to execute kernel code");
-    } else if (rw && us && present) {
-        __PANIC("Page fault trying to write to read-only page");
-    } else {
-        __PANIC("Page fault");
-    }
+	read_cr3(&cr3);
+	printk("CR3: 0x%08x\n", cr3);
+
+	printk(_END "\nInterrupt Frame:\n");
+	printk("------------------------------------------------\n");
+	printk("General Purpose Registers:\n");
+	printk("  EAX: 0x%08x  EBX: 0x%08x  ECX: 0x%08x  EDX: 0x%08x\n", r->eax, r->ebx, r->ecx, r->edx);
+	printk("  EDI: 0x%08x  ESI: 0x%08x  EBP: 0x%08x  ESP: 0x%08x\n", r->edi, r->esi, r->ebp, r->esp);
+	printk("\n");
+	printk("Segment Registers:\n");
+	printk("  GS: 0x%08x  FS: 0x%08x  ES: 0x%08x  DS: 0x%08x\n", r->gs, r->fs, r->es, r->ds);
+	printk("\n");
+	printk("Control Registers:\n");
+	printk("  EIP: 0x%08x  CS: 0x%08x  SS: 0x%08x  EFLAGS: 0x%08x\n", r->eip, r->cs, r->ss, r->eflags);
+	printk("  User ESP: 0x%08x\n", r->useresp);
+	printk("------------------------------------------------\n");
+	printk(_END);
+
+	// Determine the cause of the fault
+	if (faulting_address == 0x0) {
+		__PANIC("Page fault at NULL pointer");
+	} else if (faulting_address >= KERNEL_SPACE_START) {
+		__PANIC("Page fault at kernel address");
+	} else if (reserved) {
+		__PANIC("Page fault at reserved address");
+	} else if (rw && !present) {
+		__PANIC("Page fault trying to write to non-present page");
+	} else if (!us && present) {
+		__PANIC("Page fault trying to execute kernel code");
+	} else if (rw && us && present) {
+		__PANIC("Page fault trying to write to read-only page");
+	} else {
+		__PANIC("Page fault");
+	}
 }

@@ -1,28 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   memory.h                                           :+:      :+:    :+:   */
+/*   shared.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/17 14:07:18 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 14:57:10 by vvaucoul         ###   ########.fr       */
+/*   Created: 2023/10/23 12:21:22 by vvaucoul          #+#    #+#             */
+/*   Updated: 2024/08/01 00:18:10 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef SHARED_H
+#define SHARED_H
 
-#include <kernel.h>
+#include <mm/memory.h>
 
-#include <memory/frames.h>
-#include <memory/kheap.h>
-#include <memory/paging.h>
+typedef struct shared_heap_header {
+    uint32_t ref_count;   // Number of processes sharing this memory
+    // heap_header_t header; // Existing header
+} shared_heap_header_t;
 
-#define KERNEL_BASE 0x00100000
-#define KERNEL_VIRTUAL_BASE 0xC0000000
+extern void *kmalloc_shared(uint32_t size);
+extern void kfree_shared(void *ptr);
+extern void *kdup_shared(void *ptr);
 
-extern uint32_t *kernel_stack;
-extern uint32_t initial_esp;
-
-#endif /* MEMORY_H */
+#endif /* !SHARED_H */

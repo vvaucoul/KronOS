@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/20 15:05:16 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/01/09 14:12:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:11:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/memory.h>
-#include <memory/shared.h>
+#include <mm/mm.h>
+#include <mm/shared.h>
 #include <multitasking/process.h>
 #include <system/socket.h>
 

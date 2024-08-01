@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 17:43:22 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 22:11:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <system/threads.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <multitasking/process.h>
 
 #include <macros.h>

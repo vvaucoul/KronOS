@@ -121,7 +121,11 @@
 			"sections.h": "c",
 			"stack_monitor.h": "c",
 			"ctype.h": "c",
-			"fpu.h": "c"
+			"fpu.h": "c",
+			"mm.h": "c",
+			"shared.h": "c",
+			"mmu.h": "c",
+			"mmuf.h": "c"
 		}
 	}
 }

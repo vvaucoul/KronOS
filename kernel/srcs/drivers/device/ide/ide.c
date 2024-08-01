@@ -6,15 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 00:34:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/28 22:08:36 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:16:09 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/devices.h>
 #include <drivers/device/ide.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <system/io.h>
 #include <system/irq.h>
+#include <system/pit.h>
 
 IDEDevice *ide_devices[MAX_IDE_DEVICES];
 

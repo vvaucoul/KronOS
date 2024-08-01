@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 11:30:10 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:10:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 #include <multiboot/multiboot_mmap.h>
 
 #include <asm/asm.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 
 #include <kernel.h>
 #include <macros.h>
 #include <stddef.h>
 
 static multiboot_info_t *multiboot_info = NULL;
+extern uint32_t initial_esp;
+extern uint32_t *kernel_stack;
 
 /**
  * @brief Checks if the magic number is valid for multiboot.

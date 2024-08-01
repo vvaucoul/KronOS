@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 23:41:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 00:39:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:17:27 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <system/isr.h>
 
-#include <memory/paging.h>
+#include <mm/mmu.h>
 
 #if ISR_TRIGGERS == 1
 
@@ -37,7 +37,7 @@ void isr_trigger_invalid_opcode() {
 }
 
 void isr_trigger_page_fault() {
-	if (!is_paging_enabled()) {
+	if (!mmu_is_paging_enabled()) {
 		__asm__ volatile("int $0xE");
 		return;
 	}

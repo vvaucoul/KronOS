@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 13:02:42 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 15:36:02 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:10:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,10 @@
 #include <kronos/stack_monitor.h>
 #include <multiboot/multiboot_mmap.h>
 
-#include <memory/memory.h>
+#include <mm/mm.h>
+
+extern uint32_t initial_esp;
+extern uint32_t *kernel_stack;
 
 /**
  * @brief Get the stack usage.

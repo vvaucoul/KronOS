@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/13 13:07:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 11:28:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:09:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 #include <macros.h>
 
 #include <drivers/device/devices.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
+#include <system/pit.h>
 
 #include <bit.h>
 

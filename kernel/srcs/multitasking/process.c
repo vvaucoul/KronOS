@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 14:43:44 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:13:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/frames.h>
-#include <memory/kheap.h>
-#include <memory/memory.h>
-#include <memory/paging.h>
+#include <mm/mmuf.h>
+#include <mm/mm.h>
+#include <mm/mmu.h>
+#include <mm/mmuf.h>
 
 #include <multitasking/process.h>
 #include <multitasking/process_fs.h>
@@ -34,9 +34,6 @@ uint32_t num_tasks = 0;
 task_t *ready_queue = NULL;
 task_t *waiting_queue;
 
-extern page_directory_t *kernel_directory;
-extern page_directory_t *current_directory;
-
 extern uint32_t read_eip(void);
 
 extern uint32_t initial_esp;
@@ -49,11 +46,11 @@ static void move_stack(void *new_stack_start, uint32_t size) {
     /* Allocate some space for the new stack */
     for (i = (uint32_t)new_stack_start; i >= ((uint32_t)new_stack_start - size); i -= PAGE_SIZE) {
         /* General-purpose stack is in user-mode */
-        const page_t *page = get_page(i, current_directory);
+        const page_t *page = mmu_get_page(i, mmu_get_current_directory());
         if (!page) {
-            page = create_page(i, current_directory);
+            page = mmu_create_page(i, mmu_get_current_directory());
         }
-        alloc_frame((page_t *)page, 0, 1);
+        allocate_frame((page_t *)page, 0, 1);
     }
 
     /* Flush the TLB by reading and writing the page directory address again */
@@ -121,7 +118,6 @@ void init_tasking(void) {
     // printk("\t- Move stack\n");
 
     move_stack((void *)0xDEADBEEF, KERNEL_STACK_SIZE);
-    // move_stack((void *)0xDEADBEEF, KERNEL_STACK_SIZE);
 
     __ready_queue_init();
 
@@ -138,7 +134,7 @@ void init_tasking(void) {
     current_task->ppid = 0;
     current_task->esp = current_task->ebp = 0;
     current_task->eip = 0;
-    current_task->page_directory = current_directory;
+    current_task->page_directory = mmu_get_current_directory();
     current_task->next = current_task->prev = NULL;
     if (!(current_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE)))
         __THROW_NO_RETURN("init_tasking : kmalloc_a failed");
@@ -149,14 +145,6 @@ void init_tasking(void) {
     current_task->signal_queue = NULL;
     current_task->or_priority = current_task->priority = TASK_PRIORITY_LOW;
     current_task->zombie_hungry = 0;
-
-    /* Init process env */
-    if ((process_init_env(current_task)) != 0) {
-        __WARND("init_tasking : process_init_env failed (process will not have fs)");
-    }
-
-    /* Init file descriptor table */
-    current_task->fd_table = fd_table_init();
 
     __process_sectors(current_task);
 
@@ -179,7 +167,7 @@ int32_t task_fork(void) {
     parent_task = (task_t *)current_task;
 
     /* Clone the address space */
-    if (!(directory = clone_page_directory(current_directory)))
+    if (!(directory = mmu_clone_page_directory(mmu_get_current_directory())))
         __THROW("task_fork : clone_page_directory failed", 1);
 
     /* Create a new process */
@@ -194,8 +182,6 @@ int32_t task_fork(void) {
     new_task->eip = 0;
     new_task->page_directory = directory;
     new_task->kernel_stack = (uint32_t)kmalloc_a(KERNEL_STACK_SIZE); // Todo: Enable after debug
-    if (!(new_task->kernel_stack))
-        __THROW("task_fork : failed to alloc kernel task", 1);
     // new_task->kernel_stack = (uint32_t)kmalloc_debug(KERNEL_STACK_SIZE, true, NULL);
     new_task->next = NULL;
     new_task->prev = NULL; // Set prev task when added to ready queue
@@ -207,14 +193,6 @@ int32_t task_fork(void) {
     new_task->signal_queue = NULL;
     new_task->or_priority = new_task->priority = TASK_PRIORITY_MEDIUM;
     new_task->zombie_hungry = 0;
-
-    /* Init process env */
-    if ((process_init_env(new_task)) != 0) {
-        __WARND("init_tasking : process_init_env failed (process will not have fs)");
-    }
-
-    /* Init file descriptor table */
-    current_task->fd_table = fd_table_init();
 
     __process_sectors(new_task);
 
@@ -392,8 +370,8 @@ int32_t kill_task(int32_t pid) {
     if (tmp_task->ppid != 0) {
         /* If its stack is reachable, delete it */
         if (tmp_task->kernel_stack) {
+            // kfree((void *)tmp_task->kernel_stack);
             kfree((void *)tmp_task->kernel_stack);
-            // kfree_debug((void *)tmp_task->kernel_stack);
             tmp_task->kernel_stack = 0x0;
         }
 
@@ -484,7 +462,8 @@ int32_t free_task(task_t *task) {
             task->next->prev = task->prev;
         }
 
-        destroy_page_directory(task->page_directory);
+        // Todo: free page directory: Currently crash
+        mmu_destroy_page_directory(task->page_directory);
 
         kfree(task->sectors.bss_segment);
         kfree(task->sectors.data_segment);
@@ -544,65 +523,84 @@ void task_exit(int32_t retval) {
     kill_task(get_current_task()->pid);
 }
 
-#define USER_STACK_START 0xC0000000
-#define USER_STACK_SIZE 0x4000 // 16 KB
-
-void allocate_user_stack(uint32_t user_stack_start, uint32_t size) {
-    for (uint32_t addr = user_stack_start; addr < user_stack_start + size; addr += PAGE_SIZE) {
-        page_t *page = get_page(addr, current_directory);
-        if (!page) {
-            page = create_page(addr, current_directory);
-        }
-        page->present = 1;
-        page->rw = 1;
-        page->user = 1;
-    }
-}
-
-void setup_user_stack() {
-    allocate_user_stack(USER_STACK_START, USER_STACK_SIZE);
-
-    uint32_t *stack_ptr = (uint32_t *)USER_STACK_START;
-    for (uint32_t i = 0; i < (USER_STACK_SIZE / sizeof(uint32_t)); i++) {
-        stack_ptr[i] = 0;
-    }
-
-    printk("User stack successfully set up from 0x%x to 0x%x\n", USER_STACK_START, USER_STACK_START + USER_STACK_SIZE);
-}
-
 void switch_to_user_mode(void) {
-    setup_user_stack();
-    uint32_t user_stack = USER_STACK_START + USER_STACK_SIZE;
-    printk("User stack : 0x%x\n", user_stack);
-    tss_set_stack_pointer(user_stack);
+    tss_set_stack_pointer(current_task->kernel_stack + KERNEL_STACK_SIZE);
 
-    uint32_t user_code_start = (uint32_t)&switch_user_mode_start;
+    /* Set up a stack structure for switching to user mode */
+    // __asm__ __volatile__("cli; \
+	// mov $0x23, %ax; \
+	// mov %ax, %ds; \
+	// mov %ax, %es; \
+	// mov %ax, %fs; \
+	// mov %ax, %gs; \
+	// mov %esp, %eax; \
+	// pushl $0x23; \
+	// pushl %esp; \
+	// pushf; \
+	// pushl $0x1B; \
+	// push $1f; \
+	// sti; \
+	// iret; \
+	// 1: \
+	// ");
 
-    ASM_CLI();
+    // unsigned int eflags, cs, ds, es, fs, gs;
 
-    __asm__ volatile(
-        "mov $0x2B, %%ax\n" // Data segment selector (user mode)
-        "mov %%ax, %%ds\n"
-        "mov %%ax, %%es\n"
-        "mov %%ax, %%fs\n"
-        "mov %%ax, %%gs\n"
-        :
-        :
-        : "ax");
+    // __asm__ volatile("pushf; pop %%eax" : "=a"(eflags));
+    // __asm__ volatile("mov %%cs, %%eax" : "=a"(cs));
+    // __asm__ volatile("mov %%ds, %%eax" : "=a"(ds));
+    // __asm__ volatile("mov %%es, %%eax" : "=a"(es));
+    // __asm__ volatile("mov %%fs, %%eax" : "=a"(fs));
+    // __asm__ volatile("mov %%gs, %%eax" : "=a"(gs));
 
-    __asm__ volatile(
-        "mov %0, %%esp\n"
-        "push $0x2B\n"
-        "push %0\n"
-        "pushf\n"
-        "push $0x23\n" // Code segment selector
-        "push %1\n"
-        "iret\n"
-        :
-        : "r"(user_stack), "r"(user_code_start)
-        : "memory");
+    // printk("EFLAGS: 0x%x\n", eflags);
+    // printk("CS: 0x%x\n", cs);
+    // printk("DS: 0x%x\n", ds);
+    // printk("ES: 0x%x\n", es);
+    // printk("FS: 0x%x\n", fs);
+    // printk("GS: 0x%x\n", gs);
+
+    // kpause();
+
+    // __asm__ __volatile__("cli; \
+	// mov $0x2B, %ax; \
+	// mov %ax, %ds; \
+	// mov %ax, %es; \
+	// mov %ax, %fs; \
+	// mov %ax, %gs; \
+	// mov %esp, %eax; \
+	// pushl $0x2B; \
+	// pushl %esp; \
+	// pushf; \
+	// pushl $0x23; \
+	// push $1f; \
+	// sti; \
+	// iret; \
+	// 1: \
+	// ");
+    // __asm__ volatile(
+    // "  \
+    // cli; \
+    // mov $0x2B, %%ax; \
+    // mov %%ax, %%ds; \
+    // mov %%ax, %%es; \
+    // mov %%ax, %%fs; \
+    // mov %%ax, %%gs; \
+    // \
+    // pushl $0x2B; \
+    // mov %%esp, %%eax; \
+    // pushl %%eax; \
+    // pushf; \
+    // pushl $0x1B; \
+    // push $1f; \
+    // iret; \
+    // 1: \
+    // "
+    // : : : "ax", "eax"
+    // );
+    switch_user_mode();
+
 }
-
 pid_t find_first_free_pid(void) {
     pid_t pid = 1;
     task_t *task = NULL;

@@ -1,17 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   frames.c                                           :+:      :+:    :+:   */
+/*   mmu_frames.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 14:34:03 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 11:56:51 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <memory/frames.h>
-#include <memory/kheap.h>
+#include <mm/mm.h>
+#include <mm/mmuf.h>
+
+#include <mm/ealloc.h>
 #include <system/panic.h>
 
 #include <multiboot/multiboot.h>
@@ -44,6 +46,21 @@ static void clear_frame(uint32_t frame_addr) {
 }
 
 /**
+ * @brief Test a frame for a given frame address.
+ *
+ * This function tests a frame for a given frame address.
+ *
+ * @param frame_addr The address of the frame to be tested.
+ * @return An integer value indicating the result of the test.
+ */
+uint32_t test_frame(uint32_t frame_addr) {
+	uint32_t frame = frame_addr / PAGE_SIZE;
+	uint32_t idx = INDEX_FROM_BIT(frame);
+	uint32_t off = OFFSET_FROM_BIT(frame);
+	return (frames[idx] & (0x1 << off));
+}
+
+/**
  * Returns the index of the first available frame in the memory.
  *
  * @return The index of the first available frame.
@@ -63,28 +80,13 @@ static uint32_t first_frame(void) {
 }
 
 /**
- * @brief Test a frame for a given frame address.
- *
- * This function tests a frame for a given frame address.
- *
- * @param frame_addr The address of the frame to be tested.
- * @return An integer value indicating the result of the test.
- */
-int test_frame(uint32_t frame_addr) {
-	uint32_t frame = frame_addr / PAGE_SIZE;
-	uint32_t idx = INDEX_FROM_BIT(frame);
-	uint32_t off = OFFSET_FROM_BIT(frame);
-	return (frames[idx] & (0x1 << off));
-}
-
-/**
  * Allocates a frame for a given page.
  *
  * @param page The page to allocate a frame for.
  * @param is_kernel Flag indicating if the frame is for kernel space.
  * @param is_writeable Flag indicating if the frame is writeable.
  */
-void alloc_frame(page_t *page, int is_kernel, int is_writeable) {
+void allocate_frame(page_t *page, int is_kernel, int is_writeable) {
 	if (page->frame != 0) {
 		return;
 	} else {
@@ -110,12 +112,25 @@ void alloc_frame(page_t *page, int is_kernel, int is_writeable) {
  * @param page A pointer to the page structure.
  */
 void free_frame(page_t *page) {
-	if (!page->frame) {
+	uint32_t frame;
+
+	if (!(frame = page->frame)) {
 		return;
 	} else {
-		clear_frame(page->frame * PAGE_SIZE);
+		clear_frame(frame * PAGE_SIZE);
 		page->frame = 0x0;
 	}
+}
+
+/**
+ * @brief Retrieves the count of frames.
+ *
+ * This function returns the count of frames in the system.
+ *
+ * @return The count of frames.
+ */
+uint32_t get_frame_count(void) {
+	return n_frames;
 }
 
 /**
@@ -123,30 +138,22 @@ void free_frame(page_t *page) {
  * This function is responsible for initializing the frames used for memory paging.
  * It performs any necessary setup or initialization tasks.
  */
-void init_frames(void) {
-	/* Get the total number of frames depending on the memory size */
-	n_frames = multiboot_get_mem_upper() * 1024 / PAGE_SIZE;
+void init_frames(uint64_t mem_size) {
+	n_frames = mem_size / PAGE_SIZE;
 
-	/* Allocate memory for the frames */
-	// frames = (uint32_t *)kmalloc(INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
-	frames = (uint32_t *)kbrk(INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
+	frames = (uint32_t *)ealloc_aligned(INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
+	memset(frames, 0, INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
 
 	printk("\t   - Total frames: " _GREEN);
 	printk("%ld" _END, n_frames);
 	printk(" for "_GREEN
-		   "(%ld MB)"_END
+		   "(%ld KB)"_END
 		   " of memory\n",
-		   n_frames * PAGE_SIZE / 1024 / 1024);
+		   mem_size / 1024);
 
 	uint32_t frames_per_page = PAGE_SIZE * 8;
 
 	printk("\t   - Frames per page: " _GREEN);
 	printk("%ld" _END, frames_per_page);
 	printk("\n");
-
-	if (frames == NULL) {
-		__PANIC("Failed to allocate frames");
-	}
-
-	memset_s(frames, INDEX_FROM_BIT(n_frames) * sizeof(uint32_t), 0, INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
 }

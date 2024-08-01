@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:07:05 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 12:01:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:07:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #define PROCESS_H
 
 #include <kernel.h>
-#include <memory/paging.h>
+#include <mm/mmu.h>
 
 #include <system/signal.h>
 #include <system/threads.h>

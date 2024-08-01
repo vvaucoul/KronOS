@@ -6,10 +6,11 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/07 22:30:48 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 22:12:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:16:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <mm/mm.h>
 #include <syscall/syscall.h>
 #include <system/irq.h>
 #include <multitasking/process.h>
@@ -43,7 +44,7 @@ static bool is_user_address_valid(void *addr, size_t size) {
     uint32_t end_addr = start_addr + size;
 
     for (uint32_t current_addr = start_addr; current_addr < end_addr; current_addr += PAGE_SIZE) {
-        page_t *page = get_page(current_addr, current_directory);
+        page_t *page = mmu_get_page(current_addr, mmu_get_current_directory());
         if (!page || !page->present || !page->user) {
             return false;
         }

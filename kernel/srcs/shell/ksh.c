@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 11:15:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:10:08 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <shell/ksh_builtins.h>
 #include <shell/ksh_termcaps.h>
 
-#include <memory/kheap.h>
+#include <mm/mm.h>
 
 #include <multitasking/process.h>
 

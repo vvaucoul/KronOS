@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/19 23:41:26 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 10:47:09 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <fs/vfs/vfs.h>
 
 #include <drivers/device/ide.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 
 Vfs *ext2_fs = NULL;
 Ext2Node *fs_root = NULL;

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 16:33:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:39:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,14 +55,14 @@
 #include <drivers/keyboard.h>
 #include <drivers/vesa.h>
 
-#include <memory/mmap.h>
 #include <multiboot/multiboot.h>
 #include <multiboot/multiboot_mmap.h>
 
 /* Memory */
-#include <memory/kheap.h>
-#include <memory/memory.h>
-#include <memory/paging.h>
+#include <mm/mm.h>
+#include <mm/mmu.h>
+#include <mm/mmap.h>
+#include <mm/ealloc.h>
 
 /* Filesystem */
 #include <fs/ext2/ext2.h>
@@ -253,7 +253,7 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
 		__WARND("Error: ide_init failed, (Kernel will not use IDE Driver)");
 	} else {
 		/* Workflow IDE must be called after IDE init */
-		workflow_ide();
+		// workflow_ide();
 		kernel_log_info("LOG", "IDE");
 	}
 
@@ -361,7 +361,7 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 		initrd_location = *((uint32_t *)(uintptr_t)get_multiboot_info()->mods_addr);
 		initrd_end = *(uintptr_t *)((uintptr_t)get_multiboot_info()->mods_addr + 4);
 		// placement_addr = initrd_end;
-		set_placement_address(initrd_end);
+		set_placement_addr(initrd_end);
 
 		printk("\t   - Initrd Location: " _GREEN);
 		printk("0x%x\n" _END, initrd_location);
@@ -370,7 +370,7 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	} else {
 		__WARND("No multiboot modules found, kernel will not use initrd.");
 	}
-	init_paging();
+	mmu_init();
 	kernel_log_info("LOG", "PAGING");
 	kernel_log_info("LOG", "HEAP");
 
@@ -378,21 +378,12 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	printk("Memory Lower: %d KB (%d MB)\n", multiboot_get_mem_lower(), multiboot_get_mem_lower() / 1024);
 	printk("Memory Upper: %d KB (%d MB)\n", mem_upper, mem_upper / 1024);
 
-	kpause();
-	// goto jmp;
+	// kpause();
+	goto jmp;
 
 //  uint16_t low_memory_kb = get_low_memory_size_kb();
 //     printk("Low memory size: %u KB\n", low_memory_kb);
 // kpause();
-
-	uint32_t *phys = kmalloc(0x1000);
-	uint32_t *virt = vmalloc(0x1000);
-
-	printk("Phys: 0x%x\n", phys);
-	printk("Virt: 0x%x\n", virt);
-
-	printk("Get Phys: 0x%08x\n", get_physical_address(virt));
-	printk("Get Virt: 0x%08x\n", (uint32_t)get_virtual_address(phys));
 
 	// kpause();
 

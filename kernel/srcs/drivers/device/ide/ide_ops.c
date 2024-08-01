@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/17 15:04:08 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/23 15:43:30 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <drivers/device/ide.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <system/io.h>
 
 #include <system/pit.h>

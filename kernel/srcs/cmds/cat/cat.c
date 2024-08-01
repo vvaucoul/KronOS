@@ -6,13 +6,13 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/09 10:48:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/27 08:46:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:06:01 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/tinyfs/tinyfs.h>
 #include <fs/vfs/vfs.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 #include <multitasking/process.h>
 
 #include <system/fs/open.h>

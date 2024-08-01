@@ -6,12 +6,12 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/09 13:20:55 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/24 23:23:12 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/01 19:09:21 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fs/tinyfs/tinyfs.h>
-#include <memory/memory.h>
+#include <mm/mm.h>
 
 static char *__tiny_fs_update_inode_name(const char name[TINYFS_FILENAME_MAX + 1]);
 

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/01 00:17:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 19:01:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/02 10:46:36 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,6 +296,7 @@ heap_t *create_heap(uint32_t start, uint32_t end, uint32_t max) {
 extern uint32_t placement_addr;
 
 static void *intermediate_alloc(size_t size, uint8_t align, uint32_t *phys) {
+	/* If the kernel heap is initialized, we use it */
 	if (kheap) {
 		void *addr = kheap_alloc(size, align, kheap);
 		if (phys) {
@@ -306,20 +307,9 @@ static void *intermediate_alloc(size_t size, uint8_t align, uint32_t *phys) {
 				*phys = 0;
 		}
 		return addr;
-	} else {
-		// if (align && phys) {
-		// 	void *addr = ealloc_aligned_physic(size, phys);
-		// 	return addr;
-		// } else if (align) {
-		// 	return ealloc_aligned(size);
-		// } else if (phys) {
-		// 	void *addr = ealloc(size);
-		// 	*phys = (uint32_t)addr;
-		// 	return addr;
-		// } else {
-		// 	return ealloc(size);
-		// }
-
+	}
+	/* If the kernel heap is not initialized, we use the early alloc */
+	else {
 		if (align && (placement_addr & 0xFFFFF000)) {
 			placement_addr &= 0xFFFFF000;
 			placement_addr += PAGE_SIZE;

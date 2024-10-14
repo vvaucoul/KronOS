@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 19:51:56 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/02 11:18:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ typedef struct s_page {
 	uint32_t user : 1;	   // Supervisor level only if clear
 	uint32_t accessed : 1; // Has the page been accessed since last refresh?
 	uint32_t dirty : 1;	   // Has the page been written to since last refresh?
-	uint32_t unused : 7;   // Amalgamation of unused and reserved bits
+	uint32_t nx : 1;	   // No execute: If set, instruction fetches are not allowed
+	uint32_t unused : 6;   // Amalgamation of unused and reserved bits
 	uint32_t frame : 20;   // Frame address (shifted right 12 bits)
 } page_t;
 
@@ -71,5 +72,11 @@ void enable_paging(void *page_directory);
 
 void mmu_page_fault_handler(struct regs *r);
 int mmu_is_paging_enabled();
+
+void mmu_flush_tlb();
+void mmu_flush_tlb_entry(uint32_t address);
+
+void mmu_set_nx_bit(uint32_t address, int enable);
+void mmu_protect_region(uint32_t address, uint32_t size, int permissions);
 
 #endif /* !MMU_H */

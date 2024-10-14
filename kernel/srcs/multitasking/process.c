@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 19:13:55 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/02 12:04:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,6 @@ void init_tasking(void) {
     ASM_CLI();
 
     // printk("\t- Move stack\n");
-
     move_stack((void *)0xDEADBEEF, KERNEL_STACK_SIZE);
 
     __ready_queue_init();

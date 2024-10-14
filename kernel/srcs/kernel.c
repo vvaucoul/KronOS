@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 19:39:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/08/02 12:12:18 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,10 @@
 #include <multiboot/multiboot_mmap.h>
 
 /* Memory */
-#include <mm/mm.h>
-#include <mm/mmu.h>
-#include <mm/mmap.h>
 #include <mm/ealloc.h>
+#include <mm/mm.h>
+#include <mm/mmap.h>
+#include <mm/mmu.h>
 
 /* Filesystem */
 #include <fs/ext2/ext2.h>
@@ -370,9 +370,18 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	} else {
 		__WARND("No multiboot modules found, kernel will not use initrd.");
 	}
-	mmu_init();
+	if ((mmu_init()) != 0) {
+		__PANIC("Error: mmu_init failed");
+		__BSOD_UPDATE("Error: mmu_init failed");
+		bsod("MMU INIT FAILED", __FILE__);
+		return (1);
+	}
 	kernel_log_info("LOG", "PAGING");
 	kernel_log_info("LOG", "HEAP");
+
+	workflow_mmu();
+	ksleep(1);
+	kpause();
 
 	uint32_t mem_upper = multiboot_get_mem_upper();
 	printk("Memory Lower: %d KB (%d MB)\n", multiboot_get_mem_lower(), multiboot_get_mem_lower() / 1024);
@@ -381,9 +390,9 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	// kpause();
 	goto jmp;
 
-//  uint16_t low_memory_kb = get_low_memory_size_kb();
-//     printk("Low memory size: %u KB\n", low_memory_kb);
-// kpause();
+	//  uint16_t low_memory_kb = get_low_memory_size_kb();
+	//     printk("Low memory size: %u KB\n", low_memory_kb);
+	// kpause();
 
 	// kpause();
 
@@ -408,7 +417,6 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 		kmsleep(5);
 		i++;
 	}
-
 
 jmp:
 

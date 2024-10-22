@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 16:55:20 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 16:58:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,31 +19,36 @@
 
 #include <mm/mmu.h> // page_directory_t
 
-// Constants de base
-#define HEAP_START 0xC0200000		// Adresse de départ du heap (exemple)
-#define HEAP_INITIAL_SIZE (1 << 22) // Taille initiale du heap : 4 MB
-#define HEAP_MAX_SIZE (1 << 26)		// Taille maximale du heap : 64 MB
+/* Define Alignment Constants */
+#define HEAP_START 0xC0200000	   // Starting address of the heap (example)
+#define HEAP_INITIAL_SIZE 0x100000 // Initial heap size: 1 MB
+#define HEAP_MAX_SIZE 0x4000000	   // Maximum heap size: 64 MB
 
-#define ALIGNMENT 16 // Alignement souhaité
+#define KERNEL_PAGE_DIR_INDEX 768 // 0xC0000000 / 0x400000
+
+#define ALIGNMENT 16 // Desired alignment (can be PAGE_SIZE if needed)
 
 #define ALIGN_UP(addr, align) (((uintptr_t)(addr) + ((align) - 1)) & ~((uintptr_t)((align) - 1)))
 #define ALIGN_DOWN(addr, align) ((uintptr_t)(addr) & ~((uintptr_t)((align) - 1)))
 
-// Magic Number pour l'intégrité des blocs
+/* Magic Number for Heap Block Integrity */
 #define HEAP_BLOCK_MAGIC 0xDEADBEEF
 
-// Structure d'un bloc buddy
-typedef struct buddy_block {
-	size_t size;			  // Taille du bloc
-	bool is_free;			  // Indique si le bloc est libre
-	struct buddy_block *next; // Pointeur vers le bloc suivant dans la liste libre
-} buddy_block_t;
+/* Structure représentant un bloc de mémoire dans le heap */
+typedef struct heap_block {
+	size_t size;			 // Size of the block
+	bool is_free;			 // Free flag
+	struct heap_block *next; // Next block in the heap
+	struct heap_block *prev; // Previous block in the heap
+	uint32_t magic;			 // Magic number for integrity
+} heap_block_t;
 
-// Structure du heap
+/* Structure représentant le heap */
 typedef struct heap {
-	buddy_block_t *free_lists[13]; // Listes libres pour les ordres 0 à 12 (2^0 à 2^12)
-	size_t size;				   // Taille actuelle du heap
-	page_directory_t *dir;		   // Répertoire de pages associé
+	heap_block_t *first;   // First block in the heap
+	heap_block_t *last;	   // Last block in the heap
+	size_t size;		   // Current size of the heap
+	page_directory_t *dir; // Page directory
 } heap_t;
 
 // void create_heap(uint32_t start, uint32_t initial_size, uint32_t max_size);

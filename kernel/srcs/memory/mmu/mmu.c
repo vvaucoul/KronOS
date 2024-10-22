@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 16:55:23 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 16:58:39 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -479,7 +479,6 @@ int mmu_init(void) {
 
 	mmu_switch_page_directory(kernel_directory);
 	printk("MMU initialized\n");
-	kpause();
 
 	// check if i need to change directory
 	// load_page_directory(kernel_directory);

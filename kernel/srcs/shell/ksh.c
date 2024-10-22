@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:02 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 19:10:08 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/20 17:06:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <shell/ksh_builtins.h>
 #include <shell/ksh_termcaps.h>
 
+#include <asm/asm.h>
 #include <mm/mm.h>
 
 #include <multitasking/process.h>
@@ -35,7 +36,7 @@ bool ksh_is_running(void) {
 
 void ksh_clear(void) {
 	KSH_CLR_TERM_SH();
-	terminal_clear_screen();
+	tty_clear_screen();
 	ksh_current_line = __HEADER_HEIGHT__;
 	ksh_current_max_line = __HEADER_HEIGHT__;
 	ksh_min_line = __HEADER_HEIGHT__;
@@ -56,9 +57,9 @@ void ksh_execute_command(void) {
 		kfree(argv);
 	}
 	ksh_buffer_clear();
-	terminal_column = 0;
+	tty_column = 0;
 	DISPLAY_PROMPT();
-	terminal_column = __PROMPT_ASCII_LEN__;
+	tty_column = __PROMPT_ASCII_LEN__;
 	// update_cursor();
 }
 

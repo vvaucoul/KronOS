@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:59:44 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 18:26:07 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/21 11:26:06 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,13 @@
 /*                                                                            */
 /******************************************************************************/
 
-#include <drivers/vga.h>
+#include <drivers/tty.h>
 #include <mm/memory.h>
 #include <mm/mm.h>
 #include <mm/mmu.h>
 #include <system/panic.h>
+
+#include <system/serial.h>
 
 /**
  * @brief Reads the value of the CR2 register.
@@ -160,6 +162,19 @@ void mmu_page_fault_handler(struct regs *r) {
 	printk("------------------------------------------------\n");
 	printk(_END);
 
+	// Debug with QEMU Printf
+	qemu_printf("Page fault at 0x%x (EIP: 0x%x)\n", faulting_address, r->eip);
+	qemu_printf("Error code: 0x%x\n", r->err_code);
+	qemu_printf("CR3: 0x%x\n", cr3);
+	qemu_printf("General Purpose Registers:\n");
+	qemu_printf("  EAX: 0x%x  EBX: 0x%x  ECX: 0x%x  EDX: 0x%x\n", r->eax, r->ebx, r->ecx, r->edx);
+	qemu_printf("  EDI: 0x%x  ESI: 0x%x  EBP: 0x%x  ESP: 0x%x\n", r->edi, r->esi, r->ebp, r->esp);
+	qemu_printf("Segment Registers:\n");
+	qemu_printf("  GS: 0x%x  FS: 0x%x  ES: 0x%x  DS: 0x%x\n", r->gs, r->fs, r->es, r->ds);
+	qemu_printf("Control Registers:\n");
+	qemu_printf("  EIP: 0x%x  CS: 0x%x  SS: 0x%x  EFLAGS: 0x%x\n", r->eip, r->cs, r->ss, r->eflags);
+	qemu_printf("  User ESP: 0x%x\n", r->useresp);
+
 	// Determine the cause of the fault
 	if (faulting_address == 0x0) {
 		__PANIC("Page fault at NULL pointer");
@@ -176,4 +191,5 @@ void mmu_page_fault_handler(struct regs *r) {
 	} else {
 		__PANIC("Page fault");
 	}
+	kpause();
 }

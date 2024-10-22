@@ -6,14 +6,16 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 01:17:33 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 12:07:17 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <asm/asm.h>
 #include <stdio.h>
 #include <system/irq.h>
 #include <system/isr.h>
 #include <system/kerrno.h>
+#include <system/serial.h>
 
 static InterruptHandler isr_interrupt_handlers[NB_INTERRUPT_HANDLERS] = {0};
 static irqs_t irqs[ISR_MAX_COUNT] = {0};
@@ -98,6 +100,21 @@ static __attribute__((no_caller_saved_registers)) void isr_display_interrupt_fra
 	printk("  User ESP: 0x%08x\n", r->useresp);
 	printk("------------------------------------------------\n");
 	printk(_END);
+
+	qemu_printf(_END "\nInterrupt Frame:\n");
+	qemu_printf("------------------------------------------------\n");
+	qemu_printf("General Purpose Registers:\n");
+	qemu_printf("  EAX: 0x%08x  EBX: 0x%08x  ECX: 0x%08x  EDX: 0x%08x\n", r->eax, r->ebx, r->ecx, r->edx);
+	qemu_printf("  EDI: 0x%08x  ESI: 0x%08x  EBP: 0x%08x  ESP: 0x%08x\n", r->edi, r->esi, r->ebp, r->esp);
+	qemu_printf("\n");
+	qemu_printf("Segment Registers:\n");
+	qemu_printf("  GS: 0x%08x  FS: 0x%08x  ES: 0x%08x  DS: 0x%08x\n", r->gs, r->fs, r->es, r->ds);
+	qemu_printf("\n");
+	qemu_printf("Control Registers:\n");
+	qemu_printf("  EIP: 0x%08x  CS: 0x%08x  SS: 0x%08x  EFLAGS: 0x%08x\n", r->eip, r->cs, r->ss, r->eflags);
+	qemu_printf("  User ESP: 0x%08x\n", r->useresp);
+	qemu_printf("------------------------------------------------\n");
+	qemu_printf(_END);
 }
 
 /**
@@ -172,13 +189,18 @@ void fault_handler(struct regs *r) {
 		if (!zero && has_code)
 			err_code = r->err_code;
 
+		// Ajoutez un message de débogage ici
+		printk("Fault Handler: Handling interrupt %d\n", r->int_no);
+
+		// Traitez spécifiquement la division par zéro pour éviter les boucles infinies
+
 		pic8259_send_eoi(r->int_no);
 		__PANIC_INTERRUPT(irqs[r->int_no].name, r->int_no, type, err_code);
+
+		if (isr_interrupt_handlers[r->int_no] != NULL)
+			isr_interrupt_handlers[r->int_no](r);
 	} else {
 		isr_display_interrupt_frame(r);
 		__PANIC_INTERRUPT("Unhandled Interrupt", r->int_no, ABORT, r->err_code);
 	}
-
-	if (isr_interrupt_handlers[r->int_no] != NULL)
-		isr_interrupt_handlers[r->int_no](r);
 }

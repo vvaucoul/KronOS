@@ -1,74 +1,38 @@
-OUTPUT_FORMAT("elf32-i386")
-ENTRY(_start)
+ENTRY (_start)
 
 SECTIONS
 {
-	__kernel_physical_memory_start = 0x00100000; /* Start Kernel at 1MB (Physical address space) */
-	__kernel_virtual_memory_start = 0x00100000; /* Start Kernel at 1MB (Virtual address space) */
+    . = 0x00100000;
 
-    /*******************************************************************************
-     *                              BOOTING SECTIONS                               *
-     ******************************************************************************/
+    _kernel_start = .;
+    .multiboot.data : {
+        *(.multiboot.data)
+    }
 
-    . = __kernel_physical_memory_start;
-	__multiboot_start = .;
+    .multiboot.text : {
+        *(.multiboot.text)
+    }
 
-	.multiboot.text : 
-	{
-		__multiboot_text_start = .;
-		*(.multiboot.text)
-		__multiboot_text_end = .;
-	}
-	.multiboot.data : 
-	{
-		__multiboot_data_start = .;
-		*(.multiboot.data)
-		__multiboot_data_end = .;
-	}
-	
-	__multiboot_end = .;
+    . += 0xC0000000;
 
-    /*******************************************************************************
-     *                               KERNEL SECTIONS                               *
-     ******************************************************************************/
+    .text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
+    {
+        *(.text)
+    }
+    .rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+    {
+        *(.rodata)
+    }
+    .data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+    {
+        *(.data)
+    }
+    .bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+    {
+        *(COMMON)
+        *(.bss)
+        *(.bootstrap_stack)
+    }
 
-	. = __multiboot_end;
-	__kernel_section_start = .;
-
-    .text BLOCK(4K) : ALIGN(4K)
-	{
-		__kernel_text_section_start = .;
-		*(.multiboot)
-		*(.text)
-        . = ALIGN(4096);
-		__kernel_text_section_end = .;
-	}
-	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
-	{
-		__kernel_data_section_start = .;
-		*(.data)
-        . = ALIGN(4096);
-		__kernel_data_section_end = .;
-	}
-	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
-	{
-		__kernel_rodata_section_start = .;
-		*(.rodata)
-		__kernel_rodata_section_end = .;
-	}
-	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(4K) : ALIGN(4K)
-	{
-		__kernel_bss_section_start = .;
-		*(COMMON)
-		*(.bss)
-        . = ALIGN(4096);
-		__kernel_bss_section_end = .;
-	}
-
-	__kernel_section_end = .;
-	__kernel_virtual_memory_end = .;
-	__kernel_physical_memory_end = .;
+    _kernel_end = .;
 }

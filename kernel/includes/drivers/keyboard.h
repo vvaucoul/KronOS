@@ -6,14 +6,14 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:37:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/30 11:20:40 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/20 17:04:04 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-#include <drivers/vga.h>
+#include <drivers/tty.h>
 #include <kernel.h>
 #include <system/io.h>
 #include <system/irq.h>

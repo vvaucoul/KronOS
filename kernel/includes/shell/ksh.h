@@ -6,15 +6,15 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 14:40:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/26 22:49:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/20 17:04:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef KSH_H
 #define KSH_H
 
+#include <drivers/tty.h>
 #include <kernel.h>
-#include <drivers/vga.h>
 
 #include <system/pit.h>
 
@@ -31,8 +31,8 @@
 #define __HEADER_HEIGHT__ (size_t)(11)
 
 #define DISPLAY_PROMPT() printk(__PROMPT__)
-#define KSH_CHAR(x, y) ksh_buffer[(y)*VGA_WIDTH + (x)]
-#define KSH_LINE(y) (ksh_buffer + (y)*VGA_WIDTH)
+#define KSH_CHAR(x, y) ksh_buffer[(y) * VGA_WIDTH + (x)]
+#define KSH_LINE(y) (ksh_buffer + (y) * VGA_WIDTH)
 
 #define KSH_CLR_TERM_SH() ksh_clear_terminal_shell_buffer()
 #define KSH_UPDATE_TERM_SH() ksh_update_terminal_shell_buffer()
@@ -41,10 +41,10 @@ extern void kronos_shell(void);
 
 extern uint32_t *ksh_buffer;
 
-extern uint32_t ksh_max_line;         // Max line of the shell
+extern uint32_t ksh_max_line;		  // Max line of the shell
 extern uint32_t ksh_current_max_line; // Current max line of the shell
-extern uint32_t ksh_min_line;         // Min line of the shell
-extern uint32_t ksh_current_line;     // Current line of the shell
+extern uint32_t ksh_min_line;		  // Min line of the shell
+extern uint32_t ksh_current_line;	  // Current line of the shell
 
 /*******************************************************************************
  *                                   HISTORY                                   *

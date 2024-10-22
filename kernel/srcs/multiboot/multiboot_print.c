@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 11:51:23 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/29 12:41:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/21 14:45:48 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,11 +105,11 @@ void print_memory_map(void) {
  * @brief Prints the sections of the kernel.
  */
 void print_kernel_sections(void) {
-    printk("\t   - Kernel Sections:\n");
-    printk("\t\t   .text: 0x%x - 0x%x\n", &__kernel_text_section_start, &__kernel_text_section_end);
-    printk("\t\t   .data: 0x%x - 0x%x\n", &__kernel_data_section_start, &__kernel_data_section_end);
-    printk("\t\t   .rodata: 0x%x - 0x%x\n", &__kernel_rodata_section_start, &__kernel_rodata_section_end);
-    printk("\t\t   .bss: 0x%x - 0x%x\n", &__kernel_bss_section_start, &__kernel_bss_section_end);
-	printk("\t\t   .start: 0x%x\n", &__kernel_section_start);
-	printk("\t\t   .end: 0x%x\n", &__kernel_section_end);
+	// printk("\t   - Kernel Sections:\n");
+	// printk("\t\t   .text: 0x%x - 0x%x\n", &__kernel_text_section_start, &__kernel_text_section_end);
+	// printk("\t\t   .data: 0x%x - 0x%x\n", &__kernel_data_section_start, &__kernel_data_section_end);
+	// printk("\t\t   .rodata: 0x%x - 0x%x\n", &__kernel_rodata_section_start, &__kernel_rodata_section_end);
+	// printk("\t\t   .bss: 0x%x - 0x%x\n", &__kernel_bss_section_start, &__kernel_bss_section_end);
+	// printk("\t\t   .start: 0x%x\n", &__kernel_section_start);
+	// printk("\t\t   .end: 0x%x\n", &__kernel_section_end);
 }

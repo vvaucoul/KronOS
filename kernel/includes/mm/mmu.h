@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/02 11:18:47 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 15:17:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,14 @@ page_directory_t *mmu_get_kernel_directory(void);
 void mmu_set_current_directory(page_directory_t *dir);
 
 page_t *mmu_get_page(uint32_t address, page_directory_t *dir);
-page_t *mmu_create_page(uint32_t address, page_directory_t *dir);
+page_t *mmu_create_page(uint32_t address, page_directory_t *dir, int is_kernel);
 
 void mmu_destroy_page_directory(page_directory_t *dir);
 void mmu_destroy_page(uint32_t address, page_directory_t *dir);
 
 page_directory_t *mmu_clone_page_directory(page_directory_t *src);
 
-uint32_t mmu_get_physical_address(uint32_t virtual_address);
+uint32_t mmu_get_physical_address(void *virt_addr);
 uint32_t mmu_get_virtual_address(uint32_t physical_address);
 
 void mmu_switch_page_directory(page_directory_t *dir);
@@ -78,5 +78,7 @@ void mmu_flush_tlb_entry(uint32_t address);
 
 void mmu_set_nx_bit(uint32_t address, int enable);
 void mmu_protect_region(uint32_t address, uint32_t size, int permissions);
+
+uint8_t mmu_is_protected_mode(void);
 
 #endif /* !MMU_H */

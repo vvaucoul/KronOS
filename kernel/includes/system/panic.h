@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:26:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/07/31 01:14:59 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/19 11:55:29 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,65 +14,53 @@
 #define PANIC_H
 
 #include <kernel.h>
-#include <system/kerrno.h>
 #include <stdbool.h>
+#include <system/kerrno.h>
 
 typedef enum e_panic_type {
-    ABORT,
-    FAULT,
-    INTERRUPT,
-    TRAP
+	ABORT,
+	FAULT,
+	INTERRUPT,
+	TRAP
 } panic_t;
 
 #define __USE_KERRNO_HELPER__ false
 
-#define __PANIC_HEADER__ (const char *)(_RED "KERNEL "_END \
-                                             "-"_RED       \
-                                             " PANIC: " _END)
-#define __FAULT_HEADER__ (const char *)(_RED "KERNEL "_END \
-                                             "- "_YELLOW   \
-                                             "FAULT: " _END)
-#define __TRAP_HEADER__ (const char *)(_RED "KERNEL "_END \
-                                            "- "_YELLOW   \
-                                            "TRAP: " _END)
-#define __INTERRUPT_HEADER__ (const char *)(_RED "KERNEL "_END \
-                                                 "- "_YELLOW   \
-                                                 "INTERRUPT: " _END)
+#define __PANIC_HEADER__ (const char *)(_RED "KERNEL " _END "-" _RED " PANIC: " _END)
+#define __FAULT_HEADER__ (const char *)(_RED "KERNEL " _END "- " _YELLOW "FAULT: " _END)
+#define __TRAP_HEADER__ (const char *)(_RED "KERNEL " _END "- " _YELLOW "TRAP: " _END)
+#define __INTERRUPT_HEADER__ (const char *)(_RED "KERNEL " _END "- " _YELLOW "INTERRUPT: " _END)
 
 /*******************************************************************************
  *                                PANIC MACROS                                 *
  ******************************************************************************/
 
 extern bool __panic_handler;
+extern void __panic_loop_handler();
 #define __DISPLAY_HEADER__()            \
-    {                                   \
-        if (__panic_handler == false) { \
-            __panic_handler = true;     \
-            printk(__PANIC_HEADER__);   \
-        }                               \
-    }
+	{                                   \
+		if (__panic_handler == false) { \
+			__panic_handler = true;     \
+			printk(__PANIC_HEADER__);   \
+		}                               \
+	}
 
 #define __DISPLAY_HEADER_FAULT__() \
-    {                              \
-        printk(__FAULT_HEADER__);  \
-    }
+	{                              \
+		printk(__FAULT_HEADER__);  \
+	}
 
 #define __DISPLAY_HEADER_TRAP__() \
-    {                             \
-        printk(__TRAP_HEADER__);  \
-    }
+	{                             \
+		printk(__TRAP_HEADER__);  \
+	}
 
 #define __DISPLAY_HEADER_INTERRUPT__() \
-    {                                  \
-        printk(__INTERRUPT_HEADER__);  \
-    }
+	{                                  \
+		printk(__INTERRUPT_HEADER__);  \
+	}
 
-#define __PANIC_LOOP_HANDLER__() \
-    {                            \
-        while (1) {              \
-            ;                    \
-        }                        \
-    }
+#define __PANIC_LOOP_HANDLER__() __panic_loop_handler()
 
 /*******************************************************************************
  *                               PANIC FUNCTIONS                               *

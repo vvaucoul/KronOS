@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/10 19:02:46 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 18:10:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/21 15:02:55 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <kernel.h>
 #include <macros.h>
 #include <stddef.h>
+
+#include <system/pit.h>
 
 static multiboot_info_t *multiboot_info = NULL;
 extern uint32_t initial_esp;
@@ -64,14 +66,6 @@ static int multiboot_init_kernel_stack(uint32_t *kstack) {
 		kernel_stack = kstack;
 		initial_esp = (uint32_t)(uintptr_t)kstack;
 	}
-
-	/**
-	 * Set kernel stack
-	 *
-	 * We do not use this method because we already set the stack in the boot.s file
-	 *
-	 */
-	// __asm__ volatile ("movl %0, %%esp" :: "r"(stack_top));
 	return (0);
 }
 
@@ -90,7 +84,7 @@ int multiboot_init(uint32_t magic_number, uint32_t addr, uint32_t *kernel_stack)
 
 	/* Check if magic number is valid */
 	if (multiboot_check_magic_number(magic_number) != 0) {
-		return (1);
+		__WARND("Invalid magic number", 1);
 	}
 
 	/**
@@ -182,14 +176,14 @@ const char *multiboot_get_device_name(void) {
 	uint32_t boot_device = multiboot_info->boot_device;
 
 	switch (boot_device & 0xFF000000) {
-	case 0x80000000:
-		return "BIOS Boot Device";
-	case 0x00000000:
-		return "Hard Disk";
-	case 0x88000000:
-		return "CD-ROM";
-	default:
-		return "Unknown Device";
+		case 0x80000000:
+			return "BIOS Boot Device";
+		case 0x00000000:
+			return "Hard Disk";
+		case 0x88000000:
+			return "CD-ROM";
+		default:
+			return "Unknown Device";
 	}
 }
 

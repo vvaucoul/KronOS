@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/02 10:50:20 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/02 12:15:57 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 13:52:15 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,12 @@ int mmu_compare_page_directories(page_directory_t *dir1, page_directory_t *dir2)
 					page1->user != page2->user ||
 					page1->accessed != page2->accessed ||
 					page1->dirty != page2->dirty ||
-					page1->nx != page2->nx ||
 					page1->frame != page2->frame) {
 					printk("Mismatch at table %d, page %d:\n", i, j);
-					printk("  Dir1 - present: %d, rw: %d, user: %d, accessed: %d, dirty: %d, nx: %d, frame: %u\n",
-						   page1->present, page1->rw, page1->user, page1->accessed, page1->dirty, page1->nx, page1->frame);
-					printk("  Dir2 - present: %d, rw: %d, user: %d, accessed: %d, dirty: %d, nx: %d, frame: %u\n",
-						   page2->present, page2->rw, page2->user, page2->accessed, page2->dirty, page2->nx, page2->frame);
+					printk("  Dir1 - present: %d, rw: %d, user: %d, accessed: %d, dirty: %d, frame: %u\n",
+						   page1->present, page1->rw, page1->user, page1->accessed, page1->dirty, page1->frame);
+					printk("  Dir2 - present: %d, rw: %d, user: %d, accessed: %d, dirty: %d, frame: %u\n",
+						   page2->present, page2->rw, page2->user, page2->accessed, page2->dirty, page2->frame);
 					identical = 0;
 				}
 			}
@@ -88,7 +87,7 @@ void test_mmu_directory_management() {
 void test_mmu_page_creation() {
 	page_directory_t *dir = mmu_get_kernel_directory();
 	uint32_t test_address = 0x1000; // 4KB address
-	page_t *page = mmu_create_page(test_address, dir);
+	page_t *page = mmu_create_page(test_address, dir, 1);
 	assert(page != NULL);
 	assert(page->present == 1);
 	page_t *retrieved_page = mmu_get_page(test_address, dir);
@@ -113,22 +112,41 @@ void test_mmu_clone_directory() {
 	page_directory_t *dir = mmu_get_kernel_directory();
 	page_directory_t *clone = mmu_clone_page_directory(dir);
 	assert(clone != NULL);
+
 	if (mmu_compare_page_directories(dir, clone)) {
 		printk("test_mmu_clone_directory: " _GREEN "[OK]\n" _END);
 	} else {
 		printk("test_mmu_clone_directory: " _RED "[FAIL]\n" _END);
 	}
 
+	// Verify flags for each cloned page
+	for (int i = 0; i < PAGE_ENTRIES; ++i) {
+		if (dir->tables[i] && clone->tables[i]) {
+			for (int j = 0; j < PAGE_ENTRIES; ++j) {
+				page_t *page1 = &dir->tables[i]->pages[j];
+				page_t *page2 = &clone->tables[i]->pages[j];
+				assert(page1->present == page2->present);
+				assert(page1->rw == page2->rw);
+				assert(page1->user == page2->user);
+				assert(page1->accessed == page2->accessed);
+				assert(page1->dirty == page2->dirty);
+				// assert(page1->nx == page2->nx);
+				assert(page1->frame == page2->frame);
+			}
+		}
+	}
+
+	printk("test_mmu_clone_directory (flags verified for cloned pages): " _GREEN "[OK]\n" _END);
+
 	mmu_destroy_page_directory(clone);
-	kpause();
 }
 
 // Test address translation
 void test_mmu_address_translation() {
 	page_directory_t *dir = mmu_get_kernel_directory();
 	uint32_t test_address = 0xC0000000; // 3GB address
-	mmu_create_page(test_address, dir);
-	uint32_t physical_address = mmu_get_physical_address(test_address);
+	mmu_create_page(test_address, dir, 1);
+	uint32_t physical_address = mmu_get_physical_address((void *)test_address);
 	assert(physical_address != 0);
 	uint32_t virtual_address = mmu_get_virtual_address(physical_address);
 	assert(virtual_address == test_address);
@@ -140,7 +158,7 @@ void test_mmu_address_translation() {
 void test_mmu_protection() {
 	page_directory_t *dir = mmu_get_kernel_directory();
 	uint32_t test_address = 0x3000; // 12KB address
-	mmu_create_page(test_address, dir);
+	mmu_create_page(test_address, dir, 1);
 	mmu_protect_region(test_address, PAGE_SIZE, 0x2); // RW protection
 	page_t *page = mmu_get_page(test_address, dir);
 	assert(page->rw == 1);
@@ -154,11 +172,37 @@ void test_mmu_protection() {
 void test_mmu_tlb_flush() {
 	page_directory_t *dir = mmu_get_kernel_directory();
 	uint32_t test_address = 0x4000; // 16KB address
-	mmu_create_page(test_address, dir);
+	mmu_create_page(test_address, dir, 1);
 	mmu_flush_tlb_entry(test_address);
 	mmu_flush_tlb();
 	printk("test_mmu_tlb_flush: "_GREEN
 		   "[OK]\n"_END);
+}
+
+// Test handling of multiple page directories
+void test_mmu_multiple_directories() {
+	page_directory_t *dir1 = mmu_get_kernel_directory();
+	page_directory_t *dir2 = mmu_clone_page_directory(dir1);
+	assert(dir2 != NULL);
+
+	// Modify a page in dir2 and verify that dir1 remains unchanged
+	uint32_t test_address = 0x2000; // Arbitrary address
+	mmu_create_page(test_address, dir2, 1);
+	page_t *page_in_dir2 = mmu_get_page(test_address, dir2);
+	assert(page_in_dir2 != NULL);
+	assert(page_in_dir2->present == 1);
+
+	page_t *page_in_dir1 = mmu_get_page(test_address, dir1);
+	if (page_in_dir1 != NULL) {
+		assert(page_in_dir1->present == 0); // dir1 should not have this page present
+	} else {
+		assert(page_in_dir1 == NULL); // dir1 should not have this page at all
+	}
+
+	printk("test_mmu_multiple_directories: "_GREEN
+		   "[OK]\n"_END);
+
+	mmu_destroy_page_directory(dir2);
 }
 
 void workflow_mmu(void) {
@@ -175,11 +219,13 @@ void workflow_mmu(void) {
 	test_mmu_directory_management();
 	test_mmu_page_creation();
 	test_mmu_page_destruction();
+
 	test_mmu_clone_directory();
-	kpause();
 	test_mmu_address_translation();
 	test_mmu_protection();
 	test_mmu_tlb_flush();
+	// test_mmu_multiple_directories();
+	// kpause();
 
 	__WORKFLOW_FOOTER();
 }

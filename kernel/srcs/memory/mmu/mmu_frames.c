@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:39:30 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 11:56:51 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 12:47:16 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <system/panic.h>
 
 #include <multiboot/multiboot.h>
+
+#include <system/serial.h>
 
 static uint32_t n_frames;
 static uint32_t *frames;
@@ -76,7 +78,7 @@ static uint32_t first_frame(void) {
 			}
 		}
 	}
-	return (uint32_t)-1;
+	return 0xFFFFFFFF;
 }
 
 /**
@@ -91,7 +93,7 @@ void allocate_frame(page_t *page, int is_kernel, int is_writeable) {
 		return;
 	} else {
 		uint32_t idx = first_frame();
-		if (idx == (uint32_t)-1) {
+		if (idx == 0xFFFFFFFF) {
 			__PANIC("No free frames!");
 		}
 		set_frame(idx * PAGE_SIZE);
@@ -139,21 +141,22 @@ uint32_t get_frame_count(void) {
  * It performs any necessary setup or initialization tasks.
  */
 void init_frames(uint64_t mem_size) {
+	qemu_printf("Initializing frames\n");
 	n_frames = mem_size / PAGE_SIZE;
 
-	frames = (uint32_t *)ealloc_aligned(INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
+	frames = (uint32_t *)ealloc_aligned(INDEX_FROM_BIT(n_frames) * sizeof(uint32_t), PAGE_SIZE);
+	qemu_printf("\t- Frames: %p -> %p\n", frames, frames + INDEX_FROM_BIT(n_frames));
 	memset(frames, 0, INDEX_FROM_BIT(n_frames) * sizeof(uint32_t));
 
-	printk("\t   - Total frames: " _GREEN);
-	printk("%ld" _END, n_frames);
-	printk(" for "_GREEN
-		   "(%ld KB)"_END
-		   " of memory\n",
-		   mem_size / 1024);
+	printk("\t   - Total frames: " _GREEN "%ld" _END " for "_GREEN
+		   "(%ld KB)" _END " of memory\n",
+		   n_frames, mem_size / 1024);
 
-	uint32_t frames_per_page = PAGE_SIZE * 8;
+	uint32_t frames_per_page = PAGE_SIZE / 4;
 
-	printk("\t   - Frames per page: " _GREEN);
+	printk("\t - Frames per page: " _GREEN);
 	printk("%ld" _END, frames_per_page);
 	printk("\n");
+
+	qemu_printf("\t - Total frames: %ld for (%ld KB) of memory\n\t - Frames per page: %ld\n", n_frames, mem_size / 1024, frames_per_page);
 }

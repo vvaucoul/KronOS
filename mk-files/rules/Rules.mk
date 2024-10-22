@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/17 01:12:56 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/31 14:14:42 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/10/20 16:51:50 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,8 +47,8 @@ HDB_SIZE				=	$(shell grep -oP 'hdb_size="\K[^"]+' mk-files/.config)
 # ! ||--------------------------------------------------------------------------------||
 
 # Define default compiler values
-CC_DEFAULT			=	gcc-12
-CXX_DEFAULT			=	g++
+CC_DEFAULT				=	i386-elf-gcc
+# CXX_DEFAULT			=	i386-elf-gcc
 
 # Try to extract the compiler from mk-files/.config if it exists
 CONFIG_FILE			=	mk-files/.config
@@ -58,14 +58,11 @@ else
 	COMPILER		=	$(CC_DEFAULT)
 endif
 
-# Output the compiler being used
-# $(info Compiler: $(COMPILER))
-
 # Set compiler variables based on the COMPILER value
 ifeq ($(COMPILER), clang)
 	CC					=	clang-15
-	CXX					=	clang++
+# CXX					=	clang++
 else
 	CC					=	$(CC_DEFAULT)
-	CXX					=	$(CXX_DEFAULT)
+# CXX					=	$(CXX_DEFAULT)
 endif

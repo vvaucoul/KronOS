@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 18:53:16 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 15:24:32 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,58 +17,43 @@
 #include <stddef.h>	 // size_t
 #include <stdint.h>	 // uint32_t
 
-#define HEAP_MAGIC 0x12345678			   // Magic number for heap header
-#define HEAP_MIN_SIZE 0x70000			   // 448KB
-#define KERNEL_HEAP_EXPAND_OFFSET 0x100000 // 1MB
+#include <mm/mmu.h> // page_directory_t
 
-#define HEAP_START 0xC0000000
-#define HEAP_INITIAL_SIZE 0x100000 // 1MB
-#define HEAP_MAX_SIZE 0xCFFFF000	// ~3GB
-#define HEAP_INDEX_SIZE 0x20000	// 128KB
+/* Define Alignment Constants */
+#define HEAP_START 0xC0200000	   // Starting address of the heap (example)
+#define HEAP_INITIAL_SIZE 0x100000 // Initial heap size: 1 MB
+#define HEAP_MAX_SIZE 0x4000000	   // Maximum heap size: 64 MB
 
-enum kheap_block_status {
-	USED,
-	FREE
-};
+#define KERNEL_PAGE_DIR_INDEX 768 // 0xC0000000 / 0x400000
 
-typedef void *data_t;
-typedef struct s_heap_header {
-	uint32_t magic;
-	enum kheap_block_status state;
-	uint32_t size;
-} heap_header_t;
+#define ALIGNMENT 16 // Desired alignment (can be PAGE_SIZE if needed)
 
-typedef struct s_heap_footer {
-	uint32_t magic;
-	heap_header_t *header;
-} heap_footer_t;
+#define ALIGN_UP(addr, align) (((uintptr_t)(addr) + ((align) - 1)) & ~((uintptr_t)((align) - 1)))
+#define ALIGN_DOWN(addr, align) ((uintptr_t)(addr) & ~((uintptr_t)((align) - 1)))
 
-typedef bool (*heap_node_predicate_t)(data_t, data_t);
+/* Magic Number for Heap Block Integrity */
+#define HEAP_BLOCK_MAGIC 0xDEADBEEF
 
-typedef struct s_heap_array {
-	data_t *array;
-	uint32_t size;
-	uint32_t max_size;
-	heap_node_predicate_t predicate;
-} heap_array_t;
+/* Structure représentant un bloc de mémoire dans le heap */
+typedef struct heap_block {
+	size_t size;			 // Size of the block
+	bool is_free;			 // Free flag
+	struct heap_block *next; // Next block in the heap
+	struct heap_block *prev; // Previous block in the heap
+	uint32_t magic;			 // Magic number for integrity
+} heap_block_t;
 
-typedef struct s_heap {
-	heap_array_t array;
-	struct
-	{
-		uint32_t start_address;
-		uint32_t end_address;
-		uint32_t max_address;
-	} addr;
-
-	struct
-	{
-		uint8_t supervisor;
-		uint8_t readonly;
-	} flags;
+/* Structure représentant le heap */
+typedef struct heap {
+	heap_block_t *first;   // First block in the heap
+	heap_block_t *last;	   // Last block in the heap
+	size_t size;		   // Current size of the heap
+	page_directory_t *dir; // Page directory
 } heap_t;
 
-heap_t *create_heap(uint32_t start, uint32_t end, uint32_t max);
+// void create_heap(uint32_t start, uint32_t initial_size, uint32_t max_size);
+void initialize_heap(page_directory_t *dir);
+void list_heap_blocks(void);
 
 void *kmalloc(size_t size);
 void *kmalloc_a(size_t size);
@@ -88,11 +73,11 @@ void *vrealloc(void *p, size_t size);
 
 size_t vsize(void *p);
 
-bool heap_predicate(data_t a, data_t b);
-heap_array_t heap_array_create(void *addr, uint32_t max_size, heap_node_predicate_t predicate);
-void heap_array_insert_element(data_t data, heap_array_t *array);
-data_t heap_array_get_element(uint32_t index, heap_array_t *array);
-void heap_array_remove_element(uint32_t index, heap_array_t *array);
-void heap_destroy(heap_array_t *array);
+// bool heap_predicate(data_t a, data_t b);
+// heap_array_t heap_array_create(void *addr, uint32_t max_size, heap_node_predicate_t predicate);
+// void heap_array_insert_element(data_t data, heap_array_t *array);
+// data_t heap_array_get_element(uint32_t index, heap_array_t *array);
+// void heap_array_remove_element(uint32_t index, heap_array_t *array);
+// void heap_destroy(heap_array_t *array);
 
 #endif /* !KHEAP_H */

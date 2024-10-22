@@ -125,7 +125,29 @@
 			"mm.h": "c",
 			"shared.h": "c",
 			"mmu.h": "c",
-			"mmuf.h": "c"
-		}
+			"mmuf.h": "c",
+			"ealloc.h": "c",
+			"string": "c",
+			"buffer": "c",
+			"internet": "c",
+			"socket": "c",
+			"ranges": "c",
+			"span": "c",
+			"sstream": "c",
+			"regex": "c",
+			"hash_set": "c",
+			"bitset": "c",
+			"chrono": "c",
+			"hash_map": "c",
+			"format": "c",
+			"charconv": "c",
+			"tty.h": "c",
+			"vsprintk.h": "c",
+			"cstdint": "c",
+			"math.h": "c",
+			"pool.h": "c",
+			"pagetable_pool.h": "c"
+		},
+		"auto-scroll.enabled": true
 	}
 }

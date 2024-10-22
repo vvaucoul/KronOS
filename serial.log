@@ -1,0 +1,42 @@
+Kernel end addr: 0xC01D3D30
+Initializing frames
+	- Frames: 0xC01D4000 -> 0xC01EBFEC
+	 - Total frames: 786303 for (3145215 KB) of memory
+	 - Frames per page: 0
+pagetable_pool_init: Page table pool initialized at 0xC01EF000
+pagetable_pool_init: Page table pool end at 0xC01FF000
+pagetable_pool_alloc: Allocated page table at 0x0xC01EF000
+mmu_create_page: Created new page table at 0x0xC01EF000 (PA=0x1EF000) for table index 768
+Create page from 0xC0200000 to 0xC0300000
+Validate mappings [1]
+All mappings from 0xC0200000 to 0xC0300000 are valid.
+pagetable_pool_alloc: Allocated page table at 0x0xC01F0000
+mmu_create_page: Created new page table at 0x0xC01F0000 (PA=0x1F0000) for table index 0
+Allocate frame from 0x0 to 0x200000
+Validate mappings [2]
+All mappings from 0x0 to 0x200000 are valid.
+Allocate frame from 0xC0200000 to 0xC0300000
+Validate mappings [3]
+All mappings from 0xC0200000 to 0xC0300000 are valid.
+mmu_switch_page_directory: Switching to directory at physical address 0x1ED000
+Kernel end addr: 0xC01D3D30
+Initializing frames
+	- Frames: 0xC01D4000 -> 0xC01EBFEC
+	 - Total frames: 786303 for (3145215 KB) of memory
+	 - Frames per page: 0
+pagetable_pool_init: Page table pool initialized at 0xC01EF000
+pagetable_pool_init: Page table pool end at 0xC01FF000
+pagetable_pool_alloc: Allocated page table at 0x0xC01EF000
+mmu_create_page: Created new page table at 0x0xC01EF000 (PA=0x1EF000) for table index 768
+Create page from 0xC0200000 to 0xC0300000
+Validate mappings [1]
+All mappings from 0xC0200000 to 0xC0300000 are valid.
+pagetable_pool_alloc: Allocated page table at 0x0xC01F0000
+mmu_create_page: Created new page table at 0x0xC01F0000 (PA=0x1F0000) for table index 0
+Allocate frame from 0x0 to 0x200000
+Validate mappings [2]
+All mappings from 0x0 to 0x200000 are valid.
+Allocate frame from 0xC0200000 to 0xC0300000
+Validate mappings [3]
+All mappings from 0xC0200000 to 0xC0300000 are valid.
+mmu_switch_page_directory: Switching to directory at physical address 0x1ED000

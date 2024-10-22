@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 23:41:37 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/01 18:17:27 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/20 19:33:14 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ void isr_trigger_bound_range_exceed() {
 }
 
 void isr_trigger_invalid_tss() {
-  	__asm__ volatile("int $0xA"); // Causes an overflow exception
-
+	__asm__ volatile("int $0xA"); // Causes an overflow exception
 }
 #endif

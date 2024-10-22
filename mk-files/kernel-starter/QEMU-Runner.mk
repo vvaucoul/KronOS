@@ -6,11 +6,13 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/29 16:45:20 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/30 22:31:33 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/10/21 00:43:40 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-GLOBAL_QEMU_FLAGS	=	-smp 4 -m 4G -cpu kvm32 -machine type=pc -k en-us -rtc base=localtime
+GLOBAL_QEMU_FLAGS	=	-smp 2 -m 4G -cpu kvm32 -machine type=pc -k en-us -rtc base=localtime -serial file:serial.log #-icount auto
+# qemu-system-i386 -kernel bin/kernel.bin -cpu kvm32 -d cpu_reset  -no-reboot -full-screen   -cpu kvm32 -machine type=pc -k en-us -m 4G
+
 
 ifeq ($(CHECK_USE_KVM), false)
 	QEMU			:=	qemu-system-i386
@@ -46,7 +48,7 @@ run-curses: $(NAME)
 run-debug: $(NAME)
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)kernel$(_LWHITE) in $(_LRED)debug mode$(_LWHITE) !\n"
 	@x-terminal-emulator -e gdb -q -x scripts/gdb-commands.txt 
-	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -serial file:serial.log -vga vmware
+	@$(QEMU) $(GLOBAL_QEMU_FLAGS) -kernel isodir/boot/$(BIN) -s -S -serial file:serial.log -vga vmware -d cpu_reset  -d int -no-shutdown -no-reboot
 
 run-iso-disk: $(NAME) hda hdb ext2 initrd
 	@printf "$(_LWHITE)Running $(_LYELLOW)KFS$(_LWHITE) with $(_LYELLOW)$(QEMU)$(_LWHITE) with $(_LYELLOW)cdrom$(_LWHITE) and $(_LYELLOW)disk$(_LWHITE): $(_LYELLOW)$(DISK_NAME)$(_LWHITE) !\n"

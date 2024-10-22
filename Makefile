@@ -6,7 +6,7 @@
 #    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/14 18:51:28 by vvaucoul          #+#    #+#              #
-#    Updated: 2024/07/31 13:25:34 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/10/21 10:28:10 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,13 +47,14 @@ INLCUDES_PATH		=	-I./kernel/includes/ \
 CFLAGS				=	-Wall -Wextra -Wimplicit-function-declaration -Wincompatible-pointer-types \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-nostdlib -nodefaultlibs -nostdinc \
-						-std=c2x -ffreestanding -O2 #-Werror -Wfatal-errors
+						-std=c2x -ffreestanding -O0 -Wunused -m32 #-Werror -Wfatal-errors
 CXXFLAGS			=	-Wall -Wextra -Wimplicit-function-declaration -Wincompatible-pointer-types \
 						-fno-builtin -fno-exceptions -fno-stack-protector \
 						-fno-rtti -nostdlib -nodefaultlibs -nostdinc \
-						-std=c++17 -ffreestanding -O2 #-Werror -Wfatal-errors
-LDFLAGS				= 	-g3 -m32
-LD_FLAGS			=	-m elf_i386
+						-std=c++17 -ffreestanding -O0 #-Werror -Wfatal-errors
+LDFLAGS				= 	-g -m32
+LD_FLAGS			=	-m elf_i386 
+DEBUG_FLAGS			=	-g -O0 -c 
 
 OBJS_DIR			=	objs
 DEPENDS_DIR			=	depends
@@ -107,15 +108,15 @@ DEPENDS_ASM			=	$(KOBJS_ASM:.o=.d)
 		COLOR="$(_LCYAN)"; \
 	fi; \
 	printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$$COLOR %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(CC) $(LDFLAGS) $(CFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.c=.o}
+	@$(CC) $(LDFLAGS) $(DEBUG_FLAGS) $(CFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.c=.o}
 
 %.o: %.s
 	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LPURPLE) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(ASM) $(ASMFLAGS) $< -o ${<:.s=.o}
+	@$(ASM) $(ASMFLAGS)  $< -o ${<:.s=.o}
 
 %.o: %.cpp
 	@printf "$(_LWHITE) $(_DIM)- Compiling: $(_END)$(_DIM)--------$(_END)$(_LGREEN) %s $(_END)$(_LGREEN)[$(_LWHITE)✓$(_LGREEN)]$(_END)\n" $< 
-	@$(CXX) $(LDFLAGS) $(CXXFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.cpp=.o}
+	@$(CXX) $(LDFLAGS) $(DEBUG_FLAGS) $(CXXFLAGS) $(INLCUDES_PATH) -MD -c $< -o ${<:.cpp=.o}
 
 #*******************************************************************************
 #*                                    RULES                                    *

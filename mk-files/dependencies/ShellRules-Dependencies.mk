@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    ShellRules-Dependencies.mk                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vvaucoul <vvaucoul@student.42.Fr>          +#+  +:+       +#+         #
+#    By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/02 13:18:04 by vvaucoul          #+#    #+#              #
-#    Updated: 2023/02/11 13:59:42 by vvaucoul         ###   ########.fr        #
+#    Updated: 2024/10/14 15:27:36 by vvaucoul         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,3 +28,5 @@ CHECK_HEPHAISTOS_INSTALL	:= $(shell sh $(SCRIPTS_DIR)/checkHephaistos.sh)
 #*******************************************************************************
 
 CHECK_USE_KVM				:= $(shell cat $(CONFIG_FILE) | grep "USE_KVM" | cut -d '=' -f 2)
+
+CHECK_CROSS_COMPILER		:= $(shell cat $(CONFIG_FILE) | grep "CROSS_COMPILER" | cut -d '=' -f 2)

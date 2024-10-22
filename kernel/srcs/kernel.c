@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/08/02 12:12:18 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/21 15:28:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@
 #include <drivers/device/ide.h>
 #include <drivers/display.h>
 #include <drivers/keyboard.h>
-#include <drivers/vesa.h>
 
 #include <multiboot/multiboot.h>
 #include <multiboot/multiboot_mmap.h>
@@ -94,20 +93,39 @@ uint32_t *kernel_stack;
 // ! ||                             KERNEL UTILS FUNCTIONS                             ||
 // ! ||--------------------------------------------------------------------------------||
 
-static inline void ksh_header(void) {
-	printk(_RED "\n \
-   \t\t\t\t\t\t\t##   ###   ##  \n \
-   \t\t\t\t\t\t\t ##  ###  ##   \n \
-   \t\t\t\t\t\t\t  ## ### ##    \n \
-   \t\t\t\t\t\t\t  ## ### ##    \n \
-   \t\t\t\t\t\t\t  ## ### ##    \n \
-   \t\t\t\t\t\t\t ##  ###  ##   \n \
-   \t\t\t\t\t\t\t##   ###   ##  \n \
-    \n" _END);
-	printk(_RED);
-	terminal_write_n_char('#', VGA_WIDTH);
-	printk(_END);
+static inline void
+ksh_header(void) {
+	const char *header_lines[] = {
+		"##   ###   ##",
+		" ##  ###  ## ",
+		"  ## ### ##  ",
+		"  ## ### ##  ",
+		"  ## ### ##  ",
+		" ##  ###  ## ",
+		"##   ###   ##"};
+
+	printk(_RED "\n");
+	for (int i = 0; i < sizeof(header_lines) / sizeof(header_lines[0]); ++i) {
+		printk("\t\t\t\t\t\t\t\t%s\n", header_lines[i]);
+	}
 	printk("\n");
+	for (uint8_t i = 0; i < 80; ++i) {
+		putchar('#');
+	}
+
+	printk(_END "\n");
+
+	printk(_LCYAN "Kernel Version: " _LGREEN __KERNEL_VERSION__ "\n");
+	printk(_LCYAN "Kernel Name: " _LGREEN __KERNEL_NAME__ "\n");
+	printk(_LCYAN "Compiler: " _LGREEN __COMPILER__ "\n");
+	printk(_LCYAN "Author: " _LGREEN __AUTHOR__ "\n");
+
+	printk(_END "\n" _RED);
+
+	for (uint8_t i = 0; i < 80; ++i) {
+		putchar('#');
+	}
+	printk(_END "\n");
 }
 
 void kernel_log_info(const char *part, const char *name) {
@@ -151,15 +169,19 @@ static int check_multiboot(uint32_t magic_number, uint32_t addr, uint32_t *kstac
 		bsod("MULTIBOOT INIT FAILED", __FILE__);
 		return (1);
 	} else {
+
 		const char *m_device = multiboot_get_device_name();
 		uint32_t m_mem_lower, m_mem_upper;
+		uint32_t available_memory = get_available_memory(get_multiboot_info());
 
 		m_mem_lower = multiboot_get_mem_lower();
 		m_mem_upper = multiboot_get_mem_upper();
 
 		printk("\t   - Device: " _GREEN "%s\n" _END, m_device);
-		printk("\t   - Memory: " _GREEN "%d KB (%ld MB)\n" _END, m_mem_lower + m_mem_upper, (m_mem_lower + m_mem_upper) / 1024);
-		printk("\t   - Kernel Stack: " _GREEN "%d KB\n" _END, KERNEL_STACK_SIZE / 1024);
+		printk("\t   - Memory Lower: " _GREEN "%ld KB (%ld MB)\n" _END, m_mem_lower, m_mem_lower / 1024);
+		printk("\t   - Memory Upper: " _GREEN "%ld KB (%ld MB)\n" _END, m_mem_upper, m_mem_upper / 1024);
+		printk("\t   - Available Memory: " _GREEN "%ld KB (%ld MB)\n" _END, available_memory / 1024, available_memory / 1024 / 1024);
+		printk("\t   - Kernel Stack: " _GREEN "%ld KB\n" _END, KERNEL_STACK_SIZE / 1024);
 
 		kernel_log_info("LOG", "MULTIBOOT");
 	}
@@ -325,12 +347,9 @@ static int init_filesystems(uint32_t initrd_location, uint32_t initrd_end) {
 }
 
 static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
-	printk("kstack: 0x%x\n", kstack);
-	vga_init();
+	tty_init();
 	ksh_header();
-	kernel_log_info("LOG", "VGA - (80x25)");
-	kernel_log_info("LOG", "TERMINAL");
-
+	kernel_log_info("LOG", "TTY");
 	time_init();
 	kernel_log_info("LOG", "TIME");
 
@@ -357,10 +376,19 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	 */
 	uint32_t initrd_location = 0;
 	uint32_t initrd_end = 0;
+	printk("Placement Addr: 0x%x\n", get_placement_addr());
+
+	// Convertir les adresses physiques des modules en adresses virtuelles
 	if (get_multiboot_info()->mods_count > 0) {
-		initrd_location = *((uint32_t *)(uintptr_t)get_multiboot_info()->mods_addr);
-		initrd_end = *(uintptr_t *)((uintptr_t)get_multiboot_info()->mods_addr + 4);
-		// placement_addr = initrd_end;
+		// Conversion de mods_addr en adresse virtuelle
+		uint32_t mods_addr_virtual = (uint32_t)(uintptr_t)get_multiboot_info()->mods_addr + KERNEL_VIRTUAL_BASE;
+
+		// Récupérer l'adresse du premier module (initrd)
+		initrd_location = *((uint32_t *)(uintptr_t)mods_addr_virtual); // Initrd start
+		initrd_end = *(uintptr_t *)(mods_addr_virtual + 4);			   // Initrd end
+
+		// Ajustement de l'adresse de placement
+		printk("Placement Addr: 0x%x\n", initrd_end);
 		set_placement_addr(initrd_end);
 
 		printk("\t   - Initrd Location: " _GREEN);
@@ -370,53 +398,162 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	} else {
 		__WARND("No multiboot modules found, kernel will not use initrd.");
 	}
+
+	printk("Kernel end addr: 0x%x\n", &_kernel_end);
+	qemu_printf("Kernel end addr: 0x%x\n", &_kernel_end);
+
 	if ((mmu_init()) != 0) {
 		__PANIC("Error: mmu_init failed");
 		__BSOD_UPDATE("Error: mmu_init failed");
 		bsod("MMU INIT FAILED", __FILE__);
 		return (1);
 	}
+	kpause();
+
 	kernel_log_info("LOG", "PAGING");
 	kernel_log_info("LOG", "HEAP");
 
-	workflow_mmu();
+	// kpause();
+
+	// workflow_mmu();
 	ksleep(1);
-	kpause();
 
 	uint32_t mem_upper = multiboot_get_mem_upper();
 	printk("Memory Lower: %d KB (%d MB)\n", multiboot_get_mem_lower(), multiboot_get_mem_lower() / 1024);
 	printk("Memory Upper: %d KB (%d MB)\n", mem_upper, mem_upper / 1024);
-
 	// kpause();
-	goto jmp;
+	// goto jmp;
 
 	//  uint16_t low_memory_kb = get_low_memory_size_kb();
 	//     printk("Low memory size: %u KB\n", low_memory_kb);
 	// kpause();
 
-	// kpause();
-
 	printk("Heap test \n");
-	ksleep(1);
-
+	kmsleep(250);
+	goto jmp3;
 	// kheap_test();
 	// kpause();
 
-	uint32_t i = 0, size = 0, alloc_size = 0x1000 * 0x100;
+	// Test kmalloc to fill heap (check if all heap can be allocated)
+
+	uint32_t asize = 0;
+	uint32_t max_blocks = 0x10 * 0x10 * 0x10;
+	uint32_t max_memory = 0x10 * 0x10 * 0x10 * 0x10 * 0x10;
+	printk("Allocating [%ld] blocks\n", max_blocks);
+	for (uint32_t k = 0; k < 0x10 * 0x10 * 0x10; k++) {
+		for (uint32_t i = 0; i < 0x10 * 0x10; i++) {
+			for (uint32_t j = 0; j < 0x10; j++) {
+				printk("Iteration %ld/%ld\n", k * 0x10 * 0x10 + i * 0x10 + j, max_blocks);
+				asize = j * i * k * 0x10;
+				if (asize == 0) {
+					asize = 0x10;
+				}
+
+				void *ptr = kmalloc(asize); // 4KB
+				if (ptr == NULL) {
+					printk("Allocation failed at iteration %u\n", k * 0x10 * 0x10 + i * 0x10 + j);
+					__PANIC("Allocation failed");
+				} else {
+					memset(ptr, 0, asize);
+					printk(_GREEN "Allocated block at address 0x%x\n"_END, (uint32_t)ptr);
+					uint8_t random = rand() % 2;
+					if (random == 1) {
+						printk(_RED "Freed block at address 0x%x\n"_END, (uint32_t)ptr);
+						kfree(ptr);
+					}
+					// kmsleep(20);
+				}
+			}
+		}
+	}
+
+	kpause();
+jmp3:
+
+	printk("Allocating tiny blocks\n");
+	kmsleep(250);
+	// Allocate tiny blocks
+	for (uint32_t i = 0; i < 20; i++) {
+		void *ptr = kmalloc(128); // 128 bytes
+		if (ptr == NULL) {
+			printk("Allocation failed at iteration %u\n", i);
+			qemu_printf("Allocation failed at iteration %u\n", i);
+			kpause();
+		} else {
+			memset(ptr, 0, 128);
+		}
+		printk(_GREEN "Allocated block %d at address 0x%x\n"_END, i, (uint32_t)ptr);
+		qemu_printf("Allocated block %d at address 0x%x\n", i, (uint32_t)ptr);
+	}
+	kpause();
+	printk("Allocating Medium blocks\n");
+	kmsleep(250);
+
+	// Allocate Medium blocks
+	for (uint32_t i = 0; i < 20; i++) {
+		void *ptr = kmalloc(0x1000); // 4KB
+		if (ptr == NULL) {
+			printk("Allocation failed at iteration %u\n", i);
+			qemu_printf("Allocation failed at iteration %u\n", i);
+			kpause();
+		} else {
+			memset(ptr, 0, 0x1000);
+		}
+		printk(_GREEN "Allocated block %d at address 0x%x\n"_END, i, (uint32_t)ptr);
+		qemu_printf("Allocated block %d at address 0x%x\n", i, (uint32_t)ptr);
+	}
+
+	// Allocate Large blocks
+	printk("Allocating Large blocks\n");
+	kmsleep(250);
+
+	for (uint32_t i = 0; i < 20; i++) {
+		void *ptr = kmalloc(0x10000); // 64KB
+		if (ptr == NULL) {
+			printk("Allocation failed at iteration %u\n", i);
+			kpause();
+			break;
+		} else {
+			memset(ptr, 0, 0x10000);
+		}
+		printk(_GREEN "Allocated block %d at address 0x%x\n"_END, i, (uint32_t)ptr);
+		qemu_printf("Allocated block %d at address 0x%x\n", i, (uint32_t)ptr);
+	}
+	kpause();
+
+jmp2:
+	printk("Trying to fill heap\n");
+	kmsleep(250);
+
+	uint32_t i = 0, size = 0, alloc_size = ((0x1000 * 0x10));
 	while (1) {
 		uint32_t *ptr = kmalloc(alloc_size);
 		if (ptr == NULL) {
-			printk("Error: kmalloc failed at [%ld, [%ld KB (%ld MB)]\n", i, size / 1024, size / 1024 / 1024);
-			ksleep(1);
+			printk("Error: kmalloc failed at iteration [%ld], allocated [%ld KB (%ld MB)]\n", i, size / 1024, size / 1024 / 1024);
+			kmsleep(100);
 			break;
 		}
 
-		size += alloc_size;
-		printk("Allocated: 0x%x [%ld] - [%ld KB (%ld MB)]\n", ptr, i, size / 1024, size / 1024 / 1024);
+		// // Vérifie que l'adresse est correctement mappée
+		// page_t *page = mmu_get_page((uint32_t)ptr, mmu_get_kernel_directory());
+		// if (page == NULL) {
+		// 	printk("Error: Page not mapped for address 0x%x at iteration [%ld]\n", (unsigned int)ptr, i);
+		// 	kmsleep(100);
+		// 	break;
+		// }
 
-		kmsleep(5);
+		size += alloc_size;
+		printk("Allocated: 0x%x [%ld] - [%ld KB (%ld MB)]\n", (unsigned int)ptr, i, size / 1024, size / 1024 / 1024);
+
+		// if (size >= HEAP_MAX_SIZE) {
+		// 	printk("Heap maximum size reached: [%ld KB (%ld MB)]\n", size / 1024, size / 1024 / 1024);
+		// 	break;
+		// }
+
 		i++;
 	}
+
+	kpause();
 
 jmp:
 
@@ -443,7 +580,7 @@ int kmain(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 	if (__DISPLAY_INIT_LOG__) {
 		printk("\n");
 		printk(_RED);
-		terminal_write_n_char('#', VGA_WIDTH);
+		// terminal_write_n_char('#', VGA_WIDTH);
 		printk(_END);
 		printk("\n\n");
 	}

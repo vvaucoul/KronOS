@@ -6,20 +6,23 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 17:26:22 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:40:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <mm/mmu.h>	 // Memory Management Unit
 #include <mm/mmuf.h> // Memory Management Unit Frames
-#include <mm/pagetable_pool.h>
+#include <mm/pt_pool.h>
 
 #include <mm/ealloc.h> // Early Alloc (ealloc, ealloc_aligned)
 
 #include <mm/mm.h>				 // Memory Management
 #include <multiboot/multiboot.h> // Multiboot (getmem)
 
+#include <system/random.h>
+
 #include <system/serial.h>
+#include <time.h>
 
 extern uint32_t kernel_stack;
 static page_directory_t *kernel_directory __attribute__((aligned(4096))) = NULL;
@@ -90,7 +93,7 @@ page_t *mmu_create_page(uint32_t address, page_directory_t *dir, int is_kernel) 
 		// Allocate a page table from the pool
 		page_table_t *new_table = pagetable_pool_alloc();
 		if (!new_table) {
-			qemu_printf("mmu_create_page: Failed to allocate page table from pool.\n");
+			// qemu_printf("mmu_create_page: Failed to allocate page table from pool.\n");
 			return NULL;
 		}
 
@@ -102,7 +105,7 @@ page_t *mmu_create_page(uint32_t address, page_directory_t *dir, int is_kernel) 
 		// Retrieve the physical address of the allocated page table
 		uint32_t table_phys = mmu_get_physical_address((void *)new_table);
 		if (table_phys == 0) {
-			qemu_printf("mmu_create_page: Invalid physical address for page table.\n");
+			// qemu_printf("mmu_create_page: Invalid physical address for page table.\n");
 			return NULL;
 		}
 
@@ -111,7 +114,7 @@ page_t *mmu_create_page(uint32_t address, page_directory_t *dir, int is_kernel) 
 			dir->tablesPhysical[table_idx] |= PAGE_USER;
 		}
 
-		qemu_printf("mmu_create_page: Created new page table at 0x%p (PA=0x%x) for table index %d\n", (void *)new_table, table_phys, table_idx);
+		// qemu_printf("mmu_create_page: Created new page table at 0x%p (PA=0x%x) for table index %d\n", (void *)new_table, table_phys, table_idx);
 	}
 
 	return &dir->tables[table_idx]->pages[page_idx % PAGE_ENTRIES];
@@ -487,27 +490,46 @@ int mmu_init(void) {
 	/* Initialize the heap */
 	if (mmu_is_paging_enabled() == false) return (-1);
 	initialize_heap(mmu_get_kernel_directory());
+
 	printk("Heap created\n");
 	qemu_printf("Heap created\n");
 
 	// Test allocations
 	uint32_t size = 0, index = 0;
+	srand(42);
+
+	counter_t counter = {0, 0};
+	counter_start(&counter);
 
 	while (1) {
-		char *foo = kmalloc(0x100);
+		uint32_t r_alloc = (rand() % (0x10000 - 0x20 + 1)) + 0x20;
+		// uint32_t r_alloc = 0x100000;
+		char *foo = kmalloc(r_alloc);
 		if (foo == NULL) {
-			__PANIC("Failed to allocate memory");
+			break;
+			// __PANIC("Failed to allocate memory");
 		}
-		size += 0x100;
+		size += r_alloc;
 
-		strcpy(foo, "Hello, kernel heap!");
+		// strcpy(foo, "Hello, kernel heap!");
+		memcpy(foo, "Hello, kernel heap!", 20);
 
 		printk("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
 		qemu_printf("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
 
+		// int r = rand() % 2;
+
+		// if (r == 1) {
+		// 	kfree(foo);
+		// 	size -= r_alloc;
+		// }
+
 		++index;
 		// kmsleep(250);
 	}
+	counter_stop(&counter);
+
+	printk("Time elapsed: %ds (%dms)\n", counter.end - counter.start, (counter.end - counter.start) * 10);
 
 	kpause();
 

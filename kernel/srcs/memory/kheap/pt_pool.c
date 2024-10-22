@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pagetable_pool.c                                   :+:      :+:    :+:   */
+/*   pt_pool.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 13:35:47 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 15:57:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:40:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <mm/ealloc.h>
 #include <mm/mm.h>
 #include <mm/mmu.h>
-#include <mm/pagetable_pool.h>
+#include <mm/pt_pool.h>
 #include <stddef.h>
 #include <string.h>
 #include <system/panic.h>

@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/01 00:17:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 17:25:50 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:40:43 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ static void initialize_block(heap_block_t *block, size_t size, bool is_free) {
  */
 static void split_block(heap_block_t *block, size_t size) {
 	if (block->size <= size + sizeof(heap_block_t) + ALIGNMENT) {
+		qemu_printf("split_block: Not enough space to split block at %p\n", (void *)block);
 		return; // Not enough space to split while maintaining alignment
 	}
 
@@ -68,8 +69,7 @@ static void split_block(heap_block_t *block, size_t size) {
 	block->size = size;
 	block->next = new_block;
 
-	qemu_printf("split_block: Split block at 0x%p into allocated block and free block at 0x%p\n",
-				(void *)block, (void *)new_block);
+	qemu_printf("split_block: Split block at %p into allocated block and free block at %p\n", (void *)block, (void *)new_block);
 }
 
 /**
@@ -81,12 +81,11 @@ static void coalesce(heap_block_t *block) {
 	// Coalesce with next block if possible
 	if (block->next && block->next->is_free) {
 		if (block->next->magic != HEAP_BLOCK_MAGIC) {
-			qemu_printf("coalesce: Next block at 0x%p has invalid magic number!\n", (void *)block->next);
+			qemu_printf("coalesce: Next block at %p has invalid magic number!\n", (void *)block->next);
 			__PANIC("Heap corruption detected during coalesce (next block magic mismatch)");
 		}
 
-		qemu_printf("coalesce: Coalescing block at 0x%p with next block at 0x%p\n",
-					(void *)block, (void *)block->next);
+		qemu_printf("coalesce: Coalescing block at %p with next block at %p\n", (void *)block, (void *)block->next);
 		block->size += sizeof(heap_block_t) + block->next->size;
 		block->next = block->next->next;
 		if (block->next) {
@@ -99,12 +98,11 @@ static void coalesce(heap_block_t *block) {
 	// Coalesce with previous block if possible
 	if (block->prev && block->prev->is_free) {
 		if (block->prev->magic != HEAP_BLOCK_MAGIC) {
-			qemu_printf("coalesce: Previous block at 0x%p has invalid magic number!\n", (void *)block->prev);
+			qemu_printf("coalesce: Previous block at %p has invalid magic number!\n", (void *)block->prev);
 			__PANIC("Heap corruption detected during coalesce (previous block magic mismatch)");
 		}
 
-		qemu_printf("coalesce: Coalescing block at 0x%p with previous block at 0x%p\n",
-					(void *)block, (void *)block->prev);
+		qemu_printf("coalesce: Coalescing block at %p with previous block at %p\n", (void *)block, (void *)block->prev);
 		block->prev->size += sizeof(heap_block_t) + block->size;
 		block->prev->next = block->next;
 		if (block->next) {
@@ -124,16 +122,17 @@ static void coalesce(heap_block_t *block) {
  */
 static heap_block_t *find_free_block(heap_t *heap, size_t size) {
 	heap_block_t *current = heap->first;
+
 	while (current) {
 		if (current->is_free && current->size >= size) {
 			if (current->magic != HEAP_BLOCK_MAGIC) {
-				qemu_printf("find_free_block: Block at 0x%p has invalid magic number!\n", (void *)current);
 				__PANIC("Heap corruption detected during find_free_block (magic mismatch)");
 			}
-			return current;
+			return current; // Return the first suitable block found
 		}
 		current = current->next;
 	}
+
 	return NULL; // No suitable block found
 }
 
@@ -162,7 +161,12 @@ static heap_block_t *request_space(heap_t *heap, size_t size) {
 		uintptr_t addr = HEAP_START + heap->size + (i * PAGE_SIZE);
 		page_t *page = mmu_create_page(addr, heap->dir, 1); // is_kernel=1
 		if (!page) {
-			qemu_printf("request_space: Failed to create page at 0x%p\n", (void *)addr);
+			qemu_printf("request_space: Failed to create page at %p\n", (void *)addr);
+			// Rollback previously allocated pages
+			for (size_t j = 0; j < i; j++) {
+				uintptr_t rollback_addr = HEAP_START + heap->size + (j * PAGE_SIZE);
+				mmu_destroy_page(rollback_addr, heap->dir);
+			}
 			return NULL; // Failed to create page
 		}
 		allocate_frame(page, 1, 1); // is_kernel=1, is_writeable=1
@@ -214,8 +218,13 @@ static heap_t *create_heap(page_directory_t *dir, size_t size) {
 		uintptr_t addr = HEAP_START + i * PAGE_SIZE;
 		page_t *page = mmu_create_page(addr, dir, 1); // is_kernel=1
 		if (!page) {
-			printk("create_heap: Failed to create page at 0x%p\n", (void *)addr);
-			qemu_printf("create_heap: Failed to create page at 0x%p\n", (void *)addr);
+			printk("create_heap: Failed to create page at %p\n", (void *)addr);
+			qemu_printf("create_heap: Failed to create page at %p\n", (void *)addr);
+			// Rollback previously mapped pages
+			for (size_t j = 0; j < i; j++) {
+				uintptr_t rollback_addr = HEAP_START + j * PAGE_SIZE;
+				mmu_destroy_page(rollback_addr, dir);
+			}
 			__PANIC("Failed to create heap page");
 		}
 		allocate_frame(page, 1, 1); // is_kernel=1, is_writeable=1
@@ -233,8 +242,8 @@ static heap_t *create_heap(page_directory_t *dir, size_t size) {
 	heap->first = initial_block;
 	heap->last = initial_block;
 
-	qemu_printf("create_heap: Heap created at 0x%p with size %ld bytes\n", (void *)HEAP_START, size);
-	printk("create_heap: Heap created at 0x%p with size %ld bytes\n", (void *)HEAP_START, size);
+	qemu_printf("create_heap: Heap created at %p with size %ld bytes\n", (void *)HEAP_START, size);
+	printk("create_heap: Heap created at %p with size %ld bytes\n", (void *)HEAP_START, size);
 
 	list_heap_blocks(); // List heap blocks after creation
 
@@ -309,7 +318,7 @@ void *kheap_alloc(size_t size, uint8_t align) {
 		split_block(block, aligned_size);
 	}
 
-	qemu_printf("kheap_alloc: Allocated block at 0x%p with size %ld bytes\n", (void *)aligned_addr, aligned_size);
+	qemu_printf("kheap_alloc: Allocated block at %p with size %ld bytes\n", (void *)aligned_addr, aligned_size);
 
 	list_heap_blocks(); // List heap blocks after allocation
 
@@ -331,19 +340,19 @@ void kheap_free(void *ptr) {
 
 	// Validate the block
 	if ((uintptr_t)block < HEAP_START || (uintptr_t)block >= (HEAP_START + kernel_heap->size)) {
-		qemu_printf("kheap_free: Pointer 0x%p out of heap bounds.\n", ptr);
+		qemu_printf("kheap_free: Pointer %p out of heap bounds.\n", ptr);
 		return; // Pointer is out of heap bounds
 	}
 
 	if (block->magic != HEAP_BLOCK_MAGIC) {
-		qemu_printf("kheap_free: Block at 0x%p has invalid magic number!\n", (void *)block);
+		qemu_printf("kheap_free: Block at %p has invalid magic number!\n", (void *)block);
 		__PANIC("Heap corruption detected during free (magic mismatch)");
 	}
 
 	// Mark the block as free
 	block->is_free = true;
 
-	qemu_printf("kheap_free: Freed memory at 0x%p\n", ptr);
+	qemu_printf("kheap_free: Freed memory at %p\n", ptr);
 
 	// list_heap_blocks(); // List heap blocks before coalescing
 
@@ -367,7 +376,7 @@ void list_heap_blocks(void) {
 
 	qemu_printf("===== Heap Blocks =====\n");
 	while (current) {
-		qemu_printf("Block at 0x%p - Size: %ld bytes - %s - Magic: 0x%X\n",
+		qemu_printf("Block at %p - Size: %ld bytes - %s - Magic: 0x%X\n",
 					(void *)current,
 					current->size,
 					current->is_free ? "Free" : "Allocated",
@@ -461,12 +470,12 @@ void *krealloc(void *p, size_t size) {
 
 	// Validate the block
 	if ((uintptr_t)block < HEAP_START || (uintptr_t)block >= (HEAP_START + kernel_heap->size)) {
-		qemu_printf("krealloc: Pointer 0x%p out of heap bounds.\n", p);
+		qemu_printf("krealloc: Pointer %p out of heap bounds.\n", p);
 		return NULL; // Invalid pointer
 	}
 
 	if (block->magic != HEAP_BLOCK_MAGIC) {
-		qemu_printf("krealloc: Block at 0x%p has invalid magic number!\n", (void *)block);
+		qemu_printf("krealloc: Block at %p has invalid magic number!\n", (void *)block);
 		__PANIC("Heap corruption detected during realloc (magic mismatch)");
 	}
 
@@ -493,7 +502,7 @@ size_t ksize(void *p) {
 	if (!p) return 0;
 	heap_block_t *block = (heap_block_t *)((uintptr_t)p - sizeof(heap_block_t));
 	if (block->magic != HEAP_BLOCK_MAGIC) {
-		qemu_printf("ksize: Block at 0x%p has invalid magic number!\n", (void *)block);
+		qemu_printf("ksize: Block at %p has invalid magic number!\n", (void *)block);
 		__PANIC("Heap corruption detected during ksize (magic mismatch)");
 	}
 	return block->size;

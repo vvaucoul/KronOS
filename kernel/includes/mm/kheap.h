@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 17:26:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:38:31 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,14 @@
 #include <mm/mmu.h> // page_directory_t
 
 /* Define Alignment Constants */
-#define HEAP_START 0xC0200000	   // Starting address of the heap (example)
-#define HEAP_INITIAL_SIZE 0x100000 // Initial heap size: 1 MB
-#define HEAP_MAX_SIZE 0x1000000	   // Maximum heap size: 16 MB
+#define HEAP_START_OFFSET (0x400000)						 // Offset from KERNEL_VIRTUAL_BASE
+#define HEAP_START (KERNEL_VIRTUAL_BASE + HEAP_START_OFFSET) // Starting address of the heap (example)
+#define HEAP_INITIAL_SIZE 0x100000							 // Initial heap size: 1 MB
+#define HEAP_MAX_SIZE (0x40000000 - HEAP_START_OFFSET)		 // Maximum heap size: 1 GB
 
 #define KERNEL_PAGE_DIR_INDEX 768 // (0x1000 * 1024) // 0x30000000 / 0x1000 / 1024
 
-#define ALIGNMENT 16 // Desired alignment (can be PAGE_SIZE if needed)
-
-#define ALIGN_UP(addr, align) (((uintptr_t)(addr) + ((align) - 1)) & ~((uintptr_t)((align) - 1)))
-#define ALIGN_DOWN(addr, align) ((uintptr_t)(addr) & ~((uintptr_t)((align) - 1)))
+#define ALIGNMENT 0x10 // Desired alignment
 
 /* Magic Number for Heap Block Integrity */
 #define HEAP_BLOCK_MAGIC 0xDEADBEEF

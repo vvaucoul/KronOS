@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 19:16:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 12:07:17 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 20:20:49 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,11 +188,6 @@ void fault_handler(struct regs *r) {
 
 		if (!zero && has_code)
 			err_code = r->err_code;
-
-		// Ajoutez un message de débogage ici
-		printk("Fault Handler: Handling interrupt %d\n", r->int_no);
-
-		// Traitez spécifiquement la division par zéro pour éviter les boucles infinies
 
 		pic8259_send_eoi(r->int_no);
 		__PANIC_INTERRUPT(irqs[r->int_no].name, r->int_no, type, err_code);

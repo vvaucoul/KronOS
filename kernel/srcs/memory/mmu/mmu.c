@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 16:58:39 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 17:03:25 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,22 +87,21 @@ page_t *mmu_create_page(uint32_t address, page_directory_t *dir, int is_kernel) 
 	uint32_t table_idx = page_idx / PAGE_ENTRIES;
 
 	if (!dir->tables[table_idx]) {
-		// Allocate a page table from the pool
-		page_table_t *new_table = pagetable_pool_alloc();
+		// Allouer dynamiquement une table de pages via le heap
+		page_table_t *new_table = (page_table_t *)kmalloc_ap(sizeof(page_table_t), NULL);
 		if (!new_table) {
-			qemu_printf("mmu_create_page: Failed to allocate page table from pool.\n");
+			qemu_printf("mmu_create_page: Échec de l'allocation dynamique de la table de pages.\n");
 			return NULL;
 		}
 
-		// Zero out the new page table
 		memset(new_table, 0, sizeof(page_table_t));
 
 		dir->tables[table_idx] = new_table;
 
-		// Retrieve the physical address of the allocated page table
+		// Récupérer l'adresse physique de la table de pages allouée
 		uint32_t table_phys = mmu_get_physical_address((void *)new_table);
 		if (table_phys == 0) {
-			qemu_printf("mmu_create_page: Invalid physical address for page table.\n");
+			qemu_printf("mmu_create_page: Adresse physique invalide pour la table de pages.\n");
 			return NULL;
 		}
 
@@ -111,7 +110,8 @@ page_t *mmu_create_page(uint32_t address, page_directory_t *dir, int is_kernel) 
 			dir->tablesPhysical[table_idx] |= PAGE_USER;
 		}
 
-		qemu_printf("mmu_create_page: Created new page table at 0x%p (PA=0x%x) for table index %d\n", (void *)new_table, table_phys, table_idx);
+		qemu_printf("mmu_create_page: Table de pages allouée dynamiquement à 0x%p (PA=0x%x) pour l'index %d\n",
+					(void *)new_table, table_phys, table_idx);
 	}
 
 	return &dir->tables[table_idx]->pages[page_idx % PAGE_ENTRIES];
@@ -408,121 +408,87 @@ void setup_higher_half_mapping(page_directory_t *dir) {
  * @return 0 en cas de succès, un code d'erreur négatif en cas d'échec.
  */
 int mmu_init(void) {
-	if (mmu_is_paging_enabled() == 0) {
-		__PANIC("mmu_init: Not in protected mode");
+	if (!mmu_is_paging_enabled()) {
+		__PANIC("mmu_init: Mode protégé non activé");
 	}
 
-	/* Init frames */
+	/* Initialiser les frames */
 	uint32_t mem_size = (multiboot_get_mem_lower() + multiboot_get_mem_upper()) * 1024;
 	init_frames(mem_size);
 
-	/* Init kernel directory */
+	/* Initialiser le répertoire de pages du noyau */
 	kernel_directory = (page_directory_t *)ealloc_aligned(sizeof(page_directory_t), PAGE_SIZE);
 	memset(kernel_directory, 0, sizeof(page_directory_t));
 
 	current_directory = kernel_directory;
 
-	/* Initialize the page table pool before creating heap and mapping pages */
-	pagetable_pool_init();
+	/* Supprimer l'initialisation du pool de tables de pages fixes */
+	// pagetable_pool_init(); // À supprimer
 
-	/* Setup higher-half mapping */
+	/* Configurer le mapping higher-half */
 	setup_higher_half_mapping(kernel_directory);
 
-	/*
-	 * Create page tables for the heap's virtual address space (HEAP_START to HEAP_START + HEAP_INITIAL_SIZE).
-	 */
-	for (uint32_t i = HEAP_START; i < (HEAP_START + HEAP_INITIAL_SIZE); i += PAGE_SIZE) {
-		mmu_create_page(i, kernel_directory, 1);
-	}
-	qemu_printf("Create page from 0x%x to 0x%x\n", HEAP_START, HEAP_START + HEAP_INITIAL_SIZE);
-	printk("Validate mappings [1]\n");
-	qemu_printf("Validate mappings [1]\n");
-	validate_mappings(HEAP_START, HEAP_START + HEAP_INITIAL_SIZE);
+	/* Initialiser le heap */
+	initialize_heap(kernel_directory);
 
-	/*
-	 * Allocate frames for the kernel's physical memory (from 0 to the current placement address plus one page size).
-	 */
+	/* Mapper les frames physiques du noyau */
 	for (uint32_t i = 0; i < get_placement_addr() + PAGE_SIZE; i += PAGE_SIZE) {
 		page_t *page = mmu_get_page(i, kernel_directory);
-
 		if (page == NULL) {
 			page = mmu_create_page(i, kernel_directory, 1);
 		}
 		allocate_frame(page, 1, 1); // is_kernel=1, is_writeable=1
 	}
-	qemu_printf("Allocate frame from 0x%x to 0x%x\n", 0, get_placement_addr() + PAGE_SIZE);
-	printk("Validate mappings [2]\n");
-	qemu_printf("Validate mappings [2]\n");
-	validate_mappings(0x0, get_placement_addr() + PAGE_SIZE); // Corrected validation
+	qemu_printf("Allocation des frames de 0x0 à 0x%x\n", get_placement_addr() + PAGE_SIZE);
+	printk("Validation des mappings [2]\n");
+	qemu_printf("Validation des mappings [2]\n");
+	validate_mappings(0x0, get_placement_addr() + PAGE_SIZE);
 
-	/*
-	 * Allocate frames for the heap's virtual address space (HEAP_START to HEAP_START + HEAP_INITIAL_SIZE).
-	 */
-	for (uint32_t i = HEAP_START; i < (HEAP_START + HEAP_INITIAL_SIZE); i += PAGE_SIZE) {
-		page_t *page = mmu_get_page(i, kernel_directory);
-
-		if (page == NULL) {
-			page = mmu_create_page(i, kernel_directory, 1);
-		}
-		allocate_frame(page, 1, 1); // is_kernel=1, is_writeable=1
-	}
-	qemu_printf("Allocate frame from 0x%x to 0x%x\n", HEAP_START, HEAP_START + HEAP_INITIAL_SIZE);
-	printk("Validate mappings [3]\n");
-	qemu_printf("Validate mappings [3]\n");
-	validate_mappings(HEAP_START, HEAP_START + HEAP_INITIAL_SIZE);
-
-	/* Set the physical address of the kernel directory */
-	kernel_directory->physicalAddr = (uint32_t)kernel_directory->tablesPhysical - KERNEL_VIRTUAL_BASE;
-
-	/* Register the page fault handler */
+	/* Enregistrer le gestionnaire de page fault */
 	isr_register_interrupt_handler(14, mmu_page_fault_handler);
 
+	/* Basculer vers le nouveau répertoire de pages */
 	mmu_switch_page_directory(kernel_directory);
-	printk("MMU initialized\n");
+	printk("MMU initialisé\n");
+	qemu_printf("MMU initialisé\n");
 
-	// check if i need to change directory
-	// load_page_directory(kernel_directory);
-
-	/* Initialize the heap */
-	if (mmu_is_paging_enabled() == false) return (-1);
+	/* Initialiser le heap */
+	if (!mmu_is_paging_enabled()) return (-1);
 	initialize_heap(mmu_get_kernel_directory());
-	printk("Heap created\n");
-	qemu_printf("Heap created\n");
+	printk("Heap créé\n");
+	qemu_printf("Heap créé\n");
 
-	// Test allocations
+	// Vous pouvez supprimer ou adapter la boucle de test des allocations
+	/*
+	// Test des allocations
 	uint32_t size = 0, index = 0;
 
 	while (1) {
 		char *foo = kmalloc(0x100);
 		if (foo == NULL) {
-			__PANIC("Failed to allocate memory");
+			__PANIC("Échec de l'allocation de mémoire");
 		}
 		size += 0x100;
 
 		strcpy(foo, "Hello, kernel heap!");
 
-		printk("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
-		qemu_printf("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
+		printk("[%ld] Alloué %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
+		qemu_printf("[%ld] Alloué %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
 
 		++index;
 		// kmsleep(250);
 	}
 
 	kpause();
+	*/
 
+	/* Gestion du multi-tasking (si nécessaire) */
 	/*
-	 * Maintenant, pour le multi-tasking, nous devons allouer un nouveau page directory pour le kernel.
-	 * Nous ne pouvons pas utiliser le current page directory, car il est mappé dans l'espace d'adresses virtuelles du kernel.
-	 */
-
 	page_directory_t *new_kernel_directory = mmu_clone_page_directory(kernel_directory);
 	if (new_kernel_directory == NULL) return (-1);
 
-	/*
-	 * Changer vers le nouveau page directory du kernel.
-	 * Cela va mapper la mémoire physique du kernel au nouveau page directory.
-	 */
 	mmu_switch_page_directory(new_kernel_directory);
+	*/
 
 	return (0);
 }

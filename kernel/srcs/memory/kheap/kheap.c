@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/01 00:17:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 13:52:38 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 16:56:47 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,344 +22,225 @@
 
 #include <system/serial.h> // NULL
 
-/* Structure globale représentant le heap */
+// Définir le maximum order basé sur HEAP_MAX_SIZE
+#define MAX_ORDER 12 // 2^12 * 4 KB = 16 MB
+
 static heap_t *kernel_heap = NULL;
-
-/* Static heap structures */
 static heap_t kernel_heap_struct;
+// Initialiser le buddy allocator
+static void buddy_init(heap_t *heap) {
+	for (int i = 0; i <= MAX_ORDER; i++) {
+		heap->free_lists[i] = NULL;
+	}
 
-static bool heap_expanding = false;
+	// Créer le bloc libre initial
+	size_t initial_size = 1 << MAX_ORDER; // 16 MB
+	buddy_block_t *initial = (buddy_block_t *)kmalloc(sizeof(buddy_block_t));
+	if (!initial) {
+		qemu_printf("buddy_init: Échec de l'allocation du bloc initial.\n");
+		__PANIC("Échec de l'initialisation du buddy allocator");
+	}
+	initial->size = initial_size;
+	initial->is_free = true;
+	initial->next = heap->free_lists[MAX_ORDER];
+	heap->free_lists[MAX_ORDER] = initial;
 
-/**
- * @brief Initializes a heap block with given parameters.
- */
-static void initialize_block(heap_block_t *block, size_t size, bool is_free) {
-	block->size = size;
-	block->is_free = is_free;
-	block->next = NULL;
-	block->prev = NULL;
-	block->magic = HEAP_BLOCK_MAGIC;
+	qemu_printf("buddy_init: Buddy allocator initialisé avec un bloc de %ld bytes\n", initial_size);
 }
 
-/**
- * @brief Splits a block into two if it's larger than needed.
- */
-static void split_block(heap_block_t *block, size_t size) {
-	if (block->size <= size + sizeof(heap_block_t) + ALIGNMENT) {
-		return; // Not enough space to split while maintaining alignment
-	}
+// Diviser un bloc en deux buddies
+static void split_block(int order) {
+	if (order <= 0 || order > MAX_ORDER) return;
 
-	uintptr_t block_addr = (uintptr_t)block;
-	heap_block_t *new_block = (heap_block_t *)(block_addr + sizeof(heap_block_t) + size);
-	initialize_block(new_block, block->size - size - sizeof(heap_block_t), true);
-	new_block->next = block->next;
-	new_block->prev = block;
+	buddy_block_t *block = kernel_heap->free_lists[order];
+	if (!block) return;
 
-	if (new_block->next) {
-		new_block->next->prev = new_block;
-	} else {
-		kernel_heap->last = new_block;
-	}
+	// Retirer le bloc de la liste libre
+	kernel_heap->free_lists[order] = block->next;
 
-	block->size = size;
-	block->next = new_block;
+	// Créer deux buddies
+	size_t split_size = 1 << (order - 1); // Taille du buddy après division
+	buddy_block_t *buddy1 = block;
+	buddy_block_t *buddy2 = (buddy_block_t *)((uintptr_t)block + split_size);
 
-	qemu_printf("split_block: Split block at 0x%p into allocated block and free block at 0x%p\n",
-				(void *)block, (void *)new_block);
+	// Initialiser les buddies
+	buddy1->size = split_size;
+	buddy1->is_free = true;
+	buddy1->next = kernel_heap->free_lists[order - 1];
+	kernel_heap->free_lists[order - 1] = buddy1;
+
+	buddy2->size = split_size;
+	buddy2->is_free = true;
+	buddy2->next = kernel_heap->free_lists[order - 1];
+	kernel_heap->free_lists[order - 1] = buddy2;
+
+	qemu_printf("split_block: Bloc divisé en deux buddies de %ld bytes chacun\n", split_size);
 }
 
-/**
- * @brief Coalesces adjacent free blocks to prevent fragmentation.
- */
-static void coalesce(heap_block_t *block) {
-	// Coalesce with next block if possible
-	if (block->next && block->next->is_free) {
-		if (block->next->magic != HEAP_BLOCK_MAGIC) {
-			qemu_printf("coalesce: Next block at 0x%p has invalid magic number!\n", (void *)block->next);
-			__PANIC("Heap corruption detected during coalesce (next block magic mismatch)");
-		}
-
-		qemu_printf("coalesce: Coalescing block at 0x%p with next block at 0x%p\n",
-					(void *)block, (void *)block->next);
-		block->size += sizeof(heap_block_t) + block->next->size;
-		block->next = block->next->next;
-		if (block->next) {
-			block->next->prev = block;
-		} else {
-			kernel_heap->last = block;
-		}
+// Trouver l'ordre approprié pour l'allocation
+static int find_order(size_t size) {
+	int order = 0;
+	size_t total_size = size + sizeof(buddy_block_t);
+	while ((1 << order) < total_size && order <= MAX_ORDER) {
+		order++;
 	}
-
-	// Coalesce with previous block if possible
-	if (block->prev && block->prev->is_free) {
-		if (block->prev->magic != HEAP_BLOCK_MAGIC) {
-			qemu_printf("coalesce: Previous block at 0x%p has invalid magic number!\n", (void *)block->prev);
-			__PANIC("Heap corruption detected during coalesce (previous block magic mismatch)");
-		}
-
-		qemu_printf("coalesce: Coalescing block at 0x%p with previous block at 0x%p\n",
-					(void *)block, (void *)block->prev);
-		block->prev->size += sizeof(heap_block_t) + block->size;
-		block->prev->next = block->next;
-		if (block->next) {
-			block->next->prev = block->prev;
-		} else {
-			kernel_heap->last = block->prev;
-		}
-	}
+	return order;
 }
 
-/**
- * @brief Finds a free block using the first-fit strategy.
- */
-static heap_block_t *find_free_block(heap_t *heap, size_t size) {
-	heap_block_t *current = heap->first;
-	while (current) {
-		if (current->is_free && current->size >= size) {
-			if (current->magic != HEAP_BLOCK_MAGIC) {
-				qemu_printf("find_free_block: Block at 0x%p has invalid magic number!\n", (void *)current);
-				__PANIC("Heap corruption detected during find_free_block (magic mismatch)");
-			}
-			return current;
-		}
-		current = current->next;
-	}
-	return NULL; // No suitable block found
-}
+// Allouer de la mémoire en utilisant le buddy allocator
+void *kheap_alloc(size_t size) {
+	if (!kernel_heap) return NULL;
 
-/**
- * @brief Requests space by expanding the heap.
- */
-static heap_block_t *request_space(heap_t *heap, size_t size) {
-	if (heap_expanding) {
-		qemu_printf("request_space: Heap is already expanding. Avoiding recursion.\n");
-		return NULL; // Prevent recursive expansion
-	}
-
-	heap_expanding = true; // Set the flag to indicate heap expansion is in progress
-
-	// Calculate the number of pages needed
-	size_t total_size = sizeof(heap_block_t) + size;
-	size_t pages_needed = (total_size + PAGE_SIZE - 1) / PAGE_SIZE;
-
-	qemu_printf("request_space: Requesting %ld pages for size %ld bytes\n", pages_needed, size);
-
-	// Check if heap exceeds maximum size
-	if (heap->size + (pages_needed * PAGE_SIZE) > HEAP_MAX_SIZE) {
-		qemu_printf("request_space: Heap expansion exceeds maximum size\n");
-		heap_expanding = false;
-		return NULL; // Cannot expand heap beyond maximum size
-	}
-
-	// **Use MMU functions directly to map new pages**
-	for (size_t i = 0; i < pages_needed; i++) {
-		uintptr_t addr = HEAP_START + heap->size + (i * PAGE_SIZE);
-		page_t *page = mmu_create_page(addr, heap->dir, 1); // is_kernel=1
-		if (!page) {
-			qemu_printf("request_space: Failed to create page at 0x%p\n", (void *)addr);
-			heap_expanding = false;
-			return NULL; // Failed to create page
-		}
-		allocate_frame(page, 1, 1); // is_kernel=1, is_writeable=1
-		page->present = 1;
-		page->rw = 1;
-		page->user = 0;
-		mmu_flush_tlb_entry(addr);
-	}
-
-	heap->size += pages_needed * PAGE_SIZE;
-
-	// Initialize the new block at the end of the heap
-	heap_block_t *block = (heap_block_t *)(HEAP_START + heap->size - (pages_needed * PAGE_SIZE));
-	initialize_block(block, (pages_needed * PAGE_SIZE) - sizeof(heap_block_t), true);
-	block->next = NULL;
-	block->prev = heap->last;
-
-	if (heap->last) {
-		heap->last->next = block;
-	}
-
-	heap->last = block;
-
-	qemu_printf("request_space: Mapped %ld pages, new heap size: %ld bytes\n", pages_needed, heap->size);
-
-	list_heap_blocks(); // List heap blocks after requesting space
-
-	heap_expanding = false; // Reset the flag after heap expansion
-
-	return block;
-}
-
-/**
- * @brief Creates a new heap.
- */
-static heap_t *create_heap(page_directory_t *dir, size_t size) {
-	// Initialize the static heap structure
-	heap_t *heap = &kernel_heap_struct;
-	memset(heap, 0, sizeof(heap_t));
-
-	heap->size = 0;
-	heap->dir = dir;
-
-	// Map the initial heap memory
-	size_t pages_needed = (size + PAGE_SIZE - 1) / PAGE_SIZE;
-	for (size_t i = 0; i < pages_needed; i++) {
-		uintptr_t addr = HEAP_START + i * PAGE_SIZE;
-		page_t *page = mmu_create_page(addr, dir, 1); // is_kernel=1
-		if (!page) {
-			printk("create_heap: Failed to create page at 0x%p\n", (void *)addr);
-			qemu_printf("create_heap: Failed to create page at 0x%p\n", (void *)addr);
-			__PANIC("Failed to create heap page");
-		}
-		allocate_frame(page, 1, 1); // is_kernel=1, is_writeable=1
-		page->present = 1;
-		page->rw = 1;
-		page->user = 0;
-		mmu_flush_tlb_entry(addr);
-	}
-
-	heap->size = pages_needed * PAGE_SIZE;
-
-	// Initialize the first heap block within the heap memory
-	heap_block_t *initial_block = (heap_block_t *)HEAP_START;
-	initialize_block(initial_block, size - sizeof(heap_block_t), true);
-	heap->first = initial_block;
-	heap->last = initial_block;
-
-	qemu_printf("create_heap: Heap created at 0x%p with size %ld bytes\n", (void *)HEAP_START, size);
-	printk("create_heap: Heap created at 0x%p with size %ld bytes\n", (void *)HEAP_START, size);
-
-	list_heap_blocks(); // List heap blocks after creation
-
-	return heap;
-}
-
-/**
- * @brief Initializes the heap.
- */
-void initialize_heap(page_directory_t *dir) {
-	// Now create the heap
-	kernel_heap = create_heap(dir, HEAP_INITIAL_SIZE);
-	if (kernel_heap == NULL) {
-		// Handle heap creation failure
-		__PANIC("Heap initialization failed");
-	}
-	printk("initialize_heap: Heap initialized successfully\n");
-	qemu_printf("initialize_heap: Heap initialized successfully\n");
-}
-
-/**
- * @brief Allocates memory from the heap.
- */
-void *kheap_alloc(size_t size, uint8_t align) {
-	if (size == 0) {
+	int order = find_order(size);
+	if (order > MAX_ORDER) {
+		qemu_printf("kheap_alloc: Taille demandée %ld dépasse la taille maximale de bloc.\n", size);
 		return NULL;
 	}
 
-	// Adjust size for alignment if necessary
-	size_t aligned_size = size;
-	if (align) {
-		aligned_size = ALIGN_UP(size, ALIGNMENT); // Use defined ALIGNMENT
-		qemu_printf("kheap_alloc: Adjusted size to %ld bytes for alignment %d\n", aligned_size, ALIGNMENT);
+	// Trouver le plus petit bloc disponible
+	int current_order = order;
+	while (current_order <= MAX_ORDER && !kernel_heap->free_lists[current_order]) {
+		current_order++;
 	}
 
-	// Find a suitable free block
-	heap_block_t *block = find_free_block(kernel_heap, aligned_size);
+	if (current_order > MAX_ORDER) {
+		qemu_printf("kheap_alloc: Aucun bloc approprié trouvé pour la taille %ld.\n", size);
+		return NULL;
+	}
+
+	// Diviser les blocs jusqu'à atteindre l'ordre souhaité
+	while (current_order > order) {
+		split_block(current_order);
+		current_order--;
+	}
+
+	// Allouer le bloc
+	buddy_block_t *block = kernel_heap->free_lists[order];
 	if (!block) {
-		block = request_space(kernel_heap, aligned_size);
-		if (!block) {
-			qemu_printf("kheap_alloc: Heap expansion failed for size %ld bytes\n", aligned_size);
-			return NULL; // Heap expansion failed
-		}
+		qemu_printf("kheap_alloc: Échec de l'allocation du bloc.\n");
+		return NULL;
 	}
-
-	// Calculate the aligned address within the block
-	uintptr_t addr = (uintptr_t)block + sizeof(heap_block_t);
-	uintptr_t aligned_addr = align ? ALIGN_UP(addr, ALIGNMENT) : addr;
-	size_t padding = aligned_addr - addr;
-
-	// If padding is needed, split the block
-	if (padding > 0) {
-		if (padding < sizeof(heap_block_t)) {
-			// Not enough space to create a new block for padding
-			qemu_printf("kheap_alloc: Not enough space to align the block.\n");
-			return NULL;
-		}
-		// Split the block into padding and the aligned block
-		split_block(block, padding - sizeof(heap_block_t));
-		block = block->next; // The aligned block
-	}
-
-	// Allocate the aligned block
+	kernel_heap->free_lists[order] = block->next;
 	block->is_free = false;
-	if (block->size >= aligned_size + sizeof(heap_block_t) + ALIGNMENT) {
-		split_block(block, aligned_size);
-	}
 
-	qemu_printf("kheap_alloc: Allocated block at 0x%p with size %ld bytes\n", (void *)aligned_addr, aligned_size);
+	// Calculer l'adresse de retour (après le bloc metadata)
+	void *allocated_addr = (void *)((uintptr_t)block + sizeof(buddy_block_t));
 
-	list_heap_blocks(); // List heap blocks after allocation
+	qemu_printf("kheap_alloc: Bloc de %ld bytes alloué à l'adresse 0x%p\n", block->size, allocated_addr);
 
-	return (void *)aligned_addr;
+	return allocated_addr;
 }
 
-/**
- * @brief Frees allocated memory back to the heap.
- */
-void kheap_free(void *ptr) {
-	if (!ptr) {
+// Libérer la mémoire en utilisant le buddy allocator
+void kheap_free(void *p) {
+	if (!p || !kernel_heap) return;
+
+	// Calculer l'adresse du bloc
+	buddy_block_t *block = (buddy_block_t *)((uintptr_t)p - sizeof(buddy_block_t));
+
+	// Vérifier si le pointeur est dans les limites du heap
+	if ((uintptr_t)block < HEAP_START || (uintptr_t)block >= (uintptr_t)(HEAP_START + kernel_heap->size)) {
+		qemu_printf("kheap_free: Pointeur 0x%p hors des limites du heap.\n", p);
 		return;
 	}
 
-	// Retrieve the block metadata
-	heap_block_t *block = (heap_block_t *)((uintptr_t)ptr - sizeof(heap_block_t));
-
-	// Validate the block
-	if ((uintptr_t)block < HEAP_START || (uintptr_t)block >= (HEAP_START + kernel_heap->size)) {
-		qemu_printf("kheap_free: Pointer 0x%p out of heap bounds.\n", ptr);
-		return; // Pointer is out of heap bounds
-	}
-
-	if (block->magic != HEAP_BLOCK_MAGIC) {
-		qemu_printf("kheap_free: Block at 0x%p has invalid magic number!\n", (void *)block);
-		__PANIC("Heap corruption detected during free (magic mismatch)");
-	}
-
-	// Mark the block as free
+	// Marquer le bloc comme libre
 	block->is_free = true;
 
-	qemu_printf("kheap_free: Freed memory at 0x%p\n", ptr);
+	// Déterminer l'ordre du bloc
+	int order = 0;
+	while ((1 << order) < block->size && order <= MAX_ORDER) {
+		order++;
+	}
 
-	list_heap_blocks(); // List heap blocks before coalescing
+	// Ajouter le bloc à la liste libre correspondante
+	block->next = kernel_heap->free_lists[order];
+	kernel_heap->free_lists[order] = block;
 
-	// Coalesce adjacent free blocks to prevent fragmentation
-	coalesce(block);
+	qemu_printf("kheap_free: Bloc de %ld bytes libéré à l'adresse 0x%p\n", block->size, p);
 
-	list_heap_blocks(); // List heap blocks after coalescing
+	// Coalescer les buddies libres
+	uintptr_t block_addr = (uintptr_t)block;
+	size_t size = block->size;
+
+	while (order < MAX_ORDER) {
+		// Calculer l'adresse du buddy
+		uintptr_t buddy_addr = block_addr ^ (1 << order);
+		buddy_block_t *buddy = (buddy_block_t *)buddy_addr;
+
+		// Vérifier si le buddy est libre et de la même taille
+		bool buddy_free = false;
+		buddy_block_t *current = kernel_heap->free_lists[order];
+		buddy_block_t *prev = NULL;
+
+		while (current) {
+			if (current == buddy && current->is_free && current->size == size) {
+				buddy_free = true;
+				break;
+			}
+			prev = current;
+			current = current->next;
+		}
+
+		if (!buddy_free) {
+			break; // Aucun buddy libre à coalescer
+		}
+
+		// Retirer le buddy de la liste libre
+		if (prev) {
+			prev->next = current->next;
+		} else {
+			kernel_heap->free_lists[order] = current->next;
+		}
+
+		// Fusionner le bloc avec le buddy
+		if (buddy_addr < block_addr) {
+			block = buddy;
+			block_addr = buddy_addr;
+		}
+
+		block->size *= 2;
+		order++;
+		qemu_printf("kheap_free: Blocs coalescés en un bloc de %ld bytes à l'adresse 0x%p\n", block->size, (void *)block_addr);
+	}
 }
 
-/**
- * @brief Lists all heap blocks for debugging purposes.
- */
+// Initialiser le heap avec le buddy allocator
+void initialize_heap(page_directory_t *dir) {
+	if (kernel_heap) return;
+
+	kernel_heap = &kernel_heap_struct;
+	memset(kernel_heap, 0, sizeof(heap_t));
+
+	kernel_heap->size = HEAP_INITIAL_SIZE;
+	kernel_heap->dir = dir;
+
+	// Initialiser le buddy allocator
+	buddy_init(kernel_heap);
+
+	qemu_printf("initialize_heap: Heap initialisé avec une taille de %ld bytes\n", HEAP_INITIAL_SIZE);
+	printk("initialize_heap: Heap initialisé avec une taille de %ld bytes\n", HEAP_INITIAL_SIZE);
+}
+
+// Optionnel : Liste des blocs du heap pour le débogage
 void list_heap_blocks(void) {
-	return; // Disable heap block listing for now
 	if (!kernel_heap) {
-		qemu_printf("Heap not initialized.\n");
+		qemu_printf("Heap non initialisé.\n");
 		return;
 	}
 
-	heap_block_t *current = kernel_heap->first;
-
-	qemu_printf("===== Heap Blocks =====\n");
-	while (current) {
-		qemu_printf("Block at 0x%p - Size: %ld bytes - %s - Magic: 0x%X\n",
-					(void *)current,
-					current->size,
-					current->is_free ? "Free" : "Allocated",
-					current->magic);
-		current = current->next;
+	qemu_printf("===== Liste des Blocs du Heap =====\n");
+	for (int i = 0; i <= MAX_ORDER; i++) {
+		buddy_block_t *current = kernel_heap->free_lists[i];
+		while (current) {
+			qemu_printf("Bloc de %ld bytes à l'adresse 0x%p - %s\n",
+						current->size,
+						(void *)current,
+						current->is_free ? "Libre" : "Alloué");
+			current = current->next;
+		}
 	}
-	qemu_printf("=======================\n");
+	qemu_printf("===================================\n");
 }
 
 /**
@@ -368,7 +249,7 @@ void list_heap_blocks(void) {
 static void *intermediate_alloc(size_t size, uint8_t align, uint32_t *phys) {
 	/* If the kernel heap is initialized, we use it */
 	if (kernel_heap) {
-		void *addr = kheap_alloc(size, align);
+		void *addr = kheap_alloc(size);
 		if (phys) {
 			page_t *page = mmu_get_page((uintptr_t)addr, mmu_get_kernel_directory());
 			if (page)
@@ -427,54 +308,23 @@ void *kcalloc(size_t num, size_t size) {
 }
 
 void *krealloc(void *p, size_t size) {
-	if (!p) {
-		return kmalloc(size);
-	}
+	if (!p) return kmalloc(size);
 
-	if (size == 0) {
-		kfree(p);
-		return NULL;
-	}
+	size_t old_size = ksize(p);
+	void *new_p = kmalloc(size);
+	if (!new_p) return NULL;
 
-	// Retrieve the block metadata
-	heap_block_t *block = (heap_block_t *)((uintptr_t)p - sizeof(heap_block_t));
-
-	// Validate the block
-	if ((uintptr_t)block < HEAP_START || (uintptr_t)block >= (HEAP_START + kernel_heap->size)) {
-		qemu_printf("krealloc: Pointer 0x%p out of heap bounds.\n", p);
-		return NULL; // Invalid pointer
-	}
-
-	if (block->magic != HEAP_BLOCK_MAGIC) {
-		qemu_printf("krealloc: Block at 0x%p has invalid magic number!\n", (void *)block);
-		__PANIC("Heap corruption detected during realloc (magic mismatch)");
-	}
-
-	size_t old_size = block->size;
-	if (old_size >= size) {
-		// Current block is sufficient
-		if (block->size >= size + sizeof(heap_block_t) + ALIGNMENT) {
-			split_block(block, size);
-		}
-		return p;
-	} else {
-		// Allocate new block
-		void *new_ptr = kmalloc(size);
-		if (!new_ptr) {
-			return NULL; // Allocation failed
-		}
-		memcpy(new_ptr, p, old_size);
-		kfree(p);
-		return new_ptr;
-	}
+	memcpy(new_p, p, old_size);
+	kfree(p);
+	return new_p;
 }
 
 size_t ksize(void *p) {
 	if (!p) return 0;
-	heap_block_t *block = (heap_block_t *)((uintptr_t)p - sizeof(heap_block_t));
-	if (block->magic != HEAP_BLOCK_MAGIC) {
-		qemu_printf("ksize: Block at 0x%p has invalid magic number!\n", (void *)block);
-		__PANIC("Heap corruption detected during ksize (magic mismatch)");
+
+	if (kernel_heap) {
+		buddy_block_t *block = (buddy_block_t *)((uintptr_t)p - sizeof(buddy_block_t));
+		return block->size - sizeof(buddy_block_t);
+	} else {
 	}
-	return block->size;
 }

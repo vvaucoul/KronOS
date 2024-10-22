@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:11:56 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 20:38:31 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 22:58:46 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,11 @@
 #define HEAP_START (KERNEL_VIRTUAL_BASE + HEAP_START_OFFSET) // Starting address of the heap (example)
 #define HEAP_INITIAL_SIZE 0x100000							 // Initial heap size: 1 MB
 #define HEAP_MAX_SIZE (0x40000000 - HEAP_START_OFFSET)		 // Maximum heap size: 1 GB
+#define HEAP_PAGE_COUNT (HEAP_INITIAL_SIZE / PAGE_SIZE)
 
 #define KERNEL_PAGE_DIR_INDEX 768 // (0x1000 * 1024) // 0x30000000 / 0x1000 / 1024
 
-#define ALIGNMENT 0x10 // Desired alignment
+#define ALIGNMENT 0x100 // Desired alignment
 
 /* Magic Number for Heap Block Integrity */
 #define HEAP_BLOCK_MAGIC 0xDEADBEEF

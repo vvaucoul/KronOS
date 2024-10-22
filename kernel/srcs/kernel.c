@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 13:55:07 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/21 15:28:46 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 23:19:41 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -408,154 +408,9 @@ static int init_kernel(uint32_t magic_number, uint32_t addr, uint32_t *kstack) {
 		bsod("MMU INIT FAILED", __FILE__);
 		return (1);
 	}
-	kpause();
 
 	kernel_log_info("LOG", "PAGING");
 	kernel_log_info("LOG", "HEAP");
-
-	// kpause();
-
-	// workflow_mmu();
-	ksleep(1);
-
-	uint32_t mem_upper = multiboot_get_mem_upper();
-	printk("Memory Lower: %d KB (%d MB)\n", multiboot_get_mem_lower(), multiboot_get_mem_lower() / 1024);
-	printk("Memory Upper: %d KB (%d MB)\n", mem_upper, mem_upper / 1024);
-	// kpause();
-	// goto jmp;
-
-	//  uint16_t low_memory_kb = get_low_memory_size_kb();
-	//     printk("Low memory size: %u KB\n", low_memory_kb);
-	// kpause();
-
-	printk("Heap test \n");
-	kmsleep(250);
-	goto jmp3;
-	// kheap_test();
-	// kpause();
-
-	// Test kmalloc to fill heap (check if all heap can be allocated)
-
-	uint32_t asize = 0;
-	uint32_t max_blocks = 0x10 * 0x10 * 0x10;
-	uint32_t max_memory = 0x10 * 0x10 * 0x10 * 0x10 * 0x10;
-	printk("Allocating [%ld] blocks\n", max_blocks);
-	for (uint32_t k = 0; k < 0x10 * 0x10 * 0x10; k++) {
-		for (uint32_t i = 0; i < 0x10 * 0x10; i++) {
-			for (uint32_t j = 0; j < 0x10; j++) {
-				printk("Iteration %ld/%ld\n", k * 0x10 * 0x10 + i * 0x10 + j, max_blocks);
-				asize = j * i * k * 0x10;
-				if (asize == 0) {
-					asize = 0x10;
-				}
-
-				void *ptr = kmalloc(asize); // 4KB
-				if (ptr == NULL) {
-					printk("Allocation failed at iteration %u\n", k * 0x10 * 0x10 + i * 0x10 + j);
-					__PANIC("Allocation failed");
-				} else {
-					memset(ptr, 0, asize);
-					printk(_GREEN "Allocated block at address 0x%x\n"_END, (uint32_t)ptr);
-					uint8_t random = rand() % 2;
-					if (random == 1) {
-						printk(_RED "Freed block at address 0x%x\n"_END, (uint32_t)ptr);
-						kfree(ptr);
-					}
-					// kmsleep(20);
-				}
-			}
-		}
-	}
-
-	kpause();
-jmp3:
-
-	printk("Allocating tiny blocks\n");
-	kmsleep(250);
-	// Allocate tiny blocks
-	for (uint32_t i = 0; i < 20; i++) {
-		void *ptr = kmalloc(128); // 128 bytes
-		if (ptr == NULL) {
-			printk("Allocation failed at iteration %u\n", i);
-			qemu_printf("Allocation failed at iteration %u\n", i);
-			kpause();
-		} else {
-			memset(ptr, 0, 128);
-		}
-		printk(_GREEN "Allocated block %d at address 0x%x\n"_END, i, (uint32_t)ptr);
-		qemu_printf("Allocated block %d at address 0x%x\n", i, (uint32_t)ptr);
-	}
-	kpause();
-	printk("Allocating Medium blocks\n");
-	kmsleep(250);
-
-	// Allocate Medium blocks
-	for (uint32_t i = 0; i < 20; i++) {
-		void *ptr = kmalloc(0x1000); // 4KB
-		if (ptr == NULL) {
-			printk("Allocation failed at iteration %u\n", i);
-			qemu_printf("Allocation failed at iteration %u\n", i);
-			kpause();
-		} else {
-			memset(ptr, 0, 0x1000);
-		}
-		printk(_GREEN "Allocated block %d at address 0x%x\n"_END, i, (uint32_t)ptr);
-		qemu_printf("Allocated block %d at address 0x%x\n", i, (uint32_t)ptr);
-	}
-
-	// Allocate Large blocks
-	printk("Allocating Large blocks\n");
-	kmsleep(250);
-
-	for (uint32_t i = 0; i < 20; i++) {
-		void *ptr = kmalloc(0x10000); // 64KB
-		if (ptr == NULL) {
-			printk("Allocation failed at iteration %u\n", i);
-			kpause();
-			break;
-		} else {
-			memset(ptr, 0, 0x10000);
-		}
-		printk(_GREEN "Allocated block %d at address 0x%x\n"_END, i, (uint32_t)ptr);
-		qemu_printf("Allocated block %d at address 0x%x\n", i, (uint32_t)ptr);
-	}
-	kpause();
-
-jmp2:
-	printk("Trying to fill heap\n");
-	kmsleep(250);
-
-	uint32_t i = 0, size = 0, alloc_size = ((0x1000 * 0x10));
-	while (1) {
-		uint32_t *ptr = kmalloc(alloc_size);
-		if (ptr == NULL) {
-			printk("Error: kmalloc failed at iteration [%ld], allocated [%ld KB (%ld MB)]\n", i, size / 1024, size / 1024 / 1024);
-			kmsleep(100);
-			break;
-		}
-
-		// // Vérifie que l'adresse est correctement mappée
-		// page_t *page = mmu_get_page((uint32_t)ptr, mmu_get_kernel_directory());
-		// if (page == NULL) {
-		// 	printk("Error: Page not mapped for address 0x%x at iteration [%ld]\n", (unsigned int)ptr, i);
-		// 	kmsleep(100);
-		// 	break;
-		// }
-
-		size += alloc_size;
-		printk("Allocated: 0x%x [%ld] - [%ld KB (%ld MB)]\n", (unsigned int)ptr, i, size / 1024, size / 1024 / 1024);
-
-		// if (size >= HEAP_MAX_SIZE) {
-		// 	printk("Heap maximum size reached: [%ld KB (%ld MB)]\n", size / 1024, size / 1024 / 1024);
-		// 	break;
-		// }
-
-		i++;
-	}
-
-	kpause();
-
-jmp:
 
 	init_syscall();
 	kernel_log_info("LOG", "SYSCALL");

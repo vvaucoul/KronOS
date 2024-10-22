@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/01 00:17:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 20:40:43 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 23:04:26 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,8 +192,6 @@ static heap_block_t *request_space(heap_t *heap, size_t size) {
 
 	qemu_printf("request_space: Mapped %ld pages, new heap size: %ld bytes\n", pages_needed, heap->size);
 
-	list_heap_blocks(); // List heap blocks after requesting space
-
 	return block;
 }
 
@@ -205,47 +203,73 @@ static heap_block_t *request_space(heap_t *heap, size_t size) {
  * @return A pointer to the created heap, or NULL on failure.
  */
 static heap_t *create_heap(page_directory_t *dir, size_t size) {
-	// Initialize the static heap structure
+	// Initialiser la structure statique du heap
 	heap_t *heap = &kernel_heap_struct;
 	memset(heap, 0, sizeof(heap_t));
 
 	heap->size = 0;
 	heap->dir = dir;
 
-	// Map the initial heap memory
+	// Calculer le nombre de tables de pages nécessaires
 	size_t pages_needed = (size + PAGE_SIZE - 1) / PAGE_SIZE;
+
 	for (size_t i = 0; i < pages_needed; i++) {
 		uintptr_t addr = HEAP_START + i * PAGE_SIZE;
-		page_t *page = mmu_create_page(addr, dir, 1); // is_kernel=1
-		if (!page) {
-			printk("create_heap: Failed to create page at %p\n", (void *)addr);
-			qemu_printf("create_heap: Failed to create page at %p\n", (void *)addr);
-			// Rollback previously mapped pages
+		// Allouer une nouvelle table de pages
+		uint32_t new_table_phys;
+		page_table_t *new_table = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &new_table_phys);
+		if (new_table == NULL || new_table_phys == 0) {
+			printk("create_heap: Échec de l'allocation de la table de pages à 0x%p\n", (void *)addr);
+			qemu_printf("create_heap: Échec de l'allocation de la table de pages à 0x%p\n", (void *)addr);
+			// Rollback des allocations précédentes
 			for (size_t j = 0; j < i; j++) {
 				uintptr_t rollback_addr = HEAP_START + j * PAGE_SIZE;
 				mmu_destroy_page(rollback_addr, dir);
 			}
-			__PANIC("Failed to create heap page");
+			__PANIC("Failed to create heap page table");
 		}
-		allocate_frame(page, 1, 1); // is_kernel=1, is_writeable=1
-		page->present = 1;
-		page->rw = 1;
-		page->user = 0;
-		mmu_flush_tlb_entry(addr);
+
+		// Initialiser la table de pages
+		memset(new_table, 0, sizeof(page_table_t));
+
+		// Allouer et initialiser un cadre pour la table de pages
+		allocate_frame(&new_table->pages[0], 1, 1); // is_kernel=1, is_writeable=1
+		if (new_table->pages[0].frame == 0) {
+			printk("create_heap: Échec de l'allocation du cadre pour la table de pages à 0x%p\n", (void *)addr);
+			qemu_printf("create_heap: Échec de l'allocation du cadre pour la table de pages à 0x%p\n", (void *)addr);
+			kfree(new_table);
+			// Rollback des allocations précédentes
+			for (size_t j = 0; j < i; j++) {
+				uintptr_t rollback_addr = HEAP_START + j * PAGE_SIZE;
+				mmu_destroy_page(rollback_addr, dir);
+			}
+			__PANIC("Failed to allocate frame for heap page table");
+		}
+
+		// Copier les flags depuis la première page
+		new_table->pages[0].present = 1;
+		new_table->pages[0].rw = 1;
+		new_table->pages[0].user = 0;
+		new_table->pages[0].frame = new_table->pages[0].frame; // Déjà défini par allocate_frame
+
+		// Assigner la table de pages au répertoire
+		dir->tables[i] = new_table;
+		dir->tablesPhysical[i] = (new_table->pages[0].frame * PAGE_SIZE) | PAGE_PRESENT | PAGE_WRITE; // PAGE_USER n'est pas ajouté pour les pages du noyau
+
+		// Actualiser le TLB
+		mmu_flush_tlb();
 	}
 
 	heap->size = pages_needed * PAGE_SIZE;
 
-	// Initialize the first heap block within the heap memory
+	// Initialiser le premier bloc de heap
 	heap_block_t *initial_block = (heap_block_t *)HEAP_START;
-	initialize_block(initial_block, size - sizeof(heap_block_t), true);
+	initialize_block(initial_block, size - sizeof(heap_block_t) * 2, true);
 	heap->first = initial_block;
 	heap->last = initial_block;
 
-	qemu_printf("create_heap: Heap created at %p with size %ld bytes\n", (void *)HEAP_START, size);
-	printk("create_heap: Heap created at %p with size %ld bytes\n", (void *)HEAP_START, size);
-
-	list_heap_blocks(); // List heap blocks after creation
+	qemu_printf("create_heap: Heap créé à 0x%p avec une taille de %ld bytes\n", (void *)HEAP_START, size);
+	printk("create_heap: Heap créé à 0x%p avec une taille de %ld bytes\n", (void *)HEAP_START, size);
 
 	return heap;
 }
@@ -301,15 +325,29 @@ void *kheap_alloc(size_t size, uint8_t align) {
 
 	// If padding is needed, split the block
 	if (padding > 0) {
-		if (padding < sizeof(heap_block_t)) {
-			// Not enough space to create a new block for padding
-			// Handle this edge case as needed (e.g., adjust alignment or fail allocation)
-			qemu_printf("kheap_alloc: Not enough space to align the block.\n");
-			return NULL;
+		if (padding >= sizeof(heap_block_t) + ALIGNMENT) {
+			// Split the block into padding and the aligned block
+			split_block(block, padding - sizeof(heap_block_t));
+			block = block->next; // The aligned block
+		} else {
+			// Not enough space to align the block, find another block or request more space
+			block = find_free_block(kernel_heap, aligned_size + padding);
+			if (!block) {
+				block = request_space(kernel_heap, aligned_size + padding);
+				if (!block) {
+					qemu_printf("kheap_alloc: Heap expansion failed for size %ld bytes\n", aligned_size + padding);
+					return NULL; // Heap expansion failed
+				}
+			}
+			// Recalculate the aligned address within the new block
+			addr = (uintptr_t)block + sizeof(heap_block_t);
+			aligned_addr = align ? ALIGN_UP(addr, ALIGNMENT) : addr;
+			padding = aligned_addr - addr;
+			if (padding > 0) {
+				split_block(block, padding - sizeof(heap_block_t));
+				block = block->next; // The aligned block
+			}
 		}
-		// Split the block into padding and the aligned block
-		split_block(block, padding - sizeof(heap_block_t));
-		block = block->next; // The aligned block
 	}
 
 	// Allocate the aligned block
@@ -319,8 +357,6 @@ void *kheap_alloc(size_t size, uint8_t align) {
 	}
 
 	qemu_printf("kheap_alloc: Allocated block at %p with size %ld bytes\n", (void *)aligned_addr, aligned_size);
-
-	list_heap_blocks(); // List heap blocks after allocation
 
 	return (void *)aligned_addr;
 }
@@ -354,36 +390,8 @@ void kheap_free(void *ptr) {
 
 	qemu_printf("kheap_free: Freed memory at %p\n", ptr);
 
-	// list_heap_blocks(); // List heap blocks before coalescing
-
 	// Coalesce adjacent free blocks to prevent fragmentation
 	coalesce(block);
-
-	// list_heap_blocks(); // List heap blocks after coalescing
-}
-
-/**
- * @brief Lists all heap blocks for debugging purposes.
- */
-void list_heap_blocks(void) {
-	return;
-	if (!kernel_heap) {
-		qemu_printf("Heap not initialized.\n");
-		return;
-	}
-
-	heap_block_t *current = kernel_heap->first;
-
-	qemu_printf("===== Heap Blocks =====\n");
-	while (current) {
-		qemu_printf("Block at %p - Size: %ld bytes - %s - Magic: 0x%X\n",
-					(void *)current,
-					current->size,
-					current->is_free ? "Free" : "Allocated",
-					current->magic);
-		current = current->next;
-	}
-	qemu_printf("=======================\n");
 }
 
 /**

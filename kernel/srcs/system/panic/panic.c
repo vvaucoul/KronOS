@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 12:27:28 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/20 19:52:48 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 23:18:45 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,8 @@ void __attribute__((no_caller_saved_registers)) kernel_panic_interrupt(const cha
 
 void __panic_loop_handler() {
 #if defined(__i386__)
-	__dump_registers();
+	// Todo: make it proper
+	// __dump_registers();
 #endif
 	ASM_CLI();
 	while (1) {

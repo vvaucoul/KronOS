@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/12 10:13:19 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/21 16:04:29 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 23:15:37 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,7 @@ static void move_stack(void *new_stack_start, uint32_t size) {
 		if (!page) {
 			page = mmu_create_page(i, mmu_get_current_directory(), 1);
 		}
-		// todo fix
-		//  allocate_frame((page_t *)page, 0, 1);
+		allocate_frame((page_t *)page, 0, 1);
 	}
 
 	/* Flush the TLB by reading and writing the page directory address again */

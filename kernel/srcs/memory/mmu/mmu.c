@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:34:06 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 20:40:41 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 23:21:30 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,78 @@ void mmu_switch_page_directory(page_directory_t *dir) {
 
 extern int mmu_compare_page_directories(page_directory_t *dir1, page_directory_t *dir2);
 
+int validate_cloned_directory(page_directory_t *src, page_directory_t *cloned) {
+	for (int32_t i = 0; i < PAGE_ENTRIES; i++) {
+		if (src->tables[i] == NULL && cloned->tables[i] == NULL) {
+			continue;
+		}
+		if ((src->tables[i] == NULL) != (cloned->tables[i] == NULL)) {
+			printk("validate_cloned_directory: Mismatch dans la table[%d]\n", i);
+			return 0;
+		}
+		for (int32_t j = 0; j < PAGE_ENTRIES; j++) {
+			page_t src_page = src->tables[i]->pages[j];
+			page_t cloned_page = cloned->tables[i]->pages[j];
+			if (src_page.present != cloned_page.present ||
+				src_page.rw != cloned_page.rw ||
+				src_page.user != cloned_page.user ||
+				src_page.accessed != cloned_page.accessed ||
+				src_page.dirty != cloned_page.dirty ||
+				src_page.nx != cloned_page.nx) {
+				printk("validate_cloned_directory: Mismatch dans les flags de la page[%d][%d]\n", i, j);
+				return 0;
+			}
+
+			// Si c'est une page du noyau, les cadres doivent être identiques
+			if (src_page.user == 0) { // Page du noyau
+				if (src_page.frame != cloned_page.frame) {
+					printk("validate_cloned_directory: Mismatch dans la page[%d][%d] (src: 0x%x, cloned: 0x%x)\n",
+						   i, j, src_page.frame, cloned_page.frame);
+					return 0;
+				}
+			}
+			// Pour les pages utilisateur, les cadres peuvent être différents
+		}
+	}
+	return 1;
+}
+
+/**
+ * @brief Mappe une adresse physique à une adresse virtuelle dans l'espace d'adressage du noyau.
+ *
+ * @param phys_addr Adresse physique à mapper.
+ * @return Adresse virtuelle correspondante, ou NULL en cas d'échec.
+ */
+void *mmu_map_physical_address(uint32_t phys_addr) {
+	// Vérifiez que l'adresse physique est valide selon votre configuration
+	// Par exemple, éviter de mapper des adresses réservées ou non allouées
+	return (void *)(phys_addr + KERNEL_VIRTUAL_BASE);
+}
+
+/**
+ * @brief Copie une page physique source vers une page physique destination.
+ *
+ * @param src_phys Adresse physique de la page source.
+ * @param dest_phys Adresse physique de la page destination.
+ */
+void copy_page_physical(uint32_t src_phys, uint32_t dest_phys) {
+	// Mapper les adresses physiques en adresses virtuelles
+	void *src_virtual = mmu_map_physical_address(src_phys);
+	void *dest_virtual = mmu_map_physical_address(dest_phys);
+
+	if (!src_virtual || !dest_virtual) {
+		printk("copy_page_physical: Échec du mapping des adresses physiques 0x%X ou 0x%X\n", src_phys, dest_phys);
+		qemu_printf("copy_page_physical: Échec du mapping des adresses physiques 0x%X ou 0x%X\n", src_phys, dest_phys);
+		__PANIC("copy_page_physical: Mapping d'adresse physique invalide");
+	}
+
+	// Copier le contenu de la page
+	memcpy(dest_virtual, src_virtual, PAGE_SIZE);
+
+	printk("copy_page_physical: Copié 4KB de 0x%X vers 0x%X\n", src_phys, dest_phys);
+	qemu_printf("copy_page_physical: Copié 4KB de 0x%X vers 0x%X\n", src_phys, dest_phys);
+}
+
 /**
  * Clones a page directory.
  *
@@ -189,54 +261,118 @@ extern int mmu_compare_page_directories(page_directory_t *dir1, page_directory_t
  * @return A pointer to the cloned page directory.
  */
 page_directory_t *mmu_clone_page_directory(page_directory_t *src) {
-	if (src == NULL) return NULL;
+	if (src == NULL) {
+		printk("mmu_clone_page_directory: Le répertoire source est NULL\n");
+		return NULL;
+	}
 
-	uint32_t phys;
-	page_directory_t *dir = (page_directory_t *)kmalloc_ap(sizeof(page_directory_t), &phys);
-	if (dir == NULL || phys == 0) return NULL;
+	// Allouer de la mémoire pour le nouveau répertoire de pages
+	uint32_t new_dir_phys;
+	page_directory_t *new_dir = (page_directory_t *)kmalloc_ap(sizeof(page_directory_t), &new_dir_phys);
+	if (new_dir == NULL || new_dir_phys == 0) {
+		printk("mmu_clone_page_directory: Échec de l'allocation de mémoire pour le nouveau répertoire\n");
+		qemu_printf("mmu_clone_page_directory: Échec de l'allocation de mémoire pour le nouveau répertoire\n");
+		return NULL;
+	}
 
-	memset(dir, 0, sizeof(page_directory_t));
-	uint32_t offset = (uint32_t)dir->tablesPhysical - (uint32_t)dir;
-	dir->physicalAddr = phys + offset;
+	// Initialiser le nouveau répertoire
+	memset(new_dir, 0, sizeof(page_directory_t));
+	new_dir->physicalAddr = new_dir_phys; // Assurez-vous que ceci est correct selon votre implémentation
 
-	if (dir->physicalAddr == 0) return NULL;
-
+	// Cloner chaque table de pages
 	for (int32_t i = 0; i < PAGE_ENTRIES; i++) {
-		if (!src->tables[i]) continue;
+		if (src->tables[i] == NULL) {
+			continue; // Pas de table à cloner
+		}
 
-		printk("mmu_clone_page_directory: Cloning table[%d]\n", i);
-		uint32_t table_phys;
-		page_table_t *table = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &table_phys);
-		if (table == NULL || table_phys == 0) return NULL;
-		memset(table, 0, sizeof(page_table_t));
+		printk("mmu_clone_page_directory: Clonage de table[%d]\n", i);
+		qemu_printf("mmu_clone_page_directory: Clonage de table[%d]\n", i);
 
+		// Allouer une nouvelle table de pages
+		uint32_t new_table_phys;
+		page_table_t *new_table = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &new_table_phys);
+		qemu_printf("mmu_clone_page_directory: Adresse physique de la nouvelle table[%d]: 0x%x\n", i, new_table_phys);
+		if (new_table == NULL || new_table_phys == 0) {
+			printk("mmu_clone_page_directory: Échec de l'allocation de mémoire pour la nouvelle table[%d]\n", i);
+			qemu_printf("mmu_clone_page_directory: Échec de l'allocation de mémoire pour la nouvelle table[%d]\n", i);
+			// Libérer les tables déjà allouées pour éviter les fuites de mémoire
+			for (int32_t j = 0; j < i; j++) {
+				if (new_dir->tables[j]) {
+					kfree(new_dir->tables[j]);
+				}
+			}
+			kfree(new_dir);
+			return NULL;
+		}
+		memset(new_table, 0, sizeof(page_table_t));
+
+		// Cloner chaque page dans la table
 		for (int32_t j = 0; j < PAGE_ENTRIES; j++) {
+			qemu_printf("mmu_clone_page_directory: Clonage de page[%d][%d]\n", i, j);
 			if (src->tables[i]->pages[j].frame) {
-				allocate_frame(&table->pages[j], 1, 1); // is_kernel=1, is_writeable=1
-				if (!table->pages[j].frame) continue;
+				qemu_printf("mmu_clone_page_directory: Clonage du cadre 0x%x\n", src->tables[i]->pages[j].frame);
 
-				table->pages[j].present = src->tables[i]->pages[j].present;
-				table->pages[j].rw = src->tables[i]->pages[j].rw;
-				table->pages[j].user = src->tables[i]->pages[j].user;
-				table->pages[j].accessed = src->tables[i]->pages[j].accessed;
-				table->pages[j].dirty = src->tables[i]->pages[j].dirty;
-				table->pages[j].nx = src->tables[i]->pages[j].nx;
+				if (src->tables[i]->pages[j].user == 0) { // Page du noyau, partager le cadre
+					new_table->pages[j].frame = src->tables[i]->pages[j].frame;
+					new_table->pages[j].present = src->tables[i]->pages[j].present;
+					new_table->pages[j].rw = src->tables[i]->pages[j].rw;
+					new_table->pages[j].user = src->tables[i]->pages[j].user;
+					new_table->pages[j].accessed = src->tables[i]->pages[j].accessed;
+					new_table->pages[j].dirty = src->tables[i]->pages[j].dirty;
+					new_table->pages[j].nx = src->tables[i]->pages[j].nx;
+				} else {										// Page utilisateur, allouer un nouveau cadre
+					allocate_frame(&new_table->pages[j], 0, 1); // is_kernel=0, is_writeable=1
+					if (new_table->pages[j].frame == 0) {
+						printk("mmu_clone_page_directory: Échec de l'allocation du cadre pour page[%d][%d]\n", i, j);
+						qemu_printf("mmu_clone_page_directory: Échec de l'allocation du cadre pour page[%d][%d]\n", i, j);
+						continue; // Passer cette page en cas d'échec
+					}
 
-				copy_page_physical(src->tables[i]->pages[j].frame * PAGE_SIZE, table->pages[j].frame * PAGE_SIZE);
+					// Copier les attributs de la page
+					new_table->pages[j].present = src->tables[i]->pages[j].present;
+					new_table->pages[j].rw = src->tables[i]->pages[j].rw;
+					new_table->pages[j].user = src->tables[i]->pages[j].user;
+					new_table->pages[j].accessed = src->tables[i]->pages[j].accessed;
+					new_table->pages[j].dirty = src->tables[i]->pages[j].dirty;
+					new_table->pages[j].nx = src->tables[i]->pages[j].nx;
+
+					// Copier le contenu de la page physique
+					uint32_t src_phys = src->tables[i]->pages[j].frame * PAGE_SIZE;
+					uint32_t dest_phys = new_table->pages[j].frame * PAGE_SIZE;
+					copy_page_physical(src_phys, dest_phys);
+
+					qemu_printf("mmu_clone_page_directory: Cadre 0x%x cloné vers 0x%x\n",
+								src->tables[i]->pages[j].frame,
+								new_table->pages[j].frame);
+				}
 			}
 		}
-		dir->tables[i] = table;
-		dir->tablesPhysical[i] = table_phys | PAGE_PRESENT | PAGE_WRITE; // PAGE_USER n'est pas ajouté pour les pages du kernel
+
+		// Assigner la nouvelle table clonée au nouveau répertoire
+		new_dir->tables[i] = new_table;
+		new_dir->tablesPhysical[i] = (new_table_phys) | PAGE_PRESENT | PAGE_WRITE; // PAGE_USER n'est pas ajouté pour les pages du noyau
+
+		// Actualiser le TLB
+		mmu_flush_tlb();
 	}
 
-	if (mmu_compare_page_directories(kernel_directory, dir) == 0) {
-		printk("mmu_clone_page_directory: Directories are not identical\n");
-	} else {
-		printk("mmu_clone_page_directory: Directories are identical\n");
+	// Valider le répertoire cloné
+	if (validate_cloned_directory(src, new_dir) == 0) {
+		printk("mmu_clone_page_directory: Validation du répertoire cloné échouée\n");
+		qemu_printf("mmu_clone_page_directory: Validation du répertoire cloné échouée\n");
+		// Libérer les tables clonées pour éviter les fuites de mémoire
+		for (int32_t i = 0; i < PAGE_ENTRIES; i++) {
+			if (new_dir->tables[i]) {
+				kfree(new_dir->tables[i]);
+			}
+		}
+		kfree(new_dir);
+		return NULL;
 	}
-	kpause();
 
-	return dir;
+	printk("mmu_clone_page_directory: Répertoire cloné avec succès\n");
+	qemu_printf("mmu_clone_page_directory: Répertoire cloné avec succès\n");
+	return new_dir;
 }
 
 /**
@@ -495,43 +631,41 @@ int mmu_init(void) {
 	qemu_printf("Heap created\n");
 
 	// Test allocations
-	uint32_t size = 0, index = 0;
-	srand(42);
+	// uint32_t size = 0, index = 0;
+	// srand(42);
 
-	counter_t counter = {0, 0};
-	counter_start(&counter);
+	// counter_t counter = {0, 0};
+	// counter_start(&counter);
 
-	while (1) {
-		uint32_t r_alloc = (rand() % (0x10000 - 0x20 + 1)) + 0x20;
-		// uint32_t r_alloc = 0x100000;
-		char *foo = kmalloc(r_alloc);
-		if (foo == NULL) {
-			break;
-			// __PANIC("Failed to allocate memory");
-		}
-		size += r_alloc;
+	// while (1) {
+	// 	uint32_t r_alloc = (rand() % (0x10000 - 0x20 + 1)) + 0x20;
+	// 	// uint32_t r_alloc = 0x100000;
+	// 	char *foo = kmalloc(r_alloc);
+	// 	if (foo == NULL) {
+	// 		break;
+	// 		// __PANIC("Failed to allocate memory");
+	// 	}
+	// 	size += r_alloc;
 
-		// strcpy(foo, "Hello, kernel heap!");
-		memcpy(foo, "Hello, kernel heap!", 20);
+	// 	// strcpy(foo, "Hello, kernel heap!");
+	// 	memcpy(foo, "Hello, kernel heap!", 20);
 
-		printk("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
-		qemu_printf("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
+	// 	printk("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
+	// 	qemu_printf("[%ld] Allocated %ld Ko (%ld Mo) 0x%x\n", index, size / 1024, size / (1024 * 1024), foo);
 
-		// int r = rand() % 2;
+	// 	// int r = rand() % 2;
 
-		// if (r == 1) {
-		// 	kfree(foo);
-		// 	size -= r_alloc;
-		// }
+	// 	// if (r == 1) {
+	// 	// 	kfree(foo);
+	// 	// 	size -= r_alloc;
+	// 	// }
 
-		++index;
-		// kmsleep(250);
-	}
-	counter_stop(&counter);
+	// 	++index;
+	// 	// kmsleep(250);
+	// }
+	// counter_stop(&counter);
 
-	printk("Time elapsed: %ds (%dms)\n", counter.end - counter.start, (counter.end - counter.start) * 10);
-
-	kpause();
+	// printk("Time elapsed: %ds (%dms)\n", counter.end - counter.start, (counter.end - counter.start) * 10);
 
 	/*
 	 * Maintenant, pour le multi-tasking, nous devons allouer un nouveau page directory pour le kernel.
@@ -539,13 +673,19 @@ int mmu_init(void) {
 	 */
 
 	page_directory_t *new_kernel_directory = mmu_clone_page_directory(kernel_directory);
-	if (new_kernel_directory == NULL) return (-1);
+	if (new_kernel_directory == NULL) {
+
+		printk("Failed to clone kernel page directory\n");
+		qemu_printf("Failed to clone kernel page directory\n");
+		return (-1);
+	}
 
 	/*
 	 * Changer vers le nouveau page directory du kernel.
 	 * Cela va mapper la mémoire physique du kernel au nouveau page directory.
 	 */
 	mmu_switch_page_directory(new_kernel_directory);
+	kpause();
 
 	return (0);
 }

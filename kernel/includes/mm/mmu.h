@@ -6,7 +6,7 @@
 /*   By: vvaucoul <vvaucoul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/17 14:29:43 by vvaucoul          #+#    #+#             */
-/*   Updated: 2024/10/22 15:17:14 by vvaucoul         ###   ########.fr       */
+/*   Updated: 2024/10/22 21:16:13 by vvaucoul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void mmu_switch_page_directory(page_directory_t *dir);
 
 void load_page_directory(void *page_directory);
 void switch_page_directory(void *page_directory);
-void copy_page_physical(uint32_t, uint32_t);
+// void copy_page_physical(uint32_t, uint32_t);
 void enable_paging(void *page_directory);
 
 void mmu_page_fault_handler(struct regs *r);
